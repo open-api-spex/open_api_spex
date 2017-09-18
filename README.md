@@ -14,7 +14,7 @@ def deps do
 end
 ```
 
-## Usage
+## Generating an API spec
 
 Start by adding an `ApiSpec` module to your application.
 
@@ -127,7 +127,7 @@ end
 
 Generate the file with: `mix myapp.openapispec spec.json`
 
-You can also serve the swagger through a controller:
+## Serving the API Spec from a Controller
 
 ```elixir
 defmodule MyApp.OpenApiSpecController do
@@ -136,6 +136,48 @@ defmodule MyApp.OpenApiSpecController do
       MyApp.ApiSpec.spec()
 
     json(conn, spec)
+  end
+end
+```
+
+## Use the API Spec to cast params
+
+Add the `OpenApiSpex.Plug.Cast` plug to a controller to cast the request parameters to elixir types defined by the operation schema.
+
+```elixir
+plug OpenApiSpex.Plug.Cast, operation_id: "UserController.show"
+```
+
+The `operation_id` can be inferred when used from a Phoenix controller from the contents of `conn.private`.
+
+```elixir
+defmodule MyApp.UserController do
+  use MyAppWeb, :controller
+  alias OpenApiSpex.Operation
+
+  plug OpenApiSpex.Plug.Cast
+
+  def open_api_operation(action) do
+    apply(__MODULE__, "#{action}_operation", [])
+  end
+
+  def create_operation do
+    import Operation
+    %Operation{
+      tags: ["users"],
+      summary: "Create user",
+      description: "Create a user",
+      operationId: "UserController.create",
+      parameters: [],
+      requestBody: request_body("The user attributes", "application/json", Schemas.UserRequest),
+      responses: %{
+        201 => response("User", "application/json", Schemas.UserResponse)
+      }
+    }
+  end
+
+  def create(conn, %{user: %{name: name, email: email, birthday: birthday = %Date{}}}) do
+    # params will have atom keys with values cast to standard elixir types
   end
 end
 ```
