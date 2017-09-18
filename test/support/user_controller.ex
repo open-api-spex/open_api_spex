@@ -2,6 +2,9 @@ defmodule OpenApiSpexTest.UserController do
   use Phoenix.Controller
   alias OpenApiSpex.Operation
   alias OpenApiSpexTest.Schemas
+  alias Plug.Conn
+
+  plug OpenApiSpex.Plug.Cast
 
   def open_api_operation(action) do
     apply(__MODULE__, :"#{action}_operation", [])
@@ -24,7 +27,7 @@ defmodule OpenApiSpexTest.UserController do
   end
   def show(conn, _params) do
     conn
-    |> Plug.Conn.send_resp(200, "HELLO")
+    |> Conn.send_resp(200, "HELLO")
   end
 
   def index_operation() do
@@ -42,7 +45,7 @@ defmodule OpenApiSpexTest.UserController do
   end
   def index(conn, _params) do
     conn
-    |> Plug.Conn.send_resp(200, "HELLO")
+    |> Conn.send_resp(200, "HELLO")
   end
 
   def create_operation() do
@@ -61,6 +64,6 @@ defmodule OpenApiSpexTest.UserController do
   end
   def create(conn, _params) do
     conn
-    |> Plug.Conn.send_resp(201, "DONE")
+    |> Conn.send_resp(201, "DONE")
   end
 end
