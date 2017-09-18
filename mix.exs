@@ -26,6 +26,7 @@ defmodule OpenApiSpex.Mixfile do
   defp deps do
     [
       {:poison, ">= 0.0.0"},
+      {:plug, ">= 0.0.0"},
       {:phoenix, "~> 1.3", only: :test}
     ]
   end

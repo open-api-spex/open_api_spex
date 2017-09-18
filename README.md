@@ -129,15 +129,23 @@ Generate the file with: `mix myapp.openapispec spec.json`
 
 ## Serving the API Spec from a Controller
 
-```elixir
-defmodule MyApp.OpenApiSpecController do
-  def show(conn, _params) do
-    spec =
-      MyApp.ApiSpec.spec()
+To serve the API spec from your application, first add the `OpenApiSpex.Plug.PutApiSpec` plug somewhere in the pipeline.
 
-    json(conn, spec)
+```elixir
+  pipeline :api do
+    plug OpenApiSpex.Plug.PutApiSpec, module: MyApp.ApiSpec
   end
-end
+```
+
+Now the spec will be available for use in downstream plugs.
+The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
+
+```elixir
+  scope "/api" do
+    pipe_through :api
+    resources "/users", MyApp.UserController, only: [:create, :index, :show]
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+  end
 ```
 
 ## Use the API Spec to cast params
