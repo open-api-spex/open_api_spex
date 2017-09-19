@@ -19,7 +19,7 @@ defmodule OpenApiSpexTest.UserController do
       description: "Show a user by ID",
       operationId: "UserController.show",
       parameters: [
-        parameter(:id, :path, :integer, "User ID", example: 123)
+        parameter(:id, :path, :integer, "User ID", example: 123, minimum: 1)
       ],
       responses: %{
         200 => response("User", "application/json", Schemas.UserResponse)

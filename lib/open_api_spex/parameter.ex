@@ -44,8 +44,14 @@ defmodule OpenApiSpex.Parameter do
   def put_schema(parameter = %Parameter{}, type = %Schema{}) do
     %{parameter | schema: type}
   end
-  def put_schema(parameter = %Parameter{}, type) when is_binary(type) or is_atom(type) do
+  def put_schema(parameter = %Parameter{}, type) when is_binary(type) do
     %{parameter | schema: %Schema{type: type}}
+  end
+  def put_schema(parameter = %Parameter{}, type) when type in [:boolean, :integer, :number, :string, :array, :object] do
+    %{parameter | schema: %Schema{type: type}}
+  end
+  def put_schema(parameter = %Parameter{}, type) when is_atom(type) do
+    %{parameter | schema: type}
   end
 
   def schema(%Parameter{schema: schema = %{}}) do

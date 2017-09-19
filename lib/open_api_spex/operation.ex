@@ -1,8 +1,16 @@
 defmodule OpenApiSpex.Operation do
   alias OpenApiSpex.{
-    ExternalDocumentation, Parameter, Reference,
-    RequestBody, Responses, Callback,
-    SecurityRequirement, Server, MediaType, Response
+    Callback,
+    ExternalDocumentation,
+    MediaType,
+    Parameter,
+    Reference,
+    RequestBody,
+    Response,
+    Responses,
+    Schema,
+    SecurityRequirement,
+    Server,
   }
 
   defstruct [
@@ -55,7 +63,7 @@ defmodule OpenApiSpex.Operation do
   @doc """
   Shorthand for constructing a Parameter name, location, type, description and optional examples
   """
-  @spec parameter(String.t, String.t, String.t, keyword) :: RequestBody.t
+  @spec parameter(atom, atom, atom, String.t, keyword) :: RequestBody.t
   def parameter(name, location, type, description, opts \\ []) do
     params =
       [name: name, in: location, description: description, required: location == :path]
@@ -69,7 +77,7 @@ defmodule OpenApiSpex.Operation do
   @doc """
   Shorthand for constructing a RequestBody with description, media_type, schema and optional examples
   """
-  @spec request_body(String.t, String.t, String.t, keyword) :: RequestBody.t
+  @spec request_body(String.t, String.t, (Schema.t | Reference.t | module), keyword) :: RequestBody.t
   def request_body(description, media_type, schema_ref, opts \\ []) do
     %RequestBody{
       description: description,
@@ -79,14 +87,15 @@ defmodule OpenApiSpex.Operation do
           example: opts[:example],
           examples: opts[:examples]
         }
-      }
+      },
+      required: opts[:required] || false
     }
   end
 
   @doc """
   Shorthand for constructing a Response with description, media_type, schema and optional examples
   """
-  @spec response(String.t, String.t, String.t, keyword) :: Response.t
+  @spec response(String.t, String.t, (Schema.t | Reference.t | module), keyword) :: Response.t
   def response(description, media_type, schema_ref, opts \\ []) do
     %Response{
       description: description,
