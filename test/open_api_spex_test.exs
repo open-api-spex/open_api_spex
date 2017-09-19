@@ -8,7 +8,7 @@ defmodule OpenApiSpexTest do
       assert spec
     end
 
-    test "asdfafd" do
+    test "Valid Request" do
       request_body = %{
         "user" => %{
           "id" => 123,
@@ -32,6 +32,26 @@ defmodule OpenApiSpexTest do
           updated_at: ~N[2017-09-12T14:44:55Z] |> DateTime.from_naive!("Etc/UTC")
         }
       }
+    end
+
+    test "Invalid Request" do
+      request_body = %{
+        "user" => %{
+          "id" => 123,
+          "name" => "*1234",
+          "email" => "foo@bar.com",
+          "updated_at" => "2017-09-12T14:44:55Z"
+        }
+      }
+
+      conn =
+        :post
+        |> Plug.Test.conn("/api/users", Poison.encode!(request_body))
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+
+      conn = OpenApiSpexTest.Router.call(conn, [])
+      assert conn.status == 422
+      assert conn.resp_body == "Value does not match pattern: [a-zA-Z][a-zA-Z0-9_]+"
     end
   end
 end

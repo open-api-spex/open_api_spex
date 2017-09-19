@@ -47,4 +47,12 @@ defmodule OpenApiSpex.Parameter do
   def put_schema(parameter = %Parameter{}, type) when is_binary(type) or is_atom(type) do
     %{parameter | schema: %Schema{type: type}}
   end
+
+  def schema(%Parameter{schema: schema = %{}}) do
+    schema
+  end
+  def schema(%Parameter{content: content = %{}}) do
+    {_type, %MediaType{schema: schema}} = Enum.at(content, 0)
+    schema
+  end
 end

@@ -5,6 +5,7 @@ defmodule OpenApiSpexTest.UserController do
   alias Plug.Conn
 
   plug OpenApiSpex.Plug.Cast
+  plug OpenApiSpex.Plug.Validate
 
   def open_api_operation(action) do
     apply(__MODULE__, :"#{action}_operation", [])

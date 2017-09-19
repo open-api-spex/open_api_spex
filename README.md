@@ -190,9 +190,20 @@ defmodule MyApp.UserController do
 end
 ```
 
-TODO: SwaggerUI 3.0
 
-TODO: Request Validation
+## Use the API Spec to validate Requests
+
+Add both the `Cast` and `Validate` plugs to your controller / plug:
+
+```elixir
+plug OpenApiSpex.Plug.Cast
+plug OpenApiSpex.Plug.Validate
+```
+
+Now the client will receive a 422 response whenever the request fails to meet the validation rules from the api spec.
+
+
+TODO: SwaggerUI 3.0
 
 TODO: Validating examples in the spec
 

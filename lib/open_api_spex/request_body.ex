@@ -3,7 +3,7 @@ defmodule OpenApiSpex.RequestBody do
   defstruct [
     :description,
     :content,
-    :required
+    required: false
   ]
   @type t :: %__MODULE__{
     description: String.t,
