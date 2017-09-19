@@ -1,5 +1,5 @@
 defmodule OpenApiSpex do
-  alias OpenApiSpex.{OpenApi, Operation, Parameter, RequestBody, Schema, SchemaResolver}
+  alias OpenApiSpex.{OpenApi, Operation, Parameter, Reference, RequestBody, Schema, SchemaResolver}
 
   @moduledoc """
   """
@@ -7,80 +7,30 @@ defmodule OpenApiSpex do
     SchemaResolver.resolve_schema_modules(spec)
   end
 
-  def cast_parameters(spec = %OpenApi{}, operation = %Operation{}, params = %{}, content_type \\ nil) do
-    schemas = spec.components.schemas
-
-    parameters_result =
-      operation.parameters
-      |> Stream.filter(fn parameter -> Map.has_key?(params, Atom.to_string(parameter.name)) end)
-      |> Stream.map(fn parameter -> %{name: parameter.name, schema: Parameter.schema(parameter)} end)
-      |> Stream.map(fn %{schema: schema, name: name} -> {name, Schema.cast(schema, params[name], schemas)} end)
-      |> Enum.reduce({:ok, %{}}, fn
-          {name, {:ok, val}}, {:ok, acc} -> {:ok, Map.put(acc, name, val)}
-          _, {:error, reason} -> {:error, reason}
-          {_name, {:error, reason}}, _ -> {:error, reason}
-        end)
-
-    body_result =
-      case operation.requestBody do
-        nil -> {:ok, %{}}
-        %RequestBody{content: content} ->
-          schema = content[content_type].schema
-          Schema.cast(schema, params, spec.components.schemas)
-      end
-
-    with {:ok, cast_params} <- parameters_result,
-         {:ok, cast_body} <- body_result do
-      params = Map.merge(cast_params, cast_body)
-      {:ok, params}
-    end
+  @doc """
+  Cast params to conform to a Schema or Operation spec.
+  """
+  def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
+    Schema.cast(schema, params, spec.compnents.schemas)
+  end
+  def cast(spec = %OpenApi{}, schema = %Reference{}, params) do
+    Schema.cast(schema, params, spec.compnents.schemas)
+  end
+  def cast(spec = %OpenApi{}, operation = %Operation{}, params, content_type \\ nil) do
+    Operation.cast(operation, params, content_type, spec.components.schemas)
   end
 
-  def validate_parameters(spec = %OpenApi{}, operation = %Operation{}, params = %{}, content_type \\ nil) do
-    schemas = spec.components.schemas
 
-    with :ok <- validate_required_parameters(operation.parameters, params),
-         {:ok, remaining} <- validate_parameter_schemas(operation.parameters, params, schemas),
-         :ok <- validate_body_schema(operation.requestBody, remaining, content_type, schemas) do
-      :ok
-    end
+  @doc """
+  Validate params against a Schema or Operation spec.
+  """
+  def validate(spec = %OpenApi{}, schema = %Schema{}, params) do
+    Schema.validate(schema, params, spec.components.schemas)
   end
-
-  def validate_required_parameters(parameter_list, params = %{}) do
-    required =
-      parameter_list
-      |> Stream.filter(fn parameter -> parameter.required end)
-      |> Enum.map(fn parameter -> parameter.name end)
-
-    missing = required -- Map.keys(params)
-    case missing do
-      [] -> :ok
-      _ -> {:error, "Missing required parameters: #{inspect(missing)}"}
-    end
+  def validate(spec = %OpenApi{}, schema = %Reference{}, params) do
+    Schema.validate(schema, params, spec.components.schemas)
   end
-
-  def validate_parameter_schemas(parameter_list, params, schemas) do
-    errors =
-      parameter_list
-      |> Stream.filter(fn parameter -> Map.has_key?(params, parameter.name) end)
-      |> Stream.map(fn parameter -> Parameter.schema(parameter) end)
-      |> Stream.map(fn schema -> Schema.validate(schema, params, schemas) end)
-      |> Enum.filter(fn result -> result != :ok end)
-
-    case errors do
-      [] -> {:ok, Map.drop(params, Enum.map(parameter_list, fn p -> p.name end)) }
-      _ -> {:error, "Parameter validation errors: #{inspect(errors)}"}
-    end
-  end
-
-  def validate_body_schema(nil, _, _, _), do: :ok
-  def validate_body_schema(%RequestBody{required: false}, params, _content_type, _schemas) when map_size(params) == 0 do
-    :ok
-  end
-  def validate_body_schema(%RequestBody{content: content}, params, content_type, schemas) do
-    content
-    |> Map.get(content_type)
-    |> Map.get(:schema)
-    |> Schema.validate(params, schemas)
+  def validate(spec = %OpenApi{}, operation = %Operation{}, params = %{}, content_type \\ nil) do
+    Operation.validate(operation, params, content_type, spec.components.schemas)
   end
 end

@@ -10,7 +10,7 @@ defmodule OpenApiSpex.Plug.Cast do
     private_data = Map.put(private_data, :operation_id, operation_id)
     conn = Conn.put_private(conn, :open_api_spex, private_data)
 
-    case OpenApiSpex.cast_parameters(spec, operation, conn.params, content_type) do
+    case OpenApiSpex.cast(spec, operation, conn.params, content_type) do
       {:ok, params} -> %{conn | params: params}
       {:error, reason} ->
         conn

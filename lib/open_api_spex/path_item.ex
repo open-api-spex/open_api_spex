@@ -50,8 +50,6 @@ defmodule OpenApiSpex.PathItem do
   @spec from_valid_routes([route]) :: nil | t
   defp from_valid_routes([]), do: nil
   defp from_valid_routes(routes) do
-    Enum.reduce(routes, %PathItem{}, fn route, path_item ->
-      Map.put(path_item, route.verb, Operation.from_route(route))
-    end)
+    struct(PathItem, Enum.map(routes, &{&1.verb, Operation.from_route(&1)}))
   end
 end
