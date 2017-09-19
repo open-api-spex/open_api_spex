@@ -22,14 +22,24 @@ defmodule OpenApiSpexTest do
         :post
         |> Plug.Test.conn("/api/users", Poison.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
 
-      conn = OpenApiSpexTest.Router.call(conn, [])
-      assert conn.params == %{
-        user: %{
+      assert conn.params == %OpenApiSpexTest.Schemas.UserRequest{
+        user: %OpenApiSpexTest.Schemas.User{
           id: 123,
           name: "asdf",
           email: "foo@bar.com",
           updated_at: ~N[2017-09-12T14:44:55Z] |> DateTime.from_naive!("Etc/UTC")
+        }
+      }
+
+      assert Poison.decode!(conn.resp_body) == %{
+        "data" => %{
+          "email" => "foo@bar.com",
+          "id" => 1234,
+          "inserted_at" => nil,
+          "name" => "asdf",
+          "updated_at" => "2017-09-12T14:44:55Z"
         }
       }
     end

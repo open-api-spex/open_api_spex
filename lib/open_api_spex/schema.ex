@@ -2,6 +2,7 @@ defmodule OpenApiSpex.Schema do
   alias OpenApiSpex.{
     Schema, Reference, Discriminator, Xml, ExternalDocumentation
   }
+
   defstruct [
     :title,
     :multipleOf,
@@ -37,7 +38,8 @@ defmodule OpenApiSpex.Schema do
     :xml,
     :externalDocs,
     :example,
-    :deprecated
+    :deprecated,
+    :"x-struct"
   ]
   @type t :: %__MODULE__{
     title: String.t,
@@ -74,11 +76,18 @@ defmodule OpenApiSpex.Schema do
     xml: Xml.t,
     externalDocs: ExternalDocumentation.t,
     example: any,
-    deprecated: boolean
+    deprecated: boolean,
+    "x-struct": module
   }
 
-  defp resolve_schema(schema = %Schema{}, _), do: schema
-  defp resolve_schema(%Reference{"$ref": "#/components/schemas/" <> name}, schemas), do: schemas[name]
+  def resolve_schema(schema = %Schema{}, _), do: schema
+  def resolve_schema(%Reference{"$ref": "#/components/schemas/" <> name}, schemas), do: schemas[name]
+
+  def cast(schema = %Schema{"x-struct": mod}, value, schemas) when not is_nil(mod) do
+    with {:ok, data} <- cast(%{schema | "x-struct": nil}, value, schemas) do
+      {:ok, struct(mod, data)}
+    end
+  end
 
   def cast(%Schema{type: :boolean}, value, _schemas) when is_boolean(value), do: {:ok, value}
   def cast(%Schema{type: :boolean}, value, _schemas) when is_binary(value) do
@@ -118,9 +127,9 @@ defmodule OpenApiSpex.Schema do
   def cast(%Schema{type: :array, items: nil}, value, _schemas) when is_list(value), do: {:ok, value}
   def cast(%Schema{type: :array}, [], _schemas), do: {:ok, []}
   def cast(schema = %Schema{type: :array, items: items_schema}, [x | rest], schemas) do
-    case cast(items_schema, x, schemas) do
-      {:ok, x_cast} -> [x_cast | cast(schema, rest, schemas)]
-      error -> error
+    with {:ok, x_cast} <- cast(items_schema, x, schemas),
+         {:ok, rest_cast} <- cast(schema, rest, schemas) do
+      {:ok, [x_cast | rest_cast]}
     end
   end
   def cast(%Schema{type: :object, properties: properties}, value, schemas) when is_map(value) do
@@ -247,9 +256,10 @@ defmodule OpenApiSpex.Schema do
       _ -> {:error, "Array items must be unique"}
     end
   end
+  def validate_unique_items(_, _), do: :ok
 
-  def validate_array_items(%Schema{type: :array, items: nil}, value, _schemas) when is_list(value), do: {:ok, value}
-  def validate_array_items(%Schema{type: :array}, [], _schemas), do: {:ok, []}
+  def validate_array_items(%Schema{type: :array, items: nil}, value, _schemas) when is_list(value), do: :ok
+  def validate_array_items(%Schema{type: :array}, [], _schemas), do: :ok
   def validate_array_items(schema = %Schema{type: :array, items: item_schema}, [x | rest], schemas) do
     with :ok <- validate(item_schema, x, schemas) do
       validate(schema, rest, schemas)
@@ -284,7 +294,7 @@ defmodule OpenApiSpex.Schema do
   end
   def validate_object_properties([], _, _), do: :ok
   def validate_object_properties([{name, schema} | rest], value, schemas) do
-    case validate(schema, value[name], schemas) do
+    case validate(schema, Map.fetch!(value, name), schemas) do
       :ok -> validate_object_properties(rest, value, schemas)
       error -> error
     end

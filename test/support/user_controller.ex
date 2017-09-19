@@ -2,7 +2,6 @@ defmodule OpenApiSpexTest.UserController do
   use Phoenix.Controller
   alias OpenApiSpex.Operation
   alias OpenApiSpexTest.Schemas
-  alias Plug.Conn
 
   plug OpenApiSpex.Plug.Cast
   plug OpenApiSpex.Plug.Validate
@@ -11,6 +10,9 @@ defmodule OpenApiSpexTest.UserController do
     apply(__MODULE__, :"#{action}_operation", [])
   end
 
+  @doc """
+  API Spec for :show action
+  """
   def show_operation() do
     import Operation
     %Operation{
@@ -26,9 +28,14 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
-  def show(conn, _params) do
-    conn
-    |> Conn.send_resp(200, "HELLO")
+  def show(conn, %{id: id}) do
+    json(conn, %Schemas.UserResponse{
+      data: %Schemas.User{
+        id: id,
+        name: "joe user",
+        email: "joe@gmail.com"
+      }
+    })
   end
 
   def index_operation() do
@@ -45,8 +52,15 @@ defmodule OpenApiSpexTest.UserController do
     }
   end
   def index(conn, _params) do
-    conn
-    |> Conn.send_resp(200, "HELLO")
+    json(conn, %Schemas.UsersResponse{
+      data: [
+        %Schemas.User{
+          id: 123,
+          name: "joe user",
+          email: "joe@gmail.com"
+        }
+      ]
+    })
   end
 
   def create_operation() do
@@ -63,8 +77,9 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
-  def create(conn, _params) do
-    conn
-    |> Conn.send_resp(201, "DONE")
+  def create(conn, %Schemas.UserRequest{user: user = %Schemas.User{}}) do
+    json(conn, %Schemas.UserResponse{
+      data: %{user | id: 1234}
+    })
   end
 end
