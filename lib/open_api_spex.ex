@@ -1,5 +1,5 @@
 defmodule OpenApiSpex do
-  alias OpenApiSpex.{OpenApi, Operation, Parameter, Reference, RequestBody, Schema, SchemaResolver}
+  alias OpenApiSpex.{OpenApi, Operation, Reference, Schema, SchemaResolver}
 
   @moduledoc """
   """

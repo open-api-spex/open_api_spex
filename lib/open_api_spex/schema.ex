@@ -27,7 +27,7 @@ defmodule OpenApiSpex.Schema do
     :not,
     :items,
     :properties,
-    :additionalProperties,
+    {:additionalProperties, true},
     :description,
     :format,
     :default,
@@ -88,7 +88,6 @@ defmodule OpenApiSpex.Schema do
       {:ok, struct(mod, data)}
     end
   end
-
   def cast(%Schema{type: :boolean}, value, _schemas) when is_boolean(value), do: {:ok, value}
   def cast(%Schema{type: :boolean}, value, _schemas) when is_binary(value) do
     case value do
@@ -131,26 +130,24 @@ defmodule OpenApiSpex.Schema do
          {:ok, rest_cast} <- cast(schema, rest, schemas) do
       {:ok, [x_cast | rest_cast]}
     end
-  end
-  def cast(%Schema{type: :object, properties: properties}, value, schemas) when is_map(value) do
-    properties
-    |> Stream.filter(fn {name, _} -> Map.has_key?(value, name) || Map.has_key?(value, Atom.to_string(name)) end)
-    |> Stream.map(fn {name, schema} -> {name, resolve_schema(schema, schemas)} end)
-    |> Stream.map(fn {name, schema} -> {name, schema, Map.get(value, name, value[Atom.to_string(name)])} end)
-    |> Stream.map(fn {name, schema, property_val} -> cast_property(name, schema, property_val, schemas) end)
-    |> Enum.reduce({:ok, %{}}, fn
-         _, {:error, reason} -> {:error, reason}
-         {:error, reason}, _ -> {:error, reason}
-         {:ok, {name, property_val}}, {:ok, acc} -> {:ok, Map.put(acc, name, property_val)}
-       end)
+  def cast(schema = %Schema{type: :object}, value, schemas) when is_map(value) do
+    with {:ok, props} <- cast_properties(schema, Enum.to_list(value), schemas) do
+      {:ok, Map.new(props)}
+    end
   end
   def cast(ref = %Reference{}, val, schemas), do: cast(resolve_schema(ref, schemas), val, schemas)
+  def cast(additionalProperties, val, _schemas) when is_boolean(additionalProperties), do: val
 
-  defp cast_property(name, schema, value, schemas) do
-    casted = cast(schema, value, schemas)
-    case casted do
-      {:ok, new_value} -> {:ok, {name, new_value}}
-      {:error, reason} -> {:error, reason}
+  defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}
+  defp cast_properties(object_schema = %Schema{}, [{key, value} | rest], schemas) do
+    {name, schema} = Enum.find(
+      object_schema.properties,
+      {key, object_schema.additionalProperties},
+      fn {name, _schema} -> to_string(name) == to_string(key) end)
+
+    with {:ok, new_value} <- cast(schema, value, schemas),
+         {:ok, cast_tail} <- cast_properties(object_schema, rest, schemas) do
+      {:ok, [{name, new_value} | cast_tail]}
     end
   end
 
