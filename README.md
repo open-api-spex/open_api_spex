@@ -46,6 +46,7 @@ It will be passed the plug opts that were declared in the router, this will be t
 ```elixir
 defmodule MyApp.UserController do
   alias OpenApiSpex.Operation
+  alias MyApp.Schemas.UserResponse
 
   @spec open_api_operation(any) :: Operation.t
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -62,7 +63,7 @@ defmodule MyApp.UserController do
         Operation.parameter(:id, :path, :integer, "User ID", example: 123)
       ],
       responses: %{
-        200 => Operation.response("User", "application/json", Schemas.UserResponse)
+        200 => Operation.response("User", "application/json", UserResponse)
       }
     }
   end
@@ -74,39 +75,50 @@ end
 ```
 
 Declare the JSON schemas for request/response bodies in a `Schemas` module:
+Each module should export a `schema/0` function, and may optionally declare a struct,
+linked to the JSON schema through the `x-struct` extension property.
 
 ```elixir
 defmodule MyApp.Schemas do
   alias OpenApiSpex.Schema
 
   defmodule User do
-    def schema do
-      %Schema{
-        title: "User",
-        description: "A user of the app",
-        type: :object,
-        properties: %{
-          id: %Schema{type: :integer, description: "User ID"},
-          name:  %Schema{type: :string, description: "User name"},
-          email: %Schema{type: :string, description: "Email address", format: :email},
-          inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :datetime},
-          updated_at: %Schema{type: :string, description: "Update timestamp", format: :datetime}
-        }
+    @derive [Poison.Encoder]
+    @schema %Schema{
+      title: "User",
+      description: "A user of the app",
+      type: :object,
+      properties: %{
+        id: %Schema{type: :integer, description: "User ID"},
+        name:  %Schema{type: :string, description: "User name"},
+        email: %Schema{type: :string, description: "Email address", format: :email},
+        inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :datetime},
+        updated_at: %Schema{type: :string, description: "Update timestamp", format: :datetime}
+      },
+      required: [:name, :email],
+      example: {
+        "id" => 123,
+        "name" => "Joe",
+        "email" => "joe@gmail.com"
       }
-    end
+      "x-struct": __MODULE__
+    }
+    def schema, do: @schema
+    defstruct Map.keys(@schema.properties)
   end
 
   defmodule UserResponse do
-    def schema do
-      %Schema{
-        title: "UserResponse",
-        description: "Response schema for single user",
-        type: :object,
-        properties: %{
-          data: User
-        }
-      }
-    end
+    @schema %Schema{
+      title: "UserResponse",
+      description: "Response schema for single user",
+      type: :object,
+      properties: %{
+        data: User
+      },
+      "x-struct": __MODULE__
+    }
+    def schema, do: @schema
+    defstruct Map.keys(@schema.properties)
   end
 end
 ```
@@ -162,6 +174,7 @@ The `operation_id` can be inferred when used from a Phoenix controller from the 
 defmodule MyApp.UserController do
   use MyAppWeb, :controller
   alias OpenApiSpex.Operation
+  alias MyApp.Schemas.{User, UserRequest, UserResponse}
 
   plug OpenApiSpex.Plug.Cast
 
@@ -177,15 +190,15 @@ defmodule MyApp.UserController do
       description: "Create a user",
       operationId: "UserController.create",
       parameters: [],
-      requestBody: request_body("The user attributes", "application/json", Schemas.UserRequest),
+      requestBody: request_body("The user attributes", "application/json", UserRequest),
       responses: %{
-        201 => response("User", "application/json", Schemas.UserResponse)
+        201 => response("User", "application/json", UserResponse)
       }
     }
   end
 
-  def create(conn, %{user: %{name: name, email: email, birthday: birthday = %Date{}}}) do
-    # params will have atom keys with values cast to standard elixir types
+  def create(conn, %UserRequest{user: %User{name: name, email: email, birthday: birthday = %Date{}}}) do
+    # params are cast to UserRequest struct
   end
 end
 ```
@@ -202,9 +215,35 @@ plug OpenApiSpex.Plug.Validate
 
 Now the client will receive a 422 response whenever the request fails to meet the validation rules from the api spec.
 
+## Validating Examples from Schemas
+
+As schemas evolve, you may want to confirm that the examples given match the schemas.
+
+```elixir
+Use ExUnit.Case
+import OpenApiSpex.Test.Assertions
+
+test "UsersResponse example matches schema" do
+  api_spec = MyApp.ApiSpec.spec()
+  schema = api_spec.component.schemas["UsersResponse"]
+  assert_schema(schema.example, "UsersResponse", api_spec)
+end
+```
+
+## Validating API responses in Tests
+
+```elixir
+use MyApp.ConnCase
+
+test "UserController produces a UsersResponse", %{conn: conn} do
+  api_spec = MyApp.ApiSpec.spec()
+  json =
+    conn
+    |> get(user_path(conn, :index))
+    |> json_response(200)
+
+  assert_schema(json, "UsersResponse", api_spec)
+end
+```
 
 TODO: SwaggerUI 3.0
-
-TODO: Validating examples in the spec
-
-TODO: Validating responses in tests

@@ -1,7 +1,8 @@
 defmodule OpenApiSpex.SchemaTest do
   use ExUnit.Case
   alias OpenApiSpex.Schema
-  alias OpenApiSpexTest.ApiSpec
+  alias OpenApiSpexTest.{ApiSpec, Schemas}
+  import OpenApiSpex.Test.Assertions
 
   test "cast request schema" do
     api_spec = ApiSpec.spec()
@@ -29,18 +30,11 @@ defmodule OpenApiSpex.SchemaTest do
     }
   end
 
-  def assert_example_matches_schema(schema_module) do
-    alias OpenApiSpex.{Schema, SchemaResolver}
-    {reference, schemas} = SchemaResolver.resolve_schema_modules_from_schema(schema_module, %{})
-    schema = Schema.resolve_schema(reference, schemas)
-    assert {:ok, data} = Schema.cast(schema, schema.example, schemas)
-    assert :ok = Schema.validate(schema, data, schemas)
-  end
-
   test "User Schema example matches schema" do
-    assert_example_matches_schema(OpenApiSpexTest.Schemas.User)
-    assert_example_matches_schema(OpenApiSpexTest.Schemas.UserRequest)
-    assert_example_matches_schema(OpenApiSpexTest.Schemas.UserResponse)
-    assert_example_matches_schema(OpenApiSpexTest.Schemas.UsersResponse)
+    spec = ApiSpec.spec()
+    assert_schema(Schemas.User.schema().example, "User", spec)
+    assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec)
+    assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
+    assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
   end
 end

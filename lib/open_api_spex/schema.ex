@@ -130,6 +130,7 @@ defmodule OpenApiSpex.Schema do
          {:ok, rest_cast} <- cast(schema, rest, schemas) do
       {:ok, [x_cast | rest_cast]}
     end
+  end
   def cast(schema = %Schema{type: :object}, value, schemas) when is_map(value) do
     with {:ok, props} <- cast_properties(schema, Enum.to_list(value), schemas) do
       {:ok, Map.new(props)}

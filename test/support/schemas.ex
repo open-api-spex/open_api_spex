@@ -92,7 +92,7 @@ defmodule OpenApiSpexTest.Schemas do
   defmodule UsersResponse do
     @derive [Poison.Encoder]
     @schema %Schema{
-      title: "UsersReponse",
+      title: "UsersResponse",
       description: "Response schema for multiple users",
       type: :object,
       properties: %{

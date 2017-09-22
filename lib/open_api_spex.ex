@@ -11,10 +11,10 @@ defmodule OpenApiSpex do
   Cast params to conform to a Schema or Operation spec.
   """
   def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
-    Schema.cast(schema, params, spec.compnents.schemas)
+    Schema.cast(schema, params, spec.components.schemas)
   end
   def cast(spec = %OpenApi{}, schema = %Reference{}, params) do
-    Schema.cast(schema, params, spec.compnents.schemas)
+    Schema.cast(schema, params, spec.components.schemas)
   end
   def cast(spec = %OpenApi{}, operation = %Operation{}, params, content_type \\ nil) do
     Operation.cast(operation, params, content_type, spec.components.schemas)

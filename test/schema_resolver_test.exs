@@ -52,7 +52,7 @@ defmodule OpenApiSpex.SchemaResolverTest do
 
     resolved = OpenApiSpex.resolve_schema_modules(spec)
 
-    assert %Reference{"$ref": "#/components/schemas/UsersReponse"} =
+    assert %Reference{"$ref": "#/components/schemas/UsersResponse"} =
       resolved.paths["/api/users"].get.responses[200].content["application/json"].schema
 
     assert %Reference{"$ref": "#/components/schemas/UserResponse"} =
