@@ -108,17 +108,17 @@ defmodule MyApp.Schemas do
   end
 
   defmodule UserResponse do
-    @schema %Schema{
+    require OpenApiSpex
+
+    # OpenApiSpex.schema/1 macro can be optionally used to reduce boilerplate code
+    OpenApiSpex.schema %{
       title: "UserResponse",
       description: "Response schema for single user",
       type: :object,
       properties: %{
         data: User
-      },
-      "x-struct": __MODULE__
+      }
     }
-    def schema, do: @schema
-    defstruct Map.keys(@schema.properties)
   end
 end
 ```

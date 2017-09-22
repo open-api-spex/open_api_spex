@@ -33,4 +33,50 @@ defmodule OpenApiSpex do
   def validate(spec = %OpenApi{}, operation = %Operation{}, params = %{}, content_type \\ nil) do
     Operation.validate(operation, params, content_type, spec.components.schemas)
   end
+
+  @doc """
+  Declares a OpenApiSpex Schema
+
+   - defines the schema/0 callback
+   - ensures the schema is linked to the module by "x-struct" extension property
+   - defines a struct with keys matching the schema properties
+   - defines a @type `t` for the struct
+   - derives a `Poison.Encoder` for the struct
+
+  ## Example
+
+      require OpenApiSpex
+
+      defmodule User do
+        OpenApiSpex.schema %{
+          title: "User",
+          description: "A user of the app",
+          type: :object,
+          properties: %{
+            id: %Schema{type: :integer, description: "User ID"},
+            name:  %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
+            email: %Schema{type: :string, description: "Email address", format: :email},
+            inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :'date-time'},
+            updated_at: %Schema{type: :string, description: "Update timestamp", format: :'date-time'}
+          },
+          required: [:name, :email],
+          example: %{
+            "id" => 123,
+            "name" => "Joe User",
+            "email" => "joe@gmail.com",
+            "inserted_at" => "2017-09-12T12:34:55Z",
+            "updated_at" => "2017-09-13T10:11:12Z"
+          }
+        }
+      end
+  """
+  defmacro schema(body) do
+    quote do
+      @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct",  __MODULE__))
+      def schema, do: @schema
+      @derive [Poison.Encoder]
+      defstruct Map.keys(@schema.properties)
+      @type t :: %__MODULE__{}
+    end
+  end
 end

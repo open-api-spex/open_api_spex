@@ -1,9 +1,9 @@
 defmodule OpenApiSpexTest.Schemas do
+  require OpenApiSpex
   alias OpenApiSpex.Schema
 
   defmodule User do
-    @derive [Poison.Encoder]
-    @schema %Schema{
+    OpenApiSpex.schema %{
       title: "User",
       description: "A user of the app",
       type: :object,
@@ -21,24 +21,12 @@ defmodule OpenApiSpexTest.Schemas do
         "email" => "joe@gmail.com",
         "inserted_at" => "2017-09-12T12:34:55Z",
         "updated_at" => "2017-09-13T10:11:12Z"
-      },
-      "x-struct": __MODULE__
-    }
-    def schema, do: @schema
-    defstruct Map.keys(@schema.properties)
-
-    @type t :: %__MODULE__{
-      id: integer,
-      name: String.t,
-      email: String.t,
-      inserted_at: DateTime.t,
-      updated_at: DateTime.t
+      }
     }
   end
 
   defmodule UserRequest do
-    @derive [Poison.Encoder]
-    @schema %Schema{
+    OpenApiSpex.schema %{
       title: "UserRequest",
       description: "POST body for creating a user",
       type: :object,
@@ -50,20 +38,12 @@ defmodule OpenApiSpexTest.Schemas do
           "name" => "Joe User",
           "email" => "joe@gmail.com"
         }
-      },
-      "x-struct": __MODULE__
-    }
-    def schema, do: @schema
-    defstruct Map.keys(@schema.properties)
-
-    @type t :: %__MODULE__{
-      user: User.t
+      }
     }
   end
 
   defmodule UserResponse do
-    @derive [Poison.Encoder]
-    @schema %Schema{
+    OpenApiSpex.schema %{
       title: "UserResponse",
       description: "Response schema for single user",
       type: :object,
@@ -81,17 +61,10 @@ defmodule OpenApiSpexTest.Schemas do
       },
       "x-struct": __MODULE__
     }
-    def schema, do: @schema
-    defstruct Map.keys(@schema.properties)
-
-    @type t :: %__MODULE__{
-      data: User.t
-    }
   end
 
   defmodule UsersResponse do
-    @derive [Poison.Encoder]
-    @schema %Schema{
+    OpenApiSpex.schema %{
       title: "UsersResponse",
       description: "Response schema for multiple users",
       type: :object,
@@ -111,14 +84,7 @@ defmodule OpenApiSpexTest.Schemas do
             "email" => "jay@yahoo.com"
           }
         ]
-      },
-      "x-struct": __MODULE__
-    }
-    def schema, do: @schema
-    defstruct Map.keys(@schema.properties)
-
-    @type t :: %__MODULE__{
-      data: [User.t]
+      }
     }
   end
 end
