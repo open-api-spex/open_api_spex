@@ -215,9 +215,10 @@ plug OpenApiSpex.Plug.Validate
 
 Now the client will receive a 422 response whenever the request fails to meet the validation rules from the api spec.
 
-## Validating Examples from Schemas
+## Validating Schema Examples
 
 As schemas evolve, you may want to confirm that the examples given match the schemas.
+Use the `OpenApiSpex.Test.Assertions` module to assert on schema validations.
 
 ```elixir
 Use ExUnit.Case
@@ -225,15 +226,18 @@ import OpenApiSpex.Test.Assertions
 
 test "UsersResponse example matches schema" do
   api_spec = MyApp.ApiSpec.spec()
-  schema = api_spec.component.schemas["UsersResponse"]
+  schema = MyApp.Schemas.UsersResponse.schema()
   assert_schema(schema.example, "UsersResponse", api_spec)
 end
 ```
 
 ## Validating API responses in Tests
 
+Api responses can be tested against schemas using `OpenApiSpex.Test.Assertions` also:
+
 ```elixir
 use MyApp.ConnCase
+import OpenApiSpex.Test.Assertions
 
 test "UserController produces a UsersResponse", %{conn: conn} do
   api_spec = MyApp.ApiSpec.spec()
