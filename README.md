@@ -1,4 +1,4 @@
-# Open API Spex
+# Open API Spex [![Build Status](https://travis-ci.org/mbuhot/open_api_spex.svg?branch=master)](https://travis-ci.org/mbuhot/open_api_spex)
 
 Add Open API Specification 3 (formerly swagger) to Plug applications.
 
