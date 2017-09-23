@@ -4,6 +4,8 @@ defmodule OpenApiSpex.SchemaTest do
   alias OpenApiSpexTest.{ApiSpec, Schemas}
   import OpenApiSpex.Test.Assertions
 
+  doctest Schema
+
   test "cast request schema" do
     api_spec = ApiSpec.spec()
     schemas = api_spec.components.schemas
