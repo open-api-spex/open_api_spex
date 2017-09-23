@@ -1,14 +1,19 @@
 defmodule OpenApiSpex.Mixfile do
   use Mix.Project
 
+  @version "1.0.0"
+
   def project do
     [
       app: :open_api_spex,
-      version: "0.1.0",
+      version: "1.0.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      source_url: "https://github.com/mbuhot/open_api_spex",
+      homepage_url: "https://github.com/mbuhot/open_api_spex",
+      docs: [extras: ["README.md"], main: "readme", source_ref: "v#{@version}"]
     ]
   end
 
@@ -27,7 +32,8 @@ defmodule OpenApiSpex.Mixfile do
     [
       {:poison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
-      {:phoenix, "~> 1.3", only: :test}
+      {:phoenix, "~> 1.3", only: :test},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end
