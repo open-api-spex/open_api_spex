@@ -160,6 +160,28 @@ The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
   end
 ```
 
+## Swagger UI
+
+Once your API spec is available through a route, the `OpenApiSpex.Plug.SwaggerUI` plug can be used to serve a SwaggerUI interface.  The `path:` plug option must be supplied to give the path to the API spec.
+
+All javascript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
+
+```elixir
+  scope "/" do
+    pipe_through :browser # Use the default browser stack
+
+    get "/", MyAppWeb.PageController, :index
+    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+  end
+
+  scope "/api" do
+    pipe_through :api
+
+    resources "/users", MyAppWeb.UserController, only: [:create, :index, :show]
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+  end
+```
+
 ## Use the API Spec to cast params
 
 Add the `OpenApiSpex.Plug.Cast` plug to a controller to cast the request parameters to elixir types defined by the operation schema.
@@ -249,5 +271,3 @@ test "UserController produces a UsersResponse", %{conn: conn} do
   assert_schema(json, "UsersResponse", api_spec)
 end
 ```
-
-TODO: SwaggerUI 3.0
