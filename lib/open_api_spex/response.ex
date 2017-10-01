@@ -8,8 +8,8 @@ defmodule OpenApiSpex.Response do
   ]
   @type t :: %__MODULE__{
     description: String.t,
-    headers: %{String.t => Header.t | Reference.t},
+    headers: %{String.t => Header.t | Reference.t} | nil,
     content: %{String.t => MediaType.t},
-    links: %{String.t => Link.t | Reference.t}
+    links: %{String.t => Link.t | Reference.t} | nil
   }
 end

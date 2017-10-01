@@ -13,7 +13,13 @@ defmodule OpenApiSpex.Mixfile do
       deps: deps(),
       source_url: "https://github.com/mbuhot/open_api_spex",
       homepage_url: "https://github.com/mbuhot/open_api_spex",
-      docs: [extras: ["README.md"], main: "readme", source_ref: "v#{@version}"]
+      docs: [extras: ["README.md"], main: "readme", source_ref: "v#{@version}"],
+      dialyzer: [
+        plt_add_apps: [:mix],
+        plt_add_deps: :apps_direct,
+        flags: ["-Werror_handling", "-Wno_unused", "-Wunmatched_returns", "-Wunderspecs"],
+        remove_defaults: [:unknown]
+      ]
     ]
   end
 
@@ -33,7 +39,8 @@ defmodule OpenApiSpex.Mixfile do
       {:poison, ">= 0.0.0"},
       {:plug, ">= 0.0.0"},
       {:phoenix, "~> 1.3", only: :test},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:dialyxir, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end

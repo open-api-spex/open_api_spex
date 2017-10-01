@@ -4,7 +4,7 @@ defmodule OpenApiSpex.ServerVariable do
     :default,
     :description
   ]
-  @type t :: %{
+  @type t :: %__MODULE__{
     enum: [String.t],
     default: String.t,
     description: String.t

@@ -4,7 +4,6 @@ defmodule OpenApiSpex.PathItemTest do
   alias OpenApiSpexTest.{Router, UserController}
 
   describe "PathItem" do
-    @tag :focus
     test "from_routes" do
       routes =
         for route <- Router.__routes__(),

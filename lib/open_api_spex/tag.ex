@@ -5,7 +5,7 @@ defmodule OpenApiSpex.Tag do
     :description,
     :externalDocs
   ]
-  @type t :: %{
+  @type t :: %__MODULE__{
     name: String.t,
     description: String.t,
     externalDocs: ExternalDocumentation.t

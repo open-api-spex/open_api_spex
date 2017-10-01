@@ -5,7 +5,7 @@ defmodule OpenApiSpex.Example do
     :value,
     :externalValue
   ]
-  @type t :: %{
+  @type t :: %__MODULE__{
     summary: String.t,
     description: String.t,
     value: any,

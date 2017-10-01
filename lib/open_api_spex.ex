@@ -10,6 +10,7 @@ defmodule OpenApiSpex do
   @doc """
   Cast params to conform to a Schema or Operation spec.
   """
+  @spec cast(OpenApi.t, Schema.t | Reference.t, any) :: {:ok, any} | {:error, String.t}
   def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
@@ -19,7 +20,6 @@ defmodule OpenApiSpex do
   def cast(spec = %OpenApi{}, operation = %Operation{}, params, content_type \\ nil) do
     Operation.cast(operation, params, content_type, spec.components.schemas)
   end
-
 
   @doc """
   Validate params against a Schema or Operation spec.

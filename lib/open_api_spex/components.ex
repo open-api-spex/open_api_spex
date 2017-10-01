@@ -1,7 +1,8 @@
 defmodule OpenApiSpex.Components do
   alias OpenApiSpex.{
     Schema, Reference, Response, Parameter, Example,
-    RequestBody, Header, SecurityScheme, Link, Callback
+    RequestBody, Header, SecurityScheme, Link, Callback,
+    Components
   }
   defstruct [
     :schemas,
@@ -14,7 +15,7 @@ defmodule OpenApiSpex.Components do
     :links,
     :callbacks,
   ]
-  @type t :: %{
+  @type t :: %Components{
     schemas: %{String.t => Schema.t | Reference.t},
     responses: %{String.t =>  Response.t | Reference.t},
     parameters: %{String.t =>  Parameter.t | Reference.t},

@@ -8,7 +8,7 @@ defmodule OpenApiSpex.Link do
     :description,
     :server
   ]
-  @type t :: %{
+  @type t :: %__MODULE__{
     operationRef: String.t,
     operationId: String.t,
     parameters: %{String.t => any},

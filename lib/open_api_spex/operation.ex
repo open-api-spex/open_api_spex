@@ -64,7 +64,7 @@ defmodule OpenApiSpex.Operation do
   @doc """
   Shorthand for constructing a Parameter name, location, type, description and optional examples
   """
-  @spec parameter(atom, atom, atom, String.t, keyword) :: RequestBody.t
+  @spec parameter(atom, Parameter.location, Reference.t | Schema.t | atom, String.t, keyword) :: Parameter.t
   def parameter(name, location, type, description, opts \\ []) do
     params =
       [name: name, in: location, description: description, required: location == :path]

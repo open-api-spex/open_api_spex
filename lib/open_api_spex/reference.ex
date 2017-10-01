@@ -15,7 +15,7 @@ defmodule OpenApiSpex.Reference do
   defstruct [
     :"$ref"
   ]
-  @type t :: %{
+  @type t :: %Reference{
     "$ref": String.t
   }
 

@@ -67,41 +67,41 @@ defmodule OpenApiSpex.Schema do
   ]
   @type t :: %__MODULE__{
     title: String.t,
-    multipleOf: number,
-    maximum: number,
-    exclusiveMaximum: boolean,
-    minimum: number,
-    exclusiveMinimum: boolean,
-    maxLength: integer,
-    minLength: integer,
-    pattern: String.t,
-    maxItems: integer,
-    minItems: integer,
-    uniqueItems: boolean,
-    maxProperties: integer,
-    minProperties: integer,
-    required: [String.t],
-    enum: [String.t],
-    type: String.t,
-    allOf: [Schema.t | Reference.t],
-    oneOf: [Schema.t | Reference.t],
-    anyOf: [Schema.t | Reference.t],
-    not: Schema.t | Reference.t,
-    items: Schema.t | Reference.t,
-    properties: %{String.t => Schema.t | Reference.t},
-    additionalProperties: boolean | Schema.t | Reference.t,
+    multipleOf: number | nil,
+    maximum: number | nil,
+    exclusiveMaximum: boolean | nil,
+    minimum: number | nil,
+    exclusiveMinimum: boolean | nil,
+    maxLength: integer | nil,
+    minLength: integer | nil,
+    pattern: String.t | Regex.t | nil,
+    maxItems: integer | nil,
+    minItems: integer | nil,
+    uniqueItems: boolean | nil,
+    maxProperties: integer | nil,
+    minProperties: integer | nil,
+    required: [String.t] | nil,
+    enum: [String.t] | nil,
+    type: atom,
+    allOf: [Schema.t | Reference.t] | nil,
+    oneOf: [Schema.t | Reference.t] | nil,
+    anyOf: [Schema.t | Reference.t] | nil,
+    not: Schema.t | Reference.t | nil,
+    items: Schema.t | Reference.t | nil,
+    properties: %{atom => Schema.t | Reference.t} | nil,
+    additionalProperties: boolean | Schema.t | Reference.t | nil,
     description: String.t,
-    format: String.t,
-    default: any,
-    nullable: boolean,
-    discriminator: Discriminator.t,
-    readOnly: boolean,
-    writeOnly: boolean,
-    xml: Xml.t,
-    externalDocs: ExternalDocumentation.t,
+    format: String.t | nil,
+    default: any | nil,
+    nullable: boolean | nil,
+    discriminator: Discriminator.t | nil,
+    readOnly: boolean | nil,
+    writeOnly: boolean | nil,
+    xml: Xml.t | nil,
+    externalDocs: ExternalDocumentation.t | nil,
     example: any,
-    deprecated: boolean,
-    "x-struct": module
+    deprecated: boolean | nil,
+    "x-struct": module | nil
   }
 
   @doc """
@@ -119,7 +119,7 @@ defmodule OpenApiSpex.Schema do
       ...> dt |> DateTime.to_iso8601()
       "2018-04-02T13:44:55Z"
   """
-  @spec cast(Schema.t | Reference.t, any, %{String.t => Schema.t}) :: {:ok, any} | {:error, String.t}
+  @spec cast(Schema.t | Reference.t, any, %{String.t => Schema.t | Reference.t}) :: {:ok, any} | {:error, String.t}
   def cast(schema = %Schema{"x-struct": mod}, value, schemas) when not is_nil(mod) do
     with {:ok, data} <- cast(%{schema | "x-struct": nil}, value, schemas) do
       {:ok, struct(mod, data)}
@@ -207,7 +207,7 @@ defmodule OpenApiSpex.Schema do
       iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joegmail.com", %{})
       {:error, "Value does not match pattern: (.*)@(.*)"}
   """
-  @spec validate(Schema.t | Reference.t, any, %{String.t => Schema.t}) :: :ok | {:error, String.t}
+  @spec validate(Schema.t | Reference.t, any, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
   def validate(ref = %Reference{}, val, schemas), do: validate(Reference.resolve_schema(ref, schemas), val, schemas)
   def validate(schema = %Schema{type: type}, value, _schemas) when type in [:integer, :number] do
     with :ok <- validate_multiple(schema, value),
@@ -281,7 +281,7 @@ defmodule OpenApiSpex.Schema do
     end
   end
 
-  @spec validate_max_length(Schema.t, String.t) :: :ok | {:error, String.t}
+  @spec validate_pattern(Schema.t, String.t) :: :ok | {:error, String.t}
   defp validate_pattern(%{pattern: nil}, _), do: :ok
   defp validate_pattern(schema = %{pattern: regex}, val) when is_binary(regex) do
     with {:ok, regex} <- Regex.compile(regex) do
@@ -295,7 +295,7 @@ defmodule OpenApiSpex.Schema do
     end
   end
 
-  @spec validate_max_length(Schema.t, list) :: :ok | {:error, String.t}
+  @spec validate_max_items(Schema.t, list) :: :ok | {:error, String.t}
   defp validate_max_items(%Schema{maxItems: nil}, _), do: :ok
   defp validate_max_items(%Schema{maxItems: n}, value) when length(value) <= n, do: :ok
   defp validate_max_items(%Schema{maxItems: n}, value) do
@@ -356,15 +356,16 @@ defmodule OpenApiSpex.Schema do
     {:error, "Object property count #{map_size(val)} is less than minProperties: #{n}"}
   end
 
-  @spec validate_min_properties(Schema.t, %{}) :: :ok | {:error, String.t}
-  defp validate_object_properties(properties = %{}, value, schemas) do
+  @spec validate_object_properties(Enumerable.t, %{}, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
+  defp validate_object_properties(properties = %{}, value = %{}, schemas = %{}) do
     properties
     |> Enum.filter(fn {name, _schema} -> Map.has_key?(value, name) end)
     |> validate_object_properties(value, schemas)
   end
   defp validate_object_properties([], _, _), do: :ok
-  defp validate_object_properties([{name, schema} | rest], value, schemas) do
-    case validate(schema, Map.fetch!(value, name), schemas) do
+  defp validate_object_properties([{name, schema} | rest], value, schemas = %{}) do
+    %{^name => property_value} = value
+    case validate(schema, property_value, schemas) do
       :ok -> validate_object_properties(rest, value, schemas)
       error -> error
     end
