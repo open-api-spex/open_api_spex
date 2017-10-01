@@ -364,8 +364,7 @@ defmodule OpenApiSpex.Schema do
   end
   defp validate_object_properties([], _, _), do: :ok
   defp validate_object_properties([{name, schema} | rest], value, schemas = %{}) do
-    %{^name => property_value} = value
-    case validate(schema, property_value, schemas) do
+    case validate(schema, Map.get(value, name), schemas) do
       :ok -> validate_object_properties(rest, value, schemas)
       error -> error
     end

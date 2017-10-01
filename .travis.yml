@@ -4,4 +4,9 @@ otp_release: '20.0'
 
 script:
  - mix test
- - mix dialyzer
+ - mix dialyzer --halt-exit-status
+
+cache:
+  directories:
+    - _build
+    - deps
