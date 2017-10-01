@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.Plug.Cast do
+  @behaviour Plug
+
   alias Plug.Conn
 
   def init(opts), do: opts

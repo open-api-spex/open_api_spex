@@ -1,7 +1,10 @@
 defmodule OpenApiSpex.Plug.Validate do
+  @behaviour Plug
+
   alias Plug.Conn
 
   def init(opts), do: opts
+
   def call(conn, _opts) do
     spec = conn.private.open_api_spex.spec
     operation_id = conn.private.open_api_spex.operation_id
