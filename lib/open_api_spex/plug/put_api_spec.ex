@@ -1,8 +1,10 @@
 defmodule OpenApiSpex.Plug.PutApiSpec do
   @behaviour Plug
 
+  @impl Plug
   def init(opts = [module: _mod]), do: opts
 
+  @impl Plug
   def call(conn, module: mod) do
     spec = %OpenApiSpex.OpenApi{} =  mod.spec()
     private_data =

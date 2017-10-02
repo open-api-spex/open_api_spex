@@ -4,8 +4,10 @@ defmodule OpenApiSpex.Plug.RenderSpec do
   """
   @behaviour Plug
 
+  @impl Plug
   def init(opts), do: opts
 
+  @impl Plug
   def call(conn, _opts) do
     conn
     |> Plug.Conn.put_resp_content_type("application/json")

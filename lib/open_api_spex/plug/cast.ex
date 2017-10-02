@@ -3,8 +3,10 @@ defmodule OpenApiSpex.Plug.Cast do
 
   alias Plug.Conn
 
+  @impl Plug
   def init(opts), do: opts
 
+  @impl Plug
   def call(conn = %{private: %{open_api_spex: private_data}}, operation_id: operation_id) do
     spec = private_data.spec
     operation = private_data.operation_lookup[operation_id]

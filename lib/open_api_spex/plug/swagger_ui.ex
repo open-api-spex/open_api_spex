@@ -100,8 +100,10 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     </html>
   """
 
+  @impl Plug
   def init(path: path), do: [html:  EEx.eval_string(@html, path: path)]
 
+  @impl Plug
   def call(conn, html: html) do
     conn
     |> Plug.Conn.put_resp_content_type("text/html")
