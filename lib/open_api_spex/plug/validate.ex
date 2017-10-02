@@ -1,4 +1,20 @@
 defmodule OpenApiSpex.Plug.Validate do
+  @moduledoc """
+  Module plug that validates params against the schema defined for an operation.
+
+  If validation fails, the plug will send a 422 response with the reason as the body.
+  This plug should always be run after `OpenApiSpex.Plug.Cast`, as it expects the params map to
+  have atom keys and query params converted from strings to the appropriate types.
+
+  ## Example
+
+      defmodule MyApp.UserController do
+        use Phoenix.Controller
+        plug OpenApiSpex.Plug.Cast
+        plug OpenApiSpex.Plug.Validate
+        ...
+      end
+  """
   @behaviour Plug
 
   alias Plug.Conn

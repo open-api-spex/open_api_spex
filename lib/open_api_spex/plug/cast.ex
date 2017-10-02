@@ -1,4 +1,20 @@
 defmodule OpenApiSpex.Plug.Cast do
+  @moduledoc """
+  Module plug that will cast the `Conn.params` according to the schemas defined for the operation.
+
+  The operation_id can be given at compile time as an argument to `init`:
+
+      plug OpenApiSpex.Plug.Cast, operation_id: "MyApp.ShowUser"
+
+  For phoenix applications, the operation_id can be obtained at runtime automatically.
+
+      defmodule MyAppWeb.UserController do
+        use Phoenix.Controller
+        plug OpenApiSpex.Plug.Cast
+        ...
+      end
+  """
+
   @behaviour Plug
 
   alias Plug.Conn

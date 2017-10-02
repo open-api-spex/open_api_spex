@@ -1,4 +1,13 @@
 defmodule OpenApiSpex.Plug.PutApiSpec do
+  @moduledoc """
+  Module plug that calls a given module to obtain the Api Spec and store it as private in the Conn.
+
+  This allows downstream plugs to use the API spec for casting, validating and rendering.
+
+  ## Example
+
+      plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec
+  """
   @behaviour Plug
 
   @impl Plug

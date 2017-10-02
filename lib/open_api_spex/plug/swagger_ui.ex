@@ -1,4 +1,26 @@
 defmodule OpenApiSpex.Plug.SwaggerUI do
+  @moduledoc """
+  Module plug that serves SwaggerUI.
+
+  The full path to the API spec must be given as a plug option.
+  The API spec should be served at the given path, see `OpenApiSpex.Plug.RenderSpec`
+
+  ## Example
+
+      scope "/" do
+        pipe_through :browser # Use the default browser stack
+
+        get "/", MyAppWeb.PageController, :index
+        get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+      end
+
+      # Other scopes may use custom stacks.
+      scope "/api" do
+        pipe_through :api
+        resources "/users", MyAppWeb.UserController, only: [:index, :create, :show]
+        get "/openapi", OpenApiSpex.Plug.RenderSpec, :show
+      end
+  """
   @behaviour Plug
 
   @html """
