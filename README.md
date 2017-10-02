@@ -83,6 +83,7 @@ defmodule MyApp.Schemas do
   alias OpenApiSpex.Schema
 
   defmodule User do
+    @behaviour OpenApiSpex.Schema
     @derive [Poison.Encoder]
     @schema %Schema{
       title: "User",

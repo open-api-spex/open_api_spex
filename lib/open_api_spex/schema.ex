@@ -7,6 +7,12 @@ defmodule OpenApiSpex.Schema do
     Schema, Reference, Discriminator, Xml, ExternalDocumentation
   }
 
+  @doc """
+  A module implementing the `OpenApiSpex.Schema` behaviour should export a `schema/0` function
+  that produces an `OpenApiSpex.Schema` struct.
+  """
+  @callback schema() :: t
+
   defstruct [
     :title,
     :multipleOf,

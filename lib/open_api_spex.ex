@@ -88,6 +88,7 @@ defmodule OpenApiSpex do
   """
   defmacro schema(body) do
     quote do
+      @behaviour OpenApiSpex.Schema
       @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct",  __MODULE__))
       def schema, do: @schema
       @derive [Poison.Encoder]
