@@ -1,7 +1,23 @@
 defmodule OpenApiSpex do
+  @moduledoc """
+  Provides the entry-points for defining schemas, validating and casting.
+  """
+
   alias OpenApiSpex.{OpenApi, Operation, Reference, Schema, SchemaResolver}
 
-  @moduledoc """
+  @doc """
+  Adds schemas to the api spec from the modules specified in the Operations.
+
+  Eg, if the response schema for an operation is defined with:
+
+      responses: %{
+        200 => Operation.response("User", "application/json", UserResponse)
+      }
+
+  Then the `UserResponse.schema()` function will be called to load the schema, and
+  a `Reference` to the loaded schema will be used in the operation response.
+
+  See `OpenApiSpex.schema` macro for a convenient syntax for defining schema modules.
   """
   def resolve_schema_modules(spec = %OpenApi{}) do
     SchemaResolver.resolve_schema_modules(spec)

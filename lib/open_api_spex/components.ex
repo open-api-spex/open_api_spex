@@ -1,4 +1,7 @@
 defmodule OpenApiSpex.Components do
+  @moduledoc """
+  Defines the `OpenApiSpex.Components.t` type.
+  """
   alias OpenApiSpex.{
     Schema, Reference, Response, Parameter, Example,
     RequestBody, Header, SecurityScheme, Link, Callback,
@@ -15,6 +18,14 @@ defmodule OpenApiSpex.Components do
     :links,
     :callbacks,
   ]
+
+  @typedoc """
+  [Components Object](https://swagger.io/specification/#componentsObject)
+
+  Holds a set of reusable objects for different aspects of the OAS.
+  All objects defined within the components object will have no effect on the API unless
+  they are explicitly referenced from properties outside the components object.
+  """
   @type t :: %Components{
     schemas: %{String.t => Schema.t | Reference.t},
     responses: %{String.t =>  Response.t | Reference.t},

@@ -1,4 +1,7 @@
 defmodule OpenApiSpex.Response do
+  @moduledoc """
+  Defines the `OpenApiSpex.Response.t` type.
+  """
   alias OpenApiSpex.{Header, Reference, MediaType, Link}
   defstruct [
     :description,
@@ -6,6 +9,12 @@ defmodule OpenApiSpex.Response do
     :content,
     :links
   ]
+
+  @typedoc """
+  [Response Object](https://swagger.io/specification/#responseObject)
+
+  Describes a single response from an API Operation, including design-time, static links to operations based on the response.
+  """
   @type t :: %__MODULE__{
     description: String.t,
     headers: %{String.t => Header.t | Reference.t} | nil,

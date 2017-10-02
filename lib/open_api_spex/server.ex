@@ -1,10 +1,19 @@
 defmodule OpenApiSpex.Server do
+  @moduledoc """
+  Defines the `OpenApiSpex.Server.t` type.
+  """
   alias OpenApiSpex.{Server, ServerVariable}
   defstruct [
     :url,
     :description,
     variables: %{}
   ]
+
+  @typedoc """
+  [Server Object](https://swagger.io/specification/#serverObject)
+
+  An object representing a Server.
+  """
   @type t :: %Server{
     url: String.t,
     description: String.t | nil,

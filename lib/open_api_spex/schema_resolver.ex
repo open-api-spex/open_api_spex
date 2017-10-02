@@ -1,4 +1,7 @@
 defmodule OpenApiSpex.SchemaResolver do
+  @moduledoc """
+  Internal module used to resolve `OpenApiSpex.Schema` structs from atoms.
+  """
   alias OpenApiSpex.{
     OpenApi,
     Components,
@@ -12,6 +15,21 @@ defmodule OpenApiSpex.SchemaResolver do
     Response
   }
 
+  @doc """
+  Adds schemas to the api spec from the modules specified in the Operations.
+
+  Eg, if the response schema for an operation is defined with:
+
+      responses: %{
+        200 => Operation.response("User", "application/json", UserResponse)
+      }
+
+  Then the `UserResponse.schema()` function will be called to load the schema, and
+  a `Reference` to the loaded schema will be used in the operation response.
+
+  See `OpenApiSpex.schema` macro for a convenient syntax for defining schema modules.
+  """
+  @spec resolve_schema_modules(OpenApi.t) :: OpenApi.t
   def resolve_schema_modules(spec = %OpenApi{}) do
     components = spec.components || %Components{}
     schemas = components.schemas || %{}
@@ -20,14 +38,14 @@ defmodule OpenApiSpex.SchemaResolver do
     %{spec | paths: paths, components: %{components| schemas: schemas}}
   end
 
-  def resolve_schema_modules_from_paths(paths = %{}, schemas = %{}) do
+  defp resolve_schema_modules_from_paths(paths = %{}, schemas = %{}) do
     Enum.reduce(paths, {paths, schemas}, fn {path, path_item}, {paths, schemas} ->
       {new_path_item, schemas} = resolve_schema_modules_from_path_item(path_item, schemas)
       {Map.put(paths, path, new_path_item), schemas}
     end)
   end
 
-  def resolve_schema_modules_from_path_item(path = %PathItem{}, schemas) do
+  defp resolve_schema_modules_from_path_item(path = %PathItem{}, schemas) do
     path
     |> Map.from_struct()
     |> Enum.filter(fn {_k, v} -> match?(%Operation{}, v) end)
@@ -37,7 +55,7 @@ defmodule OpenApiSpex.SchemaResolver do
     end)
   end
 
-  def resolve_schema_modules_from_operation(operation = %Operation{}, schemas) do
+  defp resolve_schema_modules_from_operation(operation = %Operation{}, schemas) do
     {parameters, schemas} = resolve_schema_modules_from_parameters(operation.parameters, schemas)
     {request_body, schemas} = resolve_schema_modules_from_request_body(operation.requestBody, schemas)
     {responses, schemas} = resolve_schema_modules_from_responses(operation.responses, schemas)
@@ -45,8 +63,8 @@ defmodule OpenApiSpex.SchemaResolver do
     {new_operation, schemas}
   end
 
-  def resolve_schema_modules_from_parameters(nil, schemas), do: {nil, schemas}
-  def resolve_schema_modules_from_parameters(parameters, schemas) do
+  defp resolve_schema_modules_from_parameters(nil, schemas), do: {nil, schemas}
+  defp resolve_schema_modules_from_parameters(parameters, schemas) do
     {parameters, schemas} =
       Enum.reduce(parameters, {[], schemas}, fn parameter, {parameters, schemas} ->
         {new_parameter, schemas} = resolve_schema_modules_from_parameter(parameter, schemas)
@@ -55,67 +73,67 @@ defmodule OpenApiSpex.SchemaResolver do
     {Enum.reverse(parameters), schemas}
   end
 
-  def resolve_schema_modules_from_parameter(parameter = %Parameter{schema: schema, content: nil}, schemas) when is_atom(schema) do
+  defp resolve_schema_modules_from_parameter(parameter = %Parameter{schema: schema, content: nil}, schemas) when is_atom(schema) do
     {ref, new_schemas} = resolve_schema_modules_from_schema(schema, schemas)
     new_parameter = %{parameter | schema: ref}
     {new_parameter, new_schemas}
   end
-  def resolve_schema_modules_from_parameter(parameter = %Parameter{schema: nil, content: content = %{}}, schemas) do
+  defp resolve_schema_modules_from_parameter(parameter = %Parameter{schema: nil, content: content = %{}}, schemas) do
     {new_content, schemas} = resolve_schema_modules_from_content(content, schemas)
     {%{parameter | content: new_content}, schemas}
   end
-  def resolve_schema_modules_from_parameter(parameter = %Parameter{}, schemas) do
+  defp resolve_schema_modules_from_parameter(parameter = %Parameter{}, schemas) do
     {parameter, schemas}
   end
 
-  def resolve_schema_modules_from_content(nil, schemas), do: {nil, schemas}
-  def resolve_schema_modules_from_content(content, schemas) do
+  defp resolve_schema_modules_from_content(nil, schemas), do: {nil, schemas}
+  defp resolve_schema_modules_from_content(content, schemas) do
     Enum.reduce(content, {content, schemas}, fn {mime, media}, {content, schemas} ->
       {new_media, schemas} = resolve_schema_modules_from_media_type(media, schemas)
       {Map.put(content, mime, new_media), schemas}
     end)
   end
 
-  def resolve_schema_modules_from_media_type(media = %MediaType{schema: schema}, schemas) when is_atom(schema) do
+  defp resolve_schema_modules_from_media_type(media = %MediaType{schema: schema}, schemas) when is_atom(schema) do
     {ref, new_schemas} = resolve_schema_modules_from_schema(schema, schemas)
     new_media = %{media | schema: ref}
     {new_media, new_schemas}
   end
-  def resolve_schema_modules_from_media_type(media = %MediaType{}, schemas) do
+  defp resolve_schema_modules_from_media_type(media = %MediaType{}, schemas) do
     {media, schemas}
   end
 
-  def resolve_schema_modules_from_request_body(nil, schemas), do: {nil, schemas}
-  def resolve_schema_modules_from_request_body(request_body = %RequestBody{}, schemas) do
+  defp resolve_schema_modules_from_request_body(nil, schemas), do: {nil, schemas}
+  defp resolve_schema_modules_from_request_body(request_body = %RequestBody{}, schemas) do
     {content, schemas} = resolve_schema_modules_from_content(request_body.content, schemas)
     new_request_body = %{request_body | content: content}
     {new_request_body, schemas}
   end
 
-  def resolve_schema_modules_from_responses(responses = %{}, schemas = %{}) do
+  defp resolve_schema_modules_from_responses(responses = %{}, schemas = %{}) do
     Enum.reduce(responses, {responses, schemas}, fn {status, response}, {responses, schemas} ->
       {new_response, schemas} = resolve_schema_modules_from_response(response, schemas)
       {Map.put(responses, status, new_response), schemas}
     end)
   end
 
-  def resolve_schema_modules_from_response(response = %Response{}, schemas = %{}) do
+  defp resolve_schema_modules_from_response(response = %Response{}, schemas = %{}) do
     {content, schemas} = resolve_schema_modules_from_content(response.content, schemas)
     new_response = %{response | content: content}
     {new_response, schemas}
   end
 
-  def resolve_schema_modules_from_schemas(schemas = %{}) do
+  defp resolve_schema_modules_from_schemas(schemas = %{}) do
     Enum.reduce(schemas, schemas, fn {name, schema}, schemas ->
       {schema, schemas} = resolve_schema_modules_from_schema(schema, schemas)
       Map.put(schemas, name, schema)
     end)
   end
 
-  def resolve_schema_modules_from_schema(false, schemas), do: {false, schemas}
-  def resolve_schema_modules_from_schema(true, schemas), do: {true, schemas}
-  def resolve_schema_modules_from_schema(nil, schemas), do: {nil, schemas}
-  def resolve_schema_modules_from_schema(schema, schemas) when is_atom(schema) do
+  defp resolve_schema_modules_from_schema(false, schemas), do: {false, schemas}
+  defp resolve_schema_modules_from_schema(true, schemas), do: {true, schemas}
+  defp resolve_schema_modules_from_schema(nil, schemas), do: {nil, schemas}
+  defp resolve_schema_modules_from_schema(schema, schemas) when is_atom(schema) do
     title = schema.schema().title
     new_schemas =
       if Map.has_key?(schemas, title) do
@@ -126,7 +144,7 @@ defmodule OpenApiSpex.SchemaResolver do
       end
     {%Reference{"$ref": "#/components/schemas/#{title}"}, new_schemas}
   end
-  def resolve_schema_modules_from_schema(schema = %Schema{}, schemas) do
+  defp resolve_schema_modules_from_schema(schema = %Schema{}, schemas) do
     {all_of, schemas} = resolve_schema_modules_from_schema(schema.allOf, schemas)
     {one_of, schemas} = resolve_schema_modules_from_schema(schema.oneOf, schemas)
     {any_of, schemas} = resolve_schema_modules_from_schema(schema.anyOf, schemas)
@@ -146,10 +164,10 @@ defmodule OpenApiSpex.SchemaResolver do
       }
     {schema, schemas}
   end
-  def resolve_schema_modules_from_schema(ref = %Reference{}, schemas), do: {ref, schemas}
+  defp resolve_schema_modules_from_schema(ref = %Reference{}, schemas), do: {ref, schemas}
 
-  def resolve_schema_modules_from_schema_properties(nil, schemas), do: {nil, schemas}
-  def resolve_schema_modules_from_schema_properties(properties, schemas) do
+  defp resolve_schema_modules_from_schema_properties(nil, schemas), do: {nil, schemas}
+  defp resolve_schema_modules_from_schema_properties(properties, schemas) do
     Enum.reduce(properties, {properties, schemas}, fn {name, property}, {properties, schemas} ->
       {new_property, schemas} = resolve_schema_modules_from_schema(property, schemas)
       {Map.put(properties, name, new_property), schemas}

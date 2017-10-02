@@ -1,4 +1,7 @@
 defmodule OpenApiSpex.Header do
+  @moduledoc """
+  Defines the `OpenApiSpex.Header.t` type.
+  """
   alias OpenApiSpex.{Schema, Reference, Example}
   defstruct [
     :description,
@@ -11,6 +14,16 @@ defmodule OpenApiSpex.Header do
     :examples,
     style: :simple
   ]
+
+  @typedoc """
+  [Header Object](https://swagger.io/specification/#headerObject)
+
+  The Header Object follows the structure of the Parameter Object with the following changes:
+
+   - name MUST NOT be specified, it is given in the corresponding headers map.
+   - in MUST NOT be specified, it is implicitly in header.
+   - All traits that are affected by the location MUST be applicable to a location of header (for example, style).
+  """
   @type t :: %__MODULE__{
     description: String.t,
     required: boolean,

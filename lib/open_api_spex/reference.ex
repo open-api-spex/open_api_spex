@@ -1,13 +1,6 @@
 defmodule OpenApiSpex.Reference do
   @moduledoc """
-  A simple object to allow referencing other components in the specification, internally and externally.
-
-  The Reference Object is defined by JSON Reference and follows the same structure, behavior and rules.
-  See https://swagger.io/specification/#referenceObject
-
-  ## Example
-
-      ref = %OpenApiSpex.Reference{"$ref": "#/components/schemas/user"}
+  Defines the `OpenApiSpex.Reference.t` type.
   """
 
   alias OpenApiSpex.Reference
@@ -15,6 +8,13 @@ defmodule OpenApiSpex.Reference do
   defstruct [
     :"$ref"
   ]
+
+  @typedoc """
+  [Reference Object](https://swagger.io/specification/#referenceObject)
+
+  A simple object to allow referencing other components in the specification, internally and externally.
+  The Reference Object is defined by JSON Reference and follows the same structure, behavior and rules.
+  """
   @type t :: %Reference{
     "$ref": String.t
   }

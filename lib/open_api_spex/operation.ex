@@ -1,4 +1,7 @@
 defmodule OpenApiSpex.Operation do
+  @moduledoc """
+  Defines the `OpenApiSpex.Operation.t` type.
+  """
   alias OpenApiSpex.{
     Callback,
     ExternalDocumentation,
@@ -28,6 +31,12 @@ defmodule OpenApiSpex.Operation do
     :security,
     :servers
   ]
+
+  @typedoc """
+  [Operation Object](https://swagger.io/specification/#operationObject)
+
+  Describes a single API operation on a path.
+  """
   @type t :: %__MODULE__{
     tags: [String.t],
     summary: String.t,
@@ -122,16 +131,18 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  def cast_parameters([], _params, _schemas), do: {:ok, %{}}
-  def cast_parameters([p | rest], params = %{}, schemas) do
+  @spec cast_parameters([Parameter.t], map, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
+  defp cast_parameters([], _params, _schemas), do: {:ok, %{}}
+  defp cast_parameters([p | rest], params = %{}, schemas) do
     with {:ok, cast_val} <- Schema.cast(Parameter.schema(p), params[Atom.to_string(p.name)], schemas),
          {:ok, cast_tail} <- cast_parameters(rest, params, schemas) do
       {:ok, Map.put_new(cast_tail, p.name, cast_val)}
     end
   end
 
-  def cast_request_body(nil, _, _, _), do: {:ok, %{}}
-  def cast_request_body(%RequestBody{content: content}, params, content_type, schemas) do
+  @spec cast_request_body(RequestBody.t | nil, map, String.t | nil, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
+  defp cast_request_body(nil, _, _, _), do: {:ok, %{}}
+  defp cast_request_body(%RequestBody{content: content}, params, content_type, schemas) do
     schema = content[content_type].schema
     Schema.cast(schema, params, schemas)
   end
@@ -150,7 +161,8 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  def validate_required_parameters(parameter_list, params = %{}) do
+  @spec validate_required_parameters([Parameter.t], map) :: :ok | {:error, String.t}
+  defp validate_required_parameters(parameter_list, params = %{}) do
     required =
       parameter_list
       |> Stream.filter(fn parameter -> parameter.required end)
@@ -163,19 +175,21 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  def validate_parameter_schemas([], params, _schemas), do: {:ok, params}
-  def validate_parameter_schemas([p | rest], params, schemas) do
+  @spec validate_parameter_schemas([Parameter.t], map, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
+  defp validate_parameter_schemas([], params, _schemas), do: {:ok, params}
+  defp validate_parameter_schemas([p | rest], params, schemas) do
     with :ok <- Schema.validate(Parameter.schema(p), params[p.name], schemas),
          {:ok, remaining} <- validate_parameter_schemas(rest, params, schemas) do
       {:ok, Map.delete(remaining, p.name)}
     end
   end
 
-  def validate_body_schema(nil, _, _, _), do: :ok
-  def validate_body_schema(%RequestBody{required: false}, params, _content_type, _schemas) when map_size(params) == 0 do
+  @spec validate_body_schema(RequestBody.t | nil, map, String.t | nil, %{String.t => Schema.t}) :: :ok | {:error, String.t}
+  defp validate_body_schema(nil, _, _, _), do: :ok
+  defp validate_body_schema(%RequestBody{required: false}, params, _content_type, _schemas) when map_size(params) == 0 do
     :ok
   end
-  def validate_body_schema(%RequestBody{content: content}, params, content_type, schemas) do
+  defp validate_body_schema(%RequestBody{content: content}, params, content_type, schemas) do
     content
     |> Map.get(content_type)
     |> Map.get(:schema)

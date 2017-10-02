@@ -1,28 +1,8 @@
 defmodule OpenApiSpex.Schema do
   @moduledoc """
-  The Schema Object allows the definition of input and output data types. These types can be objects, but also primitives and arrays.
-
-  See https://swagger.io/specification/#schemaObject
-
-  ## Example
-      alias OpenApiSpex.Schema
-
-      %Schema{
-        title: "User",
-        type: :object,
-        properties: %{
-          id: %Schema{type: :integer, minimum: 1},
-          name: %Schema{type: :string, pattern: "[a-zA-Z][a-zA-Z0-9_]+"},
-          email: %Scheam{type: :string, format: :email},
-          last_login: %Schema{type: :string, format: :"date-time"}
-        },
-        required: [:name, :email],
-        example: %{
-          "name" => "joe",
-          "email" => "joe@gmail.com"
-        }
-      }
+  Defines the `OpenApiSpex.Schema.t` type and operations for casting and validating against a schema.
   """
+
   alias OpenApiSpex.{
     Schema, Reference, Discriminator, Xml, ExternalDocumentation
   }
@@ -65,6 +45,33 @@ defmodule OpenApiSpex.Schema do
     :deprecated,
     :"x-struct"
   ]
+
+  @typedoc """
+  [Schema Object](https://swagger.io/specification/#schemaObject)
+
+  The Schema Object allows the definition of input and output data types.
+  These types can be objects, but also primitives and arrays.
+  This object is an extended subset of the JSON Schema Specification Wright Draft 00.
+
+  ## Example
+      alias OpenApiSpex.Schema
+
+      %Schema{
+        title: "User",
+        type: :object,
+        properties: %{
+          id: %Schema{type: :integer, minimum: 1},
+          name: %Schema{type: :string, pattern: "[a-zA-Z][a-zA-Z0-9_]+"},
+          email: %Scheam{type: :string, format: :email},
+          last_login: %Schema{type: :string, format: :"date-time"}
+        },
+        required: [:name, :email],
+        example: %{
+          "name" => "joe",
+          "email" => "joe@gmail.com"
+        }
+      }
+  """
   @type t :: %__MODULE__{
     title: String.t,
     multipleOf: number | nil,

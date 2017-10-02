@@ -1,4 +1,8 @@
 defmodule OpenApiSpex.PathItem do
+  @moduledoc """
+  Defines the `OpenApiSpex.PathItem.t` type.
+  """
+
   alias OpenApiSpex.{Operation, Server, Parameter, PathItem, Reference}
   defstruct [
     :"$ref",
@@ -15,6 +19,15 @@ defmodule OpenApiSpex.PathItem do
     :servers,
     :parameters
   ]
+
+  @typedoc """
+  [Path Item Object](https://swagger.io/specification/#pathItemObject)
+
+  Describes the operations available on a single path.
+  A Path Item MAY be empty, due to ACL constraints.
+  The path itself is still exposed to the documentation viewer
+  but they will not know which operations and parameters are available.
+  """
   @type t :: %__MODULE__{
     "$ref": String.t,
     summary: String.t,
@@ -31,6 +44,10 @@ defmodule OpenApiSpex.PathItem do
     parameters: [Parameter.t | Reference.t]
   }
 
+  @typedoc """
+  Represents a route from in a Plug/Phoenix application.
+  Eg from the generated `__routes__` function in a Phoenix.Router module.
+  """
   @type route :: %{verb: atom, plug: atom, opts: any}
 
   @doc """

@@ -1,4 +1,7 @@
 defmodule OpenApiSpex.OpenApi do
+  @moduledoc """
+  Defines the `OpenApiSpex.OpenApi.t` type.
+  """
   alias OpenApiSpex.{
     Info, Server, Paths, Components,
     SecurityRequirement, Tag, ExternalDocumentation,
@@ -14,6 +17,12 @@ defmodule OpenApiSpex.OpenApi do
     :externalDocs,
     openapi: "3.0",
   ]
+
+  @typedoc """
+  [OpenAPI Object](https://swagger.io/specification/#oasObject)
+
+  This is the root document object of the OpenAPI document.
+  """
   @type t :: %OpenApi{
     openapi: String.t,
     info: Info.t,
