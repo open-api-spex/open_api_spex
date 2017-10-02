@@ -10,6 +10,8 @@ defmodule OpenApiSpex.Mixfile do
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env == :prod,
+      description: description(),
+      package: package(),
       deps: deps(),
       source_url: "https://github.com/mbuhot/open_api_spex",
       homepage_url: "https://github.com/mbuhot/open_api_spex",
@@ -27,20 +29,30 @@ defmodule OpenApiSpex.Mixfile do
   defp elixirc_paths(_),     do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
-  def application do
+  def application, do: [extra_applications: []]
+
+  defp description() do
+    "Leverage Open Api Specification 3 (swagger) to document, test, validate and explore your Plug and Phoenix APIs."
+  end
+
+  defp package() do
     [
-      extra_applications: [:logger]
+      name: "open_api_spex",
+      files: ["lib", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md"],
+      maintainers: ["Mike Buhot (m.buhot@gmail.com)"],
+      licenses: ["Mozilla Public License, version 2.0"],
+      links: %{"GitHub" => "https://github.com/mbuhot/open_api_spex"}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:poison, ">= 0.0.0"},
-      {:plug, ">= 0.0.0"},
+      {:poison, "~> 3.1"},
+      {:plug, "~> 1.4"},
       {:phoenix, "~> 1.3", only: :test},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:dialyxir, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:dialyxir, "~> 0.5", only: :dev, runtime: false}
     ]
   end
 end
