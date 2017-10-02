@@ -1,6 +1,12 @@
 # Open API Spex [![Build Status](https://travis-ci.org/mbuhot/open_api_spex.svg?branch=master)](https://travis-ci.org/mbuhot/open_api_spex)
 
-Add Open API Specification 3 (formerly swagger) to Plug applications.
+Leverage Open Api Specification 3 (swagger) to document, test, validate and explore your Plug and Phoenix APIs.
+
+ - Generate and serve a JSON Open Api Spec document from your code
+ - Use the spec to cast request params to well defined schema structs
+ - Validate params against schemas, eliminate bad requests before they hit your controllers
+ - Validate responses against schemas in tests, ensuring your docs are accurate and reliable
+ - Explore the API interactively with with [SwaggerUI](https://swagger.io/swagger-ui/)
 
 ## Installation
 
@@ -14,7 +20,7 @@ def deps do
 end
 ```
 
-## Generating an API spec
+## Generate Spec
 
 Start by adding an `ApiSpec` module to your application.
 
@@ -140,7 +146,7 @@ end
 
 Generate the file with: `mix myapp.openapispec spec.json`
 
-## Serving the API Spec from a Controller
+## Serve Spec
 
 To serve the API spec from your application, first add the `OpenApiSpex.Plug.PutApiSpec` plug somewhere in the pipeline.
 
@@ -161,7 +167,7 @@ The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
   end
 ```
 
-## Swagger UI
+## Serve Swagger UI
 
 Once your API spec is available through a route, the `OpenApiSpex.Plug.SwaggerUI` plug can be used to serve a SwaggerUI interface.  The `path:` plug option must be supplied to give the path to the API spec.
 
@@ -183,7 +189,7 @@ All javascript and CSS assets are sourced from cdnjs.cloudflare.com, rather than
   end
 ```
 
-## Use the API Spec to cast params
+## Cast Params
 
 Add the `OpenApiSpex.Plug.Cast` plug to a controller to cast the request parameters to elixir types defined by the operation schema.
 
@@ -227,9 +233,9 @@ end
 ```
 
 
-## Use the API Spec to validate Requests
+## Validate Params
 
-Add both the `Cast` and `Validate` plugs to your controller / plug:
+Add both the `OpenApiSpex.Plug.Cast` and `OpenApiSpex.Plug.Validate` plugs to your controller / plug:
 
 ```elixir
 plug OpenApiSpex.Plug.Cast
@@ -238,7 +244,7 @@ plug OpenApiSpex.Plug.Validate
 
 Now the client will receive a 422 response whenever the request fails to meet the validation rules from the api spec.
 
-## Validating Schema Examples
+## Validate Examples
 
 As schemas evolve, you may want to confirm that the examples given match the schemas.
 Use the `OpenApiSpex.Test.Assertions` module to assert on schema validations.
@@ -254,7 +260,7 @@ test "UsersResponse example matches schema" do
 end
 ```
 
-## Validating API responses in Tests
+## Validate Responses
 
 Api responses can be tested against schemas using `OpenApiSpex.Test.Assertions` also:
 
