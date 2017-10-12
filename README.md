@@ -15,7 +15,7 @@ The package can be installed by adding `open_api_spex` to your list of dependenc
 ```elixir
 def deps do
   [
-    {:open_api_spex, github: "mbuhot/open_api_spex"}
+    {:open_api_spex, "~> 1.0"}
   ]
 end
 ```
