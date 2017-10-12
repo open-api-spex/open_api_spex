@@ -15,17 +15,31 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
 
   @impl Plug
   def call(conn, module: mod) do
-    spec = %OpenApiSpex.OpenApi{} =  mod.spec()
+    {spec, operation_lookup} =
+      case Application.get_env(:open_api_spex, mod) do
+        nil -> build_spec(mod)
+        cached -> cached
+      end
+
     private_data =
       conn
       |> Map.get(:private)
       |> Map.get(:open_api_spex, %{})
       |> Map.put(:spec, spec)
-      |> Map.put(:operation_lookup, build_operation_lookup(spec))
+      |> Map.put(:operation_lookup, operation_lookup)
 
     Plug.Conn.put_private(conn, :open_api_spex, private_data)
   end
 
+  @spec build_spec(module) :: {OpenApiSpex.OpenApi.t, %{String.t => OpenApiSpex.Operation.t}}
+  defp build_spec(mod) do
+    spec = mod.spec()
+    operation_lookup = build_operation_lookup(spec)
+    Application.put_env(:open_api_spex, mod, {spec, operation_lookup})
+    {spec, operation_lookup}
+  end
+
+  @spec build_operation_lookup(OpenApiSpex.OpenApi.t) :: %{String.t => OpenApiSpex.Operation.t}
   defp build_operation_lookup(spec = %OpenApiSpex.OpenApi{}) do
     spec
     |> Map.get(:paths)
