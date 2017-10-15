@@ -15,7 +15,7 @@ defmodule OpenApiSpex.OpenApi do
     :security,
     :tags,
     :externalDocs,
-    openapi: "3.0",
+    openapi: "3.0.0",
   ]
 
   @typedoc """
