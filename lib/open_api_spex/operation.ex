@@ -38,20 +38,18 @@ defmodule OpenApiSpex.Operation do
   Describes a single API operation on a path.
   """
   @type t :: %__MODULE__{
-    tags: [String.t],
-    summary: String.t,
-    description: String.t,
-    externalDocs: ExternalDocumentation.t,
-    operationId: String.t,
-    parameters: [Parameter.t | Reference.t],
-    requestBody: [RequestBody.t | Reference.t],
+    tags: [String.t] | nil,
+    summary: String.t | nil,
+    description: String.t | nil,
+    externalDocs: ExternalDocumentation.t | nil,
+    operationId: String.t | nil,
+    parameters: [Parameter.t | Reference.t] | nil,
+    requestBody: [RequestBody.t | Reference.t] | nil,
     responses: Responses.t,
-    callbacks: %{
-      String.t => Callback.t | Reference.t
-    },
-    deprecated: boolean,
-    security: [SecurityRequirement.t],
-    servers: [Server.t]
+    callbacks: %{String.t => Callback.t | Reference.t} | nil,
+    deprecated: boolean | nil,
+    security: [SecurityRequirement.t] | nil,
+    servers: [Server.t] | nil
   }
 
   @doc """
@@ -124,7 +122,7 @@ defmodule OpenApiSpex.Operation do
   """
   @spec cast(Operation.t, map, String.t | nil, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
   def cast(operation = %Operation{}, params = %{}, content_type, schemas) do
-    parameters = Enum.filter(operation.parameters, fn p -> Map.has_key?(params, Atom.to_string(p.name)) end)
+    parameters = Enum.filter(operation.parameters || [], fn p -> Map.has_key?(params, Atom.to_string(p.name)) end)
     with {:ok, parameter_values} <- cast_parameters(parameters, params, schemas),
          {:ok, body} <- cast_request_body(operation.requestBody, params, content_type, schemas) do
       {:ok, Map.merge(parameter_values, body)}
@@ -153,8 +151,8 @@ defmodule OpenApiSpex.Operation do
   """
   @spec validate(Operation.t, map, String.t | nil, %{String.t => Schema.t}) :: :ok | {:error, String.t}
   def validate(operation = %Operation{}, params = %{}, content_type, schemas) do
-    with :ok <- validate_required_parameters(operation.parameters, params),
-         parameters <- Enum.filter(operation.parameters, &Map.has_key?(params, &1.name)),
+    with :ok <- validate_required_parameters(operation.parameters || [], params),
+         parameters <- Enum.filter(operation.parameters || [], &Map.has_key?(params, &1.name)),
          {:ok, remaining} <- validate_parameter_schemas(parameters, params, schemas),
          :ok <- validate_body_schema(operation.requestBody, remaining, content_type, schemas) do
       :ok
