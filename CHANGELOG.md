@@ -1,3 +1,7 @@
+# 1.1.2
+
+Fix openapi version output in generated spec.
+
 # 1.1.1
 
 Update swagger-ui to version 3.3.2
