@@ -244,6 +244,12 @@ plug OpenApiSpex.Plug.Validate
 
 Now the client will receive a 422 response whenever the request fails to meet the validation rules from the api spec.
 
+The response body will include the validation error message:
+
+```
+#/user/name: Value does not match pattern: [a-zA-Z][a-zA-Z0-9_]+
+```
+
 ## Validate Examples
 
 As schemas evolve, you may want to confirm that the examples given match the schemas.
