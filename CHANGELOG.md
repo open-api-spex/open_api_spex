@@ -1,3 +1,8 @@
+# 1.1.3
+
+ - Fix several bugs and make some minor enhancements to schema casting and validating.
+ - Add sample application to enable end-to-end testing
+
 # 1.1.2
 
 Fix openapi version output in generated spec.
