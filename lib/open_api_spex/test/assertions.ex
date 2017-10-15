@@ -10,7 +10,7 @@ defmodule OpenApiSpex.Test.Assertions do
   @doc """
   Asserts that `value` conforms to the schema with title `schema_title` in `api_spec`.
   """
-  @spec assert_schema(map, String.t, OpenApi.t) :: :ok | no_return
+  @spec assert_schema(map, String.t, OpenApi.t) :: map | no_return
   def assert_schema(value = %{}, schema_title, api_spec = %OpenApi{}) do
     schemas = api_spec.components.schemas
     schema = schemas[schema_title]
@@ -20,6 +20,7 @@ defmodule OpenApiSpex.Test.Assertions do
 
     _ = assert {:ok, data} = OpenApiSpex.cast(api_spec, schema, value)
     _ = assert :ok = OpenApiSpex.validate(api_spec, schema, data)
-    :ok
+
+    data
   end
 end
