@@ -141,8 +141,8 @@ defmodule OpenApiSpex.Schema do
   def cast(%Schema{type: :boolean}, value, _schemas) when is_boolean(value), do: {:ok, value}
   def cast(%Schema{type: :boolean}, value, _schemas) when is_binary(value) do
     case value do
-      "true" -> true
-      "false" -> false
+      "true" -> {:ok, true}
+      "false" -> {:ok, false}
       _ -> {:error, "Invalid boolean: #{inspect(value)}"}
     end
   end
@@ -187,7 +187,7 @@ defmodule OpenApiSpex.Schema do
     end
   end
   def cast(ref = %Reference{}, val, schemas), do: cast(Reference.resolve_schema(ref, schemas), val, schemas)
-  def cast(additionalProperties, val, _schemas) when additionalProperties in [true, false, nil], do: val
+  def cast(additionalProperties, val, _schemas) when additionalProperties in [true, false, nil], do: {:ok, val}
 
   @spec cast_properties(Schema.t, list, %{String.t => Schema.t}) :: {:ok, list} | {:error, String.t}
   defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}
