@@ -257,11 +257,11 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
-  def validate(schema = %Schema{type: :object, properties: properties}, value, path, schemas) do
+  def validate(schema = %Schema{type: :object, properties: properties, required: required}, value = %{}, path, schemas) do
     with :ok <- validate_required_properties(schema, value, path),
          :ok <- validate_max_properties(schema, value, path),
          :ok <- validate_min_properties(schema, value, path),
-         :ok <- validate_object_properties(properties, value, path, schemas) do
+         :ok <- validate_object_properties(properties, MapSet.new(required || []), value, path, schemas) do
       :ok
     end
   end
@@ -354,7 +354,7 @@ defmodule OpenApiSpex.Schema do
 
   @spec validate_required_properties(Schema.t, %{}, String.t) :: :ok | {:error, String.t}
   defp validate_required_properties(%Schema{type: :object, required: nil}, _val, _path), do: :ok
-  defp validate_required_properties(%Schema{type: :object, required: required}, value, path) do
+  defp validate_required_properties(%Schema{type: :object, required: required}, value = %{}, path) do
     missing = required -- Map.keys(value)
     case missing do
       [] -> :ok
@@ -376,17 +376,24 @@ defmodule OpenApiSpex.Schema do
     {:error, "#{path}: Object property count #{map_size(val)} is less than minProperties: #{n}"}
   end
 
-  @spec validate_object_properties(Enumerable.t, %{}, String.t, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
-  defp validate_object_properties(properties = %{}, value = %{}, path, schemas = %{}) do
+  @spec validate_object_properties(Enumerable.t, MapSet.t, %{}, String.t, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
+  defp validate_object_properties(properties = %{}, required, value = %{}, path, schemas = %{}) do
     properties
     |> Enum.filter(fn {name, _schema} -> Map.has_key?(value, name) end)
-    |> validate_object_properties(value, path, schemas)
+    |> validate_object_properties(required, value, path, schemas)
   end
-  defp validate_object_properties([], _val, _path, _schemas), do: :ok
-  defp validate_object_properties([{name, schema} | rest], value, path, schemas = %{}) do
-    case validate(schema, Map.get(value, name), "#{path}/#{name}", schemas) do
-      :ok -> validate_object_properties(rest, value, path, schemas)
-      error -> error
+  defp validate_object_properties([], _required, _val, _path, _schemas), do: :ok
+  defp validate_object_properties([{name, schema} | rest], required, value = %{}, path, schemas = %{}) do
+    property_required = MapSet.member?(required, name)
+    property_value = Map.get(value, name)
+    property_path = "#{path}/#{name}"
+    with :ok <- validate_object_property(schema, property_required, property_value, property_path, schemas),
+         :ok <- validate_object_properties(rest, required, value, path, schemas) do
+      :ok
     end
+  end
+  defp validate_object_property(_schema, false, nil, _path, _schemas), do: :ok
+  defp validate_object_property(schema, _required, value, path, schemas) do
+    validate(schema, value, path, schemas)
   end
 end
