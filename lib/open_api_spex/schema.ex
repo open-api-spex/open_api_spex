@@ -225,6 +225,10 @@ defmodule OpenApiSpex.Schema do
 
   @spec validate(Schema.t | Reference.t, any, String.t, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
   def validate(ref = %Reference{}, val, path, schemas), do: validate(Reference.resolve_schema(ref, schemas), val, path, schemas)
+  def validate(%Schema{nullable: true}, nil, _path, _schemas), do: :ok
+  def validate(%Schema{type: type}, nil, path, _schemas) do
+    {:error, "#{path}: null value where #{type} expected"}
+  end
   def validate(schema = %Schema{type: type}, value, path, _schemas) when type in [:integer, :number] do
     with :ok <- validate_multiple(schema, value, path),
          :ok <- validate_maximum(schema, value, path),
