@@ -1,3 +1,7 @@
+# 1.1.1
+
+Update swagger-ui to version 3.3.2
+
 # 1.1.0
 
 Include path to invalid element in validation errors.
