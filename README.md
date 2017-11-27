@@ -103,11 +103,11 @@ defmodule MyApp.Schemas do
         updated_at: %Schema{type: :string, description: "Update timestamp", format: :datetime}
       },
       required: [:name, :email],
-      example: {
+      example: %{
         "id" => 123,
         "name" => "Joe",
         "email" => "joe@gmail.com"
-      }
+      },
       "x-struct": __MODULE__
     }
     def schema, do: @schema
@@ -172,6 +172,8 @@ The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
 Once your API spec is available through a route, the `OpenApiSpex.Plug.SwaggerUI` plug can be used to serve a SwaggerUI interface.  The `path:` plug option must be supplied to give the path to the API spec.
 
 All javascript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
+
+Note: To make requests via the SwaggerUI you need to add [CORS](https://www.w3.org/TR/cors/), with the [CORSPlug](https://github.com/mschae/cors_plug) for example.
 
 ```elixir
   scope "/" do
