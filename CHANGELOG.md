@@ -1,3 +1,7 @@
+# 1.1.4
+
+ - `additionalProperties` is now `nil` by default, was previously `true`
+
 # 1.1.3
 
  - Fix several bugs and make some minor enhancements to schema casting and validating.
