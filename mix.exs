@@ -1,15 +1,15 @@
 defmodule OpenApiSpex.Mixfile do
   use Mix.Project
 
-  @version "1.1.3"
+  @version "1.1.4"
 
   def project do
     [
       app: :open_api_spex,
       version: @version,
       elixir: "~> 1.5",
-      elixirc_paths: elixirc_paths(Mix.env),
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
       deps: deps(),
@@ -26,7 +26,7 @@ defmodule OpenApiSpex.Mixfile do
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
   def application, do: [extra_applications: []]
