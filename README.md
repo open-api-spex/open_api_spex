@@ -1,4 +1,7 @@
-# Open API Spex [![Build Status](https://travis-ci.org/mbuhot/open_api_spex.svg?branch=master)](https://travis-ci.org/mbuhot/open_api_spex)
+# Open API Spex
+[![Build Status](https://travis-ci.org/mbuhot/open_api_spex.svg?branch=master)](https://travis-ci.org/mbuhot/open_api_spex)
+[![Hex.pm](https://img.shields.io/hexpm/v/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
+
 
 Leverage Open Api Specification 3 (swagger) to document, test, validate and explore your Plug and Phoenix APIs.
 
