@@ -37,7 +37,7 @@ defmodule OpenApiSpex.Schema do
     :not,
     :items,
     :properties,
-    {:additionalProperties, true},
+    {:additionalProperties, nil},
     :description,
     :format,
     :default,
