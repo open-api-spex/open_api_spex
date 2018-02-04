@@ -211,7 +211,7 @@ defmodule MyApp.UserController do
   plug OpenApiSpex.Plug.Cast
 
   def open_api_operation(action) do
-    apply(__MODULE__, "#{action}_operation", [])
+    apply(__MODULE__, :"#{action}_operation", [])
   end
 
   def create_operation do
