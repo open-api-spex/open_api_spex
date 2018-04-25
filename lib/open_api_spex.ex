@@ -33,8 +33,8 @@ defmodule OpenApiSpex do
   def cast(spec = %OpenApi{}, schema = %Reference{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
-  def cast(spec = %OpenApi{}, operation = %Operation{}, params, content_type \\ nil) do
-    Operation.cast(operation, params, content_type, spec.components.schemas)
+  def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %{}, content_type \\ nil) do
+    Operation.cast(operation, conn, content_type, spec.components.schemas)
   end
 
   @doc """

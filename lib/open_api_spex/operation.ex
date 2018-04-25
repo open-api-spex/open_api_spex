@@ -120,14 +120,35 @@ defmodule OpenApiSpex.Operation do
   @doc """
   Cast params to the types defined by the schemas of the operation parameters and requestBody
   """
-  @spec cast(Operation.t, map, String.t | nil, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
-  def cast(operation = %Operation{}, params = %{}, content_type, schemas) do
-    parameters = Enum.filter(operation.parameters || [], fn p -> Map.has_key?(params, Atom.to_string(p.name)) end)
-    with {:ok, parameter_values} <- cast_parameters(parameters, params, schemas),
-         {:ok, body} <- cast_request_body(operation.requestBody, params, content_type, schemas) do
+  @spec cast(Operation.t, Conn.t, String.t | nil, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
+  def cast(operation = %Operation{}, conn = %{}, content_type, schemas) do
+    parameters = Enum.filter(operation.parameters || [], fn p -> Map.has_key?(conn.params, Atom.to_string(p.name)) end)
+    with :ok <- validate_parameters(conn, operation.parameters),
+         {:ok, parameter_values} <- cast_parameters(parameters, conn.params, schemas),
+         {:ok, body} <- cast_request_body(operation.requestBody, conn.params, content_type, schemas) do
       {:ok, Map.merge(parameter_values, body)}
     end
   end
+
+  defp validate_parameters(conn, [_] = defined_parameters) do
+    validate_parameter_keys(Map.to_list(conn.query_params), defined_parameters, :query)
+  end
+
+  defp validate_parameter_keys([], _defined_parameters), do: :ok
+  defp validate_parameter_keys([parameter|parameters], defined_parameters, place) do
+    search_result = Enum.find(defined_parameters,
+      fn defined_parameter->
+        String.to_atom(elem(parameter,0)) == defined_parameter.name
+        && defined_parameter.in == place
+      end
+    )
+
+    case search_result do
+      nil -> {:error, "Undefined #{place}-Parameter: #{inspect(elem(parameter,0))}"}
+      _ -> validate_parameter_keys(parameters, defined_parameters)
+    end
+  end
+
 
   @spec cast_parameters([Parameter.t], map, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
   defp cast_parameters([], _params, _schemas), do: {:ok, %{}}
