@@ -23,7 +23,6 @@ defmodule ParamTest do
     end
 
     test "Invalid Param" do
-
       conn =
         :get
         |> Plug.Test.conn("/api/users?validParam=123&inValidParam=123&inValid2=hi")
@@ -31,9 +30,7 @@ defmodule ParamTest do
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 422
-      assert conn.resp_body == "Undefined query-Parameter: \"inValid2\""
-
+      assert conn.resp_body == "Undefined query parameter: \"inValid2\""
     end
   end
-
 end
