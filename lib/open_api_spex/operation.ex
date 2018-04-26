@@ -130,21 +130,21 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  defp validate_parameters(conn, [_] = defined_parameters) do
-    validate_parameter_keys(Map.to_list(conn.query_params), defined_parameters, :query)
+  defp validate_parameters(%Plug.Conn{} = conn, defined_parameters) when is_list(defined_parameters)do
+    validate_parameter_keys(Map.keys(conn.query_params), defined_parameters, :query)
   end
 
   defp validate_parameter_keys([], _defined_parameters), do: :ok
   defp validate_parameter_keys([parameter|parameters], defined_parameters, place) do
     search_result = Enum.find(defined_parameters,
       fn defined_parameter->
-        String.to_atom(elem(parameter,0)) == defined_parameter.name
+        String.to_atom(parameter) == defined_parameter.name
         && defined_parameter.in == place
       end
     )
 
     case search_result do
-      nil -> {:error, "Undefined #{place}-Parameter: #{inspect(elem(parameter,0))}"}
+      nil -> {:error, "Undefined #{place}-Parameter: #{inspect(parameter)}"}
       _ -> validate_parameter_keys(parameters, defined_parameters)
     end
   end
