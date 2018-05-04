@@ -138,6 +138,7 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
+  @spec validate_parameter_keys([Parameter.t], map) :: :ok | {:error, String.t}
   defp validate_parameter_keys([], _defined_params), do: :ok
   defp validate_parameter_keys([param|params], %MapSet{} = defined_params) do
     case MapSet.member?(defined_params, param) do
