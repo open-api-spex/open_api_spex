@@ -130,7 +130,7 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  @spec validate_parameters(Conn.t, List.t) :: :ok | {:error, String.t}
+  @spec validate_parameters(Conn.t, list) :: :ok | {:error, String.t}
   defp validate_parameters(%Plug.Conn{} = conn, defined_params) when is_list(defined_params)do
     defined_query_params = for param <- defined_params, param.in == :query, into: MapSet.new(), do: to_string(param.name)
     case validate_parameter_keys(Map.keys(conn.query_params), defined_query_params) do
@@ -139,7 +139,7 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  @spec validate_parameter_keys([Map.key], MapSet.t) ::  {:error, String.t} | :ok
+  @spec validate_parameter_keys([String.t], MapSet.t) ::  {:error, String.t} | :ok
   defp validate_parameter_keys([], _defined_params), do: :ok
   defp validate_parameter_keys([param|params], defined_params) do
     case MapSet.member?(defined_params, param) do
