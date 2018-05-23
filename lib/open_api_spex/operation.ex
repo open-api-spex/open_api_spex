@@ -130,8 +130,14 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  @spec validate_parameters(Conn.t, list) :: :ok | {:error, String.t}
-  defp validate_parameters(%Plug.Conn{} = conn, defined_params) when is_list(defined_params)do
+  @spec validate_parameters(Conn.t, list | nil) :: :ok | {:error, String.t}
+  defp validate_parameters(%Plug.Conn{} = conn, defined_params) when is_nil(defined_params) do
+    case conn.query_params do
+      %{} -> :ok
+      _ -> {:error, "No query parameters defined for this operation"}
+    end
+  end
+  defp validate_parameters(%Plug.Conn{} = conn, defined_params) when is_list(defined_params) do
     defined_query_params = for param <- defined_params, param.in == :query, into: MapSet.new(), do: to_string(param.name)
     case validate_parameter_keys(Map.keys(conn.query_params), defined_query_params) do
       {:error, param} -> {:error, "Undefined query parameter: #{inspect(param)}"}
