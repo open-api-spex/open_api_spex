@@ -82,4 +82,39 @@ defmodule OpenApiSpexTest.UserController do
       data: %{user | id: 1234}
     })
   end
+
+  def payment_details_operation() do
+    import Operation
+    %Operation{
+      tags: ["users"],
+      summary: "Show user payment details",
+      description: "Shows a users payment details",
+      operationId: "UserController.payment_details",
+      parameters: [
+        parameter(:id, :path, :integer, "User ID", example: 123, minimum: 1)
+      ],
+      responses: %{
+        200 => response("Payment Details", "application/json", Schemas.PaymentDetails)
+      }
+    }
+  end
+  def payment_details(conn, %{"id" => id}) do
+    response =
+      case rem(id, 2) do
+        0 ->
+          %Schemas.CreditCardPaymentDetails{
+            credit_card_number: "1234-5678-0987-6543",
+            name_on_card: "Joe User",
+            expiry: "0522"
+          }
+        1 ->
+          %Schemas.DirectDebitPaymentDetails{
+            account_number: "98776543",
+            account_name: "Joes Savings",
+            bsb: "123-567"
+          }
+      end
+
+      json(conn, response)
+  end
 end
