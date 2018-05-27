@@ -133,6 +133,9 @@ defmodule OpenApiSpex.SchemaResolver do
   defp resolve_schema_modules_from_schema(false, schemas), do: {false, schemas}
   defp resolve_schema_modules_from_schema(true, schemas), do: {true, schemas}
   defp resolve_schema_modules_from_schema(nil, schemas), do: {nil, schemas}
+  defp resolve_schema_modules_from_schema(schema_list, schemas) when is_list(schema_list) do
+    Enum.map_reduce(schema_list, schemas, &resolve_schema_modules_from_schema/2)
+  end
   defp resolve_schema_modules_from_schema(schema, schemas) when is_atom(schema) do
     title = schema.schema().title
     new_schemas =

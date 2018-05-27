@@ -25,6 +25,56 @@ defmodule OpenApiSpexTest.Schemas do
     }
   end
 
+  defmodule CreditCardPaymentDetails do
+    OpenApiSpex.schema %{
+      title: "CreditCardPaymentDetails",
+      description: "Payment details when using credit-card method",
+      type: :object,
+      properties: %{
+        credit_card_number: %Schema{type: :string, description: "Credit card number"},
+        name_on_card: %Schema{type: :string, description: "Name as appears on card"},
+        expiry: %Schema{type: :string, description: "4 digit expiry MMYY"}
+      },
+      required: [:credit_card_number, :name_on_card, :expiry],
+      example: %{
+        "credit_card_number" => "1234-5678-1234-6789",
+        "name_on_card" => "Joe User",
+        "expiry" => "1234"
+      }
+    }
+  end
+
+  defmodule DirectDebitPaymentDetails do
+    OpenApiSpex.schema %{
+      title: "DirectDebitPaymentDetails",
+      description: "Payment details when using direct-debit method",
+      type: :object,
+      properties: %{
+        account_number: %Schema{type: :string, description: "Bank account number"},
+        account_name: %Schema{type: :string, description: "Name of account"},
+        bsb: %Schema{type: :string, description: "Branch identifier"}
+      },
+      required: [:account_number, :account_name, :bsb],
+      example: %{
+        "account_number" => "12349876",
+        "account_name" => "Joes Savings Account",
+        "bsb" => "123-4567"
+      }
+    }
+  end
+
+  defmodule PaymentDetails do
+    OpenApiSpex.schema %{
+      title: "PaymentDetails",
+      description: "Abstract Payment details type",
+      type: :object,
+      oneOf: [
+        CreditCardPaymentDetails,
+        DirectDebitPaymentDetails
+      ]
+    }
+  end
+
   defmodule UserRequest do
     OpenApiSpex.schema %{
       title: "UserRequest",
