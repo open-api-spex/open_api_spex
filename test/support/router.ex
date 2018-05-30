@@ -13,6 +13,7 @@ defmodule OpenApiSpexTest.Router do
   scope "/api" do
     pipe_through :api
     resources "/users", UserController, only: [:create, :index, :show]
+    get "/users/:id/payment_details", UserController, :payment_details
     get "/openapi", RenderSpec, []
   end
 end

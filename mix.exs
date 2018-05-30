@@ -52,7 +52,7 @@ defmodule OpenApiSpex.Mixfile do
       {:plug, "~> 1.4"},
       {:phoenix, "~> 1.3", only: :test},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
-      {:dialyxir, "~> 0.5", only: :dev, runtime: false}
+      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false}
     ]
   end
 end

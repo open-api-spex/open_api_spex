@@ -7,15 +7,16 @@ defmodule OpenApiSpex.OpenApi do
     SecurityRequirement, Tag, ExternalDocumentation,
     OpenApi
   }
+  @enforce_keys [:info, :paths]
   defstruct [
-    :info,
-    :servers,
-    :paths,
-    :components,
-    :security,
-    :tags,
-    :externalDocs,
     openapi: "3.0.0",
+    info: nil,
+    servers: [],
+    paths: nil,
+    components: nil,
+    security: [],
+    tags: [],
+    externalDocs: nil
   ]
 
   @typedoc """
@@ -28,10 +29,10 @@ defmodule OpenApiSpex.OpenApi do
     info: Info.t,
     servers: [Server.t],
     paths: Paths.t,
-    components: Components.t,
+    components: Components.t | nil,
     security: [SecurityRequirement.t],
     tags: [Tag.t],
-    externalDocs: ExternalDocumentation.t
+    externalDocs: ExternalDocumentation.t | nil
   }
 
   defimpl Poison.Encoder do

@@ -93,16 +93,16 @@ defmodule OpenApiSpex.Schema do
     uniqueItems: boolean | nil,
     maxProperties: integer | nil,
     minProperties: integer | nil,
-    required: [String.t] | nil,
+    required: [atom] | nil,
     enum: [String.t] | nil,
     type: atom,
-    allOf: [Schema.t | Reference.t] | nil,
-    oneOf: [Schema.t | Reference.t] | nil,
-    anyOf: [Schema.t | Reference.t] | nil,
-    not: Schema.t | Reference.t | nil,
-    items: Schema.t | Reference.t | nil,
-    properties: %{atom => Schema.t | Reference.t} | nil,
-    additionalProperties: boolean | Schema.t | Reference.t | nil,
+    allOf: [Schema.t | Reference.t | module] | nil,
+    oneOf: [Schema.t | Reference.t | module] | nil,
+    anyOf: [Schema.t | Reference.t | module] | nil,
+    not: Schema.t | Reference.t | module | nil,
+    items: Schema.t | Reference.t | module | nil,
+    properties: %{atom => Schema.t | Reference.t | module} | nil,
+    additionalProperties: boolean | Schema.t | Reference.t | module | nil,
     description: String.t,
     format: String.t | nil,
     default: any | nil,
@@ -181,7 +181,7 @@ defmodule OpenApiSpex.Schema do
       {:ok, [x_cast | rest_cast]}
     end
   end
-  def cast(schema = %Schema{type: :array}, value, _schemas) when not is_list(value) do
+  def cast(%Schema{type: :array}, value, _schemas) when not is_list(value) do
     {:error, "Invalid array: #{inspect(value)}"}
   end
   def cast(schema = %Schema{type: :object}, value, schemas) when is_map(value) do
