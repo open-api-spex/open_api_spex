@@ -45,7 +45,9 @@ defmodule OpenApiSpexTest.UserController do
       summary: "List users",
       description: "List all useres",
       operationId: "UserController.index",
-      parameters: [],
+      parameters: [
+        parameter(:validParam, :query, :boolean, "Valid Param", example: true)
+      ],
       responses: %{
         200 => response("User List Response", "application/json", Schemas.UsersResponse)
       }
