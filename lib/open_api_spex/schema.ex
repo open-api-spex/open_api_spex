@@ -185,12 +185,16 @@ defmodule OpenApiSpex.Schema do
     {:error, "Invalid array: #{inspect(value)}"}
   end
   def cast(schema = %Schema{type: :object}, value, schemas) when is_map(value) do
+    schema = %{schema | properties: schema.properties || %{}}
     with {:ok, props} <- cast_properties(schema, Enum.to_list(value), schemas) do
       {:ok, Map.new(props)}
     end
   end
   def cast(ref = %Reference{}, val, schemas), do: cast(Reference.resolve_schema(ref, schemas), val, schemas)
-  def cast(additionalProperties, val, _schemas) when additionalProperties in [true, false, nil], do: {:ok, val}
+  def cast(_additionalProperties = false, val, _schemas) do
+    {:error, "Unexpected field with value #{inspect(val)}"}
+  end
+  def cast(_additionalProperties, val, _schemas), do: {:ok, val}
 
   @spec cast_properties(Schema.t, list, %{String.t => Schema.t}) :: {:ok, list} | {:error, String.t}
   defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}
@@ -260,11 +264,12 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
-  def validate(schema = %Schema{type: :object, properties: properties, required: required}, value = %{}, path, schemas) do
+  def validate(schema = %Schema{type: :object}, value = %{}, path, schemas) do
+    schema = %{schema | properties: schema.properties || %{}, required: schema.required || []}
     with :ok <- validate_required_properties(schema, value, path),
          :ok <- validate_max_properties(schema, value, path),
          :ok <- validate_min_properties(schema, value, path),
-         :ok <- validate_object_properties(properties, MapSet.new(required || []), value, path, schemas) do
+         :ok <- validate_object_properties(schema.properties, MapSet.new(schema.required), value, path, schemas) do
       :ok
     end
   end
