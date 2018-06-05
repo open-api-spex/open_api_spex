@@ -121,7 +121,7 @@ defmodule OpenApiSpex.Operation do
   Cast params to the types defined by the schemas of the operation parameters and requestBody
   """
   @spec cast(Operation.t, Conn.t, String.t | nil, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
-  def cast(operation = %Operation{}, conn = %{}, content_type, schemas) do
+  def cast(operation = %Operation{}, conn = %Plug.Conn{}, content_type, schemas) do
     parameters = Enum.filter(operation.parameters || [], fn p -> Map.has_key?(conn.params, Atom.to_string(p.name)) end)
     with :ok <- validate_parameters(conn, operation.parameters),
          {:ok, parameter_values} <- cast_parameters(parameters, conn.params, schemas),
@@ -174,7 +174,7 @@ defmodule OpenApiSpex.Operation do
   Validate params against the schemas of the operation parameters and requestBody
   """
   @spec validate(Operation.t, Conn.t, String.t | nil, %{String.t => Schema.t}) :: :ok | {:error, String.t}
-  def validate(operation = %Operation{}, conn = %{}, content_type, schemas) do
+  def validate(operation = %Operation{}, conn = %Plug.Conn{}, content_type, schemas) do
     with :ok <- validate_required_parameters(operation.parameters || [], conn.params),
          parameters <- Enum.filter(operation.parameters || [], &Map.has_key?(conn.params, &1.name)),
          {:ok, remaining} <- validate_parameter_schemas(parameters, conn.params, schemas),
