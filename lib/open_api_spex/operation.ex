@@ -154,7 +154,6 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-
   @spec cast_parameters([Parameter.t], map, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
   defp cast_parameters([], _params, _schemas), do: {:ok, %{}}
   defp cast_parameters([p | rest], params = %{}, schemas) do
@@ -171,15 +170,14 @@ defmodule OpenApiSpex.Operation do
     Schema.cast(schema, params, schemas)
   end
 
-
   @doc """
   Validate params against the schemas of the operation parameters and requestBody
   """
-  @spec validate(Operation.t, map, String.t | nil, %{String.t => Schema.t}) :: :ok | {:error, String.t}
-  def validate(operation = %Operation{}, params = %{}, content_type, schemas) do
-    with :ok <- validate_required_parameters(operation.parameters || [], params),
-         parameters <- Enum.filter(operation.parameters || [], &Map.has_key?(params, &1.name)),
-         {:ok, remaining} <- validate_parameter_schemas(parameters, params, schemas),
+  @spec validate(Operation.t, Conn.t, String.t | nil, %{String.t => Schema.t}) :: :ok | {:error, String.t}
+  def validate(operation = %Operation{}, conn = %{}, content_type, schemas) do
+    with :ok <- validate_required_parameters(operation.parameters || [], conn.params),
+         parameters <- Enum.filter(operation.parameters || [], &Map.has_key?(conn.params, &1.name)),
+         {:ok, remaining} <- validate_parameter_schemas(parameters, conn.params, schemas),
          :ok <- validate_body_schema(operation.requestBody, remaining, content_type, schemas) do
       :ok
     end

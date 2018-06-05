@@ -46,8 +46,8 @@ defmodule OpenApiSpex do
   def validate(spec = %OpenApi{}, schema = %Reference{}, params) do
     Schema.validate(schema, params, spec.components.schemas)
   end
-  def validate(spec = %OpenApi{}, operation = %Operation{}, params = %{}, content_type \\ nil) do
-    Operation.validate(operation, params, content_type, spec.components.schemas)
+  def validate(spec = %OpenApi{}, operation = %Operation{}, conn = %{}, content_type \\ nil) do
+    Operation.validate(operation, conn, content_type, spec.components.schemas)
   end
 
   @doc """

@@ -30,7 +30,7 @@ defmodule OpenApiSpex.Plug.Validate do
     operation = operation_lookup[operation_id]
     content_type = Conn.get_req_header(conn, "content-type") |> Enum.at(0)
 
-    with :ok <- OpenApiSpex.validate(spec, operation, conn.params, content_type) do
+    with :ok <- OpenApiSpex.validate(spec, operation, conn, content_type) do
       conn
     else
       {:error, reason} ->
