@@ -121,23 +121,23 @@ defmodule OpenApiSpex.Operation do
   Cast params to the types defined by the schemas of the operation parameters and requestBody
   """
   @spec cast(Operation.t, Conn.t, String.t | nil, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
-  def cast(operation = %Operation{}, conn = %{}, content_type, schemas) do
+  def cast(operation = %Operation{}, conn = %Plug.Conn{}, content_type, schemas) do
     parameters = Enum.filter(operation.parameters || [], fn p -> Map.has_key?(conn.params, Atom.to_string(p.name)) end)
-    with :ok <- validate_parameters(conn, operation.parameters),
+    with :ok <- check_query_params_defined(conn, operation.parameters),
          {:ok, parameter_values} <- cast_parameters(parameters, conn.params, schemas),
          {:ok, body} <- cast_request_body(operation.requestBody, conn.params, content_type, schemas) do
       {:ok, Map.merge(parameter_values, body)}
     end
   end
 
-  @spec validate_parameters(Conn.t, list | nil) :: :ok | {:error, String.t}
-  defp validate_parameters(%Plug.Conn{} = conn, defined_params) when is_nil(defined_params) do
+  @spec check_query_params_defined(Conn.t, list | nil) :: :ok | {:error, String.t}
+  defp check_query_params_defined(%Plug.Conn{} = conn, defined_params) when is_nil(defined_params) do
     case conn.query_params do
       %{} -> :ok
       _ -> {:error, "No query parameters defined for this operation"}
     end
   end
-  defp validate_parameters(%Plug.Conn{} = conn, defined_params) when is_list(defined_params) do
+  defp check_query_params_defined(%Plug.Conn{} = conn, defined_params) when is_list(defined_params) do
     defined_query_params = for param <- defined_params, param.in == :query, into: MapSet.new(), do: to_string(param.name)
     case validate_parameter_keys(Map.keys(conn.query_params), defined_query_params) do
       {:error, param} -> {:error, "Undefined query parameter: #{inspect(param)}"}
@@ -153,7 +153,6 @@ defmodule OpenApiSpex.Operation do
       _ -> validate_parameter_keys(params, defined_params)
     end
   end
-
 
   @spec cast_parameters([Parameter.t], map, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
   defp cast_parameters([], _params, _schemas), do: {:ok, %{}}
@@ -171,15 +170,14 @@ defmodule OpenApiSpex.Operation do
     Schema.cast(schema, params, schemas)
   end
 
-
   @doc """
   Validate params against the schemas of the operation parameters and requestBody
   """
-  @spec validate(Operation.t, map, String.t | nil, %{String.t => Schema.t}) :: :ok | {:error, String.t}
-  def validate(operation = %Operation{}, params = %{}, content_type, schemas) do
-    with :ok <- validate_required_parameters(operation.parameters || [], params),
-         parameters <- Enum.filter(operation.parameters || [], &Map.has_key?(params, &1.name)),
-         {:ok, remaining} <- validate_parameter_schemas(parameters, params, schemas),
+  @spec validate(Operation.t, Conn.t, String.t | nil, %{String.t => Schema.t}) :: :ok | {:error, String.t}
+  def validate(operation = %Operation{}, conn = %Plug.Conn{}, content_type, schemas) do
+    with :ok <- validate_required_parameters(operation.parameters || [], conn.params),
+         parameters <- Enum.filter(operation.parameters || [], &Map.has_key?(conn.params, &1.name)),
+         {:ok, remaining} <- validate_parameter_schemas(parameters, conn.params, schemas),
          :ok <- validate_body_schema(operation.requestBody, remaining, content_type, schemas) do
       :ok
     end

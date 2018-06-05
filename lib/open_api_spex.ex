@@ -26,14 +26,14 @@ defmodule OpenApiSpex do
   @doc """
   Cast params to conform to a Schema or Operation spec.
   """
-  @spec cast(OpenApi.t, Schema.t | Reference.t, any) :: {:ok, any} | {:error, String.t}
+  @spec cast(OpenApi.t, Schema.t | Reference.t | Operation.t, any) :: {:ok, any} | {:error, String.t}
   def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
   def cast(spec = %OpenApi{}, schema = %Reference{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
-  def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %{}, content_type \\ nil) do
+  def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
     Operation.cast(operation, conn, content_type, spec.components.schemas)
   end
 
@@ -46,8 +46,8 @@ defmodule OpenApiSpex do
   def validate(spec = %OpenApi{}, schema = %Reference{}, params) do
     Schema.validate(schema, params, spec.components.schemas)
   end
-  def validate(spec = %OpenApi{}, operation = %Operation{}, params = %{}, content_type \\ nil) do
-    Operation.validate(operation, params, content_type, spec.components.schemas)
+  def validate(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
+    Operation.validate(operation, conn, content_type, spec.components.schemas)
   end
 
   @doc """
