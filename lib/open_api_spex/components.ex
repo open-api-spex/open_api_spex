@@ -27,14 +27,14 @@ defmodule OpenApiSpex.Components do
   they are explicitly referenced from properties outside the components object.
   """
   @type t :: %Components{
-    schemas: %{String.t => Schema.t | Reference.t},
-    responses: %{String.t =>  Response.t | Reference.t},
-    parameters: %{String.t =>  Parameter.t | Reference.t},
-    examples: %{String.t => Example.t | Reference.t},
-    requestBodies: %{String.t => RequestBody.t | Reference.t},
-    headers: %{String.t =>  Header.t | Reference.t},
-    securitySchemes: %{String.t =>  SecurityScheme.t | Reference.t},
-    links: %{String.t => Link.t | Reference.t},
-    callbacks: %{String.t => Callback.t | Reference.t}
+    schemas: %{String.t => Schema.t | Reference.t} | nil,
+    responses: %{String.t =>  Response.t | Reference.t} | nil,
+    parameters: %{String.t =>  Parameter.t | Reference.t} | nil,
+    examples: %{String.t => Example.t | Reference.t} | nil,
+    requestBodies: %{String.t => RequestBody.t | Reference.t} | nil,
+    headers: %{String.t =>  Header.t | Reference.t} | nil,
+    securitySchemes: %{String.t =>  SecurityScheme.t | Reference.t} | nil,
+    links: %{String.t => Link.t | Reference.t} | nil,
+    callbacks: %{String.t => Callback.t | Reference.t} | nil
   }
 end

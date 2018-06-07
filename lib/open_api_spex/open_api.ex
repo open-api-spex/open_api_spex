@@ -27,11 +27,11 @@ defmodule OpenApiSpex.OpenApi do
   @type t :: %OpenApi{
     openapi: String.t,
     info: Info.t,
-    servers: [Server.t],
+    servers: [Server.t] | nil,
     paths: Paths.t,
     components: Components.t | nil,
-    security: [SecurityRequirement.t],
-    tags: [Tag.t],
+    security: [SecurityRequirement.t] | nil,
+    tags: [Tag.t] | nil,
     externalDocs: ExternalDocumentation.t | nil
   }
 
