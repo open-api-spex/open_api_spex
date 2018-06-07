@@ -29,19 +29,19 @@ defmodule OpenApiSpex.PathItem do
   but they will not know which operations and parameters are available.
   """
   @type t :: %__MODULE__{
-    "$ref": String.t,
-    summary: String.t,
-    description: String.t,
-    get: Operation.t,
-    put: Operation.t,
-    post: Operation.t,
-    delete: Operation.t,
-    options: Operation.t,
-    head: Operation.t,
-    patch: Operation.t,
-    trace: Operation.t,
-    servers: [Server.t],
-    parameters: [Parameter.t | Reference.t]
+    "$ref": String.t | nil,
+    summary: String.t | nil,
+    description: String.t | nil,
+    get: Operation.t | nil,
+    put: Operation.t | nil,
+    post: Operation.t | nil,
+    delete: Operation.t | nil,
+    options: Operation.t | nil,
+    head: Operation.t | nil,
+    patch: Operation.t | nil,
+    trace: Operation.t | nil,
+    servers: [Server.t] | nil,
+    parameters: [Parameter.t | Reference.t] | nil
   }
 
   @typedoc """

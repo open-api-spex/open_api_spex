@@ -3,6 +3,8 @@ defmodule OpenApiSpex.Server do
   Defines the `OpenApiSpex.Server.t` type.
   """
   alias OpenApiSpex.{Server, ServerVariable}
+
+  @enforce_keys :url
   defstruct [
     :url,
     :description,

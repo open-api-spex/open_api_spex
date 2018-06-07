@@ -24,6 +24,7 @@ defmodule OpenApiSpex.SchemaResolverTest do
           get: %Operation{
             responses: %{
               200 => %Response{
+                description: "Success",
                 content: %{
                   "application/json" => %MediaType{
                     schema: OpenApiSpexTest.Schemas.UsersResponse
@@ -44,6 +45,7 @@ defmodule OpenApiSpex.SchemaResolverTest do
             },
             responses: %{
               201 => %Response{
+                description: "Created",
                 content: %{
                   "application/json" => %MediaType{
                     schema: OpenApiSpexTest.Schemas.UserResponse
@@ -57,6 +59,7 @@ defmodule OpenApiSpex.SchemaResolverTest do
           get: %Operation{
             responses: %{
               200 => %Response{
+                description: "Success",
                 content: %{
                   "application/json" => %MediaType{
                     schema: OpenApiSpexTest.Schemas.PaymentDetails

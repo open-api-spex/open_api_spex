@@ -3,6 +3,8 @@ defmodule OpenApiSpex.SecurityScheme do
   Defines the `OpenApiSpex.SecurityScheme.t` type.
   """
   alias OpenApiSpex.OAuthFlows
+
+  @enforce_keys :type
   defstruct [
     :type,
     :description,

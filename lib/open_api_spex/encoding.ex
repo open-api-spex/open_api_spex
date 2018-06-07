@@ -17,10 +17,10 @@ defmodule OpenApiSpex.Encoding do
   A single encoding definition applied to a single schema property.
   """
   @type t :: %__MODULE__{
-    contentType: String.t,
-    headers: %{String.t => Header.t | Reference.t},
-    style: Parameter.style,
-    explode: boolean,
-    allowReserved: boolean
+    contentType: String.t | nil,
+    headers: %{String.t => Header.t | Reference.t} | nil,
+    style: Parameter.style | nil,
+    explode: boolean | nil,
+    allowReserved: boolean | nil
   }
 end

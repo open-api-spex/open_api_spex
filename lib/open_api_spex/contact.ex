@@ -15,8 +15,8 @@ defmodule OpenApiSpex.Contact do
   Contact information for the exposed API.
   """
   @type t :: %__MODULE__{
-    name: String.t,
-    url: String.t,
-    email: String.t
+    name: String.t | nil,
+    url: String.t | nil,
+    email: String.t | nil
   }
 end

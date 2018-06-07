@@ -4,6 +4,8 @@ defmodule OpenApiSpex.Tag do
   """
 
   alias OpenApiSpex.ExternalDocumentation
+
+  @enforce_keys :name
   defstruct [
     :name,
     :description,
@@ -18,7 +20,7 @@ defmodule OpenApiSpex.Tag do
   """
   @type t :: %__MODULE__{
     name: String.t,
-    description: String.t,
-    externalDocs: ExternalDocumentation.t
+    description: String.t | nil,
+    externalDocs: ExternalDocumentation.t | nil
   }
 end

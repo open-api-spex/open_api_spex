@@ -3,6 +3,8 @@ defmodule OpenApiSpex.RequestBody do
   Defines the `OpenApiSpex.RequestBody.t` type.
   """
   alias OpenApiSpex.MediaType
+
+  @enforce_keys :content
   defstruct [
     :description,
     :content,
@@ -15,7 +17,7 @@ defmodule OpenApiSpex.RequestBody do
   Describes a single request body.
   """
   @type t :: %__MODULE__{
-    description: String.t,
+    description: String.t | nil,
     content: %{String.t => MediaType.t},
     required: boolean
   }

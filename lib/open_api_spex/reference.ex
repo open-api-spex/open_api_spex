@@ -5,6 +5,7 @@ defmodule OpenApiSpex.Reference do
 
   alias OpenApiSpex.Reference
 
+  @enforce_keys :"$ref"
   defstruct [
     :"$ref"
   ]

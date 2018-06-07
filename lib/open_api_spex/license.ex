@@ -2,6 +2,8 @@ defmodule OpenApiSpex.License do
   @moduledoc """
   Defines the `OpenApiSpex.License.t` type.
   """
+
+  @enforce_keys :name
   defstruct [
     :name,
     :url
@@ -14,6 +16,6 @@ defmodule OpenApiSpex.License do
   """
   @type t :: %__MODULE__{
     name: String.t,
-    url: String.t
+    url: String.t | nil
   }
 end

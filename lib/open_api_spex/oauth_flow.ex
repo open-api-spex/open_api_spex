@@ -15,9 +15,9 @@ defmodule OpenApiSpex.OAuthFlow do
   Configuration details for a supported OAuth Flow
   """
   @type t :: %__MODULE__{
-    authorizationUrl: String.t,
-    tokenUrl: String.t,
-    refreshUrl: String.t,
-    scopes: %{String.t => String.t}
+    authorizationUrl: String.t | nil,
+    tokenUrl: String.t | nil,
+    refreshUrl: String.t | nil,
+    scopes: %{String.t => String.t} | nil
   }
 end
