@@ -23,12 +23,12 @@ defmodule OpenApiSpex.SecurityScheme do
   """
   @type t :: %__MODULE__{
     type: String.t,
-    description: String.t,
-    name: String.t,
-    in: String.t,
-    scheme: String.t,
-    bearerFormat: String.t,
-    flows: OAuthFlows.t,
-    openIdConnectUrl: String.t
+    description: String.t | nil,
+    name: String.t | nil,
+    in: String.t | nil,
+    scheme: String.t | nil,
+    bearerFormat: String.t | nil,
+    flows: OAuthFlows.t | nil,
+    openIdConnectUrl: String.t | nil
   }
 end
