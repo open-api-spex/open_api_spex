@@ -44,7 +44,7 @@ defmodule OpenApiSpex.Operation do
     externalDocs: ExternalDocumentation.t | nil,
     operationId: String.t | nil,
     parameters: [Parameter.t | Reference.t] | nil,
-    requestBody: [RequestBody.t | Reference.t] | nil,
+    requestBody: RequestBody.t | Reference.t | nil,
     responses: Responses.t,
     callbacks: %{String.t => Callback.t | Reference.t} | nil,
     deprecated: boolean | nil,
