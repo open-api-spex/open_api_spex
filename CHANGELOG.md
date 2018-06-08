@@ -1,3 +1,9 @@
+# 2.1.0
+
+- Feature: (#16) Error response from `OpenApiSpex.cast` when value contains unknown properties and schema declares `additionalProperties: false`.
+- Feature: (#20) Update swagger-ui to version 3.17.0.
+- Fix: (#17, #21, #22) Update typespecs for struct types.
+
 # 2.0.0
 
 Major version update following from API change in `OpenApiSpex.cast` and `OpenApiSpex.validate`.
