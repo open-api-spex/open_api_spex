@@ -137,4 +137,22 @@ defmodule OpenApiSpexTest.Schemas do
       }
     }
   end
+
+  defmodule EntityWithDict do
+    OpenApiSpex.schema %{
+      title: "EntityWithDict",
+      description: "Entity with a dictionary defined via additionalProperties",
+      type: :object,
+      properties: %{
+        id: %Schema{type: :integer, description: "Entity ID"},
+        stringDict: %Schema{type: :object, description: "String valued dict", additionalProperties: %Schema{type: :string}},
+        anyTypeDict: %Schema{type: :object, description: "Untyped valued dict", additionalProperties: true},
+      },
+      example: %{
+        "id" => 123,
+        "stringDict" => %{"key1" => "value1", "key2" => "value2"},
+        "anyTypeDict" => %{"key1" => 42, "key2" => %{"foo" => "bar"}}
+      }
+    }
+  end
 end

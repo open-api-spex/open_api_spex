@@ -36,7 +36,7 @@ defmodule OpenApiSpex.Schema do
     :anyOf,
     :not,
     :items,
-    :properties,
+    {:properties, %{}},
     {:additionalProperties, nil},
     :description,
     :format,
@@ -190,7 +190,9 @@ defmodule OpenApiSpex.Schema do
     end
   end
   def cast(ref = %Reference{}, val, schemas), do: cast(Reference.resolve_schema(ref, schemas), val, schemas)
-  def cast(additionalProperties, val, _schemas) when additionalProperties in [true, false, nil], do: {:ok, val}
+  def cast(additionalProperties, val, _schemas) when additionalProperties in [nil, false], do:
+    {:error, "Unexpected field with value #{inspect(val)}"}
+  def cast(additionalProperties, val, _schemas) when additionalProperties, do: {:ok, val}
 
   @spec cast_properties(Schema.t, list, %{String.t => Schema.t}) :: {:ok, list} | {:error, String.t}
   defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}
