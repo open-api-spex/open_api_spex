@@ -32,6 +32,29 @@ defmodule OpenApiSpex.SchemaTest do
     }
   end
 
+  test "cast request schema with unexpected fields returns error" do
+    api_spec = ApiSpec.spec()
+    schemas = api_spec.components.schemas
+    user_request_schema = schemas["UserRequest"]
+
+    input = %{
+      "user" => %{
+        "id" => 123,
+        "name" => "asdf",
+        "email" => "foo@bar.com",
+        "updated_at" => "2017-09-12T14:44:55Z",
+        "unexpected_field" => "unexpected value"
+      }
+    }
+
+    assert {:error, _} = Schema.cast(user_request_schema, input, schemas)
+  end
+
+  test "EntityWithDict Schema example matches schema" do
+    api_spec = ApiSpec.spec()
+    assert_schema(Schemas.EntityWithDict.schema().example, "EntityWithDict", api_spec)
+  end
+
   test "User Schema example matches schema" do
     spec = ApiSpec.spec()
     assert_schema(Schemas.User.schema().example, "User", spec)

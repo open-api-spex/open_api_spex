@@ -119,4 +119,22 @@ defmodule OpenApiSpexTest.UserController do
 
       json(conn, response)
   end
+
+  def create_entity_operation() do
+    import Operation
+    %Operation{
+      tags: ["EntityWithDict"],
+      summary: "Create an EntityWithDict",
+      description: "Create an EntityWithDict",
+      operationId: "UserController.create_entity",
+      parameters: [],
+      requestBody: request_body("Entity attributes", "application/json", Schemas.EntityWithDict),
+      responses: %{
+        201 => response("EntityWithDict", "application/json", Schemas.EntityWithDict)
+      }
+    }
+  end
+  def create_entity(conn, %Schemas.EntityWithDict{} = entity) do
+    json(conn, Map.put(entity, :id, 123))
+  end
 end
