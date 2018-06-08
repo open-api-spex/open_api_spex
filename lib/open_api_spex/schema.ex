@@ -13,6 +13,7 @@ defmodule OpenApiSpex.Schema do
   """
   @callback schema() :: t
 
+  @enforce_keys :type
   defstruct [
     :title,
     :multipleOf,
@@ -37,7 +38,7 @@ defmodule OpenApiSpex.Schema do
     :not,
     :items,
     :properties,
-    {:additionalProperties, nil},
+    :additionalProperties,
     :description,
     :format,
     :default,
@@ -79,7 +80,7 @@ defmodule OpenApiSpex.Schema do
       }
   """
   @type t :: %__MODULE__{
-    title: String.t,
+    title: String.t | nil,
     multipleOf: number | nil,
     maximum: number | nil,
     exclusiveMaximum: boolean | nil,
@@ -103,9 +104,9 @@ defmodule OpenApiSpex.Schema do
     items: Schema.t | Reference.t | module | nil,
     properties: %{atom => Schema.t | Reference.t | module} | nil,
     additionalProperties: boolean | Schema.t | Reference.t | module | nil,
-    description: String.t,
+    description: String.t | nil,
     format: String.t | nil,
-    default: any | nil,
+    default: any,
     nullable: boolean | nil,
     discriminator: Discriminator.t | nil,
     readOnly: boolean | nil,

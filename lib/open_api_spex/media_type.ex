@@ -16,9 +16,9 @@ defmodule OpenApiSpex.MediaType do
   Each Media Type Object provides schema and examples for the media type identified by its key.
   """
   @type t :: %__MODULE__{
-    schema: Schema.t | Reference.t,
+    schema: Schema.t | Reference.t | nil,
     example: any,
-    examples: %{String.t => Example.t | Reference.t},
-    encoding: %{String => Encoding.t}
+    examples: %{String.t => Example.t | Reference.t} | nil,
+    encoding: %{String => Encoding.t} | nil
   }
 end

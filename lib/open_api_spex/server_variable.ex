@@ -2,6 +2,8 @@ defmodule OpenApiSpex.ServerVariable do
   @moduledoc """
   Defines the `OpenApiSpex.ServerVariable.t` type.
   """
+
+  @enforce_keys :default
   defstruct [
     :enum,
     :default,
@@ -14,8 +16,8 @@ defmodule OpenApiSpex.ServerVariable do
   An object representing a Server Variable for server URL template substitution.
   """
   @type t :: %__MODULE__{
-    enum: [String.t],
+    enum: [String.t] | nil,
     default: String.t,
-    description: String.t
+    description: String.t | nil
   }
 end

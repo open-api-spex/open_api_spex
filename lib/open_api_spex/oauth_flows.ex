@@ -16,9 +16,9 @@ defmodule OpenApiSpex.OAuthFlows do
   Allows configuration of the supported OAuth Flows.
   """
   @type t :: %__MODULE__{
-    implicit: OAuthFlow.t,
-    password: OAuthFlow.t,
-    clientCredentials: OAuthFlow.t,
-    authorizationCode: OAuthFlow.t
+    implicit: OAuthFlow.t | nil,
+    password: OAuthFlow.t | nil,
+    clientCredentials: OAuthFlow.t | nil,
+    authorizationCode: OAuthFlow.t | nil
   }
 end

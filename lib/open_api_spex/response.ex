@@ -3,6 +3,8 @@ defmodule OpenApiSpex.Response do
   Defines the `OpenApiSpex.Response.t` type.
   """
   alias OpenApiSpex.{Header, Reference, MediaType, Link}
+
+  @enforce_keys :description
   defstruct [
     :description,
     :headers,
@@ -18,7 +20,7 @@ defmodule OpenApiSpex.Response do
   @type t :: %__MODULE__{
     description: String.t,
     headers: %{String.t => Header.t | Reference.t} | nil,
-    content: %{String.t => MediaType.t},
+    content: %{String.t => MediaType.t} | nil,
     links: %{String.t => Link.t | Reference.t} | nil
   }
 end

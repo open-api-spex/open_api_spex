@@ -2,6 +2,8 @@ defmodule OpenApiSpex.Discriminator do
   @moduledoc """
   Defines the `OpenApiSpex.Discriminator.t` type.
   """
+
+  @enforce_keys :propertyName
   defstruct [
     :propertyName,
     :mapping
@@ -17,6 +19,6 @@ defmodule OpenApiSpex.Discriminator do
   """
   @type t :: %__MODULE__{
     propertyName: String.t,
-    mapping: %{String.t => String.t}
+    mapping: %{String.t => String.t} | nil
   }
 end

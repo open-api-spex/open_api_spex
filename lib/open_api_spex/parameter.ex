@@ -5,6 +5,8 @@ defmodule OpenApiSpex.Parameter do
   alias OpenApiSpex.{
     Schema, Reference, Example, MediaType, Parameter
   }
+
+  @enforce_keys [:name, :in]
   defstruct [
     :name,
     :in,
@@ -49,17 +51,17 @@ defmodule OpenApiSpex.Parameter do
   @type t :: %__MODULE__{
     name: atom,
     in: location,
-    description: String.t,
-    required: boolean,
-    deprecated: boolean,
-    allowEmptyValue: boolean,
-    style: style,
-    explode: boolean,
-    allowReserved: boolean,
-    schema: Schema.t | Reference.t | atom,
+    description: String.t | nil,
+    required: boolean | nil,
+    deprecated: boolean | nil,
+    allowEmptyValue: boolean | nil,
+    style: style | nil,
+    explode: boolean | nil,
+    allowReserved: boolean | nil,
+    schema: Schema.t | Reference.t | atom | nil,
     example: any,
-    examples: %{String.t => Example.t | Reference.t},
-    content: %{String.t => MediaType.t}
+    examples: %{String.t => Example.t | Reference.t} | nil,
+    content: %{String.t => MediaType.t} | nil
   }
 
   @doc """

@@ -17,6 +17,7 @@ defmodule OpenApiSpex.Operation do
     Server,
   }
 
+  @enforce_keys :responses
   defstruct [
     :tags,
     :summary,
