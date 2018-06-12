@@ -34,6 +34,9 @@ defmodule PhoenixAppWeb.UserController do
       summary: "Create user",
       description: "Create a user",
       operationId: "UserController.create",
+      parameters: [
+        Operation.parameter(:group_id, :path, :integer, "Group ID", example: 1)
+      ],
       requestBody: request_body("The user attributes", "application/json", Schemas.UserRequest, required: true),
       responses: %{
         201 => response("User", "application/json", Schemas.UserResponse)
