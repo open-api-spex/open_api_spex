@@ -18,7 +18,7 @@ The package can be installed by adding `open_api_spex` to your list of dependenc
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 1.0"}
+    {:open_api_spex, "~> 2.1"}
   ]
 end
 ```

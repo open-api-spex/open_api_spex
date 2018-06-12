@@ -1,3 +1,7 @@
+# 2.1.1
+
+- Fix: (#24, #25) Operations that define `parameters` and a `requestBody` schema can be validated.
+
 # 2.1.0
 
 - Feature: (#16) Error response from `OpenApiSpex.cast` when value contains unknown properties and schema declares `additionalProperties: false`.

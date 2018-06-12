@@ -1,7 +1,7 @@
 defmodule OpenApiSpex.Mixfile do
   use Mix.Project
 
-  @version "2.1.0"
+  @version "2.1.1"
 
   def project do
     [
