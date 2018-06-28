@@ -62,4 +62,17 @@ defmodule OpenApiSpex.SchemaTest do
     assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
     assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
   end
+
+  test "Cast Cat from Pet schema" do
+    api_spec = ApiSpec.spec()
+    schemas = api_spec.components.schemas
+    pet_schema = schemas["Pet"]
+
+    input = %{
+      "pet_type": "Cat",
+      "meow": "meow"
+    }
+
+    assert {:ok, %{meow: "meow", pet_type: "Cat"}} = Schema.cast(pet_schema, input, schemas)
+  end
 end
