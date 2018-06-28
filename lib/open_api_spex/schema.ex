@@ -13,7 +13,6 @@ defmodule OpenApiSpex.Schema do
   """
   @callback schema() :: t
 
-  @enforce_keys :type
   defstruct [
     :title,
     :multipleOf,
@@ -96,7 +95,7 @@ defmodule OpenApiSpex.Schema do
     minProperties: integer | nil,
     required: [atom] | nil,
     enum: [String.t] | nil,
-    type: atom,
+    type: atom | nil,
     allOf: [Schema.t | Reference.t | module] | nil,
     oneOf: [Schema.t | Reference.t | module] | nil,
     anyOf: [Schema.t | Reference.t | module] | nil,
