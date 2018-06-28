@@ -92,7 +92,7 @@ defmodule OpenApiSpex do
       @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct",  __MODULE__))
       def schema, do: @schema
       @derive [Poison.Encoder]
-      defstruct (@schema.properties || %{}) |> Map.keys()
+      defstruct Schema.properties(@schema)
       @type t :: %__MODULE__{}
     end
   end

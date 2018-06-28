@@ -132,12 +132,6 @@ defmodule OpenApiSpex.Schema do
       ...> dt |> DateTime.to_iso8601()
       "2018-04-02T13:44:55Z"
   """
-  @spec cast(Schema.t | Reference.t, any, %{String.t => Schema.t | Reference.t}) :: {:ok, any} | {:error, String.t}
-  def cast(schema = %Schema{"x-struct": mod}, value, schemas) when not is_nil(mod) do
-    with {:ok, data} <- cast(%{schema | "x-struct": nil}, value, schemas) do
-      {:ok, struct(mod, data)}
-    end
-  end
   def cast(%Schema{type: :boolean}, value, _schemas) when is_boolean(value), do: {:ok, value}
   def cast(%Schema{type: :boolean}, value, _schemas) when is_binary(value) do
     case value do
@@ -184,10 +178,42 @@ defmodule OpenApiSpex.Schema do
   def cast(%Schema{type: :array}, value, _schemas) when not is_list(value) do
     {:error, "Invalid array: #{inspect(value)}"}
   end
+  def cast(schema = %Schema{type: :object, discriminator: discriminator = %{}}, value = %{}, schemas) do
+    discriminator_property = String.to_existing_atom(discriminator.propertyName)
+    already_cast? =
+      if Map.has_key?(value, discriminator_property) do
+        {:error, :already_cast}
+      else
+        :ok
+      end
+
+    with :ok <- already_cast?,
+        {:ok, partial_cast} <- cast(%Schema{type: :object, properties: schema.properties}, value, schemas),
+        {:ok, derived_schema} <- Discriminator.resolve(discriminator, value, schemas),
+        {:ok, result} <- cast(derived_schema, partial_cast, schemas) do
+      {:ok, make_struct(result, schema)}
+    else
+      {:error, :already_cast} -> {:ok, value}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+  def cast(schema = %Schema{type: :object, allOf: [first | rest]}, value = %{}, schemas) do
+    with {:ok, cast_first} <- cast(first, value, schemas),
+         {:ok, result} <- cast(%{schema | allOf: rest}, cast_first, schemas) do
+      {:ok, result}
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+  def cast(schema = %Schema{type: :object, allOf: []}, value = %{}, schemas) do
+    cast(%{schema | allOf: nil}, value, schemas)
+  end
   def cast(schema = %Schema{type: :object}, value, schemas) when is_map(value) do
     schema = %{schema | properties: schema.properties || %{}}
-    with {:ok, props} <- cast_properties(schema, Enum.to_list(value), schemas) do
-      {:ok, Map.new(props)}
+    {regular_properties, others} = Enum.split_with(value, fn {k, _v} -> is_binary(k) end)
+    with {:ok, props} <- cast_properties(schema, regular_properties, schemas) do
+      result = Map.new(others ++ props) |> make_struct(schema)
+      {:ok, result}
     end
   end
   def cast(ref = %Reference{}, val, schemas), do: cast(Reference.resolve_schema(ref, schemas), val, schemas)
@@ -195,6 +221,14 @@ defmodule OpenApiSpex.Schema do
     {:error, "Unexpected field with value #{inspect(val)}"}
   end
   def cast(_additionalProperties, val, _schemas), do: {:ok, val}
+
+  defp make_struct(val = %_{}, _), do: val
+  defp make_struct(val, %{"x-struct": nil}), do: val
+  defp make_struct(val, %{"x-struct": mod}) do
+    Enum.reduce(val, struct(mod), fn {k, v}, acc ->
+      Map.put(acc, k, v)
+    end)
+  end
 
   @spec cast_properties(Schema.t, list, %{String.t => Schema.t}) :: {:ok, list} | {:error, String.t}
   defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}
@@ -209,7 +243,6 @@ defmodule OpenApiSpex.Schema do
       {:ok, [{name, new_value} | cast_tail]}
     end
   end
-
 
   @doc """
   Validate a value against a Schema.
@@ -404,4 +437,21 @@ defmodule OpenApiSpex.Schema do
   defp validate_object_property(schema, _required, value, path, schemas) do
     validate(schema, value, path, schemas)
   end
+
+  @doc """
+  Get the names of all properties definied for a schema.
+
+  Includes all properties directly defined in the schema, and all schemas
+  included in the `allOf` list.
+  """
+  def properties(schema = %Schema{type: :object, properties: properties = %{}}) do
+    Map.keys(properties) ++ properties(%{schema | properties: nil})
+  end
+  def properties(%Schema{allOf: schemas}) when is_list(schemas) do
+    Enum.flat_map(schemas, &properties/1) |> Enum.uniq()
+  end
+  def properties(schema_module) when is_atom(schema_module) do
+    properties(schema_module.schema())
+  end
+  def properties(_), do: []
 end

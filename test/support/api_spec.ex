@@ -1,6 +1,6 @@
 defmodule OpenApiSpexTest.ApiSpec do
-  alias OpenApiSpex.{OpenApi, Contact, License, Paths, Server, Info}
-  alias OpenApiSpexTest.Router
+  alias OpenApiSpex.{OpenApi, Contact, License, Paths, Server, Info, Components}
+  alias OpenApiSpexTest.{Router, Schemas}
 
   def spec() do
     %OpenApi{
@@ -18,6 +18,13 @@ defmodule OpenApiSpexTest.ApiSpec do
         license: %License{
           name: "MIT",
           url: "http://mit.edu/license"
+        }
+      },
+      components: %Components{
+        schemas: %{
+          "Pet" => Schemas.Pet.schema(),
+          "Cat" => Schemas.Cat.schema(),
+          "Dog" => Schemas.Dog.schema()
         }
       },
       paths: Paths.from_router(Router)
