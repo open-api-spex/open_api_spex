@@ -85,6 +85,9 @@ defmodule OpenApiSpex.SchemaResolver do
   defp resolve_schema_modules_from_parameter(parameter = %Parameter{}, schemas) do
     {parameter, schemas}
   end
+  defp resolve_schema_modules_from_parameter(parameter = %Reference{}, schemas) do
+    {parameter, schemas}
+  end
 
   defp resolve_schema_modules_from_content(nil, schemas), do: {nil, schemas}
   defp resolve_schema_modules_from_content(content, schemas) do
@@ -108,6 +111,9 @@ defmodule OpenApiSpex.SchemaResolver do
     {content, schemas} = resolve_schema_modules_from_content(request_body.content, schemas)
     new_request_body = %{request_body | content: content}
     {new_request_body, schemas}
+  end
+  defp resolve_schema_modules_from_request_body(request_body = %Reference{}, schemas) do
+    {request_body, schemas}
   end
 
   defp resolve_schema_modules_from_responses(responses = %{}, schemas = %{}) do
