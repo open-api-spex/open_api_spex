@@ -75,4 +75,17 @@ defmodule OpenApiSpex.SchemaTest do
 
     assert {:ok, %{meow: "meow", pet_type: "Cat"}} = Schema.cast(pet_schema, input, schemas)
   end
+
+  test "Does not cast invalid Cat from Pet schema" do
+    api_spec = ApiSpec.spec()
+    schemas = api_spec.components.schemas
+    pet_schema = schemas["Pet"]
+
+    input = %{
+      "pet_type" => "Cat",
+      "bark" => "meow"
+    }
+
+    refute match?({:ok, _}, Schema.cast(pet_schema, input, schemas))
+  end
 end
