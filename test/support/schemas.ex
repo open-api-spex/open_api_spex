@@ -223,7 +223,11 @@ defmodule OpenApiSpexTest.Schemas do
       description: "Response schema for multiple pets",
       type: :object,
       properties: %{
-        data: %Schema{description: "The pets details", type: :array, items: Pet}
+        data: %Schema{
+          description: "The pets details",
+          type: :array,
+          items: %Schema{type: :object, oneOf: [Cat, Dog]}
+        }
       },
       example: %{
         "data" => [
