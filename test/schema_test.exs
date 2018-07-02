@@ -69,8 +69,8 @@ defmodule OpenApiSpex.SchemaTest do
     pet_schema = schemas["Pet"]
 
     input = %{
-      "pet_type": "Cat",
-      "meow": "meow"
+      "pet_type" => "Cat",
+      "meow" => "meow"
     }
 
     assert {:ok, %{meow: "meow", pet_type: "Cat"}} = Schema.cast(pet_schema, input, schemas)
