@@ -157,24 +157,6 @@ defmodule OpenApiSpexTest.Schemas do
     }
   end
 
-  defmodule Pet do
-    require OpenApiSpex
-
-    alias OpenApiSpex.{Schema, Discriminator}
-
-    OpenApiSpex.schema(%{
-      title: "Pet",
-      type: :object,
-      properties: %{
-        pet_type: %Schema{type: :string}
-      },
-      required: [:pet_type],
-      discriminator: %Discriminator{
-        propertyName: "pet_type"
-      }
-    })
-  end
-
   defmodule Cat do
     require OpenApiSpex
 
@@ -183,16 +165,11 @@ defmodule OpenApiSpexTest.Schemas do
     OpenApiSpex.schema(%{
       title: "Cat",
       type: :object,
-      allOf: [
-        Pet,
-        %Schema{
-          type: :object,
-          properties: %{
-            meow: %Schema{type: :string}
-          },
-          required: [:meow]
-        }
-      ]
+      properties: %{
+        pet_type: %Schema{type: :string},
+        meow: %Schema{type: :string}
+      },
+      required: [:pet_type, :meow]
     })
   end
 
@@ -204,16 +181,38 @@ defmodule OpenApiSpexTest.Schemas do
     OpenApiSpex.schema(%{
       title: "Dog",
       type: :object,
-      allOf: [
-        Pet,
-        %Schema{
-          type: :object,
-          properties: %{
-            bark: %Schema{type: :string}
-          },
-          required: [:bark]
-        }
-      ]
+      properties: %{
+        pet_type: %Schema{type: :string},
+        bark: %Schema{type: :string}
+      },
+      required: [:pet_type, :bark]
     })
+  end
+
+  defmodule PetsResponse do
+    OpenApiSpex.schema %{
+      title: "PetsResponse",
+      description: "Response schema for multiple pets",
+      type: :object,
+      properties: %{
+        data: %Schema{
+          description: "The pets details",
+          type: :array,
+          items: %Schema{type: :object, oneOf: [Cat, Dog]}
+        }
+      },
+      example: %{
+        "data" => [
+          %{
+            "pet_type" => "Cat",
+            "meow" => "meow"
+          },
+          %{
+            "pet_type" => "Dog",
+            "bark" => "bark"
+          },
+        ]
+      }
+    }
   end
 end

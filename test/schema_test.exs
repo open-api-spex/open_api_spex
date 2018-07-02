@@ -63,16 +63,29 @@ defmodule OpenApiSpex.SchemaTest do
     assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
   end
 
-  test "Cast Cat from Pet schema" do
+  test "Cast Cat from polymorphic schema" do
     api_spec = ApiSpec.spec()
     schemas = api_spec.components.schemas
-    pet_schema = schemas["Pet"]
+    polymorphic_schema = %Schema{type: :object, oneOf: [Schemas.Cat, Schemas.Dog]}
 
     input = %{
-      "pet_type": "Cat",
-      "meow": "meow"
+      "pet_type" => "Cat",
+      "meow" => "meow"
     }
 
-    assert {:ok, %{meow: "meow", pet_type: "Cat"}} = Schema.cast(pet_schema, input, schemas)
+    assert {:ok, %{meow: "meow", pet_type: "Cat"}} = Schema.cast(polymorphic_schema, input, schemas)
+  end
+
+  test "Does not cast invalid Cat from polymorphic schema" do
+    api_spec = ApiSpec.spec()
+    schemas = api_spec.components.schemas
+    polymorphic_schema = %Schema{type: :object, oneOf: [Schemas.Cat, Schemas.Dog]}
+
+    input = %{
+      "pet_type" => "Cat",
+      "bark" => "meow"
+    }
+
+    refute match?({:ok, _}, Schema.cast(polymorphic_schema, input, schemas))
   end
 end
