@@ -216,4 +216,27 @@ defmodule OpenApiSpexTest.Schemas do
       ]
     })
   end
+
+  defmodule PetsResponse do
+    OpenApiSpex.schema %{
+      title: "PetsResponse",
+      description: "Response schema for multiple pets",
+      type: :object,
+      properties: %{
+        data: %Schema{description: "The pets details", type: :array, items: Pet}
+      },
+      example: %{
+        "data" => [
+          %{
+            "pet_type" => "Cat",
+            "meow" => "meow"
+          },
+          %{
+            "pet_type" => "Dog",
+            "bark" => "bark"
+          },
+        ]
+      }
+    }
+  end
 end
