@@ -216,4 +216,13 @@ defmodule OpenApiSpexTest.Schemas do
       ]
     })
   end
+
+  defmodule CatOrDog do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "CatOrDog",
+      oneOf: [Cat, Dog]
+    })
+  end
 end

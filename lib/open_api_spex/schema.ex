@@ -104,7 +104,7 @@ defmodule OpenApiSpex.Schema do
     properties: %{atom => Schema.t | Reference.t | module} | nil,
     additionalProperties: boolean | Schema.t | Reference.t | module | nil,
     description: String.t | nil,
-    format: String.t | nil,
+    format: String.t | atom | nil,
     default: any,
     nullable: boolean | nil,
     discriminator: Discriminator.t | nil,
@@ -208,9 +208,25 @@ defmodule OpenApiSpex.Schema do
   def cast(schema = %Schema{type: :object, allOf: []}, value = %{}, schemas) do
     cast(%{schema | allOf: nil}, value, schemas)
   end
+  def cast(schema = %Schema{oneOf: [first|rest]}, value, schemas) do
+    case cast(first, value, schemas) do
+      {:ok, result} ->
+        cast(%{schema | oneOf: nil}, result, schemas)
+      {:error, _reason} ->
+        cast(%{schema | oneOf: rest}, value, schemas)
+    end
+  end
+  def cast(%Schema{oneOf: []}, _value, _schemas) do
+    {:error, "Failed to cast to any schema in oneOf"}
+  end
+
   def cast(schema = %Schema{type: :object}, value, schemas) when is_map(value) do
     schema = %{schema | properties: schema.properties || %{}}
-    {regular_properties, others} = Enum.split_with(value, fn {k, _v} -> is_binary(k) end)
+    {regular_properties, others} =
+      value
+      |> no_struct()
+      |> Enum.split_with(fn {k, _v} -> is_binary(k) end)
+
     with {:ok, props} <- cast_properties(schema, regular_properties, schemas) do
       result = Map.new(others ++ props) |> make_struct(schema)
       {:ok, result}
@@ -229,6 +245,8 @@ defmodule OpenApiSpex.Schema do
       Map.put(acc, k, v)
     end)
   end
+
+  defp no_struct(val), do: Map.delete(val, :__struct__)
 
   @spec cast_properties(Schema.t, list, %{String.t => Schema.t}) :: {:ok, list} | {:error, String.t}
   defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}

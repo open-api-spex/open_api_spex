@@ -1,5 +1,5 @@
 defmodule OpenApiSpexTest.ApiSpec do
-  alias OpenApiSpex.{OpenApi, Contact, License, Paths, Server, Info, Components}
+  alias OpenApiSpex.{OpenApi, Contact, License, Paths, Schema, Server, Info, Components}
   alias OpenApiSpexTest.{Router, Schemas}
 
   def spec() do
@@ -21,11 +21,11 @@ defmodule OpenApiSpexTest.ApiSpec do
         }
       },
       components: %Components{
-        schemas: %{
-          "Pet" => Schemas.Pet.schema(),
-          "Cat" => Schemas.Cat.schema(),
-          "Dog" => Schemas.Dog.schema()
-        }
+        schemas:
+          for schemaMod <- [Schemas.Pet, Schemas.Cat, Schemas.Dog, Schemas.CatOrDog], into: %{} do
+            schema = schemaMod.schema()
+            {schema.title, schema}
+          end
       },
       paths: Paths.from_router(Router)
     }
