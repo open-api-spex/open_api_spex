@@ -106,7 +106,7 @@ defmodule MyApp.Schemas do
         updated_at: %Schema{type: :string, description: "Update timestamp", format: :datetime}
       },
       required: [:name, :email],
-      example: {
+      example: %{
         "id" => 123,
         "name" => "Joe",
         "email" => "joe@gmail.com"
