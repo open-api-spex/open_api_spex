@@ -1,3 +1,15 @@
+# 2.2.0
+
+- Feature: Support composite schemas in `OpenApiSpex.schema`
+
+structs defined with `OpenApiSpex.schema` will include all properties defined in schemas
+listed in `allOf`. See the `OpenApiSpex.Schema` docs for some examples.
+
+- Feature: Support composite and polymorphic schemas with `OpenApiSpex.cast/3`.
+   -  `discriminator` is used to cast polymorphic shemas to a more specific schema.
+   -  `allOf` will cast all properties in each included schema
+   -  `oneOf` / `anyOf` will attempt to use each schema until a successful cast is made
+
 # 2.1.1
 
 - Fix: (#24, #25) Operations that define `parameters` and a `requestBody` schema can be validated.
