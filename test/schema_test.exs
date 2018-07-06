@@ -62,4 +62,63 @@ defmodule OpenApiSpex.SchemaTest do
     assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
     assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
   end
+
+  test "Cast Cat from Pet schema" do
+    api_spec = ApiSpec.spec()
+    schemas = api_spec.components.schemas
+    pet_schema = schemas["Pet"]
+
+    input = %{
+      "pet_type" => "Cat",
+      "meow" => "meow"
+    }
+
+    assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} = Schema.cast(pet_schema, input, schemas)
+  end
+
+  test "Cast Dog from oneOf [cat, dog] schema" do
+    api_spec = ApiSpec.spec()
+    schemas = api_spec.components.schemas
+    cat_or_dog = Map.fetch!(schemas, "CatOrDog")
+
+    input = %{
+      "pet_type" => "Cat",
+      "meow" => "meow"
+    }
+
+    assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} = Schema.cast(cat_or_dog, input, schemas)
+  end
+
+  test "Cast number to string or number" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{type: :number},
+        %Schema{type: :string}
+      ]
+    }
+
+    result = Schema.cast(schema, "123", %{})
+
+    assert {:ok, 123.0} = result
+  end
+
+  test "Cast string to oneOf number or datetime" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{type: :number},
+        %Schema{type: :string, format: :"date-time"}
+      ]
+    }
+    assert {:ok, %DateTime{}} = Schema.cast(schema, "2018-04-01T12:34:56Z", %{})
+  end
+
+  test "Cast string to anyOf number or datetime" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{type: :number},
+        %Schema{type: :string, format: :"date-time"}
+      ]
+    }
+    assert {:ok, %DateTime{}} = Schema.cast(schema, "2018-04-01T12:34:56Z", %{})
+  end
 end

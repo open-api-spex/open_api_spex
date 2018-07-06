@@ -156,4 +156,73 @@ defmodule OpenApiSpexTest.Schemas do
       }
     }
   end
+
+  defmodule Pet do
+    require OpenApiSpex
+
+    alias OpenApiSpex.{Schema, Discriminator}
+
+    OpenApiSpex.schema(%{
+      title: "Pet",
+      type: :object,
+      properties: %{
+        pet_type: %Schema{type: :string}
+      },
+      required: [:pet_type],
+      discriminator: %Discriminator{
+        propertyName: "pet_type"
+      }
+    })
+  end
+
+  defmodule Cat do
+    require OpenApiSpex
+
+    alias OpenApiSpex.Schema
+
+    OpenApiSpex.schema(%{
+      title: "Cat",
+      type: :object,
+      allOf: [
+        Pet,
+        %Schema{
+          type: :object,
+          properties: %{
+            meow: %Schema{type: :string}
+          },
+          required: [:meow]
+        }
+      ]
+    })
+  end
+
+  defmodule Dog do
+    require OpenApiSpex
+
+    alias OpenApiSpex.Schema
+
+    OpenApiSpex.schema(%{
+      title: "Dog",
+      type: :object,
+      allOf: [
+        Pet,
+        %Schema{
+          type: :object,
+          properties: %{
+            bark: %Schema{type: :string}
+          },
+          required: [:bark]
+        }
+      ]
+    })
+  end
+
+  defmodule CatOrDog do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "CatOrDog",
+      oneOf: [Cat, Dog]
+    })
+  end
 end

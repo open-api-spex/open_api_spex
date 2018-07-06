@@ -1,6 +1,124 @@
 defmodule OpenApiSpex.Schema do
   @moduledoc """
   Defines the `OpenApiSpex.Schema.t` type and operations for casting and validating against a schema.
+
+  The `OpenApiSpex.schema` macro can be used to declare schemas with an associated struct and `Poison.Encoder`.
+
+  ## Examples
+
+      defmodule MyApp.Schemas do
+        defmodule EmailString do
+          @behaviour OpenApiSpex.Schema
+          def schema do
+            %OpenApiSpex.Schema {
+              title: "EmailString",
+              type: :string,
+              format: :email
+            }
+          end
+        end
+
+        defmodule Person do
+          require OpenApiSpex
+          alias OpenApiSpex.{Reference, Schema}
+
+          OpenApiSpex.schema(%{
+            type: :object,
+            required: [:name],
+            properties: %{
+              name: %Schema{type: :string},
+              address: %Reference{"$ref": "#components/schemas/Address"},
+              age: %Schema{type: :integer, format: :int32, minimum: 0}
+            }
+          })
+        end
+
+        defmodule StringDictionary do
+          @behaviour OpenApiSpex.Schema
+
+          def schema() do
+            %OpenApiSpex.Schema{
+              type: :object,
+              additionalProperties: %{
+                type: :string
+              }
+            }
+          end
+        end
+
+        defmodule Pet do
+          require OpenApiSpex
+          alias OpenApiSpex.{Schema, Discriminator}
+
+          OpenApiSpex.schema(%{
+            title: "Pet",
+            type: :object,
+            discriminator: %Discriminator{
+              propertyName: "petType"
+            },
+            properties: %{
+              name: %Schema{type: :string},
+              petType: %Schema{type: :string}
+            },
+            required: [:name, :petType]
+          })
+        end
+
+        defmodule Cat do
+          require OpenApiSpex
+          alias OpenApiSpex.Schema
+
+          OpenApiSpex.schema(%{
+            title: "Cat",
+            type: :object,
+            description: "A representation of a cat. Note that `Cat` will be used as the discriminator value.",
+            allOf: [
+              Pet,
+              %Schema{
+                type: :object,
+                properties: %{
+                  huntingSkill: %Schema{
+                    type: :string,
+                    description: "The measured skill for hunting",
+                    default: "lazy",
+                    enum: ["clueless", "lazy", "adventurous", "aggresive"]
+                  }
+                },
+                required: [:huntingSkill]
+              }
+            ]
+          })
+        end
+
+        defmodule Dog do
+          require OpenApiSpex
+          alias OpenApiSpex.Schema
+
+          OpenApiSpex.schema(%{
+            type: :object,
+            title: "Dog",
+            description: "A representation of a dog. Note that `Dog` will be used as the discriminator value.",
+            allOf: [
+              Pet,
+              %Schema {
+                type: :object,
+                properties: %{
+                  packSize: %Schema{
+                    type: :integer,
+                    format: :int32,
+                    description: "the size of the pack the dog is from",
+                    default: 0,
+                    minimum: 0
+                  }
+                },
+                required: [
+                  :packSize
+                ]
+              }
+            ]
+          })
+        end
+      end
   """
 
   alias OpenApiSpex.{
@@ -104,7 +222,7 @@ defmodule OpenApiSpex.Schema do
     properties: %{atom => Schema.t | Reference.t | module} | nil,
     additionalProperties: boolean | Schema.t | Reference.t | module | nil,
     description: String.t | nil,
-    format: String.t | nil,
+    format: String.t | atom | nil,
     default: any,
     nullable: boolean | nil,
     discriminator: Discriminator.t | nil,
@@ -131,13 +249,22 @@ defmodule OpenApiSpex.Schema do
       iex> {:ok, dt = %DateTime{}} = OpenApiSpex.Schema.cast(%Schema{type: :string, format: :"date-time"}, "2018-04-02T13:44:55Z", %{})
       ...> dt |> DateTime.to_iso8601()
       "2018-04-02T13:44:55Z"
+
+  ## Casting Polymorphic Schemas
+
+  Schemas using `discriminator`, `allOf`, `oneOf`, `anyOf` are cast using the following rules:
+
+    - If a `discriminator` is present, cast the properties defined in the base schema, then
+      cast the result using the schema identified by the discriminator. To avoid infinite recursion,
+      the discriminator is only dereferenced if the discriminator property has not already been cast.
+
+    - Cast the properties using each schema listing in `allOf`. When a property is defined in
+      multiple `allOf` schemas, it will be cast using the first schema listed containing the property.
+
+    - Cast the value using each schema listed in `oneOf`, stopping as soon as a sucessful cast is made.
+
+    - Cast the value using each schema listed in `anyOf`, stopping as soon as a succesful cast is made.
   """
-  @spec cast(Schema.t | Reference.t, any, %{String.t => Schema.t | Reference.t}) :: {:ok, any} | {:error, String.t}
-  def cast(schema = %Schema{"x-struct": mod}, value, schemas) when not is_nil(mod) do
-    with {:ok, data} <- cast(%{schema | "x-struct": nil}, value, schemas) do
-      {:ok, struct(mod, data)}
-    end
-  end
   def cast(%Schema{type: :boolean}, value, _schemas) when is_boolean(value), do: {:ok, value}
   def cast(%Schema{type: :boolean}, value, _schemas) when is_binary(value) do
     case value do
@@ -184,10 +311,70 @@ defmodule OpenApiSpex.Schema do
   def cast(%Schema{type: :array}, value, _schemas) when not is_list(value) do
     {:error, "Invalid array: #{inspect(value)}"}
   end
+  def cast(schema = %Schema{type: :object, discriminator: discriminator = %{}}, value = %{}, schemas) do
+    discriminator_property = String.to_existing_atom(discriminator.propertyName)
+    already_cast? =
+      if Map.has_key?(value, discriminator_property) do
+        {:error, :already_cast}
+      else
+        :ok
+      end
+
+    with :ok <- already_cast?,
+        {:ok, partial_cast} <- cast(%Schema{type: :object, properties: schema.properties}, value, schemas),
+        {:ok, derived_schema} <- Discriminator.resolve(discriminator, value, schemas),
+        {:ok, result} <- cast(derived_schema, partial_cast, schemas) do
+      {:ok, make_struct(result, schema)}
+    else
+      {:error, :already_cast} -> {:ok, value}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+  def cast(schema = %Schema{type: :object, allOf: [first | rest]}, value = %{}, schemas) do
+    with {:ok, cast_first} <- cast(first, value, schemas),
+         {:ok, result} <- cast(%{schema | allOf: rest}, cast_first, schemas) do
+      {:ok, result}
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+  def cast(schema = %Schema{type: :object, allOf: []}, value = %{}, schemas) do
+    cast(%{schema | allOf: nil}, value, schemas)
+  end
+  def cast(schema = %Schema{oneOf: [first | rest]}, value, schemas) do
+    case cast(first, value, schemas) do
+      {:ok, result} ->
+        cast(%{schema | oneOf: nil}, result, schemas)
+      {:error, _reason} ->
+        cast(%{schema | oneOf: rest}, value, schemas)
+    end
+  end
+  def cast(%Schema{oneOf: []}, _value, _schemas) do
+    {:error, "Failed to cast to any schema in oneOf"}
+  end
+
+  def cast(schema = %Schema{anyOf: [first | rest]}, value, schemas) do
+    case cast(first, value, schemas) do
+      {:ok, result} ->
+        cast(%{schema | anyOf: nil}, result, schemas)
+      {:error, _reason} ->
+        cast(%{schema | anyOf: rest}, value, schemas)
+    end
+  end
+  def cast(%Schema{oneOf: []}, _value, _schemas) do
+    {:error, "Failed to cast to any schema in oneOf"}
+  end
+
   def cast(schema = %Schema{type: :object}, value, schemas) when is_map(value) do
     schema = %{schema | properties: schema.properties || %{}}
-    with {:ok, props} <- cast_properties(schema, Enum.to_list(value), schemas) do
-      {:ok, Map.new(props)}
+    {regular_properties, others} =
+      value
+      |> no_struct()
+      |> Enum.split_with(fn {k, _v} -> is_binary(k) end)
+
+    with {:ok, props} <- cast_properties(schema, regular_properties, schemas) do
+      result = Map.new(others ++ props) |> make_struct(schema)
+      {:ok, result}
     end
   end
   def cast(ref = %Reference{}, val, schemas), do: cast(Reference.resolve_schema(ref, schemas), val, schemas)
@@ -195,6 +382,16 @@ defmodule OpenApiSpex.Schema do
     {:error, "Unexpected field with value #{inspect(val)}"}
   end
   def cast(_additionalProperties, val, _schemas), do: {:ok, val}
+
+  defp make_struct(val = %_{}, _), do: val
+  defp make_struct(val, %{"x-struct": nil}), do: val
+  defp make_struct(val, %{"x-struct": mod}) do
+    Enum.reduce(val, struct(mod), fn {k, v}, acc ->
+      Map.put(acc, k, v)
+    end)
+  end
+
+  defp no_struct(val), do: Map.delete(val, :__struct__)
 
   @spec cast_properties(Schema.t, list, %{String.t => Schema.t}) :: {:ok, list} | {:error, String.t}
   defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}
@@ -209,7 +406,6 @@ defmodule OpenApiSpex.Schema do
       {:ok, [{name, new_value} | cast_tail]}
     end
   end
-
 
   @doc """
   Validate a value against a Schema.
@@ -404,4 +600,21 @@ defmodule OpenApiSpex.Schema do
   defp validate_object_property(schema, _required, value, path, schemas) do
     validate(schema, value, path, schemas)
   end
+
+  @doc """
+  Get the names of all properties definied for a schema.
+
+  Includes all properties directly defined in the schema, and all schemas
+  included in the `allOf` list.
+  """
+  def properties(schema = %Schema{type: :object, properties: properties = %{}}) do
+    Map.keys(properties) ++ properties(%{schema | properties: nil})
+  end
+  def properties(%Schema{allOf: schemas}) when is_list(schemas) do
+    Enum.flat_map(schemas, &properties/1) |> Enum.uniq()
+  end
+  def properties(schema_module) when is_atom(schema_module) do
+    properties(schema_module.schema())
+  end
+  def properties(_), do: []
 end
