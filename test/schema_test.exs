@@ -102,8 +102,7 @@ defmodule OpenApiSpex.SchemaTest do
     assert {:ok, 123.0} = result
   end
 
-  @tag :focus
-  test "Cast string to number or datetime" do
+  test "Cast string to oneOf number or datetime" do
     schema = %Schema{
       oneOf: [
         %Schema{type: :number},
@@ -113,4 +112,13 @@ defmodule OpenApiSpex.SchemaTest do
     assert {:ok, %DateTime{}} = Schema.cast(schema, "2018-04-01T12:34:56Z", %{})
   end
 
+  test "Cast string to anyOf number or datetime" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{type: :number},
+        %Schema{type: :string, format: :"date-time"}
+      ]
+    }
+    assert {:ok, %DateTime{}} = Schema.cast(schema, "2018-04-01T12:34:56Z", %{})
+  end
 end

@@ -1,5 +1,5 @@
 defmodule OpenApiSpexTest.ApiSpec do
-  alias OpenApiSpex.{OpenApi, Contact, License, Paths, Schema, Server, Info, Components}
+  alias OpenApiSpex.{OpenApi, Contact, License, Paths, Server, Info, Components}
   alias OpenApiSpexTest.{Router, Schemas}
 
   def spec() do

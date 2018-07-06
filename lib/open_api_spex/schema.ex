@@ -1,6 +1,124 @@
 defmodule OpenApiSpex.Schema do
   @moduledoc """
   Defines the `OpenApiSpex.Schema.t` type and operations for casting and validating against a schema.
+
+  The `OpenApiSpex.schema` macro can be used to declare schemas with an associated struct and `Poison.Encoder`.
+
+  ## Examples
+
+      defmodule MyApp.Schemas do
+        defmodule EmailString do
+          @behaviour OpenApiSpex.Schema
+          def schema do
+            %OpenApiSpex.Schema {
+              title: "EmailString",
+              type: :string,
+              format: :email
+            }
+          end
+        end
+
+        defmodule Person do
+          require OpenApiSpex
+          alias OpenApiSpex.{Reference, Schema}
+
+          OpenApiSpex.schema(%{
+            type: :object,
+            required: [:name],
+            properties: %{
+              name: %Schema{type: :string},
+              address: %Reference{"$ref": "#components/schemas/Address"},
+              age: %Schema{type: :integer, format: :int32, minimum: 0}
+            }
+          })
+        end
+
+        defmodule StringDictionary do
+          @behaviour OpenApiSpex.Schema
+
+          def schema() do
+            %OpenApiSpex.Schema{
+              type: :object,
+              additionalProperties: %{
+                type: :string
+              }
+            }
+          end
+        end
+
+        defmodule Pet do
+          require OpenApiSpex
+          alias OpenApiSpex.{Schema, Discriminator}
+
+          OpenApiSpex.schema(%{
+            title: "Pet",
+            type: :object,
+            discriminator: %Discriminator{
+              propertyName: "petType"
+            },
+            properties: %{
+              name: %Schema{type: :string},
+              petType: %Schema{type: :string}
+            },
+            required: [:name, :petType]
+          })
+        end
+
+        defmodule Cat do
+          require OpenApiSpex
+          alias OpenApiSpex.Schema
+
+          OpenApiSpex.schema(%{
+            title: "Cat",
+            type: :object,
+            description: "A representation of a cat. Note that `Cat` will be used as the discriminator value.",
+            allOf: [
+              Pet,
+              %Schema{
+                type: :object,
+                properties: %{
+                  huntingSkill: %Schema{
+                    type: :string,
+                    description: "The measured skill for hunting",
+                    default: "lazy",
+                    enum: ["clueless", "lazy", "adventurous", "aggresive"]
+                  }
+                },
+                required: [:huntingSkill]
+              }
+            ]
+          })
+        end
+
+        defmodule Dog do
+          require OpenApiSpex
+          alias OpenApiSpex.Schema
+
+          OpenApiSpex.schema(%{
+            type: :object,
+            title: "Dog",
+            description: "A representation of a dog. Note that `Dog` will be used as the discriminator value.",
+            allOf: [
+              Pet,
+              %Schema {
+                type: :object,
+                properties: %{
+                  packSize: %Schema{
+                    type: :integer,
+                    format: :int32,
+                    description: "the size of the pack the dog is from",
+                    default: 0,
+                    minimum: 0
+                  }
+                },
+                required: [
+                  :packSize
+                ]
+              }
+            ]
+          })
+        end
+      end
   """
 
   alias OpenApiSpex.{
@@ -131,6 +249,21 @@ defmodule OpenApiSpex.Schema do
       iex> {:ok, dt = %DateTime{}} = OpenApiSpex.Schema.cast(%Schema{type: :string, format: :"date-time"}, "2018-04-02T13:44:55Z", %{})
       ...> dt |> DateTime.to_iso8601()
       "2018-04-02T13:44:55Z"
+
+  ## Casting Polymorphic Schemas
+
+  Schemas using `discriminator`, `allOf`, `oneOf`, `anyOf` are cast using the following rules:
+
+    - If a `discriminator` is present, cast the properties defined in the base schema, then
+      cast the result using the schema identified by the discriminator. To avoid infinite recursion,
+      the discriminator is only dereferenced if the discriminator property has not already been cast.
+
+    - Cast the properties using each schema listing in `allOf`. When a property is defined in
+      multiple `allOf` schemas, it will be cast using the first schema listed containing the property.
+
+    - Cast the value using each schema listed in `oneOf`, stopping as soon as a sucessful cast is made.
+
+    - Cast the value using each schema listed in `anyOf`, stopping as soon as a succesful cast is made.
   """
   def cast(%Schema{type: :boolean}, value, _schemas) when is_boolean(value), do: {:ok, value}
   def cast(%Schema{type: :boolean}, value, _schemas) when is_binary(value) do
@@ -208,12 +341,24 @@ defmodule OpenApiSpex.Schema do
   def cast(schema = %Schema{type: :object, allOf: []}, value = %{}, schemas) do
     cast(%{schema | allOf: nil}, value, schemas)
   end
-  def cast(schema = %Schema{oneOf: [first|rest]}, value, schemas) do
+  def cast(schema = %Schema{oneOf: [first | rest]}, value, schemas) do
     case cast(first, value, schemas) do
       {:ok, result} ->
         cast(%{schema | oneOf: nil}, result, schemas)
       {:error, _reason} ->
         cast(%{schema | oneOf: rest}, value, schemas)
+    end
+  end
+  def cast(%Schema{oneOf: []}, _value, _schemas) do
+    {:error, "Failed to cast to any schema in oneOf"}
+  end
+
+  def cast(schema = %Schema{anyOf: [first | rest]}, value, schemas) do
+    case cast(first, value, schemas) do
+      {:ok, result} ->
+        cast(%{schema | anyOf: nil}, result, schemas)
+      {:error, _reason} ->
+        cast(%{schema | anyOf: rest}, value, schemas)
     end
   end
   def cast(%Schema{oneOf: []}, _value, _schemas) do

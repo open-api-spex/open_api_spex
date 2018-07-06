@@ -18,8 +18,19 @@ defmodule OpenApiSpex.Test.Assertions do
       flunk("Schema: #{schema_title} not found in #{inspect(Map.keys(schemas))}")
     end
 
-    _ = assert {:ok, data} = OpenApiSpex.cast(api_spec, schema, value)
-    _ = assert :ok = OpenApiSpex.validate(api_spec, schema, data)
+
+    data =
+      case OpenApiSpex.cast(api_spec, schema, value) do
+        {:ok, data} -> data
+        {:error, reason} ->
+          flunk("Value does not conform to schema #{schema_title}: #{reason}\n#{inspect value}")
+      end
+
+    case OpenApiSpex.validate(api_spec, schema, data) do
+      :ok -> :ok
+      {:error, reason} ->
+        flunk("Value does not conform to schema #{schema_title}: #{reason}\n#{inspect value}")
+    end
 
     data
   end
