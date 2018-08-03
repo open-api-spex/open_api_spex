@@ -11,6 +11,8 @@ Leverage Open Api Specification 3 (swagger) to document, test, validate and expl
  - Validate responses against schemas in tests, ensuring your docs are accurate and reliable
  - Explore the API interactively with with [SwaggerUI](https://swagger.io/swagger-ui/)
 
+Full documentation available on [hexdocs](https://hexdocs.pm/open_api_spex/)
+
 ## Installation
 
 The package can be installed by adding `open_api_spex` to your list of dependencies in `mix.exs`:
@@ -25,7 +27,7 @@ end
 
 ## Generate Spec
 
-Start by adding an `ApiSpec` module to your application.
+Start by adding an `ApiSpec` module to your application to populate an `OpenApiSpex.OpenApi` struct.
 
 ```elixir
 defmodule MyApp.ApiSpec do
@@ -50,7 +52,7 @@ end
 ```
 
 For each plug (controller) that will handle api requests, add an `open_api_operation` callback.
-It will be passed the plug opts that were declared in the router, this will be the action for a phoenix controller.
+It will be passed the plug opts that were declared in the router, this will be the action for a phoenix controller. The callback populates an `OpenApiSpex.Operation` struct describing the plug/action.
 
 ```elixir
 defmodule MyApp.UserController do
@@ -84,8 +86,10 @@ end
 ```
 
 Declare the JSON schemas for request/response bodies in a `Schemas` module:
-Each module should export a `schema/0` function, and may optionally declare a struct,
-linked to the JSON schema through the `x-struct` extension property.
+Each module should implement the `OpenApiSpex.Schema` behaviour.
+The only callback is `schema/0`, which should return an `OpenApiSpex.Schema` struct.
+You may optionally declare a struct, linked to the JSON schema through the `x-struct` extension property.
+See `OpenApiSpex.schema/1` macro for a convenient way to reduce some boilerplate.
 
 ```elixir
 defmodule MyApp.Schemas do
@@ -106,7 +110,7 @@ defmodule MyApp.Schemas do
         updated_at: %Schema{type: :string, description: "Update timestamp", format: :datetime}
       },
       required: [:name, :email],
-      example: {
+      example: %{
         "id" => 123,
         "name" => "Joe",
         "email" => "joe@gmail.com"
@@ -234,6 +238,7 @@ defmodule MyApp.UserController do
   end
 end
 ```
+See also `OpenApiSpex.cast/3` and `OpenApiSpex.Schema.cast/3` for more examples outside of a `plug` pipeline.
 
 
 ## Validate Params
@@ -252,6 +257,8 @@ The response body will include the validation error message:
 ```
 #/user/name: Value does not match pattern: [a-zA-Z][a-zA-Z0-9_]+
 ```
+
+See `OpenApiSpex.validate/3` and `OpenApiSpex.Schema.validate/3` for usage outside of a plug pipeline.
 
 ## Validate Examples
 
