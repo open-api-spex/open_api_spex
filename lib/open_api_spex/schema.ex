@@ -442,7 +442,8 @@ defmodule OpenApiSpex.Schema do
   def validate(schema = %Schema{type: :string}, value, path, _schemas) do
     with :ok <- validate_max_length(schema, value, path),
          :ok <- validate_min_length(schema, value, path),
-         :ok <- validate_pattern(schema, value, path) do
+         :ok <- validate_pattern(schema, value, path),
+         :ok <- validate_enum(schema, value, path) do
       :ok
     end
   end
@@ -516,6 +517,16 @@ defmodule OpenApiSpex.Schema do
     case Regex.match?(regex, val) do
       true -> :ok
       _ -> {:error, "#{path}: Value does not match pattern: #{regex.source}"}
+    end
+  end
+
+  @spec validate_enum(Schema.t, String.t, String.t) :: :ok | {:error, String.t}
+  def validate_enum(%{enum: nil}, _val, _path), do: :ok
+  def validate_enum(%{enum: options}, value, path) do
+    case Enum.member?(options, value) do
+      true -> :ok
+      _ ->
+        {:error, "#{path}: Value not in enum: #{Enum.join(options, ", ")}"}
     end
   end
 

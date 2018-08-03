@@ -121,4 +121,21 @@ defmodule OpenApiSpex.SchemaTest do
     }
     assert {:ok, %DateTime{}} = Schema.cast(schema, "2018-04-01T12:34:56Z", %{})
   end
+
+  test "Validate string with unexpected value" do
+    schema = %Schema{
+      type: :string,
+      enum: ["foo", "bar"]
+    }
+    assert {:error, _} = Schema.validate(schema, "baz", %{})
+  end
+
+  test "Validate string with expected value" do
+    schema = %Schema{
+      type: :string,
+      enum: ["foo", "bar"]
+    }
+    assert :ok = Schema.validate(schema, "bar", %{})
+  end
+
 end
