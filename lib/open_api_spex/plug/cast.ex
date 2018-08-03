@@ -38,7 +38,18 @@ defmodule OpenApiSpex.Plug.Cast do
         |> Plug.Conn.halt()
     end
   end
-  def call(conn = %{private: %{phoenix_controller: controller, phoenix_action: action}}, _opts) do
-    call(conn, operation_id: controller.open_api_operation(action).operationId)
+  def call(conn = %{private: %{phoenix_controller: controller, phoenix_action: action, open_api_spex: _pd}}, _opts) do
+    operation_id = controller.open_api_operation(action).operationId
+    if (operation_id) do
+      call(conn, operation_id: operation_id)
+    else
+      raise "operationId was not found in action API spec"
+    end
+  end
+  def call(_conn = %{private: %{open_api_spex: _pd}}, _opts) do
+    raise ":operation_id was neither provided nor inferred from conn. Consider putting plug OpenApiSpex.Plug.Cast rather into your phoenix controller."
+  end
+  def call(_conn, _opts) do
+    raise ":open_api_spex was not found under :private. Maybe OpenApiSpex.Plug.PutApiSpec was not called before?"
   end
 end
