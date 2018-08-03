@@ -30,7 +30,7 @@ defmodule OpenApiSpex.Parameter do
   @typedoc """
   Valid values for the `style` key in the `OpenApiSpex.Parameter` struct.
   """
-  @type style :: :matrix | :label | :form | :simple | :spaceDelimited | :pipeDelimited | :deep
+  @type style :: :matrix | :label | :form | :simple | :spaceDelimited | :pipeDelimited | :deepObject
 
   @typedoc """
   [Parameter Object](https://swagger.io/specification/#parameterObject)
