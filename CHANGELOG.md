@@ -1,3 +1,12 @@
+# 2.3.0
+
+- Feature: Validate string enum types. (#33)
+- Feature: Detect and report missing API spec in `OpenApiSpex.Plug.Cast` (#37)
+- Fix: Correct atom for parameter `style` field typespec (#36)
+
+Thanks to [slavo2](https://github.com/slavo2) and [anagromataf](https://github.com/anagromataf) for
+contributions!
+
 # 2.2.0
 
 - Feature: Support composite schemas in `OpenApiSpex.schema`
