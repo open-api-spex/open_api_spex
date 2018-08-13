@@ -79,10 +79,34 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
-  def create(conn, %Schemas.UserRequest{user: user = %Schemas.User{}}) do
+  def create(conn = %{body_params: %Schemas.UserRequest{user: user = %Schemas.User{}}}, _) do
     json(conn, %Schemas.UserResponse{
       data: %{user | id: 1234}
     })
+  end
+
+  def contact_info_operation() do
+    import Operation
+    %Operation{
+      tags: ["users"],
+      summary: "Update contact info",
+      description: "Update contact info",
+      operationId: "UserController.contact_info",
+      parameters: [
+        parameter(:id, :path, :integer, "user ID")
+      ],
+      requestBody: request_body("Contact info", "application/json", Schemas.ContactInfo),
+      responses: %{
+        200 => %OpenApiSpex.Response{
+          description: "OK"
+        }
+      }
+    }
+  end
+  def contact_info(conn = %{body_params: %Schemas.ContactInfo{}}, %{id: id}) do
+    conn
+    |> put_status(200)
+    |> json(%{id: id})
   end
 
   def payment_details_operation() do

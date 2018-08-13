@@ -198,7 +198,7 @@ All javascript and CSS assets are sourced from cdnjs.cloudflare.com, rather than
 
 ## Cast Params
 
-Add the `OpenApiSpex.Plug.Cast` plug to a controller to cast the request parameters to elixir types defined by the operation schema.
+Add the `OpenApiSpex.Plug.Cast` plug to a controller to cast the request parameters and body to elixir types defined by the operation schema.
 
 ```elixir
 plug OpenApiSpex.Plug.Cast, operation_id: "UserController.show"
@@ -225,7 +225,9 @@ defmodule MyApp.UserController do
       summary: "Create user",
       description: "Create a user",
       operationId: "UserController.create",
-      parameters: [],
+      parameters: [
+        parameter(:id, :query, :integer, "user ID")
+      ],
       requestBody: request_body("The user attributes", "application/json", UserRequest),
       responses: %{
         201 => response("User", "application/json", UserResponse)
@@ -233,8 +235,9 @@ defmodule MyApp.UserController do
     }
   end
 
-  def create(conn, %UserRequest{user: %User{name: name, email: email, birthday: birthday = %Date{}}}) do
-    # params are cast to UserRequest struct
+  def create(conn = %{body_params: %UserRequest{user: %User{name: name, email: email, birthday: birthday = %Date{}}}}, %{id: id}) do
+    # conn.body_params cast to UserRequest struct
+    # conn.params.id cast to integer
   end
 end
 ```
