@@ -170,4 +170,48 @@ defmodule OpenApiSpex.SchemaTest do
     assert {:error, _} = Schema.validate(schema, 42, %{})
   end
 
+  test "Validate anyOf with expected values" do
+    schema = %Schema{
+      anyOf: [%Schema{nullable: true}, %Schema{type: :integer}]
+    }
+    assert :ok = Schema.validate(schema, 42, %{})
+    assert :ok = Schema.validate(schema, nil, %{})
+  end
+
+  test "Validate anyOf with value matching no schema" do
+    schema = %Schema{
+      anyOf: [%Schema{nullable: true}, %Schema{type: :integer}]
+    }
+    assert {:error, _} = Schema.validate(schema, "bla", %{})
+  end
+
+  test "Validate anyOf with value matching more than one schema" do
+    schema = %Schema{
+      anyOf: [%Schema{type: :number}, %Schema{type: :integer}]
+    }
+    assert :ok = Schema.validate(schema, 42, %{})
+  end
+
+  test "Validate allOf with expected values" do
+    schema = %Schema{
+      allOf: [%Schema{type: :number}, %Schema{type: :integer}]
+    }
+    assert :ok = Schema.validate(schema, 42, %{})
+  end
+
+  test "Validate allOf with value matching no schema" do
+    schema = %Schema{
+      allOf: [%Schema{nullable: true}, %Schema{type: :integer}]
+    }
+    assert {:error, _} = Schema.validate(schema, "bla", %{})
+  end
+
+  test "Validate allOf with value matching not all schemas" do
+    schema = %Schema{
+      allOf: [%Schema{nullable: true}, %Schema{type: :integer}]
+    }
+    assert {:error, _} = Schema.validate(schema, 42, %{})
+    assert {:error, _} = Schema.validate(schema, nil, %{})
+  end
+
 end

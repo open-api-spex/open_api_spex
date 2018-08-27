@@ -435,6 +435,20 @@ defmodule OpenApiSpex.Schema do
       _ -> {:error, "#{path}: More than one schema matches \"oneOf\": #{inspect(value)}"}
     end
   end
+  def validate(%Schema{anyOf: schemasOf = [_|_]}, value, path, schemas) do
+    if Enum.any?(schemasOf, fn schema -> try_validate?(schema, value, path, schemas) end) do
+      :ok
+    else
+      {:error, "#{path}: Not one schema matches \"anyOf\": #{inspect(value)}"}
+    end
+  end
+  def validate(%Schema{allOf: schemasOf = [_|_]}, value, path, schemas) do
+    if Enum.all?(schemasOf, fn schema -> try_validate?(schema, value, path, schemas) end) do
+      :ok
+    else
+      {:error, "#{path}: At least one schema does not match \"allOf\": #{inspect(value)}"}
+    end
+  end
   def validate(%Schema{nullable: true}, nil, _path, _schemas), do: :ok
   def validate(%Schema{nullable: _}, nil, path, _schemas) do
     {:error, "#{path}: unexpected null value"}
