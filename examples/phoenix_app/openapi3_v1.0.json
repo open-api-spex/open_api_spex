@@ -168,7 +168,11 @@
         ],
         "properties": {
           "user": {
-            "$ref": "#/components/schemas/User"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/User"
+              }
+            ]
           }
         },
         "example": {
