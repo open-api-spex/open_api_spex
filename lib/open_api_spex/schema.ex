@@ -428,6 +428,13 @@ defmodule OpenApiSpex.Schema do
 
   @spec validate(Schema.t | Reference.t, any, String.t, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
   def validate(ref = %Reference{}, val, path, schemas), do: validate(Reference.resolve_schema(ref, schemas), val, path, schemas)
+  def validate(%Schema{oneOf: schemasOf = [_|_]}, value, path, schemas) do
+    case Enum.count(schemasOf, fn schema -> try_validate?(schema, value, path, schemas) end) do
+      1 -> :ok
+      0 -> {:error, "#{path}: Not one schema matches \"oneOf\": #{inspect(value)}"}
+      _ -> {:error, "#{path}: More than one schema matches \"oneOf\": #{inspect(value)}"}
+    end
+  end
   def validate(%Schema{nullable: true}, nil, _path, _schemas), do: :ok
   def validate(%Schema{type: type}, nil, path, _schemas) do
     {:error, "#{path}: null value where #{type} expected"}
@@ -468,6 +475,16 @@ defmodule OpenApiSpex.Schema do
          :ok <- validate_min_properties(schema, value, path),
          :ok <- validate_object_properties(schema.properties, MapSet.new(schema.required), value, path, schemas) do
       :ok
+    end
+  end
+
+  defp try_validate?(schema, value, path, schemas) do
+    try do
+      :ok == validate(schema, value, path, schemas)
+    rescue
+      FunctionClauseError ->
+        # validate/4 can fail this way on invalid values
+        false
     end
   end
 
