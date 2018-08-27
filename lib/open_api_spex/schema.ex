@@ -449,6 +449,12 @@ defmodule OpenApiSpex.Schema do
       {:error, "#{path}: At least one schema does not match \"allOf\": #{inspect(value)}"}
     end
   end
+  def validate(%Schema{not: schema}, value, path, schemas) when schema != nil do
+    case validate(schema, value, path, schemas) do
+      {:error, _} -> :ok
+      :ok -> {:error, "#{path}: Schema should \"not\" be matching: #{inspect(value)}"}
+    end
+  end
   def validate(%Schema{nullable: true}, nil, _path, _schemas), do: :ok
   def validate(%Schema{nullable: _}, nil, path, _schemas) do
     {:error, "#{path}: unexpected null value"}

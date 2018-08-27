@@ -214,4 +214,16 @@ defmodule OpenApiSpex.SchemaTest do
     assert {:error, _} = Schema.validate(schema, nil, %{})
   end
 
+  test "Verify 'not' validation" do
+    schema = %Schema{not: %Schema{type: :boolean}}
+    assert :ok = Schema.validate(schema, 42, %{})
+    assert :ok = Schema.validate(schema, "42", %{})
+    assert :ok = Schema.validate(schema, nil, %{})
+    assert :ok = Schema.validate(schema, 4.2, %{})
+    assert :ok = Schema.validate(schema, [4], %{})
+    assert :ok = Schema.validate(schema, %{}, %{})
+    assert {:error, _} = Schema.validate(schema, true, %{})
+    assert {:error, _} = Schema.validate(schema, false, %{})
+  end
+
 end
