@@ -436,8 +436,11 @@ defmodule OpenApiSpex.Schema do
     end
   end
   def validate(%Schema{nullable: true}, nil, _path, _schemas), do: :ok
-  def validate(%Schema{type: type}, nil, path, _schemas) do
-    {:error, "#{path}: null value where #{type} expected"}
+  def validate(%Schema{nullable: _}, nil, path, _schemas) do
+    {:error, "#{path}: unexpected null value"}
+  end
+  def validate(%Schema{type: type}, value, path, _schemas) when type in [:integer, :number] and not is_number(value) do
+    {:error, "#{path}: expected value of type #{type}"}
   end
   def validate(schema = %Schema{type: type}, value, path, _schemas) when type in [:integer, :number] do
     with :ok <- validate_multiple(schema, value, path),
