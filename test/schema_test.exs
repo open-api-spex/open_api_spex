@@ -138,4 +138,36 @@ defmodule OpenApiSpex.SchemaTest do
     assert :ok = Schema.validate(schema, "bar", %{})
   end
 
+  test "Validate nullable with expected value" do
+    schema = %Schema{nullable: true}
+    assert :ok = Schema.validate(schema, nil, %{})
+  end
+
+  test "Validate nullable with unexpected value" do
+    schema = %Schema{nullable: true}
+    assert_raise FunctionClauseError, fn -> Schema.validate(schema, "bla", %{}) end
+  end
+
+  test "Validate oneOf with expected values" do
+    schema = %Schema{
+      oneOf: [%Schema{nullable: true}, %Schema{type: :integer}]
+    }
+    assert :ok = Schema.validate(schema, 42, %{})
+    assert :ok = Schema.validate(schema, nil, %{})
+  end
+
+  test "Validate oneOf with value matching no schema" do
+    schema = %Schema{
+      oneOf: [%Schema{nullable: true}, %Schema{type: :integer}]
+    }
+    assert {:error, _} = Schema.validate(schema, "bla", %{})
+  end
+
+  test "Validate oneOf with value matching more than one schema" do
+    schema = %Schema{
+      oneOf: [%Schema{type: :number}, %Schema{type: :integer}]
+    }
+    assert {:error, _} = Schema.validate(schema, 42, %{})
+  end
+
 end
