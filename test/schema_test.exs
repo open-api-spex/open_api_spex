@@ -138,6 +138,20 @@ defmodule OpenApiSpex.SchemaTest do
     assert :ok = Schema.validate(schema, "bar", %{})
   end
 
+  test "Validate enum with expected value" do
+    schema = %Schema{
+      enum: ["foo", %{id: 42}]
+    }
+    assert :ok = Schema.validate(schema, %{id: 42}, %{})
+  end
+
+  test "Validate enum with unexpected value" do
+    schema = %Schema{
+      enum: ["foo", %{id: 42}]
+    }
+    assert {:error, _} = Schema.validate(schema, "baz", %{})
+  end
+
   test "Validate nullable with expected value" do
     schema = %Schema{nullable: true}
     assert :ok = Schema.validate(schema, nil, %{})
