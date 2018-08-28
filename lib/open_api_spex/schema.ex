@@ -421,7 +421,7 @@ defmodule OpenApiSpex.Schema do
       :ok
 
       iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joegmail.com", %{})
-      {:error, "#: Value does not match pattern: (.*)@(.*)"}
+      {:error, "#: Value \\"joegmail.com\\" does not match pattern: (.*)@(.*)"}
   """
   @spec validate(Schema.t | Reference.t, any, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
   def validate(schema, val, schemas), do: validate(schema, val, "#", schemas)
@@ -555,7 +555,7 @@ defmodule OpenApiSpex.Schema do
   defp validate_pattern(%{pattern: regex = %Regex{}}, val, path) do
     case Regex.match?(regex, val) do
       true -> :ok
-      _ -> {:error, "#{path}: Value does not match pattern: #{regex.source}"}
+      _ -> {:error, "#{path}: Value #{inspect(val)} does not match pattern: #{regex.source}"}
     end
   end
 

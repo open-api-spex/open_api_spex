@@ -61,7 +61,7 @@ defmodule OpenApiSpexTest do
 
       conn = OpenApiSpexTest.Router.call(conn, [])
       assert conn.status == 422
-      assert conn.resp_body == "#/user/name: Value does not match pattern: [a-zA-Z][a-zA-Z0-9_]+"
+      assert conn.resp_body == "#/user/name: Value \"*1234\" does not match pattern: [a-zA-Z][a-zA-Z0-9_]+"
     end
   end
 end
