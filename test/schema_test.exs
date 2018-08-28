@@ -145,7 +145,7 @@ defmodule OpenApiSpex.SchemaTest do
 
   test "Validate nullable with unexpected value" do
     schema = %Schema{nullable: true}
-    assert_raise FunctionClauseError, fn -> Schema.validate(schema, "bla", %{}) end
+    assert {:error, _} = Schema.validate(schema, "bla", %{})
   end
 
   test "Validate oneOf with expected values" do

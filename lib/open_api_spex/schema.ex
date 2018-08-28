@@ -429,21 +429,21 @@ defmodule OpenApiSpex.Schema do
   @spec validate(Schema.t | Reference.t, any, String.t, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
   def validate(ref = %Reference{}, val, path, schemas), do: validate(Reference.resolve_schema(ref, schemas), val, path, schemas)
   def validate(%Schema{oneOf: schemasOf = [_|_]}, value, path, schemas) do
-    case Enum.count(schemasOf, fn schema -> try_validate?(schema, value, path, schemas) end) do
+    case Enum.count(schemasOf, fn schema -> :ok == validate(schema, value, path, schemas) end) do
       1 -> :ok
       0 -> {:error, "#{path}: Not one schema matches \"oneOf\": #{inspect(value)}"}
       _ -> {:error, "#{path}: More than one schema matches \"oneOf\": #{inspect(value)}"}
     end
   end
   def validate(%Schema{anyOf: schemasOf = [_|_]}, value, path, schemas) do
-    if Enum.any?(schemasOf, fn schema -> try_validate?(schema, value, path, schemas) end) do
+    if Enum.any?(schemasOf, fn schema -> :ok == validate(schema, value, path, schemas) end) do
       :ok
     else
       {:error, "#{path}: Not one schema matches \"anyOf\": #{inspect(value)}"}
     end
   end
   def validate(%Schema{allOf: schemasOf = [_|_]}, value, path, schemas) do
-    if Enum.all?(schemasOf, fn schema -> try_validate?(schema, value, path, schemas) end) do
+    if Enum.all?(schemasOf, fn schema -> :ok == validate(schema, value, path, schemas) end) do
       :ok
     else
       {:error, "#{path}: At least one schema does not match \"allOf\": #{inspect(value)}"}
@@ -500,15 +500,8 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
-
-  defp try_validate?(schema, value, path, schemas) do
-    try do
-      :ok == validate(schema, value, path, schemas)
-    rescue
-      FunctionClauseError ->
-        # validate/4 can fail this way on invalid values
-        false
-    end
+  def validate(_schema, value, path, _schemas) do
+    {:error, "#{path}: Invalid value: #{inspect(value)}"}
   end
 
   @spec validate_multiple(Schema.t, number, String.t) :: :ok | {:error, String.t}
