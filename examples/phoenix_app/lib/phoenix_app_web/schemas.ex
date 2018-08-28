@@ -31,7 +31,7 @@ defmodule PhoenixAppWeb.Schemas do
       description: "POST body for creating a user",
       type: :object,
       properties: %{
-        user: User
+        user: %Schema{anyOf: [User]}
       },
       required: [:user],
       example: %{

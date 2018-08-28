@@ -361,8 +361,8 @@ defmodule OpenApiSpex.Schema do
         cast(%{schema | anyOf: rest}, value, schemas)
     end
   end
-  def cast(%Schema{oneOf: []}, _value, _schemas) do
-    {:error, "Failed to cast to any schema in oneOf"}
+  def cast(%Schema{anyOf: []}, _value, _schemas) do
+    {:error, "Failed to cast to any schema in anyOf"}
   end
 
   def cast(schema = %Schema{type: :object}, value, schemas) when is_map(value) do
