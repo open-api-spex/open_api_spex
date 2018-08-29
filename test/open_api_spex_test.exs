@@ -21,7 +21,7 @@ defmodule OpenApiSpexTest do
       conn =
         :post
         |> Plug.Test.conn("/api/users", Poison.encode!(request_body))
-        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.params == %OpenApiSpexTest.Schemas.UserRequest{

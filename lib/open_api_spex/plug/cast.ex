@@ -26,7 +26,10 @@ defmodule OpenApiSpex.Plug.Cast do
   def call(conn = %{private: %{open_api_spex: private_data}}, operation_id: operation_id) do
     spec = private_data.spec
     operation = private_data.operation_lookup[operation_id]
-    content_type = Conn.get_req_header(conn, "content-type") |> Enum.at(0)
+    content_type = Conn.get_req_header(conn, "content-type") 
+        |> Enum.at(0)
+        |> String.split(";")
+        |> Enum.at(0)
     private_data = Map.put(private_data, :operation_id, operation_id)
     conn = Conn.put_private(conn, :open_api_spex, private_data)
 
