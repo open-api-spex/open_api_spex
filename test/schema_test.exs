@@ -152,6 +152,20 @@ defmodule OpenApiSpex.SchemaTest do
     assert {:error, _} = Schema.validate(schema, "baz", %{})
   end
 
+  test "Validate non-empty string with expected value" do
+    schema = %Schema{type: :string, minLength: 1}
+    assert :ok = Schema.validate(schema, "BLIP", %{})
+  end
+
+  test "Validate nullable-ified with expected value" do
+    schema = %Schema{
+      allOf: [
+        %Schema{nullable: true},
+        %Schema{type: :string, minLength: 1}
+      ]}
+    assert :ok = Schema.validate(schema, "BLIP", %{})
+  end
+
   test "Validate nullable with expected value" do
     schema = %Schema{nullable: true}
     assert :ok = Schema.validate(schema, nil, %{})
@@ -159,14 +173,14 @@ defmodule OpenApiSpex.SchemaTest do
 
   test "Validate nullable with unexpected value" do
     schema = %Schema{nullable: true}
-    assert {:error, _} = Schema.validate(schema, "bla", %{})
+    assert :ok = Schema.validate(schema, "bla", %{})
   end
 
   test "Validate oneOf with expected values" do
     schema = %Schema{
       oneOf: [%Schema{nullable: true}, %Schema{type: :integer}]
     }
-    assert :ok = Schema.validate(schema, 42, %{})
+    assert {:error, _} = Schema.validate(schema, 42, %{})
     assert :ok = Schema.validate(schema, nil, %{})
   end
 
@@ -174,7 +188,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       oneOf: [%Schema{nullable: true}, %Schema{type: :integer}]
     }
-    assert {:error, _} = Schema.validate(schema, "bla", %{})
+    assert :ok = Schema.validate(schema, "bla", %{})
   end
 
   test "Validate oneOf with value matching more than one schema" do
@@ -196,7 +210,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       anyOf: [%Schema{nullable: true}, %Schema{type: :integer}]
     }
-    assert {:error, _} = Schema.validate(schema, "bla", %{})
+    assert :ok = Schema.validate(schema, "bla", %{})
   end
 
   test "Validate anyOf with value matching more than one schema" do
@@ -224,7 +238,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       allOf: [%Schema{nullable: true}, %Schema{type: :integer}]
     }
-    assert {:error, _} = Schema.validate(schema, 42, %{})
+    assert :ok = Schema.validate(schema, 42, %{})
     assert {:error, _} = Schema.validate(schema, nil, %{})
   end
 

@@ -455,10 +455,6 @@ defmodule OpenApiSpex.Schema do
       :ok -> {:error, "#{path}: Schema should \"not\" be matching: #{inspect(value)}"}
     end
   end
-  def validate(%Schema{nullable: true}, nil, _path, _schemas), do: :ok
-  def validate(%Schema{nullable: _}, nil, path, _schemas) do
-    {:error, "#{path}: unexpected null value"}
-  end
   def validate(%Schema{enum: options = [_ | _]}, value, path, _schemas) do
     case Enum.member?(options, value) do
       true -> :ok
@@ -506,6 +502,12 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
+  # Note: OpenAPI3's `{"nullable": true}` really means JSON schema's `{}` (i.e. anything)
+  def validate(%Schema{nullable: true}, nil, _path, _schemas), do: :ok
+  def validate(%Schema{nullable: _}, nil, path, _schemas) do
+    {:error, "#{path}: unexpected null value"}
+  end
+  def validate(%Schema{nullable: true}, _value, _path, _schemas), do: :ok
   def validate(_schema, value, path, _schemas) do
     {:error, "#{path}: Invalid value: #{inspect(value)}"}
   end
