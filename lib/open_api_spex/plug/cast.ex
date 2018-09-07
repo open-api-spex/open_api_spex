@@ -13,6 +13,29 @@ defmodule OpenApiSpex.Plug.Cast do
         plug OpenApiSpex.Plug.Cast
         ...
       end
+
+  If you want customize the error response, you can provide the `:render_error` options, which points to a function
+  with two arguments of the types Plug.Conn and string, where string contains the reason of the error. The function is
+  called when a validation error occurs.
+
+  ## Example
+
+      defmodule MyAppWeb.UserController do
+        use Phoenix.Controller
+        plug OpenApiSpex.Plug.Cast,
+        render_error: &MyAppWeb.UserController.render_error/2
+
+        plug OpenApiSpex.Plug.Validate
+
+        def render_error(conn, reason) do
+          msg = %{error: reason} |> Posion.encode!()
+
+          conn
+          |> Conn.put_resp_content_type("application/json")
+          |> Conn.send_resp(400, msg)
+        end
+        ...
+      end
   """
 
   @behaviour Plug
@@ -20,10 +43,10 @@ defmodule OpenApiSpex.Plug.Cast do
   alias Plug.Conn
 
   @impl Plug
-  def init(opts), do: opts
+  def init(opts), do: Keyword.put_new(opts, :render_error, &OpenApiSpex.Plug.Cast.render_error/2)
 
   @impl Plug
-  def call(conn = %{private: %{open_api_spex: private_data}}, operation_id: operation_id) do
+  def call(conn = %{private: %{open_api_spex: private_data}}, operation_id: operation_id, render_error: render_error) do
     spec = private_data.spec
     operation = private_data.operation_lookup[operation_id]
     content_type = Conn.get_req_header(conn, "content-type") 
@@ -37,14 +60,14 @@ defmodule OpenApiSpex.Plug.Cast do
       {:ok, params} -> %{conn | params: params}
       {:error, reason} ->
         conn
-        |> Plug.Conn.send_resp(422, "#{reason}")
+        |> render_error.(reason)
         |> Plug.Conn.halt()
     end
   end
-  def call(conn = %{private: %{phoenix_controller: controller, phoenix_action: action, open_api_spex: _pd}}, _opts) do
+  def call(conn = %{private: %{phoenix_controller: controller, phoenix_action: action, open_api_spex: _pd}}, opts) do
     operation_id = controller.open_api_operation(action).operationId
     if (operation_id) do
-      call(conn, operation_id: operation_id)
+      call(conn, Keyword.put(opts, :operation_id, operation_id))
     else
       raise "operationId was not found in action API spec"
     end
@@ -54,5 +77,9 @@ defmodule OpenApiSpex.Plug.Cast do
   end
   def call(_conn, _opts) do
     raise ":open_api_spex was not found under :private. Maybe OpenApiSpex.Plug.PutApiSpec was not called before?"
+  end
+
+  def render_error(conn, reason) do
+    conn |> Conn.send_resp(422, "#{reason}")
   end
 end
