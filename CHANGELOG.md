@@ -1,3 +1,10 @@
+# 2.3.1
+
+- Docs: Update example application to include swagger generate mix task (#41)
+- Fix: Ignore charset in content-type header when looking up schema by content type. (#45)
+
+Thanks to [dmt](https://github.com/dmt) and [fenollp](https://github.com/fenollp) for contributions!
+
 # 2.3.0
 
 - Feature: Validate string enum types. (#33)
