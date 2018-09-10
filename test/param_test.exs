@@ -33,4 +33,38 @@ defmodule ParamTest do
       assert conn.resp_body == "Undefined query parameter: \"inValid2\""
     end
   end
+
+  describe "Param with custom error handling" do
+    test "Valid Param" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/custom_error_users?validParam=true")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+    end
+
+    test "Invalid value" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/custom_error_users?validParam=123")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 400
+    end
+
+    test "Invalid Param" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/custom_error_users?validParam=123&inValidParam=123&inValid2=hi")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 400
+      assert conn.resp_body == "Undefined query parameter: \"inValid2\""
+    end
+  end
+
 end

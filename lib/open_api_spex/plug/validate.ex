@@ -14,16 +14,49 @@ defmodule OpenApiSpex.Plug.Validate do
         plug OpenApiSpex.Plug.Validate
         ...
       end
+
+  If you want customize the error response, you can provide the `:render_error` option to register a plug which creates
+  a custom response in the case of a validation error.
+
+  ## Example
+
+      defmodule MyApp.UserController do
+        use Phoenix.Controller
+        plug OpenApiSpex.Plug.Cast
+        plug OpenApiSpex.Plug.Validate,
+        render_error: MyApp.RenderError
+
+        def render_error(conn, reason) do
+          msg = %{error: reason} |> Posion.encode!()
+
+          conn
+          |> Conn.put_resp_content_type("application/json")
+          |> Conn.send_resp(400, msg)
+        end
+        ...
+      end
+
+      defmodule MyApp.RenderError do
+        def init(opts), do: opts
+
+        def call(conn, reason) do
+          msg = %{error: reason} |> Posion.encode!()
+
+          conn
+          |> Conn.put_resp_content_type("application/json")
+          |> Conn.send_resp(400, msg)
+        end
+      end
   """
   @behaviour Plug
 
   alias Plug.Conn
 
   @impl Plug
-  def init(opts), do: opts
+  def init(opts), do: Keyword.put_new(opts, :render_error, OpenApiSpex.Plug.DefaultRenderError)
 
   @impl Plug
-  def call(conn, _opts) do
+  def call(conn, render_error: render_error) do
     spec = conn.private.open_api_spex.spec
     operation_id = conn.private.open_api_spex.operation_id
     operation_lookup = conn.private.open_api_spex.operation_lookup
@@ -37,9 +70,15 @@ defmodule OpenApiSpex.Plug.Validate do
       conn
     else
       {:error, reason} ->
+        opts = render_error.init(reason)
+
         conn
-        |> Conn.send_resp(422, "#{reason}")
-        |> Conn.halt()
+        |> render_error.call(opts)
+        |> Plug.Conn.halt()
     end
+  end
+
+  def render_error(conn, reason) do
+    conn |> Conn.send_resp(422, "#{reason}")
   end
 end

@@ -2,6 +2,7 @@ defmodule OpenApiSpexTest.Router do
   use Phoenix.Router
   alias Plug.Parsers
   alias OpenApiSpexTest.UserController
+  alias OpenApiSpexTest.CustomErrorUserController
   alias OpenApiSpex.Plug.{PutApiSpec, RenderSpec}
 
   pipeline :api do
@@ -13,6 +14,7 @@ defmodule OpenApiSpexTest.Router do
   scope "/api" do
     pipe_through :api
     resources "/users", UserController, only: [:create, :index, :show]
+    resources "/custom_error_users", CustomErrorUserController, only: [:index]
     get "/users/:id/payment_details", UserController, :payment_details
     post "/users/create_entity", UserController, :create_entity
     get "/openapi", RenderSpec, []
