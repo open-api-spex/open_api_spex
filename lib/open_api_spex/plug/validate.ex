@@ -62,7 +62,7 @@ defmodule OpenApiSpex.Plug.Validate do
     operation_lookup = conn.private.open_api_spex.operation_lookup
     operation = operation_lookup[operation_id]
     content_type = Conn.get_req_header(conn, "content-type")
-        |> Enum.at(0)
+        |> Enum.at(0, "")
         |> String.split(";")
         |> Enum.at(0)
 

@@ -6,7 +6,6 @@ defmodule ParamTest do
       conn =
         :get
         |> Plug.Test.conn("/api/users?validParam=true")
-        |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
@@ -16,7 +15,6 @@ defmodule ParamTest do
       conn =
         :get
         |> Plug.Test.conn("/api/users?validParam=123")
-        |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 422
@@ -26,7 +24,6 @@ defmodule ParamTest do
       conn =
         :get
         |> Plug.Test.conn("/api/users?validParam=123&inValidParam=123&inValid2=hi")
-        |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 422
@@ -39,7 +36,6 @@ defmodule ParamTest do
       conn =
         :get
         |> Plug.Test.conn("/api/custom_error_users?validParam=true")
-        |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
@@ -49,7 +45,6 @@ defmodule ParamTest do
       conn =
         :get
         |> Plug.Test.conn("/api/custom_error_users?validParam=123")
-        |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 400
@@ -59,7 +54,6 @@ defmodule ParamTest do
       conn =
         :get
         |> Plug.Test.conn("/api/custom_error_users?validParam=123&inValidParam=123&inValid2=hi")
-        |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 400
