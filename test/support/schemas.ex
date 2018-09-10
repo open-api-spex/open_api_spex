@@ -26,6 +26,24 @@ defmodule OpenApiSpexTest.Schemas do
     }
   end
 
+  defmodule ContactInfo do
+    OpenApiSpex.schema %{
+      title: "ContactInfo",
+      description: "A users contact information",
+      type: :object,
+      properties: %{
+        phone_number: %Schema{type: :string, description: "Phone number"},
+        postal_address: %Schema{type: :string, description: "Postal address"}
+      },
+      required: [:phone_number],
+      additionalProperties: false,
+      example: %{
+        "phone_number" => "555-123-456",
+        "postal_address" => "123 Evergreen Tce"
+      }
+    }
+  end
+
   defmodule CreditCardPaymentDetails do
     OpenApiSpex.schema %{
       title: "CreditCardPaymentDetails",
@@ -109,8 +127,7 @@ defmodule OpenApiSpexTest.Schemas do
           "inserted_at" => "2017-09-12T12:34:55Z",
           "updated_at" => "2017-09-13T10:11:12Z"
         }
-      },
-      "x-struct": __MODULE__
+      }
     }
   end
 

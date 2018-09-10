@@ -40,9 +40,12 @@ defmodule OpenApiSpex do
   @doc """
   Cast all params in `Plug.Conn` to conform to the schemas for `OpenApiSpex.Operation`.
 
+  Returns `{:ok, Plug.Conn.t}` with `params` and `body_params` fields updated if successful,
+  or `{:error, reason}` if casting fails.
+
   `content_type` may optionally be supplied to select the `requestBody` schema.
   """
-  @spec cast(OpenApi.t, Operation.t, Plug.Conn.t, content_type | nil) :: {:ok, any} | {:error, String.t}
+  @spec cast(OpenApi.t, Operation.t, Plug.Conn.t, content_type | nil) :: {:ok, Plug.Conn.t} | {:error, String.t}
       when content_type: String.t
   def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
     Operation.cast(operation, conn, content_type, spec.components.schemas)

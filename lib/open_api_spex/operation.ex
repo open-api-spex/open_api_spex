@@ -121,13 +121,13 @@ defmodule OpenApiSpex.Operation do
   @doc """
   Cast params to the types defined by the schemas of the operation parameters and requestBody
   """
-  @spec cast(Operation.t, Conn.t, String.t | nil, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
+  @spec cast(Operation.t, Conn.t, String.t | nil, %{String.t => Schema.t}) :: {:ok, Plug.Conn.t} | {:error, String.t}
   def cast(operation = %Operation{}, conn = %Plug.Conn{}, content_type, schemas) do
     parameters = Enum.filter(operation.parameters || [], fn p -> Map.has_key?(conn.params, Atom.to_string(p.name)) end)
     with :ok <- check_query_params_defined(conn, operation.parameters),
          {:ok, parameter_values} <- cast_parameters(parameters, conn.params, schemas),
-         {:ok, body} <- cast_request_body(operation.requestBody, conn.params, content_type, schemas) do
-      {:ok, Map.merge(parameter_values, body)}
+         {:ok, body} <- cast_request_body(operation.requestBody, conn.body_params, content_type, schemas) do
+      {:ok, %{conn | params: parameter_values, body_params: body}}
     end
   end
 
@@ -178,8 +178,8 @@ defmodule OpenApiSpex.Operation do
   def validate(operation = %Operation{}, conn = %Plug.Conn{}, content_type, schemas) do
     with :ok <- validate_required_parameters(operation.parameters || [], conn.params),
          parameters <- Enum.filter(operation.parameters || [], &Map.has_key?(conn.params, &1.name)),
-         {:ok, remaining} <- validate_parameter_schemas(parameters, conn.params, schemas),
-         :ok <- validate_body_schema(operation.requestBody, remaining, content_type, schemas) do
+         :ok <- validate_parameter_schemas(parameters, conn.params, schemas),
+         :ok <- validate_body_schema(operation.requestBody, conn.body_params, content_type, schemas) do
       :ok
     end
   end
@@ -198,13 +198,12 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  @spec validate_parameter_schemas([Parameter.t], map, %{String.t => Schema.t}) :: {:ok, map} | {:error, String.t}
-  defp validate_parameter_schemas([], %{} = params, _schemas), do: {:ok, params}
+  @spec validate_parameter_schemas([Parameter.t], map, %{String.t => Schema.t}) :: :ok | {:error, String.t}
+  defp validate_parameter_schemas([], %{} = params, _schemas), do: :ok
   defp validate_parameter_schemas([p | rest], %{} = params, schemas) do
     {:ok, parameter_value} = Map.fetch(params, p.name)
-    with :ok <- Schema.validate(Parameter.schema(p), parameter_value, schemas),
-         {:ok, remaining} <- validate_parameter_schemas(rest, params, schemas) do
-      {:ok, Map.delete(remaining, p.name)}
+    with :ok <- Schema.validate(Parameter.schema(p), parameter_value, schemas) do
+      validate_parameter_schemas(rest, params, schemas)
     end
   end
 

@@ -32,6 +32,21 @@ defmodule ParamTest do
       assert conn.status == 422
       assert conn.resp_body == "Undefined query parameter: \"inValid2\""
     end
+
+    test "with requestBody" do
+      body = Poison.encode!(%{
+        phone_number: "123-456-789",
+        postal_address: "123 Lane St"
+      })
+
+      conn =
+        :post
+        |> Plug.Test.conn("/api/users/123/contact_info", body)
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+    end
   end
 
   describe "Param with custom error handling" do

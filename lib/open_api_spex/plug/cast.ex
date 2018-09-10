@@ -1,6 +1,8 @@
 defmodule OpenApiSpex.Plug.Cast do
   @moduledoc """
-  Module plug that will cast the `Conn.params` according to the schemas defined for the operation.
+  Module plug that will cast the `Conn.params` and `Conn.body_params` according to the schemas defined for the operation.
+  Note that when using this plug, the body params are no longer merged into `Conn.params` and must be read from `Conn.body_params`
+  separately.
 
   The operation_id can be given at compile time as an argument to `init`:
 
@@ -59,7 +61,7 @@ defmodule OpenApiSpex.Plug.Cast do
     conn = Conn.put_private(conn, :open_api_spex, private_data)
 
     case OpenApiSpex.cast(spec, operation, conn, content_type) do
-      {:ok, params} -> %{conn | params: params}
+      {:ok, conn} -> conn
       {:error, reason} ->
         opts = render_error.init(reason)
 

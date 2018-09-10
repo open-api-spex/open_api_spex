@@ -24,7 +24,7 @@ defmodule OpenApiSpexTest do
         |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
         |> OpenApiSpexTest.Router.call([])
 
-      assert conn.params == %OpenApiSpexTest.Schemas.UserRequest{
+      assert conn.body_params == %OpenApiSpexTest.Schemas.UserRequest{
         user: %OpenApiSpexTest.Schemas.User{
           id: 123,
           name: "asdf",
