@@ -54,7 +54,7 @@ defmodule OpenApiSpex.Plug.Cast do
     spec = private_data.spec
     operation = private_data.operation_lookup[operation_id]
     content_type = Conn.get_req_header(conn, "content-type") 
-        |> Enum.at(0)
+        |> Enum.at(0, "")
         |> String.split(";")
         |> Enum.at(0)
     private_data = Map.put(private_data, :operation_id, operation_id)
