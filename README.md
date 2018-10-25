@@ -1,5 +1,5 @@
 # Open API Spex
-[![Build Status](https://travis-ci.org/mbuhot/open_api_spex.svg?branch=master)](https://travis-ci.org/mbuhot/open_api_spex)
+[![Build Status](https://travis-ci.org/open-api-spex/open_api_spex.svg?branch=master)](https://travis-ci.org/open-api-spex/open_api_spex)
 [![Hex.pm](https://img.shields.io/hexpm/v/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
 
 
@@ -20,7 +20,7 @@ The package can be installed by adding `open_api_spex` to your list of dependenc
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 2.3"}
+    {:open_api_spex, "~> 3.0"}
   ]
 end
 ```

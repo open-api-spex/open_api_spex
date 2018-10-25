@@ -1,20 +1,20 @@
 defmodule OpenApiSpex.Mixfile do
   use Mix.Project
 
-  @version "2.3.1"
+  @version "3.0.0"
 
   def project do
     [
       app: :open_api_spex,
       version: @version,
-      elixir: "~> 1.5",
+      elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
       deps: deps(),
-      source_url: "https://github.com/mbuhot/open_api_spex",
-      homepage_url: "https://github.com/mbuhot/open_api_spex",
+      source_url: "https://github.com/open-api-spex/open_api_spex",
+      homepage_url: "https://github.com/open-api-spex/open_api_spex",
       docs: [extras: ["README.md"], main: "readme", source_ref: "v#{@version}"],
       dialyzer: [
         plt_add_apps: [:mix],
@@ -41,7 +41,7 @@ defmodule OpenApiSpex.Mixfile do
       files: ["lib", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md"],
       maintainers: ["Mike Buhot (m.buhot@gmail.com)"],
       licenses: ["Mozilla Public License, version 2.0"],
-      links: %{"GitHub" => "https://github.com/mbuhot/open_api_spex"}
+      links: %{"GitHub" => "https://github.com/open-api-spex/open_api_spex"}
     ]
   end
 
@@ -49,9 +49,9 @@ defmodule OpenApiSpex.Mixfile do
   defp deps do
     [
       {:poison, "~> 3.1"},
-      {:plug, "~> 1.4"},
+      {:plug, "~> 1.7"},
       {:phoenix, "~> 1.3", only: :test},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false}
     ]
   end

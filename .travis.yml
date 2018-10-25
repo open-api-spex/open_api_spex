@@ -9,8 +9,9 @@ otp_release:
     - 21.0
 
 script:
- - mix test
- - mix dialyzer --halt-exit-status
+    - mix compile --warnings-as-errors
+    - mix test
+    - mix dialyzer --halt-exit-status
 
 cache:
   directories:

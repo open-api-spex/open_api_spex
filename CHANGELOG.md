@@ -1,3 +1,26 @@
+# 3.0.0
+
+Major version bump as the behaviour of `OpenApiSpex.Plug.Cast` has changed (#39).
+To enable requests that contain a body as well as path or query params, the result of casting the
+request body is now placed in the `Conn.body_params` field, instead of the combined `Conn.params` field.
+
+This requires changing code such as Phoenix controller actions to from
+
+```elixir
+def create(conn, %UserRequest{user: %User{name: name, email: email}}) do
+```
+
+to
+
+```elixir
+  def create(conn = %{body_params: %UserRequest{user: %User{name: name, email: email}}}, params) do
+```
+
+- Feature: A custom plug may be provided to render errors (#46)
+- Fix compiler warnings and improve CI process (#53)
+- Fix: Support casting GET requests without Content-Type header (#50, #49)
+- Open API Spex has been moved to the new `open-api-spex` Github organisation
+
 # 2.3.1
 
 - Docs: Update example application to include swagger generate mix task (#41)
