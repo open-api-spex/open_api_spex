@@ -432,14 +432,33 @@ defmodule OpenApiSpex.Schema do
   def validate(%Schema{type: type}, nil, path, _schemas) do
     {:error, "#{path}: null value where #{type} expected"}
   end
-  def validate(schema = %Schema{type: type}, value, path, _schemas) when type in [:integer, :number] do
+  def validate(schema = %Schema{type: :integer}, value, path, _schemas) when is_integer(value) do
+    # TODO DUPLICATION
+    with :ok <- validate_multiple(schema, value, path),
+         :ok <- validate_maximum(schema, value, path),
+           :ok <- validate_minimum(schema, value, path) do
+      :ok
+    end
+  end
+  def validate(schema = %Schema{type: :number}, value, path, _schemas) when is_number(value) do
+    # TODO DUPLICATION
     with :ok <- validate_multiple(schema, value, path),
          :ok <- validate_maximum(schema, value, path),
          :ok <- validate_minimum(schema, value, path) do
       :ok
     end
   end
-  def validate(schema = %Schema{type: :string}, value, path, _schemas) do
+  def validate(schema = %Schema{type: :string}, value, path, _schemas) when is_binary(value) do
+    # TODO DUPLICATION
+    with :ok <- validate_max_length(schema, value, path),
+         :ok <- validate_min_length(schema, value, path),
+           :ok <- validate_pattern(schema, value, path),
+           :ok <- validate_enum(schema, value, path) do
+      :ok
+    end
+  end
+  def validate(schema = %Schema{type: :string}, value = %DateTime{}, path, _schemas) do
+    # TODO DUPLICATION
     with :ok <- validate_max_length(schema, value, path),
          :ok <- validate_min_length(schema, value, path),
          :ok <- validate_pattern(schema, value, path),
@@ -447,13 +466,8 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
-  def validate(%Schema{type: :boolean}, value, path, _schemas) do
-    case is_boolean(value) do
-      true -> :ok
-      _ -> {:error, "#{path}: Invalid boolean: #{inspect(value)}"}
-    end
-  end
-  def validate(schema = %Schema{type: :array}, value, path, schemas) do
+  def validate(%Schema{type: :boolean}, value, path, _schemas) when is_boolean(value), do: :ok
+  def validate(schema = %Schema{type: :array}, value, path, schemas) when is_list(value) do
     with :ok <- validate_max_items(schema, value, path),
          :ok <- validate_min_items(schema, value, path),
          :ok <- validate_unique_items(schema, value, path),
@@ -470,6 +484,19 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
+  def validate(%Schema{type: expected_type}, value, path, _schemas) do
+    {:error, "#{path}: invalid type #{get_type(value)} where #{expected_type} expected"}
+  end
+
+  defp get_type(v) when is_list(v), do: :array
+  defp get_type(v) when is_map(v), do: :object
+  defp get_type(v) when is_binary(v), do: :string
+  defp get_type(v) when is_boolean(v), do: :boolean
+  defp get_type(v) when is_integer(v), do: :integer
+  defp get_type(v) when is_number(v), do: :number
+  defp get_type(v) when is_nil(v), do: :nil
+  defp get_type(v), do: inspect(v)
+
 
   @spec validate_multiple(Schema.t, number, String.t) :: :ok | {:error, String.t}
   defp validate_multiple(%{multipleOf: nil}, _, _), do: :ok

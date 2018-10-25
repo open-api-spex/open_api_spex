@@ -57,10 +57,18 @@ defmodule OpenApiSpex.SchemaTest do
 
   test "User Schema example matches schema" do
     spec = ApiSpec.spec()
-    assert_schema(Schemas.User.schema().example, "User", spec)
-    assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec)
-    assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
-    assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
+
+    Schemas.User.schema().example
+    |> assert_schema("User", spec)
+
+    Schemas.UserRequest.schema().example
+    |> assert_schema("UserRequest", spec)
+
+    Schemas.UserResponse.schema().example
+    |> assert_schema("UserResponse", spec)
+
+    Schemas.UsersResponse.schema().example
+    |> assert_schema("UsersResponse", spec)
   end
 
   test "Cast Cat from Pet schema" do
@@ -136,6 +144,62 @@ defmodule OpenApiSpex.SchemaTest do
       enum: ["foo", "bar"]
     }
     assert :ok = Schema.validate(schema, "bar", %{})
+  end
+
+  test "Validate schema type object when value is array" do
+    schema = %Schema{
+      type: :object
+    }
+    assert {:error, _} = Schema.validate(schema, [], %{})
+  end
+
+  test "Validate schema type array when value is object" do
+    schema = %Schema{
+      type: :array
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate schema type boolean when value is object" do
+    schema = %Schema{
+      type: :boolean
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate schema type string when value is object" do
+    schema = %Schema{
+      type: :string
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate schema type string when value is DateTime" do
+    schema = %Schema{
+      type: :string
+    }
+    assert :ok = Schema.validate(schema, DateTime.utc_now(), %{})
+  end
+
+  test "Validate schema type object when value is DateTime" do
+    schema = %Schema{
+      type: :object
+    }
+    assert :ok = Schema.validate(schema, DateTime.utc_now(), %{})
+  end
+
+  test "Validate schema type integer when value is object" do
+    schema = %Schema{
+      type: :integer
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate schema type number when value is object" do
+    schema = %Schema{
+      type: :integer
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
   end
 
 end
