@@ -58,17 +58,10 @@ defmodule OpenApiSpex.SchemaTest do
   test "User Schema example matches schema" do
     spec = ApiSpec.spec()
 
-    Schemas.User.schema().example
-    |> assert_schema("User", spec)
-
-    Schemas.UserRequest.schema().example
-    |> assert_schema("UserRequest", spec)
-
-    Schemas.UserResponse.schema().example
-    |> assert_schema("UserResponse", spec)
-
-    Schemas.UsersResponse.schema().example
-    |> assert_schema("UsersResponse", spec)
+    assert_schema(Schemas.User.schema().example, "User", spec)
+    assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec)
+    assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
+    assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
   end
 
   test "Cast Cat from Pet schema" do
