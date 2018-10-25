@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.Schema do
+  alias OpenApiSpex.SchemaHelper
+
   @moduledoc """
   Defines the `OpenApiSpex.Schema.t` type and operations for casting and validating against a schema.
 
@@ -485,7 +487,8 @@ defmodule OpenApiSpex.Schema do
     end
   end
   def validate(%Schema{type: expected_type}, value, path, _schemas) do
-    {:error, "#{path}: invalid type #{get_type(value)} where #{expected_type} expected"}
+    {:error,
+     "#{path}: invalid type #{SchemaHelper.convert_type(value)} where #{expected_type} expected"}
   end
 
   defp get_type(v) when is_list(v), do: :array
@@ -498,7 +501,7 @@ defmodule OpenApiSpex.Schema do
   defp get_type(v), do: inspect(v)
 
 
-  @spec validate_multiple(Schema.t, number, String.t) :: :ok | {:error, String.t}
+  @spec validate_multiple(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
   defp validate_multiple(%{multipleOf: nil}, _, _), do: :ok
   defp validate_multiple(%{multipleOf: n}, value, _) when (round(value / n) * n == value), do: :ok
   defp validate_multiple(%{multipleOf: n}, value, path), do: {:error, "#{path}: #{value} is not a multiple of #{n}"}

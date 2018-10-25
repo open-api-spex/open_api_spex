@@ -198,8 +198,10 @@ defmodule OpenApiSpex.Operation do
     end
   end
 
-  @spec validate_parameter_schemas([Parameter.t], map, %{String.t => Schema.t}) :: :ok | {:error, String.t}
-  defp validate_parameter_schemas([], %{} = params, _schemas), do: :ok
+  @spec validate_parameter_schemas([Parameter.t()], map, %{String.t() => Schema.t()}) ::
+          :ok | {:error, String.t()}
+  defp validate_parameter_schemas([], %{} = _params, _schemas), do: :ok
+
   defp validate_parameter_schemas([p | rest], %{} = params, schemas) do
     {:ok, parameter_value} = Map.fetch(params, p.name)
     with :ok <- Schema.validate(Parameter.schema(p), parameter_value, schemas) do
