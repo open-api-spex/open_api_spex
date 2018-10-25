@@ -5,7 +5,6 @@ defmodule OpenApiSpexTest.CustomErrorUserController do
   alias Plug.Conn
 
   defmodule CustomRenderErrorPlug do
-
     @behaviour Plug
 
     alias Plug.Conn
@@ -19,8 +18,8 @@ defmodule OpenApiSpexTest.CustomErrorUserController do
     end
   end
 
-  plug OpenApiSpex.Plug.Cast, render_error: CustomRenderErrorPlug
-  plug OpenApiSpex.Plug.Validate, render_error: CustomRenderErrorPlug
+  plug(OpenApiSpex.Plug.Cast, render_error: CustomRenderErrorPlug)
+  plug(OpenApiSpex.Plug.Validate, render_error: CustomRenderErrorPlug)
 
   def open_api_operation(action) do
     apply(__MODULE__, :"#{action}_operation", [])
@@ -28,6 +27,7 @@ defmodule OpenApiSpexTest.CustomErrorUserController do
 
   def index_operation() do
     import Operation
+
     %Operation{
       tags: ["users"],
       summary: "List users",
@@ -41,6 +41,7 @@ defmodule OpenApiSpexTest.CustomErrorUserController do
       }
     }
   end
+
   def index(conn, _params) do
     json(conn, %Schemas.UsersResponse{
       data: [
@@ -52,5 +53,4 @@ defmodule OpenApiSpexTest.CustomErrorUserController do
       ]
     })
   end
-
 end

@@ -14,6 +14,6 @@ defmodule OpenApiSpex.Responses do
   The Responses Object MUST contain at least one response code, and it SHOULD be the response for a successful operation call.
   """
   @type t :: %{
-    (integer | :default) => Response.t | Reference.t
-  }
+          (integer | :default) => Response.t() | Reference.t()
+        }
 end

@@ -23,13 +23,13 @@ defmodule OpenApiSpex.SchemaTest do
     {:ok, output} = Schema.cast(user_request_schema, input, schemas)
 
     assert output == %OpenApiSpexTest.Schemas.UserRequest{
-      user: %OpenApiSpexTest.Schemas.User{
-        id: 123,
-        name: "asdf",
-        email: "foo@bar.com",
-        updated_at: DateTime.from_naive!(~N[2017-09-12T14:44:55], "Etc/UTC")
-      }
-    }
+             user: %OpenApiSpexTest.Schemas.User{
+               id: 123,
+               name: "asdf",
+               email: "foo@bar.com",
+               updated_at: DateTime.from_naive!(~N[2017-09-12T14:44:55], "Etc/UTC")
+             }
+           }
   end
 
   test "cast request schema with unexpected fields returns error" do
@@ -81,7 +81,8 @@ defmodule OpenApiSpex.SchemaTest do
       "meow" => "meow"
     }
 
-    assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} = Schema.cast(pet_schema, input, schemas)
+    assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} =
+             Schema.cast(pet_schema, input, schemas)
   end
 
   test "Cast Dog from oneOf [cat, dog] schema" do
@@ -94,7 +95,8 @@ defmodule OpenApiSpex.SchemaTest do
       "meow" => "meow"
     }
 
-    assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} = Schema.cast(cat_or_dog, input, schemas)
+    assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} =
+             Schema.cast(cat_or_dog, input, schemas)
   end
 
   test "Cast number to string or number" do
@@ -117,6 +119,7 @@ defmodule OpenApiSpex.SchemaTest do
         %Schema{type: :string, format: :"date-time"}
       ]
     }
+
     assert {:ok, %DateTime{}} = Schema.cast(schema, "2018-04-01T12:34:56Z", %{})
   end
 
@@ -127,6 +130,7 @@ defmodule OpenApiSpex.SchemaTest do
         %Schema{type: :string, format: :"date-time"}
       ]
     }
+
     assert {:ok, %DateTime{}} = Schema.cast(schema, "2018-04-01T12:34:56Z", %{})
   end
 
@@ -135,6 +139,7 @@ defmodule OpenApiSpex.SchemaTest do
       type: :string,
       enum: ["foo", "bar"]
     }
+
     assert {:error, _} = Schema.validate(schema, "baz", %{})
   end
 
@@ -143,6 +148,7 @@ defmodule OpenApiSpex.SchemaTest do
       type: :string,
       enum: ["foo", "bar"]
     }
+
     assert :ok = Schema.validate(schema, "bar", %{})
   end
 
@@ -150,6 +156,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :object
     }
+
     assert {:error, _} = Schema.validate(schema, [], %{})
   end
 
@@ -157,6 +164,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :array
     }
+
     assert {:error, _} = Schema.validate(schema, %{}, %{})
   end
 
@@ -164,6 +172,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :boolean
     }
+
     assert {:error, _} = Schema.validate(schema, %{}, %{})
   end
 
@@ -171,6 +180,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :string
     }
+
     assert {:error, _} = Schema.validate(schema, %{}, %{})
   end
 
@@ -178,6 +188,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :string
     }
+
     assert :ok = Schema.validate(schema, DateTime.utc_now(), %{})
   end
 
@@ -185,6 +196,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :object
     }
+
     assert :ok = Schema.validate(schema, DateTime.utc_now(), %{})
   end
 
@@ -192,6 +204,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :integer
     }
+
     assert {:error, _} = Schema.validate(schema, %{}, %{})
   end
 
@@ -199,7 +212,7 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :integer
     }
+
     assert {:error, _} = Schema.validate(schema, %{}, %{})
   end
-
 end

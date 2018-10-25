@@ -11,7 +11,7 @@ defmodule OpenApiSpex.Paths do
   The path is appended to the URL from the Server Object in order to construct the full URL.
   The Paths MAY be empty, due to ACL constraints.
   """
-  @type t :: %{String.t => PathItem.t}
+  @type t :: %{String.t() => PathItem.t()}
 
   @doc """
   Create a Paths map from the routes in the given router module.
@@ -25,11 +25,14 @@ defmodule OpenApiSpex.Paths do
     |> Map.new()
   end
 
-  @spec open_api_path(String.t) :: String.t
+  @spec open_api_path(String.t()) :: String.t()
   defp open_api_path(path) do
     path
     |> String.split("/")
-    |> Enum.map(fn ":"<>segment -> "{#{segment}}"; segment -> segment end)
+    |> Enum.map(fn
+      ":" <> segment -> "{#{segment}}"
+      segment -> segment
+    end)
     |> Enum.join("/")
   end
 end

@@ -25,23 +25,23 @@ defmodule OpenApiSpexTest do
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.body_params == %OpenApiSpexTest.Schemas.UserRequest{
-        user: %OpenApiSpexTest.Schemas.User{
-          id: 123,
-          name: "asdf",
-          email: "foo@bar.com",
-          updated_at: ~N[2017-09-12T14:44:55Z] |> DateTime.from_naive!("Etc/UTC")
-        }
-      }
+               user: %OpenApiSpexTest.Schemas.User{
+                 id: 123,
+                 name: "asdf",
+                 email: "foo@bar.com",
+                 updated_at: ~N[2017-09-12T14:44:55Z] |> DateTime.from_naive!("Etc/UTC")
+               }
+             }
 
       assert Poison.decode!(conn.resp_body) == %{
-        "data" => %{
-          "email" => "foo@bar.com",
-          "id" => 1234,
-          "inserted_at" => nil,
-          "name" => "asdf",
-          "updated_at" => "2017-09-12T14:44:55Z"
-        }
-      }
+               "data" => %{
+                 "email" => "foo@bar.com",
+                 "id" => 1234,
+                 "inserted_at" => nil,
+                 "name" => "asdf",
+                 "updated_at" => "2017-09-12T14:44:55Z"
+               }
+             }
     end
 
     test "Invalid Request" do

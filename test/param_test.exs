@@ -31,10 +31,11 @@ defmodule ParamTest do
     end
 
     test "with requestBody" do
-      body = Poison.encode!(%{
-        phone_number: "123-456-789",
-        postal_address: "123 Lane St"
-      })
+      body =
+        Poison.encode!(%{
+          phone_number: "123-456-789",
+          postal_address: "123 Lane St"
+        })
 
       conn =
         :post
@@ -75,5 +76,4 @@ defmodule ParamTest do
       assert conn.resp_body == "Undefined query parameter: \"inValid2\""
     end
   end
-
 end

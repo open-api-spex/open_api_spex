@@ -31,7 +31,8 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
     Plug.Conn.put_private(conn, :open_api_spex, private_data)
   end
 
-  @spec build_spec(module) :: {OpenApiSpex.OpenApi.t, %{String.t => OpenApiSpex.Operation.t}}
+  @spec build_spec(module) ::
+          {OpenApiSpex.OpenApi.t(), %{String.t() => OpenApiSpex.Operation.t()}}
   defp build_spec(mod) do
     spec = mod.spec()
     operation_lookup = build_operation_lookup(spec)
@@ -39,7 +40,9 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
     {spec, operation_lookup}
   end
 
-  @spec build_operation_lookup(OpenApiSpex.OpenApi.t) :: %{String.t => OpenApiSpex.Operation.t}
+  @spec build_operation_lookup(OpenApiSpex.OpenApi.t()) :: %{
+          String.t() => OpenApiSpex.Operation.t()
+        }
   defp build_operation_lookup(spec = %OpenApiSpex.OpenApi{}) do
     spec
     |> Map.get(:paths)

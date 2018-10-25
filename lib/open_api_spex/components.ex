@@ -3,10 +3,19 @@ defmodule OpenApiSpex.Components do
   Defines the `OpenApiSpex.Components.t` type.
   """
   alias OpenApiSpex.{
-    Schema, Reference, Response, Parameter, Example,
-    RequestBody, Header, SecurityScheme, Link, Callback,
+    Schema,
+    Reference,
+    Response,
+    Parameter,
+    Example,
+    RequestBody,
+    Header,
+    SecurityScheme,
+    Link,
+    Callback,
     Components
   }
+
   defstruct [
     :schemas,
     :responses,
@@ -16,7 +25,7 @@ defmodule OpenApiSpex.Components do
     :headers,
     :securitySchemes,
     :links,
-    :callbacks,
+    :callbacks
   ]
 
   @typedoc """
@@ -27,14 +36,14 @@ defmodule OpenApiSpex.Components do
   they are explicitly referenced from properties outside the components object.
   """
   @type t :: %Components{
-    schemas: %{String.t => Schema.t | Reference.t} | nil,
-    responses: %{String.t =>  Response.t | Reference.t} | nil,
-    parameters: %{String.t =>  Parameter.t | Reference.t} | nil,
-    examples: %{String.t => Example.t | Reference.t} | nil,
-    requestBodies: %{String.t => RequestBody.t | Reference.t} | nil,
-    headers: %{String.t =>  Header.t | Reference.t} | nil,
-    securitySchemes: %{String.t =>  SecurityScheme.t | Reference.t} | nil,
-    links: %{String.t => Link.t | Reference.t} | nil,
-    callbacks: %{String.t => Callback.t | Reference.t} | nil
-  }
+          schemas: %{String.t() => Schema.t() | Reference.t()} | nil,
+          responses: %{String.t() => Response.t() | Reference.t()} | nil,
+          parameters: %{String.t() => Parameter.t() | Reference.t()} | nil,
+          examples: %{String.t() => Example.t() | Reference.t()} | nil,
+          requestBodies: %{String.t() => RequestBody.t() | Reference.t()} | nil,
+          headers: %{String.t() => Header.t() | Reference.t()} | nil,
+          securitySchemes: %{String.t() => SecurityScheme.t() | Reference.t()} | nil,
+          links: %{String.t() => Link.t() | Reference.t()} | nil,
+          callbacks: %{String.t() => Callback.t() | Reference.t()} | nil
+        }
 end

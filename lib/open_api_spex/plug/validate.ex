@@ -61,10 +61,12 @@ defmodule OpenApiSpex.Plug.Validate do
     operation_id = conn.private.open_api_spex.operation_id
     operation_lookup = conn.private.open_api_spex.operation_lookup
     operation = operation_lookup[operation_id]
-    content_type = Conn.get_req_header(conn, "content-type")
-        |> Enum.at(0, "")
-        |> String.split(";")
-        |> Enum.at(0)
+
+    content_type =
+      Conn.get_req_header(conn, "content-type")
+      |> Enum.at(0, "")
+      |> String.split(";")
+      |> Enum.at(0)
 
     with :ok <- OpenApiSpex.validate(spec, operation, conn, content_type) do
       conn

@@ -20,11 +20,11 @@ defmodule OpenApiSpex.Info do
   and MAY be presented in editing or documentation generation tools for convenience.
   """
   @type t :: %__MODULE__{
-    title: String.t,
-    description: String.t | nil,
-    termsOfService: String.t | nil,
-    contact: Contact.t | nil,
-    license: License.t | nil,
-    version: String.t
-  }
+          title: String.t(),
+          description: String.t() | nil,
+          termsOfService: String.t() | nil,
+          contact: Contact.t() | nil,
+          license: License.t() | nil,
+          version: String.t()
+        }
 end

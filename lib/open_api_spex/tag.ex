@@ -19,8 +19,8 @@ defmodule OpenApiSpex.Tag do
   It is not mandatory to have a Tag Object per tag defined in the Operation Object instances.
   """
   @type t :: %__MODULE__{
-    name: String.t,
-    description: String.t | nil,
-    externalDocs: ExternalDocumentation.t | nil
-  }
+          name: String.t(),
+          description: String.t() | nil,
+          externalDocs: ExternalDocumentation.t() | nil
+        }
 end

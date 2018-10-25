@@ -123,7 +123,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   """
 
   @impl Plug
-  def init(path: path), do: [html:  EEx.eval_string(@html, path: path)]
+  def init(path: path), do: [html: EEx.eval_string(@html, path: path)]
 
   @impl Plug
   def call(conn, html: html) do

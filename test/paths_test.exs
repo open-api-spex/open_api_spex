@@ -6,9 +6,10 @@ defmodule OpenApiSpex.PathsTest do
   describe "Paths" do
     test "from_router" do
       paths = Paths.from_router(Router)
+
       assert %{
-        "/api/users" => %PathItem{},
-      } = paths
+               "/api/users" => %PathItem{}
+             } = paths
     end
   end
 end

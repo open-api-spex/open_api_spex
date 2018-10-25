@@ -3,6 +3,7 @@ defmodule OpenApiSpex.Header do
   Defines the `OpenApiSpex.Header.t` type.
   """
   alias OpenApiSpex.{Schema, Reference, Example}
+
   defstruct [
     :description,
     :required,
@@ -25,14 +26,14 @@ defmodule OpenApiSpex.Header do
    - All traits that are affected by the location MUST be applicable to a location of header (for example, style).
   """
   @type t :: %__MODULE__{
-    description: String.t | nil,
-    required: boolean | nil,
-    deprecated: boolean | nil,
-    allowEmptyValue: boolean | nil,
-    style: :simple,
-    explode: boolean | nil,
-    schema: Schema.t | Reference.t | nil,
-    example: any,
-    examples: %{String.t => Example.t | Reference.t} | nil
-  }
+          description: String.t() | nil,
+          required: boolean | nil,
+          deprecated: boolean | nil,
+          allowEmptyValue: boolean | nil,
+          style: :simple,
+          explode: boolean | nil,
+          schema: Schema.t() | Reference.t() | nil,
+          example: any,
+          examples: %{String.t() => Example.t() | Reference.t()} | nil
+        }
 end

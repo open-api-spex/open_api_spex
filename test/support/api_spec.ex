@@ -5,7 +5,7 @@ defmodule OpenApiSpexTest.ApiSpec do
   def spec() do
     %OpenApi{
       servers: [
-        %Server{url: "http://example.com"},
+        %Server{url: "http://example.com"}
       ],
       info: %Info{
         title: "A",

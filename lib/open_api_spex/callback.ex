@@ -14,6 +14,6 @@ defmodule OpenApiSpex.Callback do
   that identifies a URL to use for the callback operation.
   """
   @type t :: %{
-    String.t => PathItem.t
-  }
+          String.t() => PathItem.t()
+        }
 end

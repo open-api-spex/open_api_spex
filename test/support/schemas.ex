@@ -3,16 +3,20 @@ defmodule OpenApiSpexTest.Schemas do
   alias OpenApiSpex.Schema
 
   defmodule User do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "User",
       description: "A user of the app",
       type: :object,
       properties: %{
         id: %Schema{type: :integer, description: "User ID"},
-        name:  %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
+        name: %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
         email: %Schema{type: :string, description: "Email address", format: :email},
-        inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :'date-time'},
-        updated_at: %Schema{type: :string, description: "Update timestamp", format: :'date-time'}
+        inserted_at: %Schema{
+          type: :string,
+          description: "Creation timestamp",
+          format: :"date-time"
+        },
+        updated_at: %Schema{type: :string, description: "Update timestamp", format: :"date-time"}
       },
       required: [:name, :email],
       additionalProperties: false,
@@ -23,11 +27,11 @@ defmodule OpenApiSpexTest.Schemas do
         "inserted_at" => "2017-09-12T12:34:55Z",
         "updated_at" => "2017-09-13T10:11:12Z"
       }
-    }
+    })
   end
 
   defmodule ContactInfo do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "ContactInfo",
       description: "A users contact information",
       type: :object,
@@ -41,11 +45,11 @@ defmodule OpenApiSpexTest.Schemas do
         "phone_number" => "555-123-456",
         "postal_address" => "123 Evergreen Tce"
       }
-    }
+    })
   end
 
   defmodule CreditCardPaymentDetails do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "CreditCardPaymentDetails",
       description: "Payment details when using credit-card method",
       type: :object,
@@ -60,11 +64,11 @@ defmodule OpenApiSpexTest.Schemas do
         "name_on_card" => "Joe User",
         "expiry" => "1234"
       }
-    }
+    })
   end
 
   defmodule DirectDebitPaymentDetails do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "DirectDebitPaymentDetails",
       description: "Payment details when using direct-debit method",
       type: :object,
@@ -79,11 +83,11 @@ defmodule OpenApiSpexTest.Schemas do
         "account_name" => "Joes Savings Account",
         "bsb" => "123-4567"
       }
-    }
+    })
   end
 
   defmodule PaymentDetails do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "PaymentDetails",
       description: "Abstract Payment details type",
       type: :object,
@@ -91,11 +95,11 @@ defmodule OpenApiSpexTest.Schemas do
         CreditCardPaymentDetails,
         DirectDebitPaymentDetails
       ]
-    }
+    })
   end
 
   defmodule UserRequest do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "UserRequest",
       description: "POST body for creating a user",
       type: :object,
@@ -108,11 +112,11 @@ defmodule OpenApiSpexTest.Schemas do
           "email" => "joe@gmail.com"
         }
       }
-    }
+    })
   end
 
   defmodule UserResponse do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "UserResponse",
       description: "Response schema for single user",
       type: :object,
@@ -128,11 +132,11 @@ defmodule OpenApiSpexTest.Schemas do
           "updated_at" => "2017-09-13T10:11:12Z"
         }
       }
-    }
+    })
   end
 
   defmodule UsersResponse do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "UsersResponse",
       description: "Response schema for multiple users",
       type: :object,
@@ -153,25 +157,33 @@ defmodule OpenApiSpexTest.Schemas do
           }
         ]
       }
-    }
+    })
   end
 
   defmodule EntityWithDict do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "EntityWithDict",
       description: "Entity with a dictionary defined via additionalProperties",
       type: :object,
       properties: %{
         id: %Schema{type: :integer, description: "Entity ID"},
-        stringDict: %Schema{type: :object, description: "String valued dict", additionalProperties: %Schema{type: :string}},
-        anyTypeDict: %Schema{type: :object, description: "Untyped valued dict", additionalProperties: true},
+        stringDict: %Schema{
+          type: :object,
+          description: "String valued dict",
+          additionalProperties: %Schema{type: :string}
+        },
+        anyTypeDict: %Schema{
+          type: :object,
+          description: "Untyped valued dict",
+          additionalProperties: true
+        }
       },
       example: %{
         "id" => 123,
         "stringDict" => %{"key1" => "value1", "key2" => "value2"},
         "anyTypeDict" => %{"key1" => 42, "key2" => %{"foo" => "bar"}}
       }
-    }
+    })
   end
 
   defmodule Pet do

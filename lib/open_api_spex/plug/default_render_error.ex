@@ -1,5 +1,4 @@
 defmodule OpenApiSpex.Plug.DefaultRenderError do
-
   @behaviour Plug
 
   alias Plug.Conn

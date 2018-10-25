@@ -3,8 +3,8 @@ defmodule OpenApiSpexTest.UserController do
   alias OpenApiSpex.Operation
   alias OpenApiSpexTest.Schemas
 
-  plug OpenApiSpex.Plug.Cast
-  plug OpenApiSpex.Plug.Validate
+  plug(OpenApiSpex.Plug.Cast)
+  plug(OpenApiSpex.Plug.Validate)
 
   def open_api_operation(action) do
     apply(__MODULE__, :"#{action}_operation", [])
@@ -15,6 +15,7 @@ defmodule OpenApiSpexTest.UserController do
   """
   def show_operation() do
     import Operation
+
     %Operation{
       tags: ["users"],
       summary: "Show user",
@@ -28,6 +29,7 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
+
   def show(conn, %{id: id}) do
     json(conn, %Schemas.UserResponse{
       data: %Schemas.User{
@@ -40,6 +42,7 @@ defmodule OpenApiSpexTest.UserController do
 
   def index_operation() do
     import Operation
+
     %Operation{
       tags: ["users"],
       summary: "List users",
@@ -53,6 +56,7 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
+
   def index(conn, _params) do
     json(conn, %Schemas.UsersResponse{
       data: [
@@ -67,6 +71,7 @@ defmodule OpenApiSpexTest.UserController do
 
   def create_operation() do
     import Operation
+
     %Operation{
       tags: ["users"],
       summary: "Create user",
@@ -79,6 +84,7 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
+
   def create(conn = %{body_params: %Schemas.UserRequest{user: user = %Schemas.User{}}}, _) do
     json(conn, %Schemas.UserResponse{
       data: %{user | id: 1234}
@@ -87,6 +93,7 @@ defmodule OpenApiSpexTest.UserController do
 
   def contact_info_operation() do
     import Operation
+
     %Operation{
       tags: ["users"],
       summary: "Update contact info",
@@ -103,6 +110,7 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
+
   def contact_info(conn = %{body_params: %Schemas.ContactInfo{}}, %{id: id}) do
     conn
     |> put_status(200)
@@ -111,6 +119,7 @@ defmodule OpenApiSpexTest.UserController do
 
   def payment_details_operation() do
     import Operation
+
     %Operation{
       tags: ["users"],
       summary: "Show user payment details",
@@ -124,6 +133,7 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
+
   def payment_details(conn, %{"id" => id}) do
     response =
       case rem(id, 2) do
@@ -133,6 +143,7 @@ defmodule OpenApiSpexTest.UserController do
             name_on_card: "Joe User",
             expiry: "0522"
           }
+
         1 ->
           %Schemas.DirectDebitPaymentDetails{
             account_number: "98776543",
@@ -141,11 +152,12 @@ defmodule OpenApiSpexTest.UserController do
           }
       end
 
-      json(conn, response)
+    json(conn, response)
   end
 
   def create_entity_operation() do
     import Operation
+
     %Operation{
       tags: ["EntityWithDict"],
       summary: "Create an EntityWithDict",
@@ -158,6 +170,7 @@ defmodule OpenApiSpexTest.UserController do
       }
     }
   end
+
   def create_entity(conn, %Schemas.EntityWithDict{} = entity) do
     json(conn, Map.put(entity, :id, 123))
   end

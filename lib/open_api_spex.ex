@@ -19,7 +19,7 @@ defmodule OpenApiSpex do
 
   See `OpenApiSpex.schema` macro for a convenient syntax for defining schema modules.
   """
-  @spec resolve_schema_modules(OpenApi.t) :: OpenApi.t
+  @spec resolve_schema_modules(OpenApi.t()) :: OpenApi.t()
   def resolve_schema_modules(spec = %OpenApi{}) do
     SchemaResolver.resolve_schema_modules(spec)
   end
@@ -29,10 +29,11 @@ defmodule OpenApiSpex do
 
   See `OpenApiSpex.Schema.cast/3` for additional examples and details.
   """
-  @spec cast(OpenApi.t, Schema.t | Reference.t, any) :: {:ok, any} | {:error, String.t}
+  @spec cast(OpenApi.t(), Schema.t() | Reference.t(), any) :: {:ok, any} | {:error, String.t()}
   def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
+
   def cast(spec = %OpenApi{}, schema = %Reference{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
@@ -45,8 +46,9 @@ defmodule OpenApiSpex do
 
   `content_type` may optionally be supplied to select the `requestBody` schema.
   """
-  @spec cast(OpenApi.t, Operation.t, Plug.Conn.t, content_type | nil) :: {:ok, Plug.Conn.t} | {:error, String.t}
-      when content_type: String.t
+  @spec cast(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
+          {:ok, Plug.Conn.t()} | {:error, String.t()}
+        when content_type: String.t()
   def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
     Operation.cast(operation, conn, content_type, spec.components.schemas)
   end
@@ -56,10 +58,11 @@ defmodule OpenApiSpex do
 
   See `OpenApiSpex.Schema.validate/3` for examples of error messages.
   """
-  @spec validate(OpenApi.t, Schema.t | Reference.t, any) :: :ok | {:error, String.t}
+  @spec validate(OpenApi.t(), Schema.t() | Reference.t(), any) :: :ok | {:error, String.t()}
   def validate(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.validate(schema, params, spec.components.schemas)
   end
+
   def validate(spec = %OpenApi{}, schema = %Reference{}, params) do
     Schema.validate(schema, params, spec.components.schemas)
   end
@@ -69,9 +72,15 @@ defmodule OpenApiSpex do
 
   `content_type` may be optionally supplied to select the `requestBody` schema.
   """
-  @spec validate(OpenApi.t, Operation.t, Plug.Conn.t, content_type | nil) :: :ok | {:error, String.t}
-      when content_type: String.t
-  def validate(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
+  @spec validate(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
+          :ok | {:error, String.t()}
+        when content_type: String.t()
+  def validate(
+        spec = %OpenApi{},
+        operation = %Operation{},
+        conn = %Plug.Conn{},
+        content_type \\ nil
+      ) do
     Operation.validate(operation, conn, content_type, spec.components.schemas)
   end
 
@@ -116,7 +125,7 @@ defmodule OpenApiSpex do
   defmacro schema(body) do
     quote do
       @behaviour OpenApiSpex.Schema
-      @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct",  __MODULE__))
+      @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct", __MODULE__))
       def schema, do: @schema
       @derive [Poison.Encoder]
       defstruct Schema.properties(@schema)

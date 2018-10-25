@@ -15,7 +15,7 @@ defmodule OpenApiSpex.License do
   License information for the exposed API.
   """
   @type t :: %__MODULE__{
-    name: String.t,
-    url: String.t | nil
-  }
+          name: String.t(),
+          url: String.t() | nil
+        }
 end
