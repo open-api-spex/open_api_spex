@@ -11,6 +11,10 @@ defmodule ParamTest do
       assert conn.status == 200
     end
 
+    test "A failing test" do
+      assert 1 == 2
+    end
+
     test "Invalid value" do
       conn =
         :get
