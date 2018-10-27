@@ -289,9 +289,21 @@ defmodule OpenApiSpex.Schema do
       _ -> {:error, :bad_float}
     end
   end
+  def cast(%Schema{type: :datetime, format: :"date-time"}, value, _schemas) when is_binary(value) do
+    case DateTime.from_iso8601(value) do
+      {:ok, datetime = %DateTime{}, _offset} -> {:ok, datetime}
+      error = {:error, _reason} -> error
+    end
+  end
   def cast(%Schema{type: :string, format: :"date-time"}, value, _schemas) when is_binary(value) do
     case DateTime.from_iso8601(value) do
       {:ok, datetime = %DateTime{}, _offset} -> {:ok, datetime}
+      error = {:error, _reason} -> error
+    end
+  end
+  def cast(%Schema{type: :date, format: :date}, value, _schemas) when is_binary(value) do
+    case Date.from_iso8601(value) do
+      {:ok, date = %Date{}} -> {:ok, date}
       error = {:error, _reason} -> error
     end
   end
