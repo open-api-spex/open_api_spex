@@ -455,22 +455,18 @@ defmodule OpenApiSpex.Schema do
   def validate(schema = %Schema{type: :string}, value, path, _schemas) when is_binary(value) do
     validate_string_types(schema, value, path)
   end
-  def validate(schema = %Schema{type: :datetime}, value = %DateTime{}, path, _schemas) do
-    validate_string_types(schema, value, path)
+  def validate(%Schema{type: :string, format: :"date-time"}, %DateTime{}, _path, _schemas) do
+    :ok
   end
-  def validate(schema = %Schema{type: :datetime}, value, path, _schemas) when is_binary(value) do
-    validate_string_types(schema, value, path)
+  def validate(%Schema{type: expected_type}, %DateTime{}, path, _schemas) do
+    {:error, "#{path}: invalid type DateTime where #{expected_type} expected"}
   end
-  def validate(%Schema{type: expected_type}, value = %DateTime{}, path, _schemas) do
+  def validate(%Schema{type: :string, format: :date}, %Date{}, _path, _schemas) do
+    :ok
+  end
+  def validate(%Schema{type: expected_type}, %Date{}, path, _schemas) do
     {:error,
-     "#{path}: invalid type #{SchemaHelper.term_type(value)} where #{expected_type} expected"}
-  end
-  def validate(schema = %Schema{type: :date}, value = %Date{}, path, _schemas) do
-    validate_string_types(schema, value, path)
-  end
-  def validate(%Schema{type: expected_type}, value = %Date{}, path, _schemas) do
-    {:error,
-     "#{path}: invalid type #{SchemaHelper.term_type(value)} where #{expected_type} expected"}
+     "#{path}: invalid type Date where #{expected_type} expected"}
   end
   def validate(%Schema{type: :boolean}, value, _path, _schemas) when is_boolean(value), do: :ok
   def validate(schema = %Schema{type: :array}, value, path, schemas) when is_list(value) do
@@ -504,7 +500,7 @@ defmodule OpenApiSpex.Schema do
     end
   end
 
-  @spec validate_string_types(Schema.t(), String.t | DateTime.t(), String.t()) :: :ok | {:error, String.t()}
+  @spec validate_string_types(Schema.t(), String.t(), String.t()) :: :ok | {:error, String.t()}
   defp validate_string_types(schema, value, path) do
     with :ok <- validate_max_length(schema, value, path),
          :ok <- validate_min_length(schema, value, path),
