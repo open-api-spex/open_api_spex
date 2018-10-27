@@ -480,6 +480,40 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
+  def validate(schema = %Schema{anyOf: valid_schemas}, value, path, schemas) when is_list(valid_schemas) do
+    if Enum.any?(valid_schemas, &validate(&1, value, path, schemas) == :ok) do
+      validate(%{schema | anyOf: nil}, value, path, schemas)
+    else
+      {:error, "#{path}: Failed to validate against any schema"}
+    end
+  end
+  def validate(schema = %Schema{oneOf: valid_schemas}, value, path, schemas) when is_list(valid_schemas) do
+    case Enum.count(valid_schemas, &validate(&1, value, path, schemas) == :ok) do
+      1 -> validate(%{schema | oneOf: nil}, value, path, schemas)
+      0 -> {:error, "#{path}: Failed to validate against any schema"}
+      other -> {:error, "#{path}: Validated against #{other} schemas when only one expected"}
+    end
+  end
+  def validate(schema = %Schema{allOf: required_schemas}, value, path, schemas) when is_list(required_schemas) do
+    required_schemas
+    |> Enum.map(&validate(&1, value, path, schemas))
+    |> Enum.reject(& &1 == :ok)
+    |> Enum.map(fn {:error, msg} -> msg end)
+    |> case do
+      [] -> validate(%{schema | allOf: nil}, value, path, schemas)
+      errors -> {:error, Enum.join(errors, "\n")}
+    end
+  end
+  def validate(schema = %Schema{not: not_schema}, value, path, schemas) when not is_nil(not_schema) do
+    case validate(not_schema, value, path, schemas) do
+      {:error, _} -> validate(%{schema | not: nil}, value, path, schemas)
+      :ok -> {:error, "#{path}: Value is valid for schema given in `not`"}
+    end
+  end
+  def validate(%Schema{type: nil}, _value, _path, _schemas) do
+    # polymorphic schemas will terminate here after validating against anyOf/oneOf/allOf/not
+    :ok
+  end
   def validate(%Schema{type: expected_type}, value, path, _schemas) do
     {:error,
      "#{path}: invalid type #{term_type(value)} where #{expected_type} expected"}
