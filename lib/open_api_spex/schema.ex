@@ -1,5 +1,4 @@
 defmodule OpenApiSpex.Schema do
-  alias OpenApiSpex.SchemaHelper
 
   @moduledoc """
   Defines the `OpenApiSpex.Schema.t` type and operations for casting and validating against a schema.
@@ -215,7 +214,7 @@ defmodule OpenApiSpex.Schema do
     minProperties: integer | nil,
     required: [atom] | nil,
     enum: [String.t] | nil,
-    type: atom | nil,
+    type: data_type | nil,
     allOf: [Schema.t | Reference.t | module] | nil,
     oneOf: [Schema.t | Reference.t | module] | nil,
     anyOf: [Schema.t | Reference.t | module] | nil,
@@ -236,6 +235,13 @@ defmodule OpenApiSpex.Schema do
     deprecated: boolean | nil,
     "x-struct": module | nil
   }
+
+  @typedoc """
+  The basic data types supported by openapi.
+
+  [Reference](https://swagger.io/docs/specification/data-models/data-types/)
+  """
+  @type data_type :: :string | :number | :integer | :boolean | :array | :object
 
   @doc """
   Cast a simple value to the elixir type defined by a schema.
@@ -476,8 +482,18 @@ defmodule OpenApiSpex.Schema do
   end
   def validate(%Schema{type: expected_type}, value, path, _schemas) do
     {:error,
-     "#{path}: invalid type #{SchemaHelper.term_type(value)} where #{expected_type} expected"}
+     "#{path}: invalid type #{term_type(value)} where #{expected_type} expected"}
   end
+
+  @spec term_type(term) :: data_type | nil | String.t()
+  defp term_type(v) when is_list(v), do: :array
+  defp term_type(v) when is_map(v), do: :object
+  defp term_type(v) when is_binary(v), do: :string
+  defp term_type(v) when is_boolean(v), do: :boolean
+  defp term_type(v) when is_integer(v), do: :integer
+  defp term_type(v) when is_number(v), do: :number
+  defp term_type(v) when is_nil(v), do: nil
+  defp term_type(v), do: inspect(v)
 
   @spec validate_number_types(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
   defp validate_number_types(schema, value, path) do
