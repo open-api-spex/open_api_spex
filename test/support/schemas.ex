@@ -11,8 +11,8 @@ defmodule OpenApiSpexTest.Schemas do
         id: %Schema{type: :integer, description: "User ID"},
         name:  %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
         email: %Schema{type: :string, description: "Email address", format: :email},
-        inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :'date-time'},
-        updated_at: %Schema{type: :string, description: "Update timestamp", format: :'date-time'}
+        inserted_at: %Schema{type: :datetime, description: "Creation timestamp", format: :'date-time'},
+        updated_at: %Schema{type: :datetime, description: "Update timestamp", format: :'date-time'}
       },
       required: [:name, :email],
       additionalProperties: false,

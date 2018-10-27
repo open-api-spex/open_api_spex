@@ -171,14 +171,28 @@ defmodule OpenApiSpex.SchemaTest do
     schema = %Schema{
       type: :string
     }
-    assert :ok = Schema.validate(schema, DateTime.utc_now(), %{})
+    assert {:error, _} = Schema.validate(schema, DateTime.utc_now(), %{})
   end
 
   test "Validate schema type object when value is DateTime" do
     schema = %Schema{
       type: :object
     }
+    assert {:error, _} = Schema.validate(schema, DateTime.utc_now(), %{})
+  end
+
+  test "Validate schema type date-time when value is DateTime" do
+    schema = %Schema{
+      type: :datetime
+    }
     assert :ok = Schema.validate(schema, DateTime.utc_now(), %{})
+  end
+
+  test "Validate schema type date when value is Date" do
+    schema = %Schema{
+      type: :date
+    }
+    assert :ok = Schema.validate(schema, Date.utc_today(), %{})
   end
 
   test "Validate schema type integer when value is object" do
@@ -194,5 +208,4 @@ defmodule OpenApiSpex.SchemaTest do
     }
     assert {:error, _} = Schema.validate(schema, %{}, %{})
   end
-
 end

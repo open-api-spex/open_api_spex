@@ -443,10 +443,24 @@ defmodule OpenApiSpex.Schema do
   def validate(schema = %Schema{type: :string}, value, path, _schemas) when is_binary(value) do
     validate_string_types(schema, value, path)
   end
-  def validate(schema = %Schema{type: :string}, value = %DateTime{}, path, _schemas) do
+  def validate(schema = %Schema{type: :datetime}, value = %DateTime{}, path, _schemas) do
     validate_string_types(schema, value, path)
   end
-  def validate(%Schema{type: :boolean}, value, path, _schemas) when is_boolean(value), do: :ok
+  def validate(schema = %Schema{type: :datetime}, value, path, _schemas) when is_binary(value) do
+    validate_string_types(schema, value, path)
+  end
+  def validate(%Schema{type: expected_type}, value = %DateTime{}, path, _schemas) do
+    {:error,
+     "#{path}: invalid type #{SchemaHelper.term_type(value)} where #{expected_type} expected"}
+  end
+  def validate(schema = %Schema{type: :date}, value = %Date{}, path, _schemas) do
+    validate_string_types(schema, value, path)
+  end
+  def validate(%Schema{type: expected_type}, value = %Date{}, path, _schemas) do
+    {:error,
+     "#{path}: invalid type #{SchemaHelper.term_type(value)} where #{expected_type} expected"}
+  end
+  def validate(%Schema{type: :boolean}, value, _path, _schemas) when is_boolean(value), do: :ok
   def validate(schema = %Schema{type: :array}, value, path, schemas) when is_list(value) do
     with :ok <- validate_max_items(schema, value, path),
          :ok <- validate_min_items(schema, value, path),
@@ -466,9 +480,10 @@ defmodule OpenApiSpex.Schema do
   end
   def validate(%Schema{type: expected_type}, value, path, _schemas) do
     {:error,
-     "#{path}: invalid type #{SchemaHelper.convert_type(value)} where #{expected_type} expected"}
+     "#{path}: invalid type #{SchemaHelper.term_type(value)} where #{expected_type} expected"}
   end
 
+  @spec validate_number_types(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
   defp validate_number_types(schema, value, path) do
     with :ok <- validate_multiple(schema, value, path),
          :ok <- validate_maximum(schema, value, path),
@@ -477,6 +492,7 @@ defmodule OpenApiSpex.Schema do
     end
   end
 
+  @spec validate_string_types(Schema.t(), String.t | DateTime.t(), String.t()) :: :ok | {:error, String.t()}
   defp validate_string_types(schema, value, path) do
     with :ok <- validate_max_length(schema, value, path),
          :ok <- validate_min_length(schema, value, path),
