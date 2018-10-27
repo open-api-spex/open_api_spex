@@ -5,8 +5,8 @@ defmodule PhoenixAppWeb.UserController do
   alias PhoenixApp.{Accounts, Accounts.User}
   alias PhoenixAppWeb.Schemas
 
-  plug OpenApiSpex.Plug.Cast
-  plug OpenApiSpex.Plug.Validate
+  plug(OpenApiSpex.Plug.Cast)
+  plug(OpenApiSpex.Plug.Validate)
 
   def open_api_operation(action) do
     apply(__MODULE__, :"#{action}_operation", [])
@@ -23,6 +23,7 @@ defmodule PhoenixAppWeb.UserController do
       }
     }
   end
+
   def index(conn, _params) do
     users = Accounts.list_users()
     render(conn, "index.json", users: users)
@@ -37,13 +38,17 @@ defmodule PhoenixAppWeb.UserController do
       parameters: [
         Operation.parameter(:group_id, :path, :integer, "Group ID", example: 1)
       ],
-      requestBody: request_body("The user attributes", "application/json", Schemas.UserRequest, required: true),
+      requestBody:
+        request_body("The user attributes", "application/json", Schemas.UserRequest,
+          required: true
+        ),
       responses: %{
         201 => response("User", "application/json", Schemas.UserResponse)
       }
     }
   end
-  def create(conn, %Schemas.UserRequest{user: user_params}) do
+
+  def create(conn = %{body_params: %Schemas.UserRequest{user: user_params}}, %{group_id: group_id}) do
     with {:ok, %User{} = user} <- Accounts.create_user(user_params) do
       conn
       |> put_status(:created)
@@ -69,6 +74,7 @@ defmodule PhoenixAppWeb.UserController do
       }
     }
   end
+
   def show(conn, %{id: id}) do
     user = Accounts.get_user!(id)
     render(conn, "show.json", user: user)
