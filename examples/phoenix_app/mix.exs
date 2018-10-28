@@ -6,9 +6,9 @@ defmodule PhoenixApp.Mixfile do
       app: :phoenix_app,
       version: "0.0.1",
       elixir: "~> 1.5",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix] ++ Mix.compilers,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
     ]
@@ -26,7 +26,7 @@ defmodule PhoenixApp.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp aliases() do
     [test: ["ecto.create --quiet", "ecto.migrate", "test"]]
@@ -40,8 +40,8 @@ defmodule PhoenixApp.Mixfile do
       {:open_api_spex, path: "../../"},
       {:ecto, "~> 2.2"},
       {:sqlite_ecto2, "~> 2.2"},
-      {:phoenix, "~> 1.3.0"},
-      {:cowboy, "~> 1.0"}
+      {:phoenix, "~> 1.3"},
+      {:plug_cowboy, "~> 1.0"}
     ]
   end
 end

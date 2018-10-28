@@ -57,6 +57,7 @@ defmodule OpenApiSpex.SchemaTest do
 
   test "User Schema example matches schema" do
     spec = ApiSpec.spec()
+
     assert_schema(Schemas.User.schema().example, "User", spec)
     assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec)
     assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
@@ -136,6 +137,164 @@ defmodule OpenApiSpex.SchemaTest do
       enum: ["foo", "bar"]
     }
     assert :ok = Schema.validate(schema, "bar", %{})
+  end
+
+  test "Validate schema type object when value is array" do
+    schema = %Schema{
+      type: :object
+    }
+    assert {:error, _} = Schema.validate(schema, [], %{})
+  end
+
+  test "Validate schema type array when value is object" do
+    schema = %Schema{
+      type: :array
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate schema type boolean when value is object" do
+    schema = %Schema{
+      type: :boolean
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate schema type string when value is object" do
+    schema = %Schema{
+      type: :string
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate schema type string when value is DateTime" do
+    schema = %Schema{
+      type: :string
+    }
+    assert {:error, _} = Schema.validate(schema, DateTime.utc_now(), %{})
+  end
+
+  test "Validate schema type object when value is DateTime" do
+    schema = %Schema{
+      type: :object
+    }
+    assert {:error, _} = Schema.validate(schema, DateTime.utc_now(), %{})
+  end
+
+  test "Validate schema type string with format date-time when value is DateTime" do
+    schema = %Schema{
+      type: :string,
+      format: :"date-time"
+    }
+    assert :ok = Schema.validate(schema, DateTime.utc_now(), %{})
+  end
+
+  test "Validate schema type string with format date when value is Date" do
+    schema = %Schema{
+      type: :string,
+      format: :date
+    }
+    assert :ok = Schema.validate(schema, Date.utc_today(), %{})
+  end
+
+  test "Validate schema type integer when value is object" do
+    schema = %Schema{
+      type: :integer
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate schema type number when value is object" do
+    schema = %Schema{
+      type: :integer
+    }
+    assert {:error, _} = Schema.validate(schema, %{}, %{})
+  end
+
+  test "Validate anyOf schema with valid value" do
+    schema = %Schema {
+      anyOf: [
+        %Schema{type: :array},
+        %Schema{type: :string}
+      ]
+    }
+    assert :ok = Schema.validate(schema, "a string", %{})
+  end
+
+  test "Validate anyOf schema with invalid value" do
+    schema = %Schema {
+      anyOf: [
+        %Schema{type: :string},
+        %Schema{type: :array}
+      ]
+    }
+    assert {:error, _} = Schema.validate(schema, 3.14159, %{})
+  end
+
+  test "Validate oneOf schema with valid value" do
+    schema = %Schema {
+      oneOf: [
+        %Schema{type: :string},
+        %Schema{type: :array}
+      ]
+    }
+    assert :ok = Schema.validate(schema, [1,2,3], %{})
+  end
+
+  test "Validate oneOf schema with invalid value" do
+    schema = %Schema {
+      oneOf: [
+        %Schema{type: :string},
+        %Schema{type: :array}
+      ]
+    }
+    assert {:error, _} = Schema.validate(schema, 3.14159, %{})
+  end
+
+  test "Validate oneOf schema when matching multiple schemas" do
+    schema = %Schema {
+      oneOf: [
+        %Schema{type: :object, properties: %{a: %Schema{type: :string}}},
+        %Schema{type: :object, properties: %{b: %Schema{type: :string}}}
+      ]
+    }
+    assert {:error, _} = Schema.validate(schema, %{a: "a", b: "b"}, %{})
+  end
+
+  test "Validate allOf schema with valid value" do
+    schema = %Schema {
+      allOf: [
+        %Schema{type: :object, properties: %{a: %Schema{type: :string}}},
+        %Schema{type: :object, properties: %{b: %Schema{type: :string}}}
+      ]
+    }
+    assert :ok = Schema.validate(schema, %{a: "a", b: "b"}, %{})
+  end
+
+  test "Validate allOf schema with invalid value" do
+    schema = %Schema {
+      allOf: [
+        %Schema{type: :object, properties: %{a: %Schema{type: :string}}},
+        %Schema{type: :object, properties: %{b: %Schema{type: :string}}}
+      ]
+    }
+    assert {:error, msg} = Schema.validate(schema, %{a: 1, b: 2}, %{})
+    assert msg =~ "#/a"
+    assert msg =~ "#/b"
+  end
+
+  test "Validate not schema with valid value" do
+    schema = %Schema {
+      not: %Schema{type: :object}
+    }
+    assert :ok = Schema.validate(schema, 1, %{})
+  end
+
+  test "Validate not schema with invalid value" do
+    schema = %Schema {
+      not: %Schema{type: :object}
+    }
+    assert {:error, _} = Schema.validate(schema, %{a: 1}, %{})
   end
 
 end

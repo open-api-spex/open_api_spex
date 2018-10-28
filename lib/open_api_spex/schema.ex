@@ -1,4 +1,5 @@
 defmodule OpenApiSpex.Schema do
+
   @moduledoc """
   Defines the `OpenApiSpex.Schema.t` type and operations for casting and validating against a schema.
 
@@ -213,7 +214,7 @@ defmodule OpenApiSpex.Schema do
     minProperties: integer | nil,
     required: [atom] | nil,
     enum: [String.t] | nil,
-    type: atom | nil,
+    type: data_type | nil,
     allOf: [Schema.t | Reference.t | module] | nil,
     oneOf: [Schema.t | Reference.t | module] | nil,
     anyOf: [Schema.t | Reference.t | module] | nil,
@@ -234,6 +235,13 @@ defmodule OpenApiSpex.Schema do
     deprecated: boolean | nil,
     "x-struct": module | nil
   }
+
+  @typedoc """
+  The basic data types supported by openapi.
+
+  [Reference](https://swagger.io/docs/specification/data-models/data-types/)
+  """
+  @type data_type :: :string | :number | :integer | :boolean | :array | :object
 
   @doc """
   Cast a simple value to the elixir type defined by a schema.
@@ -432,28 +440,30 @@ defmodule OpenApiSpex.Schema do
   def validate(%Schema{type: type}, nil, path, _schemas) do
     {:error, "#{path}: null value where #{type} expected"}
   end
-  def validate(schema = %Schema{type: type}, value, path, _schemas) when type in [:integer, :number] do
-    with :ok <- validate_multiple(schema, value, path),
-         :ok <- validate_maximum(schema, value, path),
-         :ok <- validate_minimum(schema, value, path) do
-      :ok
-    end
+  def validate(schema = %Schema{type: :integer}, value, path, _schemas) when is_integer(value) do
+    validate_number_types(schema, value, path)
   end
-  def validate(schema = %Schema{type: :string}, value, path, _schemas) do
-    with :ok <- validate_max_length(schema, value, path),
-         :ok <- validate_min_length(schema, value, path),
-         :ok <- validate_pattern(schema, value, path),
-         :ok <- validate_enum(schema, value, path) do
-      :ok
-    end
+  def validate(schema = %Schema{type: :number}, value, path, _schemas) when is_number(value) do
+    validate_number_types(schema, value, path)
   end
-  def validate(%Schema{type: :boolean}, value, path, _schemas) do
-    case is_boolean(value) do
-      true -> :ok
-      _ -> {:error, "#{path}: Invalid boolean: #{inspect(value)}"}
-    end
+  def validate(schema = %Schema{type: :string}, value, path, _schemas) when is_binary(value) do
+    validate_string_types(schema, value, path)
   end
-  def validate(schema = %Schema{type: :array}, value, path, schemas) do
+  def validate(%Schema{type: :string, format: :"date-time"}, %DateTime{}, _path, _schemas) do
+    :ok
+  end
+  def validate(%Schema{type: expected_type}, %DateTime{}, path, _schemas) do
+    {:error, "#{path}: invalid type DateTime where #{expected_type} expected"}
+  end
+  def validate(%Schema{type: :string, format: :date}, %Date{}, _path, _schemas) do
+    :ok
+  end
+  def validate(%Schema{type: expected_type}, %Date{}, path, _schemas) do
+    {:error,
+     "#{path}: invalid type Date where #{expected_type} expected"}
+  end
+  def validate(%Schema{type: :boolean}, value, _path, _schemas) when is_boolean(value), do: :ok
+  def validate(schema = %Schema{type: :array}, value, path, schemas) when is_list(value) do
     with :ok <- validate_max_items(schema, value, path),
          :ok <- validate_min_items(schema, value, path),
          :ok <- validate_unique_items(schema, value, path),
@@ -470,8 +480,75 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
+  def validate(schema = %Schema{anyOf: valid_schemas}, value, path, schemas) when is_list(valid_schemas) do
+    if Enum.any?(valid_schemas, &validate(&1, value, path, schemas) == :ok) do
+      validate(%{schema | anyOf: nil}, value, path, schemas)
+    else
+      {:error, "#{path}: Failed to validate against any schema"}
+    end
+  end
+  def validate(schema = %Schema{oneOf: valid_schemas}, value, path, schemas) when is_list(valid_schemas) do
+    case Enum.count(valid_schemas, &validate(&1, value, path, schemas) == :ok) do
+      1 -> validate(%{schema | oneOf: nil}, value, path, schemas)
+      0 -> {:error, "#{path}: Failed to validate against any schema"}
+      other -> {:error, "#{path}: Validated against #{other} schemas when only one expected"}
+    end
+  end
+  def validate(schema = %Schema{allOf: required_schemas}, value, path, schemas) when is_list(required_schemas) do
+    required_schemas
+    |> Enum.map(&validate(&1, value, path, schemas))
+    |> Enum.reject(& &1 == :ok)
+    |> Enum.map(fn {:error, msg} -> msg end)
+    |> case do
+      [] -> validate(%{schema | allOf: nil}, value, path, schemas)
+      errors -> {:error, Enum.join(errors, "\n")}
+    end
+  end
+  def validate(schema = %Schema{not: not_schema}, value, path, schemas) when not is_nil(not_schema) do
+    case validate(not_schema, value, path, schemas) do
+      {:error, _} -> validate(%{schema | not: nil}, value, path, schemas)
+      :ok -> {:error, "#{path}: Value is valid for schema given in `not`"}
+    end
+  end
+  def validate(%Schema{type: nil}, _value, _path, _schemas) do
+    # polymorphic schemas will terminate here after validating against anyOf/oneOf/allOf/not
+    :ok
+  end
+  def validate(%Schema{type: expected_type}, value, path, _schemas) do
+    {:error,
+     "#{path}: invalid type #{term_type(value)} where #{expected_type} expected"}
+  end
 
-  @spec validate_multiple(Schema.t, number, String.t) :: :ok | {:error, String.t}
+  @spec term_type(term) :: data_type | nil | String.t()
+  defp term_type(v) when is_list(v), do: :array
+  defp term_type(v) when is_map(v), do: :object
+  defp term_type(v) when is_binary(v), do: :string
+  defp term_type(v) when is_boolean(v), do: :boolean
+  defp term_type(v) when is_integer(v), do: :integer
+  defp term_type(v) when is_number(v), do: :number
+  defp term_type(v) when is_nil(v), do: nil
+  defp term_type(v), do: inspect(v)
+
+  @spec validate_number_types(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
+  defp validate_number_types(schema, value, path) do
+    with :ok <- validate_multiple(schema, value, path),
+         :ok <- validate_maximum(schema, value, path),
+         :ok <- validate_minimum(schema, value, path) do
+      :ok
+    end
+  end
+
+  @spec validate_string_types(Schema.t(), String.t(), String.t()) :: :ok | {:error, String.t()}
+  defp validate_string_types(schema, value, path) do
+    with :ok <- validate_max_length(schema, value, path),
+         :ok <- validate_min_length(schema, value, path),
+         :ok <- validate_pattern(schema, value, path),
+         :ok <- validate_enum(schema, value, path) do
+      :ok
+    end
+  end
+
+  @spec validate_multiple(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
   defp validate_multiple(%{multipleOf: nil}, _, _), do: :ok
   defp validate_multiple(%{multipleOf: n}, value, _) when (round(value / n) * n == value), do: :ok
   defp validate_multiple(%{multipleOf: n}, value, path), do: {:error, "#{path}: #{value} is not a multiple of #{n}"}
