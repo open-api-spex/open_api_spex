@@ -47,13 +47,17 @@ defmodule OpenApiSpex.Plug.Cast do
   alias Plug.Conn
 
   @impl Plug
-  def init(opts), do: Keyword.put_new(opts, :render_error, OpenApiSpex.Plug.DefaultRenderError)
+  def init(opts) do
+    opts
+    |> Map.new()
+    |> Map.put_new(:render_error, OpenApiSpex.Plug.DefaultRenderError)
+  end
 
   @impl Plug
-  def call(conn = %{private: %{open_api_spex: private_data}}, operation_id: operation_id, render_error: render_error) do
+  def call(conn = %{private: %{open_api_spex: private_data}}, %{operation_id: operation_id, render_error: render_error}) do
     spec = private_data.spec
     operation = private_data.operation_lookup[operation_id]
-    content_type = Conn.get_req_header(conn, "content-type") 
+    content_type = Conn.get_req_header(conn, "content-type")
         |> Enum.at(0, "")
         |> String.split(";")
         |> Enum.at(0)
@@ -73,7 +77,7 @@ defmodule OpenApiSpex.Plug.Cast do
   def call(conn = %{private: %{phoenix_controller: controller, phoenix_action: action, open_api_spex: _pd}}, opts) do
     operation_id = controller.open_api_operation(action).operationId
     if (operation_id) do
-      call(conn, Keyword.put(opts, :operation_id, operation_id))
+      call(conn, Map.put(opts, :operation_id, operation_id))
     else
       raise "operationId was not found in action API spec"
     end
