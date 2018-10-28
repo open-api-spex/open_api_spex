@@ -65,7 +65,7 @@ defmodule PlugApp.UserHandler do
       case Accounts.get_user!(id) do
         nil ->
           conn
-          |> put_resp_header("Content-Type", "application/json")
+          |> put_resp_content_type("application/json")
           |> send_resp(404, ~s({"error": "User not found"}))
           |> halt()
 
@@ -107,10 +107,11 @@ defmodule PlugApp.UserHandler do
       }
     end
 
-    def create(conn = %Plug.Conn{params: %Schemas.UserRequest{user: user_params}}, _opts) do
+    def create(conn = %Plug.Conn{body_params: %Schemas.UserRequest{user: user_params}}, _opts) do
       with {:ok, %User{} = user} <- Accounts.create_user(user_params) do
         conn
-        |> Plug.Conn.send_resp(201, Show.render(user))
+        |> put_resp_content_type("application/json")
+        |> send_resp(201, Show.render(user))
       end
     end
   end

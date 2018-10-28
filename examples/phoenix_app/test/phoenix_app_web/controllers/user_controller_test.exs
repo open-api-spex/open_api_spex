@@ -9,7 +9,7 @@ defmodule PhoenixAppWeb.UserControllerTest do
   test "create user", %{conn: conn, spec: spec} do
     conn
     |> Plug.Conn.put_req_header("content-type", "application/json")
-    |> post(user_path(conn, :create), %{"user" => %{"name" => "Joe", "email" => "joe@gmail.com"}, "group_id" => 1})
+    |> post(user_path(conn, :create, 1), %{"user" => %{"name" => "Joe", "email" => "joe@gmail.com"}})
     |> json_response(201)
     |> assert_schema("UserResponse", spec)
   end
