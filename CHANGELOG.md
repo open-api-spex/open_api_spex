@@ -1,3 +1,11 @@
+# 3.1.0
+
+ - Add support for validating polymorphic schemas using `oneOf`, `anyOf`, `allOf`, `not` constructs.
+ - Updated example apps to work with new API
+ - CI has moved from travis-ci.org to travis-ci.com and now uses github apps integration.
+
+ Thanks to [fenollp](https://github.com/fenollp) and [tapickell](https://github.com/tapickell) for contributions!
+
 # 3.0.0
 
 Major version bump as the behaviour of `OpenApiSpex.Plug.Cast` has changed (#39).
