@@ -415,7 +415,7 @@ defmodule OpenApiSpex.Schema do
     end
   end
 
-  @doc """
+  @doc ~S"""
   Validate a value against a Schema.
 
   This expects that the value has already been `cast` to the appropriate data type.
@@ -429,7 +429,7 @@ defmodule OpenApiSpex.Schema do
       :ok
 
       iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joegmail.com", %{})
-      {:error, "#: Value does not match pattern: (.*)@(.*)"}
+      {:error, "#: Value \"joegmail.com\" does not match pattern: (.*)@(.*)"}
   """
   @spec validate(Schema.t | Reference.t, any, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
   def validate(schema, val, schemas), do: validate(schema, val, "#", schemas)
@@ -437,8 +437,45 @@ defmodule OpenApiSpex.Schema do
   @spec validate(Schema.t | Reference.t, any, String.t, %{String.t => Schema.t | Reference.t}) :: :ok | {:error, String.t}
   def validate(ref = %Reference{}, val, path, schemas), do: validate(Reference.resolve_schema(ref, schemas), val, path, schemas)
   def validate(%Schema{nullable: true}, nil, _path, _schemas), do: :ok
-  def validate(%Schema{type: type}, nil, path, _schemas) do
+  def validate(%Schema{type: type}, nil, path, _schemas) when not is_nil(type) do
     {:error, "#{path}: null value where #{type} expected"}
+  end
+  def validate(schema = %Schema{anyOf: valid_schemas}, value, path, schemas) when is_list(valid_schemas) do
+    if Enum.any?(valid_schemas, &validate(&1, value, path, schemas) == :ok) do
+      validate(%{schema | anyOf: nil}, value, path, schemas)
+    else
+      {:error, "#{path}: Failed to validate against any schema"}
+    end
+  end
+  def validate(schema = %Schema{oneOf: valid_schemas}, value, path, schemas) when is_list(valid_schemas) do
+    case Enum.count(valid_schemas, &validate(&1, value, path, schemas) == :ok) do
+      1 -> validate(%{schema | oneOf: nil}, value, path, schemas)
+      0 -> {:error, "#{path}: Failed to validate against any schema"}
+      other -> {:error, "#{path}: Validated against #{other} schemas when only one expected"}
+    end
+  end
+  def validate(schema = %Schema{allOf: required_schemas}, value, path, schemas) when is_list(required_schemas) do
+    required_schemas
+    |> Enum.map(&validate(&1, value, path, schemas))
+    |> Enum.reject(& &1 == :ok)
+    |> Enum.map(fn {:error, msg} -> msg end)
+    |> case do
+      [] -> validate(%{schema | allOf: nil}, value, path, schemas)
+      errors -> {:error, Enum.join(errors, "\n")}
+    end
+  end
+  def validate(schema = %Schema{not: not_schema}, value, path, schemas) when not is_nil(not_schema) do
+    case validate(not_schema, value, path, schemas) do
+      {:error, _} -> validate(%{schema | not: nil}, value, path, schemas)
+      :ok -> {:error, "#{path}: Value is valid for schema given in `not`"}
+    end
+  end
+  def validate(%Schema{enum: options = [_ | _]}, value, path, _schemas) do
+    case Enum.member?(options, value) do
+      true -> :ok
+      _ ->
+        {:error, "#{path}: Value not in enum: #{inspect(value)}"}
+    end
   end
   def validate(schema = %Schema{type: :integer}, value, path, _schemas) when is_integer(value) do
     validate_number_types(schema, value, path)
@@ -480,41 +517,11 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
-  def validate(schema = %Schema{anyOf: valid_schemas}, value, path, schemas) when is_list(valid_schemas) do
-    if Enum.any?(valid_schemas, &validate(&1, value, path, schemas) == :ok) do
-      validate(%{schema | anyOf: nil}, value, path, schemas)
-    else
-      {:error, "#{path}: Failed to validate against any schema"}
-    end
-  end
-  def validate(schema = %Schema{oneOf: valid_schemas}, value, path, schemas) when is_list(valid_schemas) do
-    case Enum.count(valid_schemas, &validate(&1, value, path, schemas) == :ok) do
-      1 -> validate(%{schema | oneOf: nil}, value, path, schemas)
-      0 -> {:error, "#{path}: Failed to validate against any schema"}
-      other -> {:error, "#{path}: Validated against #{other} schemas when only one expected"}
-    end
-  end
-  def validate(schema = %Schema{allOf: required_schemas}, value, path, schemas) when is_list(required_schemas) do
-    required_schemas
-    |> Enum.map(&validate(&1, value, path, schemas))
-    |> Enum.reject(& &1 == :ok)
-    |> Enum.map(fn {:error, msg} -> msg end)
-    |> case do
-      [] -> validate(%{schema | allOf: nil}, value, path, schemas)
-      errors -> {:error, Enum.join(errors, "\n")}
-    end
-  end
-  def validate(schema = %Schema{not: not_schema}, value, path, schemas) when not is_nil(not_schema) do
-    case validate(not_schema, value, path, schemas) do
-      {:error, _} -> validate(%{schema | not: nil}, value, path, schemas)
-      :ok -> {:error, "#{path}: Value is valid for schema given in `not`"}
-    end
-  end
   def validate(%Schema{type: nil}, _value, _path, _schemas) do
     # polymorphic schemas will terminate here after validating against anyOf/oneOf/allOf/not
     :ok
   end
-  def validate(%Schema{type: expected_type}, value, path, _schemas) do
+  def validate(%Schema{type: expected_type}, value, path, _schemas) when not is_nil(expected_type) do
     {:error,
      "#{path}: invalid type #{term_type(value)} where #{expected_type} expected"}
   end
@@ -542,8 +549,7 @@ defmodule OpenApiSpex.Schema do
   defp validate_string_types(schema, value, path) do
     with :ok <- validate_max_length(schema, value, path),
          :ok <- validate_min_length(schema, value, path),
-         :ok <- validate_pattern(schema, value, path),
-         :ok <- validate_enum(schema, value, path) do
+         :ok <- validate_pattern(schema, value, path) do
       :ok
     end
   end
@@ -593,17 +599,7 @@ defmodule OpenApiSpex.Schema do
   defp validate_pattern(%{pattern: regex = %Regex{}}, val, path) do
     case Regex.match?(regex, val) do
       true -> :ok
-      _ -> {:error, "#{path}: Value does not match pattern: #{regex.source}"}
-    end
-  end
-
-  @spec validate_enum(Schema.t, String.t, String.t) :: :ok | {:error, String.t}
-  def validate_enum(%{enum: nil}, _val, _path), do: :ok
-  def validate_enum(%{enum: options}, value, path) do
-    case Enum.member?(options, value) do
-      true -> :ok
-      _ ->
-        {:error, "#{path}: Value not in enum: #{Enum.join(options, ", ")}"}
+      _ -> {:error, "#{path}: Value #{inspect(val)} does not match pattern: #{regex.source}"}
     end
   end
 
