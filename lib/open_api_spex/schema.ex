@@ -244,6 +244,75 @@ defmodule OpenApiSpex.Schema do
   @type data_type :: :string | :number | :integer | :boolean | :array | :object
 
   @doc """
+  Covert a JSON document to a schema
+  """
+  def from_json(%{"type" => types}) when is_list(types) do
+    {:error, "OpenAPI does not support type lists"}
+  end
+  def from_json(%{"type" => "null"}) do
+    {:error, "OpenAPI does not support type null type"}
+  end
+  def from_json(%{"items" => items}) when is_list(items) do
+    {:error, "OpenAPI requires items to be a schema, not a list"}
+  end
+  def from_json(schema_json) do
+    schema = %Schema {
+      title: schema_json["title"],
+      multipleOf: schema_json["multipleOf"],
+      maximum: schema_json["maximum"],
+      exclusiveMaximum: schema_json["exclusiveMaximum"],
+      minimum: schema_json["minimum"],
+      exclusiveMinimum: schema_json["exclusiveMinimum"],
+      maxLength: schema_json["maxLength"],
+      minLength: schema_json["minLength"],
+      pattern: schema_json["pattern"] |> (fn p -> p && Regex.compile(p) end).(),
+      maxItems: schema_json["maxItems"],
+      minItems: schema_json["minItems"],
+      uniqueItems: schema_json["uniqueItems"],
+      maxProperties: schema_json["maxProperties"],
+      minProperties: schema_json["minProperties"],
+      required: schema_json["required"] |> (fn x -> x && Enum.map(x, &String.to_atom/1) end).(),
+      enum: schema_json["enum"],
+      type: schema_json["type"] |> (fn x -> x && String.to_existing_atom(x) end).(),
+      allOf:
+        schema_json["allOf"]
+        |> (fn x -> x && Enum.map(x, &(from_json(&1) |> elem(1))) end).(),
+      oneOf:
+        schema_json["oneOf"]
+        |> (fn x -> x && Enum.map(x, &(from_json(&1) |> elem(1))) end).(),
+      anyOf:
+        schema_json["anyOf"]
+        |> (fn x -> x && Enum.map(x, &(from_json(&1) |> elem(1))) end).(),
+      not:
+        schema_json["not"]
+        |> (fn x -> x && (from_json(x) |> elem(1)) end).(),
+      items: schema_json["items"] |> (fn x -> x && (from_json(x) |> elem(1)) end).(),
+      properties:
+        schema_json["properties"]
+        |> (fn x ->
+            x && Map.new(x,
+              fn {k, v} ->
+                {String.to_atom(k), from_json(v) |> elem(1)}
+              end)
+            end).(),
+
+      additionalProperties:
+        schema_json["additionalProperties"]
+        |> (fn x -> if is_map(x), do: from_json(x) |> elem(1), else: x end).(),
+      description: schema_json["description"],
+      format: schema_json["format"],
+      default: schema_json["default"],
+      nullable: schema_json["nullable"],
+      discriminator: schema_json["discriminator"],
+      readOnly: schema_json["readOnly"],
+      writeOnly: schema_json["writeOnly"],
+      example: schema_json["example"],
+      deprecated: schema_json["deprecated"],
+    }
+    {:ok, schema}
+  end
+
+  @doc """
   Cast a simple value to the elixir type defined by a schema.
 
   By default, object types are cast to maps, however if the "x-struct" attribute is set in the schema,
@@ -537,9 +606,23 @@ defmodule OpenApiSpex.Schema do
       :ok
     end
   end
-  def validate(%Schema{type: nil}, _value, _path, _schemas) do
-    # polymorphic schemas will terminate here after validating against anyOf/oneOf/allOf/not
-    :ok
+  def validate(schema = %Schema{type: nil}, value, path, schemas) do
+    cond do
+      is_number(value) ->
+        validate(%{schema | type: :number}, value, path, schemas)
+
+      is_binary(value) ->
+        validate(%{schema | type: :string}, value, path, schemas)
+
+      is_list(value) ->
+        validate(%{schema | type: :array}, value, path, schemas)
+
+      is_map(value) ->
+        validate(%{schema | type: :object}, value, path, schemas)
+
+      true ->
+        :ok
+    end
   end
   def validate(%Schema{type: expected_type}, value, path, _schemas) when not is_nil(expected_type) do
     {:error,

@@ -305,6 +305,21 @@ defmodule OpenApiSpex.SchemaTest do
 
       assert {:error, _} = Schema.validate(schema, %{}, %{})
     end
+
+    @tag :focus
+    test "35 is not multipleOf 1.5" do
+      schema = %Schema{
+        multipleOf: 1.5
+      }
+      assert {:error, _} = Schema.validate(schema, 35, %{})
+    end
+
+    @tag :focus
+    test "A string is not a number" do
+      schema = %Schema{type: :integer}
+      {:ok, data} = Schema.cast(schema, "1", %{}) |> IO.inspect()
+      assert {:error, _} = Schema.validate(schema, data, %{})
+    end
   end
 
   describe "String validation" do
@@ -574,4 +589,37 @@ defmodule OpenApiSpex.SchemaTest do
       assert :ok = Schema.validate(schema, "bla", %{})
     end
   end
+
+  Enum.each(Path.wildcard("test/JSON-Schema-Test-Suite/tests/draft4/*.json"), fn file ->
+    file
+    |> IO.inspect()
+    |> File.read!()
+    |> Poison.decode!()
+    |> Enum.each(fn group ->
+      describe (group["description"] <> " (#{Path.basename(file)}):") do
+        case group["schema"] |> Schema.from_json() do
+          {:ok, schema} ->
+            Enum.each(group["tests"], fn test_case ->
+              @tag schema: schema
+              @tag data: test_case["data"]
+              @tag valid: test_case["valid"]
+              test test_case["description"], %{schema: schema, data: data, valid: valid} do
+                if valid do
+                  {:ok, data} = Schema.cast(schema, data, %{})
+                  assert :ok = Schema.validate(schema, data, %{})
+                else
+                  with {:ok, data} <- Schema.cast(schema, data, %{}) do
+                    assert {:error, _} = Schema.validate(schema, data, %{})
+                  else
+                    {:error, _} ->
+                      nil
+                  end
+                end
+              end
+            end)
+          {:error, reason} -> IO.puts(reason)
+        end
+      end
+    end)
+  end)
 end
