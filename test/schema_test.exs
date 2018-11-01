@@ -59,7 +59,19 @@ defmodule OpenApiSpex.SchemaTest do
       {:error, _output} = Schema.cast(user_request_schema, input, schemas)
     end
 
-    test "cast/3 with unexpected type for array" do
+    test "cast/3 with unexpected type for nested object" do
+      api_spec = ApiSpec.spec()
+      schemas = api_spec.components.schemas
+      user_request_schema = schemas["UserRequest"]
+
+      input = %{
+        "user" => []
+      }
+
+      {:error, _output} = Schema.cast(user_request_schema, input, schemas)
+    end
+
+    test "cast/3 with unexpected type for nested array" do
       api_spec = ApiSpec.spec()
       schemas = api_spec.components.schemas
       user_response_schema = schemas["UsersResponse"]
