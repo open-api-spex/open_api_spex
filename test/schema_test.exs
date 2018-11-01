@@ -6,6 +6,22 @@ defmodule OpenApiSpex.SchemaTest do
 
   doctest Schema
 
+  describe "schema/1" do
+    test "EntityWithDict Schema example matches schema" do
+      api_spec = ApiSpec.spec()
+      assert_schema(Schemas.EntityWithDict.schema().example, "EntityWithDict", api_spec)
+    end
+
+    test "User Schema example matches schema" do
+      spec = ApiSpec.spec()
+
+      assert_schema(Schemas.User.schema().example, "User", spec)
+      assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec)
+      assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
+      assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
+    end
+  end
+
   describe "cast/3" do
     test "cast request schema" do
       api_spec = ApiSpec.spec()
@@ -49,20 +65,6 @@ defmodule OpenApiSpex.SchemaTest do
       }
 
       assert {:error, _} = Schema.cast(user_request_schema, input, schemas)
-    end
-
-    test "EntityWithDict Schema example matches schema" do
-      api_spec = ApiSpec.spec()
-      assert_schema(Schemas.EntityWithDict.schema().example, "EntityWithDict", api_spec)
-    end
-
-    test "User Schema example matches schema" do
-      spec = ApiSpec.spec()
-
-      assert_schema(Schemas.User.schema().example, "User", spec)
-      assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec)
-      assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
-      assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
     end
 
     test "Cast Cat from Pet schema" do
