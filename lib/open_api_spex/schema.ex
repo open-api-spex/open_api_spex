@@ -265,7 +265,7 @@ defmodule OpenApiSpex.Schema do
       exclusiveMinimum: schema_json["exclusiveMinimum"],
       maxLength: schema_json["maxLength"],
       minLength: schema_json["minLength"],
-      pattern: schema_json["pattern"] |> (fn p -> p && Regex.compile(p) end).(),
+      pattern: schema_json["pattern"] |> (fn p -> p && Regex.compile!(p) end).(),
       maxItems: schema_json["maxItems"],
       minItems: schema_json["minItems"],
       uniqueItems: schema_json["uniqueItems"],
