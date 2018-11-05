@@ -273,6 +273,8 @@ defmodule OpenApiSpex.Schema do
 
     - Cast the value using each schema listed in `anyOf`, stopping as soon as a succesful cast is made.
   """
+  @spec cast(Schema.t | Reference.t, term, %{String.t => Schema.t | Reference.t}) :: {:ok, term} | {:error, String.t}
+  def cast(%Schema{nullable: true}, nil, _schemas), do: {:ok, nil}
   def cast(%Schema{type: :boolean}, value, _schemas) when is_boolean(value), do: {:ok, value}
   def cast(%Schema{type: :boolean}, value, _schemas) when is_binary(value) do
     case value do
@@ -281,19 +283,31 @@ defmodule OpenApiSpex.Schema do
       _ -> {:error, "Invalid boolean: #{inspect(value)}"}
     end
   end
+  def cast(%Schema{type: :boolean}, value, _schemas) do
+    {:error, "Invalid boolean: #{inspect(value)}"}
+  end
   def cast(%Schema{type: :integer}, value, _schemas) when is_integer(value), do: {:ok, value}
   def cast(%Schema{type: :integer}, value, _schemas) when is_binary(value) do
     case Integer.parse(value) do
       {i, ""} -> {:ok, i}
-      _ -> {:error, :bad_integer}
+      _ -> {:error, "Invalid integer: #{inspect(value)}"}
     end
+  end
+  def cast(%Schema{type: :integer}, value, _schemas) do
+    {:error, "Invalid integer: #{inspect(value)}"}
+  end
+  def cast(%Schema{type: :number, format: fmt}, value, _schema) when is_integer(value) and fmt in [:float, :double] do
+    {:ok, value * 1.0}
   end
   def cast(%Schema{type: :number}, value, _schemas) when is_number(value), do: {:ok, value}
   def cast(%Schema{type: :number}, value, _schemas) when is_binary(value) do
     case Float.parse(value) do
       {x, ""} -> {:ok, x}
-      _ -> {:error, :bad_float}
+      _ -> {:error, "Invalid number: #{inspect(value)}"}
     end
+  end
+  def cast(%Schema{type: :number}, value, _schemas) do
+    {:error, "Invalid number: #{inspect(value)}"}
   end
   def cast(%Schema{type: :string, format: :"date-time"}, value, _schemas) when is_binary(value) do
     case DateTime.from_iso8601(value) do
@@ -308,6 +322,9 @@ defmodule OpenApiSpex.Schema do
     end
   end
   def cast(%Schema{type: :string}, value, _schemas) when is_binary(value), do: {:ok, value}
+  def cast(%Schema{type: :string}, value, _schemas) do
+    {:error, "Invalid string: #{inspect(value)}"}
+  end
   def cast(%Schema{type: :array, items: nil}, value, _schemas) when is_list(value), do: {:ok, value}
   def cast(%Schema{type: :array}, [], _schemas), do: {:ok, []}
   def cast(schema = %Schema{type: :array, items: items_schema}, [x | rest], schemas) do
