@@ -68,10 +68,12 @@ defmodule OpenApiSpex.SchemaTest do
       assert {:ok, 0} = Schema.cast(%Schema{type: :integer}, "0", %{})
       assert {:ok, 1} = Schema.cast(%Schema{type: :integer}, "1", %{})
       assert {:ok, 12345} = Schema.cast(%Schema{type: :integer}, "12345", %{})
+      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "not an int", %{})
+      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "3.14159", %{})
+      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "", %{})
     end
 
     test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "not an int", %{})
       assert {:error, _} = Schema.cast(%Schema{type: :integer}, true, %{})
       assert {:error, _} = Schema.cast(%Schema{type: :integer}, 3.14159, %{})
       assert {:error, _} = Schema.cast(%Schema{type: :integer}, nil, %{})
