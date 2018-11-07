@@ -591,7 +591,14 @@ defmodule OpenApiSpex.SchemaTest do
     "patternProperty invalidates property"
   ]
 
-  Enum.each(Path.wildcard("test/JSON-Schema-Test-Suite/tests/draft4/*.json"), fn file ->
+  @ignored_files [
+    "dependencies.json",
+    "refRemote.json"
+  ]
+
+  Path.wildcard("test/JSON-Schema-Test-Suite/tests/draft4/*.json")
+  |> Enum.reject(fn file -> Path.basename(file) in @ignored_files end)
+  |> Enum.each(fn file ->
     file
     |> IO.inspect()
     |> File.read!()

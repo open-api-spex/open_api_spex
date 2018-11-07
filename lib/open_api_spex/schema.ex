@@ -439,9 +439,13 @@ defmodule OpenApiSpex.Schema do
     cast(%{schema | allOf: nil}, value, schemas)
   end
   def cast(schema = %Schema{oneOf: [first | rest]}, value, schemas) do
-    case cast(first, value, schemas) do
-      {:ok, result} ->
-        cast(%{schema | oneOf: nil}, result, schemas)
+    with {:ok, result} <- cast(first, value, schemas),
+        :ok <- validate(first, result, schemas),
+        {:error, _} <- cast(%{schema | oneOf: rest}, value, schemas) do
+      cast(%{schema | oneOf: nil}, result, schemas)
+    else
+      {:ok, _} ->
+        {:error, "Multiple matching schemas while casting oneOf"}
       {:error, _reason} ->
         cast(%{schema | oneOf: rest}, value, schemas)
     end
