@@ -451,9 +451,10 @@ defmodule OpenApiSpex.Schema do
   end
 
   def cast(schema = %Schema{anyOf: [first | rest]}, value, schemas) do
-    case cast(first, value, schemas) do
-      {:ok, result} ->
-        cast(%{schema | anyOf: nil}, result, schemas)
+    with {:ok, result} <- cast(first, value, schemas),
+        :ok <- validate(first, result, schemas) do
+      {:ok, result}
+    else
       {:error, _reason} ->
         cast(%{schema | anyOf: rest}, value, schemas)
     end
@@ -473,6 +474,10 @@ defmodule OpenApiSpex.Schema do
       result = Map.new(others ++ props) |> make_struct(schema)
       {:ok, result}
     end
+  end
+  def cast(schema = %Schema{type: nil, properties: %{}}, value, schemas) do
+    # infer type :object when properties is present
+    cast(%{schema | type: :object}, value, schemas)
   end
   def cast(ref = %Reference{}, val, schemas), do: cast(Reference.resolve_schema(ref, schemas), val, schemas)
   def cast(_additionalProperties = false, val, _schemas) do

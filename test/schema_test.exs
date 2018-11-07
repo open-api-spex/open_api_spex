@@ -602,7 +602,7 @@ defmodule OpenApiSpex.SchemaTest do
           {:ok, schema} ->
             group["tests"]
             |> Enum.reject(& Map.get(&1, "description") in @ignored_tests)
-            |> Enum.each (fn test_case ->
+            |> Enum.each(fn test_case ->
               @tag schema: schema
               @tag data: test_case["data"]
               @tag valid: test_case["valid"]
