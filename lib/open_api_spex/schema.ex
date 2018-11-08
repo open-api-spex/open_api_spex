@@ -673,8 +673,8 @@ defmodule OpenApiSpex.Schema do
 
   @spec validate_maximum(Schema.t, number, String.t) :: :ok | {:error, String.t}
   defp validate_maximum(%{maximum: nil}, _val, _path), do: :ok
-  defp validate_maximum(%{maximum: n, exclusiveMaximum: true}, value, _path) when value < n, do: :ok
-  defp validate_maximum(%{maximum: n}, value, _path) when value <= n, do: :ok
+  defp validate_maximum(%{maximum: n, exclusiveMaximum: true}, value, _path) when (value < n), do: :ok
+  defp validate_maximum(%{maximum: n, exclusiveMaximum: ex}, value, _path) when (value <= n) and (ex in [nil, false]), do: :ok
   defp validate_maximum(%{maximum: n}, value, path), do: {:error, "#{path}: #{value} is larger than maximum #{n}"}
 
   @spec validate_minimum(Schema.t, number, String.t) :: :ok | {:error, String.t}
