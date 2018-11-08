@@ -118,6 +118,10 @@ defmodule OpenApiSpex.SchemaTest do
       assert {:error, _} = Schema.cast(%Schema{type: :string}, :an_atom, %{})
       assert {:error, _} = Schema.cast(%Schema{type: :string}, 0, %{})
     end
+    test "format: :date" do
+      assert {:error, _} = Schema.cast(%Schema{type: :string, format: :date}, "2018-01-1", %{})
+      assert {:ok, _} = Schema.cast(%Schema{type: :string, format: :date}, "2018-01-01", %{})
+    end
   end
 
   describe "cast array" do
