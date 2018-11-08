@@ -1,8 +1,8 @@
 defmodule OpenApiSpex.Error do
   defstruct [:reason, :value, :format, :type, :path]
 
-  def new(:unexpected_type, type, value) do
-    %__MODULE__{reason: :unexpected_type, type: type, value: value}
+  def new(:invalid_type, type, value) do
+    %__MODULE__{reason: :invalid_type, type: type, value: value}
   end
 
   def new(:polymorphic_failed, value, polymorphic_type) do
@@ -10,14 +10,14 @@ defmodule OpenApiSpex.Error do
   end
 
   def new(:invalid_format, format, value) do
-    %__MODULE__{reason: :unexpected_type, format: format, value: value}
+    %__MODULE__{reason: :invalid_type, format: format, value: value}
   end
 
   def new(:unexpected_field, value) do
     %__MODULE__{reason: :unexpected_field, value: value}
   end
 
-  def message(%{reason: :unexpected_type, type: type, value: value}) do
+  def message(%{reason: :invalid_type, type: type, value: value}) do
     "Invalid #{type}: #{inspect(value)}"
   end
 

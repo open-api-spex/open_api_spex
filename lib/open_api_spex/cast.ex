@@ -16,12 +16,12 @@ defmodule OpenApiSpex.Cast do
     case value do
       "true" -> {:ok, %{validation | value: true}}
       "false" -> {:ok, %{validation | value: false}}
-      _ -> {:error, %{validation | error: Error.new(:unexpected_type, :boolean, value)}}
+      _ -> {:error, %{validation | error: Error.new(:invalid_type, :boolean, value)}}
     end
   end
 
   def cast(%Validation{schema: %{type: :boolean}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:unexpected_type, :boolean, value)}}
+    {:error, %{validation | error: Error.new(:invalid_type, :boolean, value)}}
   end
 
   def cast(%Validation{schema: %{type: :integer}, value: value} = validation)
@@ -33,12 +33,12 @@ defmodule OpenApiSpex.Cast do
       when is_binary(value) do
     case Integer.parse(value) do
       {int_value, ""} -> {:ok, %{validation | value: int_value}}
-      _ -> {:error, %{validation | error: Error.new(:unexpected_type, :integer, value)}}
+      _ -> {:error, %{validation | error: Error.new(:invalid_type, :integer, value)}}
     end
   end
 
   def cast(%Validation{schema: %{type: :integer}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:unexpected_type, :integer, value)}}
+    {:error, %{validation | error: Error.new(:invalid_type, :integer, value)}}
   end
 
   def cast(%Validation{schema: %{type: :number, format: fmt}, value: value} = validation)
@@ -54,12 +54,12 @@ defmodule OpenApiSpex.Cast do
       when is_binary(value) do
     case Float.parse(value) do
       {x, ""} -> {:ok, %{validation | value: x}}
-      _ -> {:error, %{validation | error: Error.new(:unexpected_type, :number, value)}}
+      _ -> {:error, %{validation | error: Error.new(:invalid_type, :number, value)}}
     end
   end
 
   def cast(%Validation{schema: %{type: :number}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:unexpected_type, :number, value)}}
+    {:error, %{validation | error: Error.new(:invalid_type, :number, value)}}
   end
 
   def cast(%Validation{schema: %{type: :string, format: :"date-time"}, value: value} = validation)
@@ -84,7 +84,7 @@ defmodule OpenApiSpex.Cast do
   end
 
   def cast(%Validation{schema: %{type: :string}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:unexpected_type, :string, value)}}
+    {:error, %{validation | error: Error.new(:invalid_type, :string, value)}}
   end
 
   def cast(%Validation{schema: %{type: :array, items: nil}, value: value} = validation)
@@ -107,12 +107,12 @@ defmodule OpenApiSpex.Cast do
 
   def cast(%Validation{schema: %{type: :array}, value: value} = validation)
       when not is_list(value) do
-    {:error, %{validation | error: Error.new(:unexpected_type, :array, value)}}
+    {:error, %{validation | error: Error.new(:invalid_type, :array, value)}}
   end
 
   def cast(%Validation{schema: %{type: :object}, value: value} = validation)
       when not is_map(value) do
-    {:error, %{validation | error: Error.new(:unexpected_type, :object, value)}}
+    {:error, %{validation | error: Error.new(:invalid_type, :object, value)}}
   end
 
   def cast(
