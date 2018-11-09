@@ -22,6 +22,16 @@ defmodule OpenApiSpex.SchemaTest do
     end
   end
 
+  describe "cast/3" do
+    test "valid case" do
+      assert {:ok, 1} = Schema.cast(%Schema{type: :integer}, "1", %{})
+    end
+
+    test "invalid case" do
+      assert {:error, "Invalid integer: true"} = Schema.cast(%Schema{type: :integer}, true, %{})
+    end
+  end
+
   describe "Integer validation" do
     test "Validate schema type integer when value is object" do
       schema = %Schema{

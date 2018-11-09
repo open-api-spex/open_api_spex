@@ -123,7 +123,7 @@ defmodule OpenApiSpex.Schema do
   """
 
   alias OpenApiSpex.{
-    Cast, Schema, Reference, Discriminator, Xml, ExternalDocumentation, Validation
+    Cast, Schema, Reference, Discriminator, Xml, ExternalDocumentation
   }
 
   @doc """
@@ -274,14 +274,7 @@ defmodule OpenApiSpex.Schema do
     - Cast the value using each schema listed in `anyOf`, stopping as soon as a succesful cast is made.
   """
   @spec cast(Schema.t | Reference.t, term, %{String.t => Schema.t | Reference.t}) :: {:ok, term} | {:error, String.t}
-  def cast(schema, value, schemas) do
-    validation = %Validation{schema: schema, value: value, schemas: schemas}
-
-    case Cast.cast(validation) do
-      {:ok, value} -> {:ok, value}
-      {:error, %{errors: [error | _]}} -> {:error, error}
-    end
-  end
+  defdelegate cast(schema, value, schemas), to: Cast
 
   @doc ~S"""
   Validate a value against a Schema.
