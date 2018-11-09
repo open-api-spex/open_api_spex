@@ -2,20 +2,19 @@ defmodule OpenApiSpex.Cast do
   @moduledoc false
   alias OpenApiSpex.{Error, Discriminator, Reference, Schema, Validation}
 
-  def cast(%Validation{schema: %{nullable: true}, value: nil} = validation) do
-    {:ok, validation}
+  def cast(%Validation{schema: %{nullable: true}, value: nil}) do
+    {:ok, nil}
   end
 
-  def cast(%Validation{schema: %{type: :boolean}, value: value} = validation)
-      when is_boolean(value) do
-    {:ok, validation}
+  def cast(%Validation{schema: %{type: :boolean}, value: value}) when is_boolean(value) do
+    {:ok, value}
   end
 
   def cast(%Validation{schema: %{type: :boolean}, value: value} = validation)
       when is_binary(value) do
     case value do
-      "true" -> {:ok, %{validation | value: true}}
-      "false" -> {:ok, %{validation | value: false}}
+      "true" -> {:ok, true}
+      "false" -> {:ok, false}
       _ -> {:error, %{validation | errors: [Error.new(:invalid_type, :boolean, value)]}}
     end
   end
@@ -24,15 +23,14 @@ defmodule OpenApiSpex.Cast do
     {:error, %{validation | errors: [Error.new(:invalid_type, :boolean, value)]}}
   end
 
-  def cast(%Validation{schema: %{type: :integer}, value: value} = validation)
-      when is_integer(value) do
-    {:ok, %{validation | value: value}}
+  def cast(%Validation{schema: %{type: :integer}, value: value}) when is_integer(value) do
+    {:ok, value}
   end
 
   def cast(%Validation{schema: %{type: :integer}, value: value} = validation)
       when is_binary(value) do
     case Integer.parse(value) do
-      {int_value, ""} -> {:ok, %{validation | value: int_value}}
+      {int_value, ""} -> {:ok, int_value}
       _ -> {:error, %{validation | errors: [Error.new(:invalid_type, :integer, value)]}}
     end
   end
@@ -41,19 +39,19 @@ defmodule OpenApiSpex.Cast do
     {:error, %{validation | errors: [Error.new(:invalid_type, :integer, value)]}}
   end
 
-  def cast(%Validation{schema: %{type: :number, format: fmt}, value: value} = validation)
+  def cast(%Validation{schema: %{type: :number, format: fmt}, value: value})
       when is_integer(value) and fmt in [:float, :double] do
-    {:ok, %{validation | value: value * 1.0}}
+    {:ok, value * 1.0}
   end
 
-  def cast(%Validation{schema: %{type: :number}, value: value} = validation)
-      when is_number(value),
-      do: {:ok, validation}
+  def cast(%Validation{schema: %{type: :number}, value: value}) when is_number(value) do
+    {:ok, value}
+  end
 
   def cast(%Validation{schema: %{type: :number}, value: value} = validation)
       when is_binary(value) do
     case Float.parse(value) do
-      {x, ""} -> {:ok, %{validation | value: x}}
+      {number, ""} -> {:ok, number}
       _ -> {:error, %{validation | errors: [Error.new(:invalid_type, :number, value)]}}
     end
   end
@@ -65,7 +63,7 @@ defmodule OpenApiSpex.Cast do
   def cast(%Validation{schema: %{type: :string, format: :"date-time"}, value: value} = validation)
       when is_binary(value) do
     case DateTime.from_iso8601(value) do
-      {:ok, datetime = %DateTime{}, _offset} -> {:ok, %{validation | value: datetime}}
+      {:ok, datetime = %DateTime{}, _offset} -> {:ok, datetime}
       {:error, _reason} -> {:error, %{validation | errors: [Error.new(:invalid_format, :"date-time", value)]}}
     end
   end
@@ -73,35 +71,31 @@ defmodule OpenApiSpex.Cast do
   def cast(%Validation{schema: %{type: :string, format: :date}, value: value} = validation)
       when is_binary(value) do
     case Date.from_iso8601(value) do
-      {:ok, date = %Date{}} -> {:ok, %{validation | value: date}}
+      {:ok, date = %Date{}} -> {:ok, date}
       {:error, _} -> {:error, %{validation | errors: [Error.new(:invalid_format, :date, value)]}}
     end
   end
 
-  def cast(%Validation{schema: %{type: :string}, value: value} = validation)
-      when is_binary(value) do
-    {:ok, %{validation | value: value}}
+  def cast(%Validation{schema: %{type: :string}, value: value}) when is_binary(value) do
+    {:ok, value}
   end
 
   def cast(%Validation{schema: %{type: :string}, value: value} = validation) do
     {:error, %{validation | errors: [Error.new(:invalid_type, :string, value)]}}
   end
 
-  def cast(%Validation{schema: %{type: :array, items: nil}, value: value} = validation)
-      when is_list(value) do
-    {:ok, %{validation | value: value}}
+  def cast(%Validation{schema: %{type: :array, items: nil}, value: value}) when is_list(value) do
+    {:ok, value}
   end
 
-  def cast(%Validation{schema: %{type: :array}, value: []} = validation),
-    do: {:ok, %{validation | value: []}}
+  def cast(%Validation{schema: %{type: :array}, value: []}) do
+    {:ok, []}
+  end
 
-  def cast(
-        %Validation{schema: %{type: :array, items: items_schema}, value: [item | rest]} =
-          validation
-      ) do
-    with {:ok, %{value: item_cast}} <- cast(%{validation | schema: items_schema, value: item}),
-         {:ok, %{value: rest_cast}} <- cast(%{validation | value: rest}) do
-      {:ok, %{validation | value: [item_cast | rest_cast]}}
+  def cast(%Validation{schema: %{type: :array}, value: [item | rest]} = validation) do
+    with {:ok, item_cast} <- cast(%{validation | schema: validation.schema.items, value: item}),
+         {:ok, rest_cast} <- cast(%{validation | value: rest}) do
+      {:ok, [item_cast | rest_cast]}
     end
   end
 
@@ -123,25 +117,24 @@ defmodule OpenApiSpex.Cast do
       ) do
     discriminator_property = String.to_existing_atom(discriminator.propertyName)
 
-    already_cast? =
-      if Map.has_key?(value, discriminator_property) do
+    already_cast = if Map.has_key?(value, discriminator_property) do
         {:error, :already_cast}
       else
-        :ok
+        false
       end
 
-    with :ok <- already_cast?,
-         {:ok, %{value: partial_cast}} <-
+    with false <- already_cast,
+         {:ok, partial_cast} <-
            cast(%{
              validator
              | schema: %Schema{type: :object, properties: schema.properties},
                value: value
            }),
          {:ok, validator_1} <- discriminate(validator, discriminator),
-         {:ok, %{value: value}} <- cast(%{validator_1 | value: partial_cast}) do
-      {:ok, %{validator | value: make_struct(value, schema)}}
+         {:ok, value} <- cast(%{validator_1 | value: partial_cast}) do
+      {:ok, make_struct(value, schema)}
     else
-      {:error, :already_cast} -> {:ok, %{validator | value: value}}
+      {:error, :already_cast} -> {:ok, value}
       {:error, validator} -> {:error, validator}
     end
   end
@@ -149,9 +142,9 @@ defmodule OpenApiSpex.Cast do
   def cast(%Validation{schema: %{type: :object, allOf: [first | rest]}, value: %{}} = validation) do
     schema = validation.schema
 
-    with {:ok, validation} <- cast(%{validation | schema: first}),
-         {:ok, validation} <- cast(%{validation | schema: %{schema | allOf: rest}}) do
-      {:ok, validation}
+    with {:ok, value} <- cast(%{validation | schema: first}),
+         {:ok, value} <- cast(%{validation | value: value, schema: %{schema | allOf: rest}}) do
+      {:ok, value}
     end
   end
 
@@ -167,7 +160,7 @@ defmodule OpenApiSpex.Cast do
           validation
       ) do
     case cast(%Validation{schema: first, value: value, schemas: schemas}) do
-      {:ok, %{value: value}} ->
+      {:ok, value} ->
         cast(%Validation{schema: %{schema | oneOf: nil}, value: value, schemas: schemas})
 
       {:error, _} ->
@@ -181,7 +174,7 @@ defmodule OpenApiSpex.Cast do
 
   def cast(%Validation{schema: schema = %Schema{anyOf: [first | rest]}} = validation) do
     case cast(%{validation | schema: first}) do
-      {:ok, %{value: result}} ->
+      {:ok, result} ->
         cast(%{validation | schema: %{schema | anyOf: nil}, value: result})
 
       {:error, _} ->
@@ -207,7 +200,7 @@ defmodule OpenApiSpex.Cast do
 
     with {:ok, props} <- cast_properties(schema, regular_properties, schemas) do
       result = Map.new(others ++ props) |> make_struct(schema)
-      {:ok, %{validation | value: result}}
+      {:ok, result}
     else
       {:error, v} -> {:error, %{validation | errors: v.errors}}
     end
@@ -221,7 +214,7 @@ defmodule OpenApiSpex.Cast do
     {:error, %{validation | errors: [Error.new(:unexpected_field, value)]}}
   end
 
-  def cast(%Validation{} = validation), do: {:ok, validation}
+  def cast(%Validation{value: value}), do: {:ok, value}
 
   defp make_struct(val = %_{}, _), do: val
   defp make_struct(val, %{"x-struct": nil}), do: val
@@ -246,8 +239,7 @@ defmodule OpenApiSpex.Cast do
         fn {name, _schema} -> to_string(name) == to_string(key) end
       )
 
-    with {:ok, %{value: new_value}} <-
-           cast(%Validation{schema: schema, value: value, schemas: schemas}),
+    with {:ok, new_value} <- cast(%Validation{schema: schema, value: value, schemas: schemas}),
          {:ok, cast_tail} <- cast_properties(object_schema, rest, schemas) do
       {:ok, [{name, new_value} | cast_tail]}
     end

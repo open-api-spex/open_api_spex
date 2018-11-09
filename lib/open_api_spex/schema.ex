@@ -278,7 +278,7 @@ defmodule OpenApiSpex.Schema do
     validation = %Validation{schema: schema, value: value, schemas: schemas}
 
     case Cast.cast(validation) do
-      {:ok, %{value: value}} -> {:ok, value}
+      {:ok, value} -> {:ok, value}
       {:error, %{errors: [error | _]}} -> {:error, error}
     end
   end
