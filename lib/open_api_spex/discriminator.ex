@@ -3,7 +3,7 @@ defmodule OpenApiSpex.Discriminator do
   Defines the `OpenApiSpex.Discriminator.t` type.
   """
 
-  alias OpenApiSpex.Schema
+  alias OpenApiSpex.{Error, Schema}
 
   @enforce_keys :propertyName
   defstruct [
@@ -27,21 +27,19 @@ defmodule OpenApiSpex.Discriminator do
   @doc """
   Resolve the schema that should be used to cast/validate a value using a `Discriminator`.
   """
-  @spec resolve(t, map, %{String.t => Schema.t}) :: {:ok, Schema.t} | {:error, String.t}
+  @spec resolve(t, map, %{String.t => Schema.t}) :: {:ok, Schema.t} | {:error, Error.t()}
   def resolve(%{propertyName: name, mapping: mapping}, value = %{}, schemas = %{}) do
     with {:ok, val} <- get_property_value(value, name) do
       mapped = map_property_value(mapping, val)
       lookup_schema(schemas, mapped)
-    else
-      {:error, reason} -> {:error, reason}
     end
   end
 
-  @spec get_property_value(map, String.t) :: {:ok, any} | {:error, String.t}
+  @spec get_property_value(map, String.t) :: {:ok, any} | {:error, Error.t()}
   defp get_property_value(value = %{}, property_name) do
     case Map.fetch(value, property_name) do
       {:ok, val} -> {:ok, val}
-      :error -> {:error, "No value for required disciminator property: #{property_name}"}
+      :error -> {:error, Error.new(:no_value_required_for_discriminator, property_name)}
     end
   end
 
@@ -58,7 +56,7 @@ defmodule OpenApiSpex.Discriminator do
   defp lookup_schema(schemas, name) do
     case Map.fetch(schemas, name) do
       {:ok, schema} -> {:ok, schema}
-      :error -> {:error, "Unknown schema: #{name}"}
+      :error -> {:error, Error.new(:unknown_schema, name)}
     end
   end
 end

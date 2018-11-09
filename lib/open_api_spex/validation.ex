@@ -3,8 +3,10 @@ defmodule OpenApiSpex.Validation do
   The result of a cast or validation
   """
 
+  @type t :: %__MODULE__{}
+
   defstruct schema: nil,
             schemas: [],
             value: nil,
-            error: nil
+            errors: []
 end

@@ -279,7 +279,7 @@ defmodule OpenApiSpex.Schema do
 
     case Cast.cast(validation) do
       {:ok, %{value: value}} -> {:ok, value}
-      {:error, %{error: error}} -> {:error, error}
+      {:error, %{errors: [error | _]}} -> {:error, error}
     end
   end
 

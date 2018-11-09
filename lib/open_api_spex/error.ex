@@ -1,5 +1,5 @@
 defmodule OpenApiSpex.Error do
-  defstruct [:reason, :value, :format, :type, :path]
+  defstruct [:reason, :value, :format, :type, :name, :path]
 
   def new(:invalid_type, type, value) do
     %__MODULE__{reason: :invalid_type, type: type, value: value}
@@ -17,6 +17,14 @@ defmodule OpenApiSpex.Error do
     %__MODULE__{reason: :unexpected_field, value: value}
   end
 
+  def new(:no_value_required_for_discriminator, property_name) do
+    %__MODULE__{reason: :no_value_required_for_discriminator, name: property_name}
+  end
+
+  def new(:unknown_schema, name) do
+    %__MODULE__{reason: :unknown_schema, name: name}
+  end
+
   def message(%{reason: :invalid_type, type: type, value: value}) do
     "Invalid #{type}: #{inspect(value)}"
   end
@@ -27,6 +35,14 @@ defmodule OpenApiSpex.Error do
 
   def message(%{reason: :unexpected_field, value: value}) do
     "Unexpected field with value #{inspect(value)}"
+  end
+
+  def message(%{reason: :no_value_required_for_discriminator, name: field}) do
+    "No value for required disciminator property: #{field}"
+  end
+
+  def message(%{reason: :unknown_schema, name: name}) do
+    "Unknown schema: #{name}"
   end
 end
 

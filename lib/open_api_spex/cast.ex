@@ -16,12 +16,12 @@ defmodule OpenApiSpex.Cast do
     case value do
       "true" -> {:ok, %{validation | value: true}}
       "false" -> {:ok, %{validation | value: false}}
-      _ -> {:error, %{validation | error: Error.new(:invalid_type, :boolean, value)}}
+      _ -> {:error, %{validation | errors: [Error.new(:invalid_type, :boolean, value)]}}
     end
   end
 
   def cast(%Validation{schema: %{type: :boolean}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:invalid_type, :boolean, value)}}
+    {:error, %{validation | errors: [Error.new(:invalid_type, :boolean, value)]}}
   end
 
   def cast(%Validation{schema: %{type: :integer}, value: value} = validation)
@@ -33,12 +33,12 @@ defmodule OpenApiSpex.Cast do
       when is_binary(value) do
     case Integer.parse(value) do
       {int_value, ""} -> {:ok, %{validation | value: int_value}}
-      _ -> {:error, %{validation | error: Error.new(:invalid_type, :integer, value)}}
+      _ -> {:error, %{validation | errors: [Error.new(:invalid_type, :integer, value)]}}
     end
   end
 
   def cast(%Validation{schema: %{type: :integer}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:invalid_type, :integer, value)}}
+    {:error, %{validation | errors: [Error.new(:invalid_type, :integer, value)]}}
   end
 
   def cast(%Validation{schema: %{type: :number, format: fmt}, value: value} = validation)
@@ -54,19 +54,19 @@ defmodule OpenApiSpex.Cast do
       when is_binary(value) do
     case Float.parse(value) do
       {x, ""} -> {:ok, %{validation | value: x}}
-      _ -> {:error, %{validation | error: Error.new(:invalid_type, :number, value)}}
+      _ -> {:error, %{validation | errors: [Error.new(:invalid_type, :number, value)]}}
     end
   end
 
   def cast(%Validation{schema: %{type: :number}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:invalid_type, :number, value)}}
+    {:error, %{validation | errors: [Error.new(:invalid_type, :number, value)]}}
   end
 
   def cast(%Validation{schema: %{type: :string, format: :"date-time"}, value: value} = validation)
       when is_binary(value) do
     case DateTime.from_iso8601(value) do
       {:ok, datetime = %DateTime{}, _offset} -> {:ok, %{validation | value: datetime}}
-      {:error, reason} -> {:error, %{validation | error: reason}}
+      {:error, _reason} -> {:error, %{validation | errors: [Error.new(:invalid_format, :"date-time", value)]}}
     end
   end
 
@@ -74,7 +74,7 @@ defmodule OpenApiSpex.Cast do
       when is_binary(value) do
     case Date.from_iso8601(value) do
       {:ok, date = %Date{}} -> {:ok, %{validation | value: date}}
-      {:error, _} -> {:error, %{validation | error: Error.new(:invalid_format, :date, value)}}
+      {:error, _} -> {:error, %{validation | errors: [Error.new(:invalid_format, :date, value)]}}
     end
   end
 
@@ -84,7 +84,7 @@ defmodule OpenApiSpex.Cast do
   end
 
   def cast(%Validation{schema: %{type: :string}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:invalid_type, :string, value)}}
+    {:error, %{validation | errors: [Error.new(:invalid_type, :string, value)]}}
   end
 
   def cast(%Validation{schema: %{type: :array, items: nil}, value: value} = validation)
@@ -107,12 +107,12 @@ defmodule OpenApiSpex.Cast do
 
   def cast(%Validation{schema: %{type: :array}, value: value} = validation)
       when not is_list(value) do
-    {:error, %{validation | error: Error.new(:invalid_type, :array, value)}}
+    {:error, %{validation | errors: [Error.new(:invalid_type, :array, value)]}}
   end
 
   def cast(%Validation{schema: %{type: :object}, value: value} = validation)
       when not is_map(value) do
-    {:error, %{validation | error: Error.new(:invalid_type, :object, value)}}
+    {:error, %{validation | errors: [Error.new(:invalid_type, :object, value)]}}
   end
 
   def cast(
@@ -176,7 +176,7 @@ defmodule OpenApiSpex.Cast do
   end
 
   def cast(%Validation{schema: %{oneOf: []}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:polymorphic_failed, value, :oneOf)}}
+    {:error, %{validation | errors: [Error.new(:polymorphic_failed, value, :oneOf)]}}
   end
 
   def cast(%Validation{schema: schema = %Schema{anyOf: [first | rest]}} = validation) do
@@ -190,7 +190,7 @@ defmodule OpenApiSpex.Cast do
   end
 
   def cast(%Validation{schema: %{anyOf: []}, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:polymorphic_failed, value, :anyOf)}}
+    {:error, %{validation | errors: [Error.new(:polymorphic_failed, value, :anyOf)]}}
   end
 
   def cast(
@@ -209,7 +209,7 @@ defmodule OpenApiSpex.Cast do
       result = Map.new(others ++ props) |> make_struct(schema)
       {:ok, %{validation | value: result}}
     else
-      {:error, error} -> {:error, %{validation | error: error}}
+      {:error, v} -> {:error, %{validation | errors: v.errors}}
     end
   end
 
@@ -218,7 +218,7 @@ defmodule OpenApiSpex.Cast do
   end
 
   def cast(%Validation{schema: _additionalProperties = false, value: value} = validation) do
-    {:error, %{validation | error: Error.new(:unexpected_field, value)}}
+    {:error, %{validation | errors: [Error.new(:unexpected_field, value)]}}
   end
 
   def cast(%Validation{} = validation), do: {:ok, validation}
@@ -235,7 +235,7 @@ defmodule OpenApiSpex.Cast do
   defp no_struct(val), do: Map.delete(val, :__struct__)
 
   @spec cast_properties(Schema.t(), list, %{String.t() => Schema.t()}) ::
-          {:ok, list} | {:error, String.t()}
+          {:ok, list} | {:error, Validation.t()}
   defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}
 
   defp cast_properties(object_schema = %Schema{}, [{key, value} | rest], schemas) do
@@ -256,7 +256,7 @@ defmodule OpenApiSpex.Cast do
   defp discriminate(%{value: value, schemas: schemas} = validator, discriminator) do
     case Discriminator.resolve(discriminator, value, schemas) do
       {:ok, derived_schema} -> {:ok, %{validator | schema: derived_schema}}
-      {:error, reason} -> {:error, %{validator | error: reason}}
+      {:error, error} -> {:error, %{validator | errors: [error]}}
     end
   end
 end
