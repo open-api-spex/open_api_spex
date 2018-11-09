@@ -11,9 +11,9 @@ defmodule OpenApiSpex.CastTest do
     end
 
     test "to non-nullable type" do
-      assert {:error, _} = Cast.cast(nil, %Schema {type: :string})
-      assert {:error, _} = Cast.cast(nil, %Schema {type: :integer})
-      assert {:error, _} = Cast.cast(nil, %Schema {type: :object})
+      assert {:error, _} = Cast.cast(nil, %Schema{type: :string})
+      assert {:error, _} = Cast.cast(nil, %Schema{type: :integer})
+      assert {:error, _} = Cast.cast(nil, %Schema{type: :object})
     end
   end
 
@@ -71,12 +71,14 @@ defmodule OpenApiSpex.CastTest do
       assert {:ok, 1.0} = Cast.cast(1.0, %Schema{type: :number})
       assert {:ok, 123.45} = Cast.cast(123.45, %Schema{type: :number})
     end
+
     test "from string" do
       assert {:ok, -1.0} = Cast.cast("-1", %Schema{type: :number})
       assert {:ok, 0.0} = Cast.cast("0.0", %Schema{type: :number})
       assert {:ok, 1.0} = Cast.cast("1.0", %Schema{type: :number})
       assert {:ok, 123.45} = Cast.cast("123.45", %Schema{type: :number})
     end
+
     test "from invalid data type" do
       assert {:error, _} = Cast.cast(nil, %Schema{type: :number})
       assert {:error, _} = Cast.cast(false, %Schema{type: :number})
@@ -93,38 +95,46 @@ defmodule OpenApiSpex.CastTest do
       assert {:ok, "  "} = Cast.cast("  ", %Schema{type: :string})
       assert {:ok, "hello"} = Cast.cast("hello", %Schema{type: :string})
     end
+
     test "from invalid data type" do
       assert {:error, _} = Cast.cast(nil, %Schema{type: :string})
       assert {:error, _} = Cast.cast([], %Schema{type: :string})
       assert {:error, _} = Cast.cast(:an_atom, %Schema{type: :string})
       assert {:error, _} = Cast.cast(0, %Schema{type: :string})
     end
+
     test "format: :date" do
       assert {:error, _} = Cast.cast("2018-01-1", %Schema{type: :string, format: :date})
       assert {:ok, _} = Cast.cast("2018-01-01", %Schema{type: :string, format: :date})
     end
+
     test "format: :date-time" do
-      assert {:error, _} = Cast.cast("2018-01-01T00:00:0Z", %Schema{type: :string, format: :"date-time"})
-      assert {:ok, _} = Cast.cast("2018-01-01T00:00:00Z", %Schema{type: :string, format: :"date-time"})
+      assert {:error, _} =
+               Cast.cast("2018-01-01T00:00:0Z", %Schema{type: :string, format: :"date-time"})
+
+      assert {:ok, _} =
+               Cast.cast("2018-01-01T00:00:00Z", %Schema{type: :string, format: :"date-time"})
     end
   end
 
   describe "cast/3 for type: :array" do
     test "from list" do
       assert {:ok, []} = Cast.cast([], %Schema{type: :array})
-      assert {:ok, [1, 2, 3]} = Cast.cast([1,2,3], %Schema{type: :array})
+      assert {:ok, [1, 2, 3]} = Cast.cast([1, 2, 3], %Schema{type: :array})
       assert {:ok, [1, "a", true]} = Cast.cast([1, "a", true], %Schema{type: :array})
 
       int_array = %Schema{type: :array, items: %Schema{type: :integer}}
       assert {:ok, [1, 2, 3]} = Cast.cast([1, 2, 3], int_array)
       assert {:ok, [1, 2, 3]} = Cast.cast(["1", "2", "3"], int_array)
     end
+
     test "from invalid data type" do
       assert {:error, _} = Cast.cast(nil, %Schema{type: :array})
       assert {:error, _} = Cast.cast(0, %Schema{type: :array})
       assert {:error, _} = Cast.cast("", %Schema{type: :array})
       assert {:error, _} = Cast.cast("1,2,3", %Schema{type: :array})
     end
+
     test "from list with invalid item type" do
       string_array = %Schema{type: :array, items: %Schema{type: :string}}
       assert {:error, _} = Cast.cast([1, 2, 3], string_array)
