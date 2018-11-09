@@ -5,129 +5,129 @@ defmodule OpenApiSpex.CastTest do
 
   describe "cast/3 from nil" do
     test "to nullable type" do
-      assert {:ok, nil} = Cast.cast(%Schema{nullable: true}, nil, %{})
-      assert {:ok, nil} = Cast.cast(%Schema{type: :integer, nullable: true}, nil, %{})
-      assert {:ok, nil} = Cast.cast(%Schema{type: :string, nullable: true}, nil, %{})
+      assert {:ok, nil} = Cast.cast(nil, %Schema{nullable: true})
+      assert {:ok, nil} = Cast.cast(nil, %Schema{type: :integer, nullable: true})
+      assert {:ok, nil} = Cast.cast(nil, %Schema{type: :string, nullable: true})
     end
 
     test "to non-nullable type" do
-      assert {:error, _} = Cast.cast(%Schema {type: :string}, nil, %{})
-      assert {:error, _} = Cast.cast(%Schema {type: :integer}, nil, %{})
-      assert {:error, _} = Cast.cast(%Schema {type: :object}, nil, %{})
+      assert {:error, _} = Cast.cast(nil, %Schema {type: :string})
+      assert {:error, _} = Cast.cast(nil, %Schema {type: :integer})
+      assert {:error, _} = Cast.cast(nil, %Schema {type: :object})
     end
   end
 
   describe "cast/3 for type: :boolean" do
     test "from boolean" do
-      assert {:ok, true} = Cast.cast(%Schema{type: :boolean}, true, %{})
-      assert {:ok, false} = Cast.cast(%Schema{type: :boolean}, false, %{})
+      assert {:ok, true} = Cast.cast(true, %Schema{type: :boolean})
+      assert {:ok, false} = Cast.cast(false, %Schema{type: :boolean})
     end
 
     test "from string" do
-      assert {:ok, true} = Cast.cast(%Schema{type: :boolean}, "true", %{})
-      assert {:ok, false} = Cast.cast(%Schema{type: :boolean}, "false", %{})
+      assert {:ok, true} = Cast.cast("true", %Schema{type: :boolean})
+      assert {:ok, false} = Cast.cast("false", %Schema{type: :boolean})
     end
 
     test "from invalid data type" do
-      assert {:error, _} = Cast.cast(%Schema{type: :boolean}, "not a bool", %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :boolean}, 1, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :boolean}, nil, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :boolean}, [true], %{})
+      assert {:error, _} = Cast.cast("not a bool", %Schema{type: :boolean})
+      assert {:error, _} = Cast.cast(1, %Schema{type: :boolean})
+      assert {:error, _} = Cast.cast(nil, %Schema{type: :boolean})
+      assert {:error, _} = Cast.cast([true], %Schema{type: :boolean})
     end
   end
 
   describe "cast/3 for type :integer" do
     test "from integer" do
-      assert {:ok, -1} = Cast.cast(%Schema{type: :integer}, -1, %{})
-      assert {:ok, 0} = Cast.cast(%Schema{type: :integer}, 0, %{})
-      assert {:ok, 1} = Cast.cast(%Schema{type: :integer}, 1, %{})
-      assert {:ok, 12345} = Cast.cast(%Schema{type: :integer}, 12345, %{})
+      assert {:ok, -1} = Cast.cast(-1, %Schema{type: :integer})
+      assert {:ok, 0} = Cast.cast(0, %Schema{type: :integer})
+      assert {:ok, 1} = Cast.cast(1, %Schema{type: :integer})
+      assert {:ok, 12345} = Cast.cast(12345, %Schema{type: :integer})
     end
 
     test "from string" do
-      assert {:ok, -1} = Cast.cast(%Schema{type: :integer}, "-1", %{})
-      assert {:ok, 0} = Cast.cast(%Schema{type: :integer}, "0", %{})
-      assert {:ok, 1} = Cast.cast(%Schema{type: :integer}, "1", %{})
-      assert {:ok, 12345} = Cast.cast(%Schema{type: :integer}, "12345", %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :integer}, "not an int", %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :integer}, "3.14159", %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :integer}, "", %{})
+      assert {:ok, -1} = Cast.cast("-1", %Schema{type: :integer})
+      assert {:ok, 0} = Cast.cast("0", %Schema{type: :integer})
+      assert {:ok, 1} = Cast.cast("1", %Schema{type: :integer})
+      assert {:ok, 12345} = Cast.cast("12345", %Schema{type: :integer})
+      assert {:error, _} = Cast.cast("not an int", %Schema{type: :integer})
+      assert {:error, _} = Cast.cast("3.14159", %Schema{type: :integer})
+      assert {:error, _} = Cast.cast("", %Schema{type: :integer})
     end
 
     test "from invalid data type" do
-      assert {:error, _} = Cast.cast(%Schema{type: :integer}, true, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :integer}, 3.14159, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :integer}, nil, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :integer}, [1, 2], %{})
+      assert {:error, _} = Cast.cast(true, %Schema{type: :integer})
+      assert {:error, _} = Cast.cast(3.14159, %Schema{type: :integer})
+      assert {:error, _} = Cast.cast(nil, %Schema{type: :integer})
+      assert {:error, _} = Cast.cast([1, 2], %Schema{type: :integer})
     end
   end
 
   describe "cast/3 for type: :number" do
     test "from number" do
-      assert {:ok, -1.0} = Cast.cast(%Schema{type: :number, format: :float}, -1, %{})
-      assert {:ok, -1.0} = Cast.cast(%Schema{type: :number, format: :double}, -1, %{})
-      assert {:ok, -1} = Cast.cast(%Schema{type: :number}, -1, %{})
-      assert {:ok, 0.0} = Cast.cast(%Schema{type: :number}, 0.0, %{})
-      assert {:ok, 1.0} = Cast.cast(%Schema{type: :number}, 1.0, %{})
-      assert {:ok, 123.45} = Cast.cast(%Schema{type: :number}, 123.45, %{})
+      assert {:ok, -1.0} = Cast.cast(-1, %Schema{type: :number, format: :float})
+      assert {:ok, -1.0} = Cast.cast(-1, %Schema{type: :number, format: :double})
+      assert {:ok, -1} = Cast.cast(-1, %Schema{type: :number})
+      assert {:ok, 0.0} = Cast.cast(0.0, %Schema{type: :number})
+      assert {:ok, 1.0} = Cast.cast(1.0, %Schema{type: :number})
+      assert {:ok, 123.45} = Cast.cast(123.45, %Schema{type: :number})
     end
     test "from string" do
-      assert {:ok, -1.0} = Cast.cast(%Schema{type: :number}, "-1", %{})
-      assert {:ok, 0.0} = Cast.cast(%Schema{type: :number}, "0.0", %{})
-      assert {:ok, 1.0} = Cast.cast(%Schema{type: :number}, "1.0", %{})
-      assert {:ok, 123.45} = Cast.cast(%Schema{type: :number}, "123.45", %{})
+      assert {:ok, -1.0} = Cast.cast("-1", %Schema{type: :number})
+      assert {:ok, 0.0} = Cast.cast("0.0", %Schema{type: :number})
+      assert {:ok, 1.0} = Cast.cast("1.0", %Schema{type: :number})
+      assert {:ok, 123.45} = Cast.cast("123.45", %Schema{type: :number})
     end
     test "from invalid data type" do
-      assert {:error, _} = Cast.cast(%Schema{type: :number}, nil, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :number}, false, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :number}, "", %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :number}, "not a number", %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :number}, [], %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :number}, [1.0, 2.0], %{})
+      assert {:error, _} = Cast.cast(nil, %Schema{type: :number})
+      assert {:error, _} = Cast.cast(false, %Schema{type: :number})
+      assert {:error, _} = Cast.cast("", %Schema{type: :number})
+      assert {:error, _} = Cast.cast("not a number", %Schema{type: :number})
+      assert {:error, _} = Cast.cast([], %Schema{type: :number})
+      assert {:error, _} = Cast.cast([1.0, 2.0], %Schema{type: :number})
     end
   end
 
   describe "cast/3 for type: :string" do
     test "from string" do
-      assert {:ok, ""} = Cast.cast(%Schema{type: :string}, "", %{})
-      assert {:ok, "  "} = Cast.cast(%Schema{type: :string}, "  ", %{})
-      assert {:ok, "hello"} = Cast.cast(%Schema{type: :string}, "hello", %{})
+      assert {:ok, ""} = Cast.cast("", %Schema{type: :string})
+      assert {:ok, "  "} = Cast.cast("  ", %Schema{type: :string})
+      assert {:ok, "hello"} = Cast.cast("hello", %Schema{type: :string})
     end
     test "from invalid data type" do
-      assert {:error, _} = Cast.cast(%Schema{type: :string}, nil, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :string}, [], %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :string}, :an_atom, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :string}, 0, %{})
+      assert {:error, _} = Cast.cast(nil, %Schema{type: :string})
+      assert {:error, _} = Cast.cast([], %Schema{type: :string})
+      assert {:error, _} = Cast.cast(:an_atom, %Schema{type: :string})
+      assert {:error, _} = Cast.cast(0, %Schema{type: :string})
     end
     test "format: :date" do
-      assert {:error, _} = Cast.cast(%Schema{type: :string, format: :date}, "2018-01-1", %{})
-      assert {:ok, _} = Cast.cast(%Schema{type: :string, format: :date}, "2018-01-01", %{})
+      assert {:error, _} = Cast.cast("2018-01-1", %Schema{type: :string, format: :date})
+      assert {:ok, _} = Cast.cast("2018-01-01", %Schema{type: :string, format: :date})
     end
     test "format: :date-time" do
-      assert {:error, _} = Cast.cast(%Schema{type: :string, format: :"date-time"}, "2018-01-01T00:00:0Z", %{})
-      assert {:ok, _} = Cast.cast(%Schema{type: :string, format: :"date-time"}, "2018-01-01T00:00:00Z", %{})
+      assert {:error, _} = Cast.cast("2018-01-01T00:00:0Z", %Schema{type: :string, format: :"date-time"})
+      assert {:ok, _} = Cast.cast("2018-01-01T00:00:00Z", %Schema{type: :string, format: :"date-time"})
     end
   end
 
   describe "cast/3 for type: :array" do
     test "from list" do
-      assert {:ok, []} = Cast.cast(%Schema{type: :array}, [], %{})
-      assert {:ok, [1, 2, 3]} = Cast.cast(%Schema{type: :array}, [1,2,3], %{})
-      assert {:ok, [1, "a", true]} = Cast.cast(%Schema{type: :array}, [1, "a", true], %{})
+      assert {:ok, []} = Cast.cast([], %Schema{type: :array})
+      assert {:ok, [1, 2, 3]} = Cast.cast([1,2,3], %Schema{type: :array})
+      assert {:ok, [1, "a", true]} = Cast.cast([1, "a", true], %Schema{type: :array})
 
       int_array = %Schema{type: :array, items: %Schema{type: :integer}}
-      assert {:ok, [1, 2, 3]} = Cast.cast(int_array, [1, 2, 3], %{})
-      assert {:ok, [1, 2, 3]} = Cast.cast(int_array, ["1", "2", "3"], %{})
+      assert {:ok, [1, 2, 3]} = Cast.cast([1, 2, 3], int_array)
+      assert {:ok, [1, 2, 3]} = Cast.cast(["1", "2", "3"], int_array)
     end
     test "from invalid data type" do
-      assert {:error, _} = Cast.cast(%Schema{type: :array}, nil, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :array}, 0, %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :array}, "", %{})
-      assert {:error, _} = Cast.cast(%Schema{type: :array}, "1,2,3", %{})
+      assert {:error, _} = Cast.cast(nil, %Schema{type: :array})
+      assert {:error, _} = Cast.cast(0, %Schema{type: :array})
+      assert {:error, _} = Cast.cast("", %Schema{type: :array})
+      assert {:error, _} = Cast.cast("1,2,3", %Schema{type: :array})
     end
     test "from list with invalid item type" do
       string_array = %Schema{type: :array, items: %Schema{type: :string}}
-      assert {:error, _} = Cast.cast(string_array, [1, 2, 3], %{})
+      assert {:error, _} = Cast.cast([1, 2, 3], string_array)
     end
   end
 
@@ -146,7 +146,7 @@ defmodule OpenApiSpex.CastTest do
         }
       }
 
-      {:ok, output} = Cast.cast(user_request_schema, input, schemas)
+      {:ok, output} = Cast.cast(input, user_request_schema, schemas)
 
       assert output == %OpenApiSpexTest.Schemas.UserRequest{
                user: %OpenApiSpexTest.Schemas.User{
@@ -165,7 +165,7 @@ defmodule OpenApiSpex.CastTest do
 
       input = []
 
-      {:error, _output} = Cast.cast(user_request_schema, input, schemas)
+      {:error, _output} = Cast.cast(input, user_request_schema, schemas)
     end
 
     test "cast/3 with unexpected type for nested object" do
@@ -177,7 +177,7 @@ defmodule OpenApiSpex.CastTest do
         "user" => []
       }
 
-      {:error, _output} = Cast.cast(user_request_schema, input, schemas)
+      {:error, _output} = Cast.cast(input, user_request_schema, schemas)
     end
 
     test "cast/3 with unexpected type for nested array" do
@@ -189,7 +189,7 @@ defmodule OpenApiSpex.CastTest do
         "data" => %{}
       }
 
-      {:error, _output} = Cast.cast(user_response_schema, input, schemas)
+      {:error, _output} = Cast.cast(input, user_response_schema, schemas)
     end
 
     test "cast request schema with unexpected fields returns error" do
@@ -207,7 +207,7 @@ defmodule OpenApiSpex.CastTest do
         }
       }
 
-      assert {:error, _} = Cast.cast(user_request_schema, input, schemas)
+      assert {:error, _} = Cast.cast(input, user_request_schema, schemas)
     end
   end
 
@@ -223,7 +223,7 @@ defmodule OpenApiSpex.CastTest do
       }
 
       assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} =
-               Cast.cast(pet_schema, input, schemas)
+               Cast.cast(input, pet_schema, schemas)
     end
 
     test "Cast Dog from oneOf [cat, dog] schema" do
@@ -237,7 +237,7 @@ defmodule OpenApiSpex.CastTest do
       }
 
       assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} =
-               Cast.cast(cat_or_dog, input, schemas)
+               Cast.cast(input, cat_or_dog, schemas)
     end
 
     test "`oneOf` - Cast number to string or number" do
@@ -248,7 +248,7 @@ defmodule OpenApiSpex.CastTest do
         ]
       }
 
-      result = Cast.cast(schema, "123", %{})
+      result = Cast.cast("123", schema)
 
       assert {:ok, 123.0} = result
     end
@@ -261,7 +261,7 @@ defmodule OpenApiSpex.CastTest do
         ]
       }
 
-      assert {:ok, %DateTime{}} = Cast.cast(schema, "2018-04-01T12:34:56Z", %{})
+      assert {:ok, %DateTime{}} = Cast.cast("2018-04-01T12:34:56Z", schema)
     end
 
     test "`anyOf` - Cast string to anyOf number or datetime" do
@@ -272,7 +272,7 @@ defmodule OpenApiSpex.CastTest do
         ]
       }
 
-      assert {:ok, %DateTime{}} = Cast.cast(schema, "2018-04-01T12:34:56Z", %{})
+      assert {:ok, %DateTime{}} = Cast.cast("2018-04-01T12:34:56Z", schema)
     end
   end
 end

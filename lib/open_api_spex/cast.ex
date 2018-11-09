@@ -2,13 +2,15 @@ defmodule OpenApiSpex.Cast do
   @moduledoc false
   alias OpenApiSpex.{Error, Discriminator, Reference, Schema, Validation}
 
-  def cast(schema, value, schemas) do
-    validation = %Validation{schema: schema, value: value, schemas: schemas}
-
-    case cast(validation) do
+  def simple_cast(value, schema, %{} = schemas) do
+    case cast(value, schema, schemas) do
       {:ok, value} -> {:ok, value}
       {:error, %{errors: [error | _]}} -> {:error, Error.message(error)}
     end
+  end
+
+  def cast(value, schema, %{} = schemas \\ %{}) do
+    cast(%Validation{value: value, schema: schema, schemas: schemas})
   end
 
   def cast(%Validation{schema: %{nullable: true}, value: nil}) do

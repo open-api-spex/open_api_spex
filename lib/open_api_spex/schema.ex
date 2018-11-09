@@ -274,7 +274,9 @@ defmodule OpenApiSpex.Schema do
     - Cast the value using each schema listed in `anyOf`, stopping as soon as a succesful cast is made.
   """
   @spec cast(Schema.t | Reference.t, term, %{String.t => Schema.t | Reference.t}) :: {:ok, term} | {:error, String.t}
-  defdelegate cast(schema, value, schemas), to: Cast
+  def cast(schema, value, schemas) do
+    Cast.simple_cast(value, schema, schemas)
+  end
 
   @doc ~S"""
   Validate a value against a Schema.
