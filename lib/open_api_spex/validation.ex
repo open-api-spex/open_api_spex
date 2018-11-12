@@ -10,7 +10,8 @@ defmodule OpenApiSpex.Validation do
   defstruct schema: nil,
             schemas: [],
             value: nil,
-            errors: []
+            errors: [],
+            path: []
 
   def new(value, %Schema{} = schema, %{} = schemas \\ %{}) do
     %__MODULE__{schema: schema, value: value, schemas: schemas}

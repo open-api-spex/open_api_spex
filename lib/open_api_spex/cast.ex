@@ -2,6 +2,9 @@ defmodule OpenApiSpex.Cast do
   @moduledoc false
   alias OpenApiSpex.{Error, Discriminator, Reference, Schema, Validation}
 
+  @doc """
+  Like cast/3, except the cast error is just a string.
+  """
   def simple_cast(value, schema, %{} = schemas) do
     case cast(value, schema, schemas) do
       {:ok, value} -> {:ok, value}
@@ -42,7 +45,10 @@ defmodule OpenApiSpex.Cast do
       when is_binary(value) do
     case Integer.parse(value) do
       {int_value, ""} -> {:ok, int_value}
-      _ -> {:error, %{validation | errors: [Error.new(:invalid_type, :integer, value)]}}
+      _ ->
+        error = Error.new(:invalid_type, :integer, value)
+        error = %{error | path: validation.path}
+        {:error, %{validation | errors: [error]}}
     end
   end
 
@@ -99,20 +105,29 @@ defmodule OpenApiSpex.Cast do
     {:ok, value}
   end
 
-  def cast(%Validation{schema: %{type: :array}, value: []}) do
-    {:ok, []}
-  end
+  def cast(%Validation{schema: %{type: :array}, value: items} = validation) when is_list(items) do
+    results =
+      items
+      |> Enum.with_index()
+      |> Enum.map(fn {item, index} ->
+        case cast(%{validation | schema: validation.schema.items, value: item, errors: []}) do
+          {:ok, cast_item} -> {:ok, cast_item}
+          {:error, error_validation} -> {:error, add_to_error_paths(error_validation.errors, index)}
+        end
+      end)
 
-  def cast(%Validation{schema: %{type: :array}, value: [item | rest]} = validation) do
-    with {:ok, item_cast} <- cast(%{validation | schema: validation.schema.items, value: item}),
-         {:ok, rest_cast} <- cast(%{validation | value: rest}) do
-      {:ok, [item_cast | rest_cast]}
+    {cast_items, errors} = Enum.split_with(results, &match?({:ok, _cast_item}, &1))
+    cast_items = Enum.map(cast_items, &elem(&1, 1))
+    errors = errors |> Enum.map(&elem(&1, 1)) |> Enum.concat()
+
+    case errors do
+      [] -> {:ok, cast_items}
+      _ -> {:error, %{validation | errors: errors ++ validation.errors}}
     end
   end
 
-  def cast(%Validation{schema: %{type: :array}, value: value} = validation)
-      when not is_list(value) do
-    {:error, %{validation | errors: [Error.new(:invalid_type, :array, value)]}}
+  def cast(%Validation{schema: %{type: :array}, value: value} = validation) when not is_list(value) do
+    {:error, %{validation | errors: [Error.new(:invalid_type, :array, value: value) | validation.errors]}}
   end
 
   def cast(%Validation{schema: %{type: :object}, value: value} = validation)
@@ -261,5 +276,12 @@ defmodule OpenApiSpex.Cast do
       {:ok, derived_schema} -> {:ok, %{validator | schema: derived_schema}}
       {:error, error} -> {:error, %{validator | errors: [error]}}
     end
+  end
+
+  # Add an item to the path of each error
+  defp add_to_error_paths(errors, item) do
+    Enum.map(errors, fn error ->
+      %{error | path: [item | error.path]}
+    end)
   end
 end

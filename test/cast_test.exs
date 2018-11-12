@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Schema, Cast}
+  alias OpenApiSpex.{Cast, Error, Schema, Validation}
   alias OpenApiSpexTest.{ApiSpec, Schemas}
 
   describe "cast/3 from nil" do
@@ -126,6 +126,12 @@ defmodule OpenApiSpex.CastTest do
       int_array = %Schema{type: :array, items: %Schema{type: :integer}}
       assert {:ok, [1, 2, 3]} = Cast.cast([1, 2, 3], int_array)
       assert {:ok, [1, 2, 3]} = Cast.cast(["1", "2", "3"], int_array)
+      assert {:error, validation} = Cast.cast(["1", "2", "a"], int_array)
+      assert %Validation{errors: [error]} = validation
+      assert %Error{} = error
+      assert error.reason == :invalid_type
+      assert error.type == :integer
+      assert error.path == [2]
     end
 
     test "from invalid data type" do
@@ -137,7 +143,18 @@ defmodule OpenApiSpex.CastTest do
 
     test "from list with invalid item type" do
       string_array = %Schema{type: :array, items: %Schema{type: :string}}
-      assert {:error, _} = Cast.cast([1, 2, 3], string_array)
+      assert {:error, validation} = Cast.cast(["string", :invalid], string_array)
+      assert %Validation{errors: [error]} = validation
+      assert %Error{path: path} = error
+      assert path == [1]
+    end
+
+    test "cast/3 with nil items schema, given tuple items" do
+      array_schema = %Schema{type: :array}
+      assert {:error, validation} = Cast.cast({"one", "two"}, array_schema)
+      assert %Validation{errors: [error]} = validation
+      assert %Error{path: path} = error
+      assert path == []
     end
   end
 

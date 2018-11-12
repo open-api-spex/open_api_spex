@@ -1,5 +1,10 @@
 defmodule OpenApiSpex.Error do
-  defstruct [:reason, :value, :format, :type, :name, :path]
+  defstruct reason: nil,
+            value: nil,
+            format: nil,
+            type: nil,
+            name: nil,
+            path: []
 
   def new(:invalid_type, type, value) do
     %__MODULE__{reason: :invalid_type, type: type, value: value}
