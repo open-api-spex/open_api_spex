@@ -18,8 +18,8 @@ defmodule OpenApiSpex.Error do
     %__MODULE__{reason: :invalid_type, format: format, value: value}
   end
 
-  def new(:unexpected_field, value) do
-    %__MODULE__{reason: :unexpected_field, value: value}
+  def new(:unexpected_field, name) do
+    %__MODULE__{reason: :unexpected_field, name: name}
   end
 
   def new(:no_value_required_for_discriminator, property_name) do

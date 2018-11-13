@@ -151,6 +151,7 @@ defmodule OpenApiSpex.Cast do
   end
 
   # With discriminator
+  # A discriminator enables inheritance
   def cast(
         %Validation{
           schema: %{type: :object, discriminator: %{} = discriminator} = schema,
@@ -167,7 +168,7 @@ defmodule OpenApiSpex.Cast do
 
     with false <- already_cast,
          {:ok, partial_cast} <-
-           cast(%{
+          cast_partial_object(%{
              validator
              | schema: %Schema{type: :object, properties: schema.properties},
                value: value
@@ -180,8 +181,6 @@ defmodule OpenApiSpex.Cast do
       {:error, validator} -> {:error, validator}
     end
   end
-
-  # With allOf defined
 
   def cast(%Validation{schema: %{type: :object, allOf: [first | rest]}, value: %{}} = validation) do
     schema = validation.schema
@@ -262,13 +261,40 @@ defmodule OpenApiSpex.Cast do
     cast(%{validation | schema: Reference.resolve_schema(ref, schemas)})
   end
 
+  ## No schema
+
   def cast(%Validation{schema: _additionalProperties = false, value: value} = validation) do
     {:error, %{validation | errors: [Error.new(:unexpected_field, value)]}}
   end
 
-  def cast(%Validation{value: value}), do: {:ok, value}
+  ## Default
+
+  def cast(%Validation{value: value}) do
+    {:ok, value}
+  end
 
   ## Private functions
+
+  # Like cast/1, but pass through unrecognized properties without rejecting them
+  defp cast_partial_object(
+    %Validation{schema: schema = %Schema{type: :object}, value: value, schemas: schemas} =
+      validation
+  )
+  when is_map(value) do
+    schema = %{schema | properties: schema.properties || %{}}
+
+    {regular_properties, others} =
+      value
+      |> no_struct()
+      |> Enum.split_with(fn {k, _v} -> is_binary(k) end)
+
+    with {:ok, props} <- cast_partial_properties(schema, regular_properties, schemas) do
+      result = Map.new(others ++ props) |> make_struct(schema)
+      {:ok, result}
+    else
+      {:error, v} -> {:error, %{validation | errors: v.errors}}
+    end
+  end
 
   defp make_struct(val = %_{}, _), do: val
   defp make_struct(val, %{"x-struct": nil}), do: val
@@ -281,6 +307,7 @@ defmodule OpenApiSpex.Cast do
 
   defp no_struct(val), do: Map.delete(val, :__struct__)
 
+  # Cast properties, allowing only recognized ones
   @spec cast_properties(Schema.t(), list, %{String.t() => Schema.t()}) ::
           {:ok, list} | {:error, Validation.t()}
   defp cast_properties(%Schema{}, [], _schemas), do: {:ok, []}
@@ -295,6 +322,23 @@ defmodule OpenApiSpex.Cast do
 
     with {:ok, new_value} <- cast(%Validation{schema: schema, value: value, schemas: schemas}),
          {:ok, cast_tail} <- cast_properties(object_schema, rest, schemas) do
+      {:ok, [{name, new_value} | cast_tail]}
+    end
+  end
+
+  # Cast properties and allow unrecognized ones to pass through
+  defp cast_partial_properties(%Schema{}, [], _schemas), do: {:ok, []}
+
+  defp cast_partial_properties(object_schema = %Schema{}, [{key, value} | rest], schemas) do
+    {name, schema} =
+      Enum.find(
+        object_schema.properties,
+        {key, object_schema.additionalProperties},
+        fn {name, _schema} -> to_string(name) == to_string(key) end
+      )
+
+    with {:ok, new_value} <- cast(%Validation{schema: schema, value: value, schemas: schemas}),
+         {:ok, cast_tail} <- cast_partial_properties(object_schema, rest, schemas) do
       {:ok, [{name, new_value} | cast_tail]}
     end
   end

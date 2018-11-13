@@ -159,6 +159,29 @@ defmodule OpenApiSpex.CastTest do
   end
 
   describe "cast/3  for type: :object" do
+    test "no properties defined - no keys in input - returns empty map" do
+      assert {:ok, map} = Cast.cast(%{}, %Schema{type: :object})
+      assert map == %{}
+    end
+
+    # test "no properties defined - unexpected key in input - returns error" do
+    #   {:error, _} = Cast.cast(%{"unrecognized" => "hello"}, %Schema{type: :object})
+    # end
+
+    # test "unexpected key in input - returns error"
+    # test "converts string keys to atom keys"
+
+    # test "defined properties - error when unregonized property found in nested object" do
+    #   object_schema = %Schema{
+    #     type: :object,
+    #     properties: %{
+    #       name: %Schema{type: :string}
+    #     }
+    #   }
+    #   input = %{"name" => "one", "unrecognized" => "two"}
+    #   {:error, _} = Cast.cast(input, object_schema)
+    # end
+
     test "cast request schema" do
       api_spec = ApiSpec.spec()
       schemas = api_spec.components.schemas
@@ -234,7 +257,7 @@ defmodule OpenApiSpex.CastTest do
         }
       }
 
-      assert {:error, _} = Cast.cast(input, user_request_schema, schemas)
+      assert {:error, error} = Cast.cast(input, user_request_schema, schemas)
     end
   end
 
@@ -244,13 +267,21 @@ defmodule OpenApiSpex.CastTest do
       schemas = api_spec.components.schemas
       pet_schema = schemas["Pet"]
 
+      # pet_schema:
+      # title: "Pet"
+      # type: :object
+      # "x-struct": OpenApiSpexTest.Schemas.Pet
+      # discriminator: %{propertyName: "pet_type"}
+      # properties: %{pet_type %{type: :string}}
+      # required: [:pet_type]
+
       input = %{
         "pet_type" => "Cat",
         "meow" => "meow"
       }
 
-      assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} =
-               Cast.cast(input, pet_schema, schemas)
+      result = Cast.cast(input, pet_schema, schemas)
+      assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} = result
     end
 
     test "Cast Dog from oneOf [cat, dog] schema" do
