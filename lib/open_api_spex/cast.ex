@@ -16,9 +16,13 @@ defmodule OpenApiSpex.Cast do
     cast(%Validation{value: value, schema: schema, schemas: schemas})
   end
 
+  ## nullable: true, given nil
+
   def cast(%Validation{schema: %{nullable: true}, value: nil}) do
     {:ok, nil}
   end
+
+  ## type: :boolean
 
   def cast(%Validation{schema: %{type: :boolean}, value: value}) when is_boolean(value) do
     {:ok, value}
@@ -36,6 +40,8 @@ defmodule OpenApiSpex.Cast do
   def cast(%Validation{schema: %{type: :boolean}, value: value} = validation) do
     {:error, %{validation | errors: [Error.new(:invalid_type, :boolean, value)]}}
   end
+
+  ## type: :integer
 
   def cast(%Validation{schema: %{type: :integer}, value: value}) when is_integer(value) do
     {:ok, value}
@@ -55,6 +61,8 @@ defmodule OpenApiSpex.Cast do
   def cast(%Validation{schema: %{type: :integer}, value: value} = validation) do
     {:error, %{validation | errors: [Error.new(:invalid_type, :integer, value)]}}
   end
+
+  ## type: :number
 
   def cast(%Validation{schema: %{type: :number, format: fmt}, value: value})
       when is_integer(value) and fmt in [:float, :double] do
@@ -76,6 +84,8 @@ defmodule OpenApiSpex.Cast do
   def cast(%Validation{schema: %{type: :number}, value: value} = validation) do
     {:error, %{validation | errors: [Error.new(:invalid_type, :number, value)]}}
   end
+
+  ## type: :string
 
   def cast(%Validation{schema: %{type: :string, format: :"date-time"}, value: value} = validation)
       when is_binary(value) do
@@ -100,6 +110,8 @@ defmodule OpenApiSpex.Cast do
   def cast(%Validation{schema: %{type: :string}, value: value} = validation) do
     {:error, %{validation | errors: [Error.new(:invalid_type, :string, value)]}}
   end
+
+  ## type: :array
 
   def cast(%Validation{schema: %{type: :array, items: nil}, value: value}) when is_list(value) do
     {:ok, value}
@@ -130,11 +142,15 @@ defmodule OpenApiSpex.Cast do
     {:error, %{validation | errors: [Error.new(:invalid_type, :array, value: value) | validation.errors]}}
   end
 
+  ## type: :object
+
+  # Unexpected type instead of map
   def cast(%Validation{schema: %{type: :object}, value: value} = validation)
       when not is_map(value) do
     {:error, %{validation | errors: [Error.new(:invalid_type, :object, value)]}}
   end
 
+  # With discriminator
   def cast(
         %Validation{
           schema: %{type: :object, discriminator: %{} = discriminator} = schema,
@@ -165,6 +181,8 @@ defmodule OpenApiSpex.Cast do
     end
   end
 
+  # With allOf defined
+
   def cast(%Validation{schema: %{type: :object, allOf: [first | rest]}, value: %{}} = validation) do
     schema = validation.schema
 
@@ -180,6 +198,8 @@ defmodule OpenApiSpex.Cast do
       ) do
     cast(%{validation | schema: %{schema | allOf: nil}, value: value})
   end
+
+  ## With oneOf defined
 
   def cast(
         %Validation{schema: %{oneOf: [first | rest]} = schema, value: value, schemas: schemas} =
@@ -198,6 +218,8 @@ defmodule OpenApiSpex.Cast do
     {:error, %{validation | errors: [Error.new(:polymorphic_failed, value, :oneOf)]}}
   end
 
+  ## With anyOf defined
+
   def cast(%Validation{schema: schema = %Schema{anyOf: [first | rest]}} = validation) do
     case cast(%{validation | schema: first}) do
       {:ok, result} ->
@@ -211,6 +233,8 @@ defmodule OpenApiSpex.Cast do
   def cast(%Validation{schema: %{anyOf: []}, value: value} = validation) do
     {:error, %{validation | errors: [Error.new(:polymorphic_failed, value, :anyOf)]}}
   end
+
+  ## Fallback type: object
 
   def cast(
         %Validation{schema: schema = %Schema{type: :object}, value: value, schemas: schemas} =
@@ -232,6 +256,8 @@ defmodule OpenApiSpex.Cast do
     end
   end
 
+  ## schema: %Reference{}
+
   def cast(%Validation{schema: ref = %Reference{}, schemas: schemas} = validation) do
     cast(%{validation | schema: Reference.resolve_schema(ref, schemas)})
   end
@@ -241,6 +267,8 @@ defmodule OpenApiSpex.Cast do
   end
 
   def cast(%Validation{value: value}), do: {:ok, value}
+
+  ## Private functions
 
   defp make_struct(val = %_{}, _), do: val
   defp make_struct(val, %{"x-struct": nil}), do: val
