@@ -171,16 +171,16 @@ defmodule OpenApiSpex.CastTest do
     # test "unexpected key in input - returns error"
     # test "converts string keys to atom keys"
 
-    # test "defined properties - error when unregonized property found in nested object" do
-    #   object_schema = %Schema{
-    #     type: :object,
-    #     properties: %{
-    #       name: %Schema{type: :string}
-    #     }
-    #   }
-    #   input = %{"name" => "one", "unrecognized" => "two"}
-    #   {:error, _} = Cast.cast(input, object_schema)
-    # end
+    test "defined properties - error when unregonized property found in nested object" do
+      object_schema = %Schema{
+        type: :object,
+        properties: %{
+          name: %Schema{type: :string}
+        }
+      }
+      input = %{"name" => "one", "unrecognized" => "two"}
+      {:error, _} = Cast.cast(input, object_schema)
+    end
 
     test "cast request schema" do
       api_spec = ApiSpec.spec()

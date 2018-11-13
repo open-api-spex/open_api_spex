@@ -320,9 +320,20 @@ defmodule OpenApiSpex.Cast do
         fn {name, _schema} -> to_string(name) == to_string(key) end
       )
 
-    with {:ok, new_value} <- cast(%Validation{schema: schema, value: value, schemas: schemas}),
-         {:ok, cast_tail} <- cast_properties(object_schema, rest, schemas) do
-      {:ok, [{name, new_value} | cast_tail]}
+    if schema do
+      with {:ok, new_value} <- cast(%Validation{schema: schema, value: value, schemas: schemas}),
+            {:ok, cast_tail} <- cast_properties(object_schema, rest, schemas) do
+        {:ok, [{name, new_value} | cast_tail]}
+      end
+    else
+      error = %Validation{
+        schema: object_schema,
+        schemas: schemas,
+        value: value,
+        errors: [Error.new(:unexpected_field, key)]
+      }
+
+      {:error, error}
     end
   end
 
