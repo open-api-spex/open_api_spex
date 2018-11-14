@@ -22,127 +22,7 @@ defmodule OpenApiSpex.SchemaTest do
     end
   end
 
-  describe "Cast nil" do
-    test "to nullable type" do
-      assert {:ok, nil} = Schema.cast(%Schema{nullable: true}, nil, %{})
-      assert {:ok, nil} = Schema.cast(%Schema{type: :integer, nullable: true}, nil, %{})
-      assert {:ok, nil} = Schema.cast(%Schema{type: :string, nullable: true}, nil, %{})
-    end
-
-    test "to non-nullable type" do
-      assert {:error, _} = Schema.cast(%Schema {type: :string}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema {type: :integer}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema {type: :object}, nil, %{})
-    end
-  end
-
-  describe "Cast boolean" do
-    test "from boolean" do
-      assert {:ok, true} = Schema.cast(%Schema{type: :boolean}, true, %{})
-      assert {:ok, false} = Schema.cast(%Schema{type: :boolean}, false, %{})
-    end
-
-    test "from string" do
-      assert {:ok, true} = Schema.cast(%Schema{type: :boolean}, "true", %{})
-      assert {:ok, false} = Schema.cast(%Schema{type: :boolean}, "false", %{})
-    end
-
-    test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :boolean}, "not a bool", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :boolean}, 1, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :boolean}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :boolean}, [true], %{})
-    end
-  end
-
-  describe "Cast integer" do
-    test "from integer" do
-      assert {:ok, -1} = Schema.cast(%Schema{type: :integer}, -1, %{})
-      assert {:ok, 0} = Schema.cast(%Schema{type: :integer}, 0, %{})
-      assert {:ok, 1} = Schema.cast(%Schema{type: :integer}, 1, %{})
-      assert {:ok, 12345} = Schema.cast(%Schema{type: :integer}, 12345, %{})
-    end
-
-    test "from string" do
-      assert {:ok, -1} = Schema.cast(%Schema{type: :integer}, "-1", %{})
-      assert {:ok, 0} = Schema.cast(%Schema{type: :integer}, "0", %{})
-      assert {:ok, 1} = Schema.cast(%Schema{type: :integer}, "1", %{})
-      assert {:ok, 12345} = Schema.cast(%Schema{type: :integer}, "12345", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "not an int", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "3.14159", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "", %{})
-    end
-
-    test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, true, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, 3.14159, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, [1, 2], %{})
-    end
-  end
-
-  describe "Cast number" do
-    test "from number" do
-      assert {:ok, -1.0} = Schema.cast(%Schema{type: :number, format: :float}, -1, %{})
-      assert {:ok, -1.0} = Schema.cast(%Schema{type: :number, format: :double}, -1, %{})
-      assert {:ok, -1} = Schema.cast(%Schema{type: :number}, -1, %{})
-      assert {:ok, 0.0} = Schema.cast(%Schema{type: :number}, 0.0, %{})
-      assert {:ok, 1.0} = Schema.cast(%Schema{type: :number}, 1.0, %{})
-      assert {:ok, 123.45} = Schema.cast(%Schema{type: :number}, 123.45, %{})
-    end
-    test "from string" do
-      assert {:ok, -1.0} = Schema.cast(%Schema{type: :number}, "-1", %{})
-      assert {:ok, 0.0} = Schema.cast(%Schema{type: :number}, "0.0", %{})
-      assert {:ok, 1.0} = Schema.cast(%Schema{type: :number}, "1.0", %{})
-      assert {:ok, 123.45} = Schema.cast(%Schema{type: :number}, "123.45", %{})
-    end
-    test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, false, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, "", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, "not a number", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, [], %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, [1.0, 2.0], %{})
-    end
-  end
-
-  describe "cast string" do
-    test "from string" do
-      assert {:ok, ""} = Schema.cast(%Schema{type: :string}, "", %{})
-      assert {:ok, "  "} = Schema.cast(%Schema{type: :string}, "  ", %{})
-      assert {:ok, "hello"} = Schema.cast(%Schema{type: :string}, "hello", %{})
-    end
-    test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :string}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :string}, [], %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :string}, :an_atom, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :string}, 0, %{})
-    end
-  end
-
-  describe "cast array" do
-    test "from list" do
-      assert {:ok, []} = Schema.cast(%Schema{type: :array}, [], %{})
-      assert {:ok, [1, 2, 3]} = Schema.cast(%Schema{type: :array}, [1,2,3], %{})
-      assert {:ok, [1, "a", true]} = Schema.cast(%Schema{type: :array}, [1, "a", true], %{})
-
-      int_array = %Schema{type: :array, items: %Schema{type: :integer}}
-      assert {:ok, [1, 2, 3]} = Schema.cast(int_array, [1, 2, 3], %{})
-      assert {:ok, [1, 2, 3]} = Schema.cast(int_array, ["1", "2", "3"], %{})
-    end
-    test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :array}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :array}, 0, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :array}, "", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :array}, "1,2,3", %{})
-    end
-    test "from list with invalid item type" do
-      string_array = %Schema{type: :array, items: %Schema{type: :string}}
-      assert {:error, _} = Schema.cast(string_array, [1, 2, 3], %{})
-    end
-  end
-
-  describe "Cast object" do
+  describe "cast/3" do
     test "cast request schema" do
       api_spec = ApiSpec.spec()
       schemas = api_spec.components.schemas
@@ -220,9 +100,7 @@ defmodule OpenApiSpex.SchemaTest do
 
       assert {:error, _} = Schema.cast(user_request_schema, input, schemas)
     end
-  end
 
-  describe "Polymorphic cast" do
     test "Cast Cat from Pet schema" do
       api_spec = ApiSpec.spec()
       schemas = api_spec.components.schemas
@@ -277,7 +155,7 @@ defmodule OpenApiSpex.SchemaTest do
 
     test "Cast string to anyOf number or datetime" do
       schema = %Schema{
-        anyOf: [
+        oneOf: [
           %Schema{type: :number},
           %Schema{type: :string, format: :"date-time"}
         ]
