@@ -319,9 +319,6 @@ defmodule OpenApiSpex.Schema do
   def cast(%Schema{type: :array}, value, _schemas) when not is_list(value) do
     {:error, "Invalid array: #{inspect(value)}"}
   end
-  def cast(%Schema{type: :object}, value, _schemas) when not is_map(value) do
-    {:error, "Invalid object: #{inspect(value)}"}
-  end
   def cast(schema = %Schema{type: :object, discriminator: discriminator = %{}}, value = %{}, schemas) do
     discriminator_property = String.to_existing_atom(discriminator.propertyName)
     already_cast? =
