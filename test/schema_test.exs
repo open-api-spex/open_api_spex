@@ -30,9 +30,9 @@ defmodule OpenApiSpex.SchemaTest do
     end
 
     test "to non-nullable type" do
-      assert {:error, _} = Schema.cast(%Schema {type: :string}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema {type: :integer}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema {type: :object}, nil, %{})
+      assert {:error, "Invalid string: nil"} = Schema.cast(%Schema {type: :string}, nil, %{})
+      assert {:error, "Invalid integer: nil"} = Schema.cast(%Schema {type: :integer}, nil, %{})
+      assert {:error, "Invalid object: nil"} = Schema.cast(%Schema {type: :object}, nil, %{})
     end
   end
 
@@ -48,10 +48,10 @@ defmodule OpenApiSpex.SchemaTest do
     end
 
     test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :boolean}, "not a bool", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :boolean}, 1, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :boolean}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :boolean}, [true], %{})
+      assert {:error, "Invalid boolean: \"not a bool\""} = Schema.cast(%Schema{type: :boolean}, "not a bool", %{})
+      assert {:error, "Invalid boolean: 1"} = Schema.cast(%Schema{type: :boolean}, 1, %{})
+      assert {:error, "Invalid boolean: nil"} = Schema.cast(%Schema{type: :boolean}, nil, %{})
+      assert {:error, "Invalid boolean: [true]"} = Schema.cast(%Schema{type: :boolean}, [true], %{})
     end
   end
 
@@ -68,16 +68,16 @@ defmodule OpenApiSpex.SchemaTest do
       assert {:ok, 0} = Schema.cast(%Schema{type: :integer}, "0", %{})
       assert {:ok, 1} = Schema.cast(%Schema{type: :integer}, "1", %{})
       assert {:ok, 12345} = Schema.cast(%Schema{type: :integer}, "12345", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "not an int", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "3.14159", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, "", %{})
+      assert {:error, "Invalid integer: \"not an int\""} = Schema.cast(%Schema{type: :integer}, "not an int", %{})
+      assert {:error, "Invalid integer: \"3.14159\""} = Schema.cast(%Schema{type: :integer}, "3.14159", %{})
+      assert {:error, "Invalid integer: \"\""} = Schema.cast(%Schema{type: :integer}, "", %{})
     end
 
     test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, true, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, 3.14159, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :integer}, [1, 2], %{})
+      assert {:error, "Invalid integer: true"} = Schema.cast(%Schema{type: :integer}, true, %{})
+      assert {:error, "Invalid integer: 3.14159"} = Schema.cast(%Schema{type: :integer}, 3.14159, %{})
+      assert {:error, "Invalid integer: nil"} = Schema.cast(%Schema{type: :integer}, nil, %{})
+      assert {:error, "Invalid integer: [1, 2]"} = Schema.cast(%Schema{type: :integer}, [1, 2], %{})
     end
   end
 
@@ -97,12 +97,12 @@ defmodule OpenApiSpex.SchemaTest do
       assert {:ok, 123.45} = Schema.cast(%Schema{type: :number}, "123.45", %{})
     end
     test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, false, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, "", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, "not a number", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, [], %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :number}, [1.0, 2.0], %{})
+      assert {:error, "Invalid number: nil"} = Schema.cast(%Schema{type: :number}, nil, %{})
+      assert {:error, "Invalid number: false"} = Schema.cast(%Schema{type: :number}, false, %{})
+      assert {:error, "Invalid number: \"\""} = Schema.cast(%Schema{type: :number}, "", %{})
+      assert {:error, "Invalid number: \"not a number\""} = Schema.cast(%Schema{type: :number}, "not a number", %{})
+      assert {:error, "Invalid number: []"} = Schema.cast(%Schema{type: :number}, [], %{})
+      assert {:error, "Invalid number: [1.0, 2.0]"} = Schema.cast(%Schema{type: :number}, [1.0, 2.0], %{})
     end
   end
 
@@ -113,10 +113,10 @@ defmodule OpenApiSpex.SchemaTest do
       assert {:ok, "hello"} = Schema.cast(%Schema{type: :string}, "hello", %{})
     end
     test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :string}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :string}, [], %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :string}, :an_atom, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :string}, 0, %{})
+      assert {:error, "Invalid string: nil"} = Schema.cast(%Schema{type: :string}, nil, %{})
+      assert {:error, "Invalid string: []"} = Schema.cast(%Schema{type: :string}, [], %{})
+      assert {:error, "Invalid string: :an_atom"} = Schema.cast(%Schema{type: :string}, :an_atom, %{})
+      assert {:error, "Invalid string: 0"} = Schema.cast(%Schema{type: :string}, 0, %{})
     end
   end
 
@@ -131,14 +131,14 @@ defmodule OpenApiSpex.SchemaTest do
       assert {:ok, [1, 2, 3]} = Schema.cast(int_array, ["1", "2", "3"], %{})
     end
     test "from invalid data type" do
-      assert {:error, _} = Schema.cast(%Schema{type: :array}, nil, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :array}, 0, %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :array}, "", %{})
-      assert {:error, _} = Schema.cast(%Schema{type: :array}, "1,2,3", %{})
+      assert {:error, "Invalid array: nil"} = Schema.cast(%Schema{type: :array}, nil, %{})
+      assert {:error, "Invalid array: 0"} = Schema.cast(%Schema{type: :array}, 0, %{})
+      assert {:error, "Invalid array: \"\""} = Schema.cast(%Schema{type: :array}, "", %{})
+      assert {:error, "Invalid array: \"1,2,3\""} = Schema.cast(%Schema{type: :array}, "1,2,3", %{})
     end
     test "from list with invalid item type" do
       string_array = %Schema{type: :array, items: %Schema{type: :string}}
-      assert {:error, _} = Schema.cast(string_array, [1, 2, 3], %{})
+      assert {:error, "Invalid string: 1"} = Schema.cast(string_array, [1, 2, 3], %{})
     end
   end
 
@@ -176,7 +176,7 @@ defmodule OpenApiSpex.SchemaTest do
 
       input = []
 
-      {:error, _output} = Schema.cast(user_request_schema, input, schemas)
+      {:error, "Invalid object: []"} = Schema.cast(user_request_schema, input, schemas)
     end
 
     test "cast/3 with unexpected type for nested object" do
@@ -188,7 +188,7 @@ defmodule OpenApiSpex.SchemaTest do
         "user" => []
       }
 
-      {:error, _output} = Schema.cast(user_request_schema, input, schemas)
+      {:error, "Invalid object: []"} = Schema.cast(user_request_schema, input, schemas)
     end
 
     test "cast/3 with unexpected type for nested array" do
@@ -200,7 +200,7 @@ defmodule OpenApiSpex.SchemaTest do
         "data" => %{}
       }
 
-      {:error, _output} = Schema.cast(user_response_schema, input, schemas)
+      {:error, "Invalid array: %{}"} = Schema.cast(user_response_schema, input, schemas)
     end
 
     test "cast request schema with unexpected fields returns error" do
@@ -218,7 +218,7 @@ defmodule OpenApiSpex.SchemaTest do
         }
       }
 
-      assert {:error, _} = Schema.cast(user_request_schema, input, schemas)
+      assert {:error, "Unexpected field with value \"unexpected value\""} = Schema.cast(user_request_schema, input, schemas)
     end
   end
 
@@ -293,7 +293,7 @@ defmodule OpenApiSpex.SchemaTest do
         type: :integer
       }
 
-      assert {:error, _} = Schema.validate(schema, %{}, %{})
+      assert {:error, "#: invalid type object where integer expected"} = Schema.validate(schema, %{}, %{})
     end
   end
 
@@ -303,7 +303,7 @@ defmodule OpenApiSpex.SchemaTest do
         type: :integer
       }
 
-      assert {:error, _} = Schema.validate(schema, %{}, %{})
+      assert {:error, "#: invalid type object where integer expected"} = Schema.validate(schema, %{}, %{})
     end
   end
 
@@ -313,7 +313,7 @@ defmodule OpenApiSpex.SchemaTest do
         type: :string
       }
 
-      assert {:error, _} = Schema.validate(schema, %{}, %{})
+      assert {:error, "#: invalid type object where string expected"} = Schema.validate(schema, %{}, %{})
     end
 
     test "Validate schema type string when value is DateTime" do
@@ -321,7 +321,7 @@ defmodule OpenApiSpex.SchemaTest do
         type: :string
       }
 
-      assert {:error, _} = Schema.validate(schema, DateTime.utc_now(), %{})
+      assert {:error, "#: invalid type DateTime where string expected"} = Schema.validate(schema, DateTime.utc_now(), %{})
     end
 
     test "Validate non-empty string with expected value" do
@@ -359,7 +359,7 @@ defmodule OpenApiSpex.SchemaTest do
         enum: ["foo", "bar"]
       }
 
-      assert {:error, _} = Schema.validate(schema, "baz", %{})
+      assert {:error, "#: Value not in enum: \"baz\""} = Schema.validate(schema, "baz", %{})
     end
 
     test "Validate string enum with expected value" do
@@ -378,7 +378,7 @@ defmodule OpenApiSpex.SchemaTest do
         type: :object
       }
 
-      assert {:error, _} = Schema.validate(schema, [], %{})
+      assert {:error, "#: invalid type array where object expected"} = Schema.validate(schema, [], %{})
     end
 
     test "Validate schema type object when value is DateTime" do
@@ -386,7 +386,7 @@ defmodule OpenApiSpex.SchemaTest do
         type: :object
       }
 
-      assert {:error, _} = Schema.validate(schema, DateTime.utc_now(), %{})
+      assert {:error, "#: invalid type DateTime where object expected"} = Schema.validate(schema, DateTime.utc_now(), %{})
     end
   end
 
@@ -396,7 +396,7 @@ defmodule OpenApiSpex.SchemaTest do
         type: :array
       }
 
-      assert {:error, _} = Schema.validate(schema, %{}, %{})
+      assert {:error, "#: invalid type object where array expected"} = Schema.validate(schema, %{}, %{})
     end
   end
 
@@ -406,7 +406,7 @@ defmodule OpenApiSpex.SchemaTest do
         type: :boolean
       }
 
-      assert {:error, _} = Schema.validate(schema, %{}, %{})
+      assert {:error, "#: invalid type object where boolean expected"} = Schema.validate(schema, %{}, %{})
     end
   end
 
@@ -441,7 +441,7 @@ defmodule OpenApiSpex.SchemaTest do
         ]
       }
 
-      assert {:error, _} = Schema.validate(schema, 3.14159, %{})
+      assert {:error, "#: Failed to validate against any schema"} = Schema.validate(schema, 3.14159, %{})
     end
   end
 
@@ -465,7 +465,7 @@ defmodule OpenApiSpex.SchemaTest do
         ]
       }
 
-      assert {:error, _} = Schema.validate(schema, 3.14159, %{})
+      assert {:error, "#: Failed to validate against any schema"} = Schema.validate(schema, 3.14159, %{})
     end
 
     test "Validate oneOf schema when matching multiple schemas" do
@@ -476,7 +476,7 @@ defmodule OpenApiSpex.SchemaTest do
         ]
       }
 
-      assert {:error, _} = Schema.validate(schema, %{a: "a", b: "b"}, %{})
+      assert {:error, "#: Validated against 2 schemas when only one expected"} = Schema.validate(schema, %{a: "a", b: "b"}, %{})
     end
   end
 
@@ -501,8 +501,7 @@ defmodule OpenApiSpex.SchemaTest do
       }
 
       assert {:error, msg} = Schema.validate(schema, %{a: 1, b: 2}, %{})
-      assert msg =~ "#/a"
-      assert msg =~ "#/b"
+      assert msg == "#/a: invalid type integer where string expected\n#/b: invalid type integer where string expected"
     end
 
     test "Validate allOf with value matching not all schemas" do
@@ -519,7 +518,7 @@ defmodule OpenApiSpex.SchemaTest do
         ]
       }
 
-      assert {:error, _} = Schema.validate(schema, 42, %{})
+      assert {:error, "#: 42 is larger than maximum 40"} = Schema.validate(schema, 42, %{})
     end
   end
 
@@ -537,7 +536,7 @@ defmodule OpenApiSpex.SchemaTest do
         not: %Schema{type: :object}
       }
 
-      assert {:error, _} = Schema.validate(schema, %{a: 1}, %{})
+      assert {:error, "#: Value is valid for schema given in `not`"} = Schema.validate(schema, %{a: 1}, %{})
     end
 
     test "Verify 'not' validation" do
@@ -548,8 +547,8 @@ defmodule OpenApiSpex.SchemaTest do
       assert :ok = Schema.validate(schema, 4.2, %{})
       assert :ok = Schema.validate(schema, [4], %{})
       assert :ok = Schema.validate(schema, %{}, %{})
-      assert {:error, _} = Schema.validate(schema, true, %{})
-      assert {:error, _} = Schema.validate(schema, false, %{})
+      assert {:error, "#: Value is valid for schema given in `not`"} = Schema.validate(schema, true, %{})
+      assert {:error, "#: Value is valid for schema given in `not`"} = Schema.validate(schema, false, %{})
     end
   end
 
