@@ -643,6 +643,9 @@ defmodule OpenApiSpex.Schema do
   defp validate_maximum(%{maximum: n, exclusiveMaximum: true}, value, _path) when value < n,
     do: :ok
 
+  defp validate_maximum(%{maximum: n, exclusiveMaximum: true}, value, path),
+    do: {:error, "#{path}: #{value} is larger than the exclusive maximum #{n}"}
+
   defp validate_maximum(%{maximum: n}, value, _path) when value <= n, do: :ok
 
   defp validate_maximum(%{maximum: n}, value, path),
@@ -653,6 +656,9 @@ defmodule OpenApiSpex.Schema do
 
   defp validate_minimum(%{minimum: n, exclusiveMinimum: true}, value, _path) when value > n,
     do: :ok
+
+  defp validate_minimum(%{minimum: n, exclusiveMinimum: true}, value, path),
+    do: {:error, "#{path}: #{value} is smaller than the exclusive minimum #{n}"}
 
   defp validate_minimum(%{minimum: n}, value, _path) when value >= n, do: :ok
 
