@@ -4,6 +4,9 @@ defmodule OpenApiSpex.CastPrimitive do
 
   def cast(value, _schema, _schemas \\ %{})
 
+  def cast(nil, %{nullable: true}, _schemas),
+    do: {:ok, nil}
+
   def cast(value, %{type: :boolean}, _schemas),
     do: cast_boolean(value)
 

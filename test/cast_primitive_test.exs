@@ -4,6 +4,23 @@ defmodule OpenApiSpex.CastPrimitiveTest do
   import OpenApiSpex.CastPrimitive
 
   describe "cast/3" do
+    @types [:boolean, :integer, :number, :string]
+    for type <- @types do
+      @type_value type
+      test "nil input for nullable:true, type:#{type}" do
+        schema = %Schema{type: @type_value, nullable: true}
+        assert cast(nil, schema) == {:ok, nil}
+      end
+
+      test "nil input for nullable:false, type:#{type}" do
+        schema = %Schema{type: @type_value, nullable: false}
+        assert {:error, error} = cast(nil, schema)
+        assert %Error{} = error
+        assert error.reason == :invalid_type
+        assert error.value == nil
+      end
+    end
+
     test "boolean" do
       schema = %Schema{type: :boolean}
       assert cast(true, schema) == {:ok, true}
