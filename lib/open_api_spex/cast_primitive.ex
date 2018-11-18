@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastPrimitive do
   @moduledoc false
-  alias OpenApiSpex.CastContext
+  alias OpenApiSpex.{CastContext, CastString}
 
   def cast(%{schema: %{type: :boolean}} = ctx),
     do: cast_boolean(ctx)
@@ -12,7 +12,7 @@ defmodule OpenApiSpex.CastPrimitive do
     do: cast_number(ctx)
 
   def cast(%{schema: %{type: :string}} = ctx),
-    do: cast_string(ctx)
+    do: CastString.cast(ctx)
 
   ## Private functions
 
@@ -63,22 +63,5 @@ defmodule OpenApiSpex.CastPrimitive do
 
   defp cast_number(ctx) do
     CastContext.error(ctx, {:invalid_type, :number})
-  end
-
-  defp cast_string(%{value: value, schema: %{pattern: pattern}} = ctx)
-       when not is_nil(pattern) and is_binary(value) do
-    if Regex.match?(pattern, value) do
-      {:ok, value}
-    else
-      CastContext.error(ctx, {:invalid_format, pattern})
-    end
-  end
-
-  defp cast_string(%{value: value}) when is_binary(value) do
-    {:ok, value}
-  end
-
-  defp cast_string(ctx) do
-    CastContext.error(ctx, {:invalid_type, :string})
   end
 end

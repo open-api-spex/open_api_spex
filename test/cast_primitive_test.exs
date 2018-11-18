@@ -38,6 +38,7 @@ defmodule OpenApiSpex.CastPrimitiveTest do
       assert error.value == "other"
     end
 
+    # Additional string tests are covered in CastStringTest
     test "string" do
       schema = %Schema{type: :string}
       assert cast(value: "hello", schema: schema) == {:ok, "hello"}
@@ -45,15 +46,6 @@ defmodule OpenApiSpex.CastPrimitiveTest do
       assert {:error, [error]} = cast(value: %{}, schema: schema)
       assert %CastError{reason: :invalid_type} = error
       assert error.value == %{}
-    end
-
-    test "string with pattern" do
-      schema = %Schema{type: :string, pattern: ~r/\d-\d/}
-      assert cast(value: "1-2", schema: schema) == {:ok, "1-2"}
-      assert {:error, [error]} = cast(value: "hello", schema: schema)
-      assert error.reason == :invalid_format
-      assert error.value == "hello"
-      assert error.format == ~r/\d-\d/
     end
   end
 end
