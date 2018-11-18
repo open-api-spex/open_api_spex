@@ -67,7 +67,7 @@ defmodule OpenApiSpex.CastPrimitiveTest do
     test "string with pattern" do
       schema = %Schema{type: :string, pattern: ~r/\d-\d/}
       assert cast(value: "1-2", schema: schema) == {:ok, "1-2"}
-      assert {:error, error} = cast(value: "hello", schema: schema)
+      assert {:error, [error]} = cast(value: "hello", schema: schema)
       assert error.reason == :invalid_format
       assert error.value == "hello"
       assert error.format == ~r/\d-\d/

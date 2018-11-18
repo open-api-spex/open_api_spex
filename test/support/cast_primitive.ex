@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastPrimitive do
   @moduledoc false
-  alias OpenApiSpex.Error
+  alias OpenApiSpex.CastContext
 
   def cast(%{value: nil, schema: %{nullable: true}}),
     do: {:ok, nil}
@@ -27,7 +27,7 @@ defmodule OpenApiSpex.CastPrimitive do
   defp cast_boolean(%{value: "false"}), do: {:ok, false}
 
   defp cast_boolean(ctx) do
-    error(:invalid_type, :boolean, ctx)
+    CastContext.error(ctx, {:invalid_type, :boolean})
   end
 
   defp cast_integer(%{value: value}) when is_integer(value) do
@@ -41,12 +41,12 @@ defmodule OpenApiSpex.CastPrimitive do
   defp cast_integer(%{value: value} = ctx) when is_binary(value) do
     case Float.parse(value) do
       {value, ""} -> cast_integer(%{ctx | value: value})
-      _ -> error(:invalid_type, :integer, ctx)
+      _ -> CastContext.error(ctx, {:invalid_type, :integer})
     end
   end
 
   defp cast_integer(ctx) do
-    error(:invalid_type, :integer, ctx)
+    CastContext.error(ctx, {:invalid_type, :integer})
   end
 
   defp cast_number(%{value: value}) when is_number(value) do
@@ -60,20 +60,20 @@ defmodule OpenApiSpex.CastPrimitive do
   defp cast_number(%{value: value} = ctx) when is_binary(value) do
     case Float.parse(value) do
       {value, ""} -> {:ok, value}
-      _ -> error(:invalid_type, :number, ctx)
+      _ -> CastContext.error(ctx, {:invalid_type, :number})
     end
   end
 
   defp cast_number(ctx) do
-    error(:invalid_type, :number, ctx)
+    CastContext.error(ctx, {:invalid_type, :number})
   end
 
-  defp cast_string(%{value: value, schema: %{pattern: pattern}})
+  defp cast_string(%{value: value, schema: %{pattern: pattern}} = ctx)
        when not is_nil(pattern) and is_binary(value) do
     if Regex.match?(pattern, value) do
       {:ok, value}
     else
-      {:error, Error.new(:invalid_format, pattern, value)}
+      CastContext.error(ctx, {:invalid_format, pattern})
     end
   end
 
@@ -82,12 +82,6 @@ defmodule OpenApiSpex.CastPrimitive do
   end
 
   defp cast_string(ctx) do
-    error(:invalid_type, :string, ctx)
-  end
-
-  defp error(:invalid_type, expected_type, ctx) do
-    error = Error.new(:invalid_type, expected_type, ctx.value)
-    error = %{error | path: Enum.reverse(ctx.path)}
-    {:error, [error | ctx.errors]}
+    CastContext.error(ctx, {:invalid_type, :string})
   end
 end
