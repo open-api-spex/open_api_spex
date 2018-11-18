@@ -89,5 +89,59 @@ defmodule OpenApiSpec.CastTest do
                schemas: %{"Age" => age_schema}
              ) == {:ok, %{age: 20}}
     end
+
+    test "paths" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          age: %Schema{type: :integer}
+        }
+      }
+
+      assert {:error, error} = cast(value: %{"age" => "twenty"}, schema: schema)
+      assert %Error{} = error
+      assert error.path == [:age]
+    end
+
+    test "nested paths" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          data: %Schema{
+            type: :object,
+            properties: %{
+              age: %Schema{type: :integer}
+            }
+          }
+        }
+      }
+
+      assert {:error, error} = cast(value: %{"data" => %{"age" => "twenty"}}, schema: schema)
+      assert %Error{} = error
+      assert error.path == [:data, :age]
+    end
+
+    test "paths involving arrays" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          data: %Schema{
+            type: :array,
+            items: %Schema{
+              type: :object,
+              properties: %{
+                age: %Schema{type: :integer}
+              }
+            }
+          }
+        }
+      }
+
+      assert {:error, error} =
+               cast(value: %{"data" => [%{"age" => "20"}, %{"age" => "twenty"}]}, schema: schema)
+
+      assert %Error{} = error
+      assert error.path == [:data, 1, :age]
+    end
   end
 end
