@@ -15,12 +15,29 @@ defmodule OpenApiSpex.Cast do
     cast(%{ctx | schema: schema})
   end
 
+  # nullable
   def cast(%CastContext{value: nil, schema: %{nullable: true}}) do
     {:ok, nil}
   end
 
+  # nullable
   def cast(%CastContext{value: nil} = ctx) do
     CastContext.error(ctx, {:null_value})
+  end
+
+  # Enum
+  def cast(%CastContext{schema: %{enum: []}} = ctx) do
+    cast(%{ctx | enum: nil})
+  end
+
+  def cast(%CastContext{schema: %{enum: enum}} = ctx) when is_list(enum) do
+    with {:ok, value} <- cast(%{ctx | schema: %{ctx.schema | enum: nil}}) do
+      if value in enum do
+        {:ok, value}
+      else
+        CastContext.error(ctx, {:invalid_enum})
+      end
+    end
   end
 
   # Specific types

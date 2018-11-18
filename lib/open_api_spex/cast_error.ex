@@ -25,6 +25,11 @@ defmodule OpenApiSpex.CastError do
     |> add_context_fields(ctx)
   end
 
+  def new(ctx, {:invalid_enum}) do
+    %__MODULE__{reason: :invalid_enum}
+    |> add_context_fields(ctx)
+  end
+
   def new(ctx, {:unexpected_field, name}) do
     %__MODULE__{reason: :unexpected_field, name: name}
     |> add_context_fields(ctx)
@@ -51,6 +56,10 @@ defmodule OpenApiSpex.CastError do
 
   def message(%{reason: :invalid_format, format: format}) do
     "Invalid format. Expected #{inspect(format)}"
+  end
+
+  def message(%{reason: :invalid_enum}) do
+    "Invalid value for enum"
   end
 
   def message(%{reason: :polymorphic_failed, type: polymorphic_type}) do
