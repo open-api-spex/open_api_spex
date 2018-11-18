@@ -45,8 +45,8 @@ defmodule OpenApiSpec.CastTest do
       assert cast(value: [1, 2, 3], schema: schema) == {:ok, [1, 2, 3]}
       assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, [1, 2, 3]}
 
-      assert {:error, error} = cast(value: [1, "two"], schema: schema)
-      assert %Error{} = error
+      assert {:error, errors} = cast(value: [1, "two"], schema: schema)
+      assert [%Error{} = error] = errors
       assert error.reason == :invalid_type
       assert error.value == "two"
       assert error.path == [1]
@@ -137,11 +137,26 @@ defmodule OpenApiSpec.CastTest do
         }
       }
 
-      assert {:error, error} =
+      assert {:error, errors} =
                cast(value: %{"data" => [%{"age" => "20"}, %{"age" => "twenty"}]}, schema: schema)
 
+      assert [error] = errors
       assert %Error{} = error
       assert error.path == [:data, 1, :age]
+    end
+
+    test "multiple errors" do
+      schema = %Schema{
+        type: :array,
+        items: %Schema{type: :integer}
+      }
+
+      value = [1, "two", 3, "four"]
+      assert {:error, errors} = cast(value: value, schema: schema)
+      assert [error | _] = errors
+      assert %Error{} = error
+      assert error.reason == :invalid_type
+      assert error.path == [1]
     end
   end
 end

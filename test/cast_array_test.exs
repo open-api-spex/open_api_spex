@@ -24,7 +24,8 @@ defmodule OpenApiSpec.CastArrayTest do
       assert cast(value: [1, 2, 3], schema: schema) == {:ok, [1, 2, 3]}
       assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, [1, 2, 3]}
 
-      assert {:error, error} = cast(value: [1, "two"], schema: schema)
+      assert {:error, errors} = cast(value: [1, "two"], schema: schema)
+      assert [error] = errors
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == "two"

@@ -68,9 +68,10 @@ defmodule OpenApiSpex.CastObject do
 
   defp cast_property(%{key: key, schema: schema_properties} = ctx, output) do
     prop_schema = Map.get(schema_properties, key)
+    path = [key | ctx.path]
 
-    with {:error, error} <- Cast.cast(%{ctx | schema: prop_schema}) do
-      {:error, %{error | path: [key | error.path]}}
+    with {:error, errors} <- Cast.cast(%{ctx | path: path, schema: prop_schema}) do
+      {:error, errors}
     else
       {:ok, value} -> {:ok, Map.put(output, key, value)}
     end
