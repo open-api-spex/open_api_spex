@@ -44,6 +44,7 @@ defmodule OpenApiSpex.CastObject do
       :ok
     else
       [key | _] = missing_keys
+      ctx = %{ctx | path: [key | ctx.path]}
       CastContext.error(ctx, {:missing_field, key})
     end
   end

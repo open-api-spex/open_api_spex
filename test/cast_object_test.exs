@@ -49,6 +49,7 @@ defmodule OpenApiSpex.CastObjectTest do
       assert %CastError{} = error
       assert error.reason == :missing_field
       assert error.name == :age
+      assert error.path == [:age]
     end
 
     test "cast property against schema" do
