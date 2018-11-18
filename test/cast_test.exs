@@ -98,7 +98,8 @@ defmodule OpenApiSpec.CastTest do
         }
       }
 
-      assert {:error, error} = cast(value: %{"age" => "twenty"}, schema: schema)
+      assert {:error, errors} = cast(value: %{"age" => "twenty"}, schema: schema)
+      assert [error] = errors
       assert %Error{} = error
       assert error.path == [:age]
     end
@@ -116,7 +117,8 @@ defmodule OpenApiSpec.CastTest do
         }
       }
 
-      assert {:error, error} = cast(value: %{"data" => %{"age" => "twenty"}}, schema: schema)
+      assert {:error, errors} = cast(value: %{"data" => %{"age" => "twenty"}}, schema: schema)
+      assert [error] = errors
       assert %Error{} = error
       assert error.path == [:data, :age]
     end

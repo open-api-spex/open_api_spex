@@ -50,7 +50,7 @@ defmodule OpenApiSpex.CastObjectTest do
       }
 
       assert cast(value: %{}, schema: schema) == {:ok, %{}}
-      assert {:error, error} = cast(value: %{"age" => "hello"}, schema: schema)
+      assert {:error, [error]} = cast(value: %{"age" => "hello"}, schema: schema)
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.path == [:age]

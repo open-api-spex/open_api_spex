@@ -5,29 +5,29 @@ defmodule OpenApiSpex.CastPrimitive do
   def cast(%{value: nil, schema: %{nullable: true}}),
     do: {:ok, nil}
 
-  def cast(%{value: value, schema: %{type: :boolean}}),
-    do: cast_boolean(value)
+  def cast(%{schema: %{type: :boolean}} = ctx),
+    do: cast_boolean(ctx)
 
   def cast(%{schema: %{type: :integer}} = ctx),
     do: cast_integer(ctx)
 
-  def cast(%{value: value, schema: %{type: :number}}),
-    do: cast_number(value)
+  def cast(%{schema: %{type: :number}} = ctx),
+    do: cast_number(ctx)
 
   def cast(%{schema: %{type: :string}} = ctx),
     do: cast_string(ctx)
 
   ## Private functions
 
-  defp cast_boolean(value) when is_boolean(value) do
+  defp cast_boolean(%{value: value}) when is_boolean(value) do
     {:ok, value}
   end
 
-  defp cast_boolean("true"), do: {:ok, true}
-  defp cast_boolean("false"), do: {:ok, false}
+  defp cast_boolean(%{value: "true"}), do: {:ok, true}
+  defp cast_boolean(%{value: "false"}), do: {:ok, false}
 
-  defp cast_boolean(value) do
-    {:error, Error.new(:invalid_type, :integer, value)}
+  defp cast_boolean(ctx) do
+    error(:invalid_type, :boolean, ctx)
   end
 
   defp cast_integer(%{value: value}) when is_integer(value) do
@@ -49,23 +49,23 @@ defmodule OpenApiSpex.CastPrimitive do
     error(:invalid_type, :integer, ctx)
   end
 
-  defp cast_number(value) when is_number(value) do
+  defp cast_number(%{value: value}) when is_number(value) do
     {:ok, value}
   end
 
-  defp cast_number(value) when is_integer(value) do
+  defp cast_number(%{value: value}) when is_integer(value) do
     {:ok, value / 1}
   end
 
-  defp cast_number(value) when is_binary(value) do
+  defp cast_number(%{value: value} = ctx) when is_binary(value) do
     case Float.parse(value) do
       {value, ""} -> {:ok, value}
-      _ -> {:error, Error.new(:invalid_type, :number, value)}
+      _ -> error(:invalid_type, :number, ctx)
     end
   end
 
-  defp cast_number(value) do
-    {:error, Error.new(:invalid_type, :number, value)}
+  defp cast_number(ctx) do
+    error(:invalid_type, :number, ctx)
   end
 
   defp cast_string(%{value: value, schema: %{pattern: pattern}})
@@ -81,12 +81,13 @@ defmodule OpenApiSpex.CastPrimitive do
     {:ok, value}
   end
 
-  defp cast_string(%{value: value}) do
-    {:error, Error.new(:invalid_type, :string, value)}
+  defp cast_string(ctx) do
+    error(:invalid_type, :string, ctx)
   end
 
   defp error(:invalid_type, expected_type, ctx) do
     error = Error.new(:invalid_type, expected_type, ctx.value)
-    {:error, %{error | path: Enum.reverse(ctx.path)}}
+    error = %{error | path: Enum.reverse(ctx.path)}
+    {:error, [error | ctx.errors]}
   end
 end
