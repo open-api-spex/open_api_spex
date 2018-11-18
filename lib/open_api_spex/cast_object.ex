@@ -49,7 +49,7 @@ defmodule OpenApiSpex.CastObject do
           CastError.new(ctx, {:missing_field, key})
         end)
 
-      {:error, errors ++ ctx.errors}
+      {:error, ctx.errors ++ errors}
     end
   end
 

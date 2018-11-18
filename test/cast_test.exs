@@ -37,7 +37,7 @@ defmodule OpenApiSpec.CastTest do
       schema = %Schema{type: :array}
       assert {:error, [error]} = cast(value: nil, schema: schema)
       assert error.reason == :null_value
-      assert to_string(error) == "#: null value where array expected"
+      assert CastError.message_with_path(error) == "#: null value where array expected"
     end
 
     test "array" do
@@ -135,7 +135,7 @@ defmodule OpenApiSpec.CastTest do
       assert [error] = errors
       assert %CastError{} = error
       assert error.path == [:data, :age]
-      assert to_string(error) == "#/data/age: Invalid integer. Got: string"
+      assert CastError.message_with_path(error) == "#/data/age: Invalid integer. Got: string"
     end
 
     test "paths involving arrays" do
@@ -160,7 +160,7 @@ defmodule OpenApiSpec.CastTest do
       assert [error] = errors
       assert %CastError{} = error
       assert error.path == [:data, 1, :age]
-      assert to_string(error) == "#/data/1/age: Invalid integer. Got: string"
+      assert CastError.message_with_path(error) == "#/data/1/age: Invalid integer. Got: string"
     end
 
     test "multiple errors" do
@@ -175,9 +175,9 @@ defmodule OpenApiSpec.CastTest do
       assert %CastError{} = error
       assert error.reason == :invalid_type
       assert error.path == [1]
-      assert to_string(error) == "#/1: Invalid integer. Got: string"
+      assert CastError.message_with_path(error) == "#/1: Invalid integer. Got: string"
 
-      assert to_string(error2) == "#/3: Invalid integer. Got: string"
+      assert CastError.message_with_path(error2) == "#/3: Invalid integer. Got: string"
     end
   end
 end

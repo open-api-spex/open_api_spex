@@ -35,56 +35,68 @@ defmodule OpenApiSpex.CastError do
     |> add_context_fields(ctx)
   end
 
-  def message(%{reason: :null_value} = ctx) do
+  def message(%{reason: :null_value} = error) do
     message =
-      case ctx.type do
+      case error.type do
         nil -> "null value"
         type -> "null value where #{type} expected"
       end
 
-    prepend_path(message, ctx)
+    message
   end
 
-  def message(%{reason: :invalid_type, type: type, value: value} = ctx) do
-    prepend_path("Invalid #{type}. Got: #{TermType.type(value)}", ctx)
+  def message(%{reason: :invalid_type, type: type, value: value}) do
+    "Invalid #{type}. Got: #{TermType.type(value)}"
   end
 
-  def message(%{reason: :polymorphic_failed, type: polymorphic_type} = ctx) do
-    prepend_path("Failed to cast to any schema in #{polymorphic_type}", ctx)
+  def message(%{reason: :invalid_format, format: format}) do
+    "Invalid format. Expected #{inspect(format)}"
   end
 
-  def message(%{reason: :unexpected_field, name: name} = ctx) do
-    prepend_path("Unexpected field: #{safe_string(name)}", ctx)
+  def message(%{reason: :polymorphic_failed, type: polymorphic_type}) do
+    "Failed to cast to any schema in #{polymorphic_type}"
   end
 
-  def message(%{reason: :no_value_required_for_discriminator, name: field} = ctx) do
-    prepend_path("No value for required disciminator property: #{field}", ctx)
+  def message(%{reason: :unexpected_field, name: name}) do
+    "Unexpected field: #{safe_string(name)}"
   end
 
-  def message(%{reason: :unknown_schema, name: name} = ctx) do
-    prepend_path("Unknown schema: #{name}", ctx)
+  def message(%{reason: :no_value_required_for_discriminator, name: field}) do
+    "No value for required disciminator property: #{field}"
   end
 
-  def message(%{reason: :missing_field, name: name} = ctx) do
-    prepend_path("Missing field: #{name}", ctx)
+  def message(%{reason: :unknown_schema, name: name}) do
+    "Unknown schema: #{name}"
+  end
+
+  def message(%{reason: :missing_field, name: name}) do
+    "Missing field: #{name}"
+  end
+
+  def message_with_path(error) do
+    prepend_path(error, message(error))
+  end
+
+  def path_to_string(%{path: path} = _error) do
+    "/" <> (path |> Enum.map(&to_string/1) |> Path.join())
   end
 
   defp add_context_fields(error, ctx) do
     %{error | path: Enum.reverse(ctx.path), value: ctx.value}
   end
 
-  defp prepend_path(message, ctx) do
+  defp prepend_path(error, message) do
     path =
-      case ctx.path do
+      case error.path do
         [] -> "#"
-        _ -> "#/" <> (ctx.path |> Enum.map(&to_string/1) |> Path.join())
+        _ -> "#" <> path_to_string(error)
       end
 
     path <> ": " <> message
   end
 
   defp safe_string(string) do
-    to_string(string) |> String.slice(1..40)
+    to_string(string) |> String.slice(0..39)
   end
 end
 
