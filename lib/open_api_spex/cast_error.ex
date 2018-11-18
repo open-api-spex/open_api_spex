@@ -8,6 +8,11 @@ defmodule OpenApiSpex.CastError do
             name: nil,
             path: []
 
+  def new(ctx, {:null_value}) do
+    %__MODULE__{reason: :null_value}
+    |> add_context_fields(ctx)
+  end
+
   def new(ctx, {:invalid_type, type}) do
     %__MODULE__{reason: :invalid_type, type: type}
     |> add_context_fields(ctx)
@@ -26,6 +31,10 @@ defmodule OpenApiSpex.CastError do
   def new(ctx, {:missing_field, name}) do
     %__MODULE__{reason: :missing_field, name: name}
     |> add_context_fields(ctx)
+  end
+
+  def message(%{reason: :null_value} = ctx) do
+    prepend_path("Null value", ctx)
   end
 
   def message(%{reason: :invalid_type, type: type, value: value} = ctx) do
@@ -57,8 +66,13 @@ defmodule OpenApiSpex.CastError do
   end
 
   defp prepend_path(message, ctx) do
-    path = "/" <> (ctx.path |> Enum.map(&to_string/1) |> Path.join())
-    "#" <> path <> ": " <> message
+    path =
+      case ctx.path do
+        [] -> "#"
+        _ -> "#/" <> (ctx.path |> Enum.map(&to_string/1) |> Path.join())
+      end
+
+    path <> ": " <> message
   end
 
   defp safe_string(string) do

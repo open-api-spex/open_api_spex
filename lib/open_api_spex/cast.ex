@@ -18,6 +18,16 @@ defmodule OpenApiSpex.Cast do
     cast(%{ctx | schema: schema})
   end
 
+  def cast(%CastContext{value: nil, schema: %{nullable: true}}) do
+    {:ok, nil}
+  end
+
+  def cast(%CastContext{value: nil} = ctx) do
+    CastContext.error(ctx, {:null_value})
+  end
+
+  # Specific types
+
   def cast(%CastContext{schema: %{type: type}} = ctx) when type in @primitives,
     do: CastPrimitive.cast(ctx)
 

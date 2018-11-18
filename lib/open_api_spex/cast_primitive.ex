@@ -2,9 +2,6 @@ defmodule OpenApiSpex.CastPrimitive do
   @moduledoc false
   alias OpenApiSpex.CastContext
 
-  def cast(%{value: nil, schema: %{nullable: true}}),
-    do: {:ok, nil}
-
   def cast(%{schema: %{type: :boolean}} = ctx),
     do: cast_boolean(ctx)
 

@@ -28,6 +28,18 @@ defmodule OpenApiSpec.CastTest do
       end
     end
 
+    test "array type, nullable, given nil" do
+      schema = %Schema{type: :array, nullable: true}
+      assert {:ok, nil} = cast(value: nil, schema: schema)
+    end
+
+    test "array type, given nil" do
+      schema = %Schema{type: :array}
+      assert {:error, [error]} = cast(value: nil, schema: schema)
+      assert error.reason == :null_value
+      assert to_string(error) == "#: Null value"
+    end
+
     test "array" do
       schema = %Schema{type: :array}
       assert cast(value: [], schema: schema) == {:ok, []}

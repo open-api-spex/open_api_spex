@@ -5,23 +5,6 @@ defmodule OpenApiSpex.CastPrimitiveTest do
   defp cast(ctx), do: CastPrimitive.cast(struct(CastContext, ctx))
 
   describe "cast/3" do
-    @types [:boolean, :integer, :number, :string]
-    for type <- @types do
-      @type_value type
-      test "nil input for nullable:true, type:#{type}" do
-        schema = %Schema{type: @type_value, nullable: true}
-        assert cast(value: nil, schema: schema) == {:ok, nil}
-      end
-
-      test "nil input for nullable:false, type:#{type}" do
-        schema = %Schema{type: @type_value, nullable: false}
-        assert {:error, [error]} = cast(value: nil, schema: schema)
-        assert %CastError{} = error
-        assert error.reason == :invalid_type
-        assert error.value == nil
-      end
-    end
-
     test "boolean" do
       schema = %Schema{type: :boolean}
       assert cast(value: true, schema: schema) == {:ok, true}
