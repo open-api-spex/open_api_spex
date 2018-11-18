@@ -1,4 +1,4 @@
-defmodule OpenApiSpex.Error do
+defmodule OpenApiSpex.CastError do
   defstruct reason: nil,
             value: nil,
             format: nil,
@@ -6,32 +6,24 @@ defmodule OpenApiSpex.Error do
             name: nil,
             path: []
 
-  def new(:invalid_type, type, value) do
-    %__MODULE__{reason: :invalid_type, type: type, value: value}
+  def new(ctx, {:invalid_type, type}) do
+    %__MODULE__{reason: :invalid_type, type: type}
+    |> add_context_fields(ctx)
   end
 
-  def new(:polymorphic_failed, value, polymorphic_type) do
-    %__MODULE__{reason: :polymorphic_failed, value: value, type: polymorphic_type}
+  def new(ctx, {:invalid_format, format}) do
+    %__MODULE__{reason: :invalid_format, format: format}
+    |> add_context_fields(ctx)
   end
 
-  def new(:invalid_format, format, value) do
-    %__MODULE__{reason: :invalid_format, format: format, value: value}
-  end
-
-  def new(:unexpected_field, name) do
+  def new(ctx, {:unexpected_field, name}) do
     %__MODULE__{reason: :unexpected_field, name: name}
+    |> add_context_fields(ctx)
   end
 
-  def new(:missing_field, name) do
+  def new(ctx, {:missing_field, name}) do
     %__MODULE__{reason: :missing_field, name: name}
-  end
-
-  def new(:no_value_required_for_discriminator, property_name) do
-    %__MODULE__{reason: :no_value_required_for_discriminator, name: property_name}
-  end
-
-  def new(:unknown_schema, name) do
-    %__MODULE__{reason: :unknown_schema, name: name}
+    |> add_context_fields(ctx)
   end
 
   def message(%{reason: :invalid_type, type: type, value: value}) do
@@ -57,10 +49,14 @@ defmodule OpenApiSpex.Error do
   def message(%{reason: :missing_field, name: name}) do
     "Missing field: #{name}"
   end
+
+  defp add_context_fields(error, ctx) do
+    %{error | path: Enum.reverse(ctx.path), value: ctx.value}
+  end
 end
 
-defimpl String.Chars, for: OpenApiSpex.Error do
+defimpl String.Chars, for: OpenApiSpex.CastError do
   def to_string(error) do
-    OpenApiSpex.Error.message(error)
+    OpenApiSpex.CastError.message(error)
   end
 end

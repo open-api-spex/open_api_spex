@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastObject do
   @moduledoc false
-  alias OpenApiSpex.{Cast, Error}
+  alias OpenApiSpex.{Cast, CastContext}
 
   def cast(%{value: value, schema: %{properties: nil}}) do
     {:ok, value}
@@ -9,16 +9,16 @@ defmodule OpenApiSpex.CastObject do
   def cast(%{value: value, schema: schema} = ctx) do
     schema_properties = schema.properties || %{}
 
-    with :ok <- check_unrecognized_properties(value, schema_properties),
+    with :ok <- check_unrecognized_properties(ctx, schema_properties),
          value <- cast_atom_keys(value, schema_properties),
          ctx = %{ctx | value: value},
-         :ok <- check_required_fields(value, schema),
+         :ok <- check_required_fields(ctx, schema),
          :ok <- cast_properties(%{ctx | schema: schema_properties}) do
       {:ok, value}
     end
   end
 
-  defp check_unrecognized_properties(value, expected_keys) do
+  defp check_unrecognized_properties(%{value: value} = ctx, expected_keys) do
     input_keys = value |> Map.keys() |> Enum.map(&to_string/1)
     schema_keys = expected_keys |> Map.keys() |> Enum.map(&to_string/1)
     extra_keys = input_keys -- schema_keys
@@ -27,11 +27,11 @@ defmodule OpenApiSpex.CastObject do
       :ok
     else
       [name | _] = extra_keys
-      {:error, Error.new(:unexpected_field, name)}
+      CastContext.error(ctx, {:unexpected_field, name})
     end
   end
 
-  defp check_required_fields(input_map, schema) do
+  defp check_required_fields(%{value: input_map} = ctx, schema) do
     required = schema.required || []
     input_keys = Map.keys(input_map)
     missing_keys = required -- input_keys
@@ -40,7 +40,7 @@ defmodule OpenApiSpex.CastObject do
       :ok
     else
       [key | _] = missing_keys
-      {:error, Error.new(:missing_field, key)}
+      CastContext.error(ctx, {:missing_field, key})
     end
   end
 

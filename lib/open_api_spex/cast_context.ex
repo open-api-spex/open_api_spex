@@ -1,5 +1,5 @@
 defmodule OpenApiSpex.CastContext do
-  alias OpenApiSpex.Error
+  alias OpenApiSpex.CastError
 
   defstruct value: nil,
             schema: nil,
@@ -9,15 +9,8 @@ defmodule OpenApiSpex.CastContext do
             index: 0,
             errors: []
 
-  def error(ctx, {:invalid_type, type}) do
-    error = Error.new(:invalid_type, type, ctx.value)
-    error = %{error | path: Enum.reverse(ctx.path)}
-    {:error, [error | ctx.errors]}
-  end
-
-  def error(ctx, {:invalid_format, format}) do
-    error = Error.new(:invalid_format, format, ctx.value)
-    error = %{error | path: Enum.reverse(ctx.path)}
+  def error(ctx, error_args) do
+    error = CastError.new(ctx, error_args)
     {:error, [error | ctx.errors]}
   end
 end

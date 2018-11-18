@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastArray do
   @moduledoc false
-  alias OpenApiSpex.{Cast, Error}
+  alias OpenApiSpex.{Cast, CastContext}
 
   def cast(%{value: []}) do
     {:ok, []}
@@ -31,6 +31,6 @@ defmodule OpenApiSpex.CastArray do
   end
 
   def cast(ctx) do
-    {:error, Error.new(:invalid_type, :array, ctx.value)}
+    CastContext.error(ctx, {:invalid_type, :array})
   end
 end

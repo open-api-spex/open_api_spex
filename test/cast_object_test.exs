@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastObjectTest do
   use ExUnit.Case
-  alias OpenApiSpex.{CastContext, CastObject, Error, Schema}
+  alias OpenApiSpex.{CastContext, CastObject, CastError, Schema}
 
   defp cast(ctx), do: CastObject.cast(struct(CastContext, ctx))
 
@@ -16,8 +16,8 @@ defmodule OpenApiSpex.CastObjectTest do
     test "with empty schema properties, given unknown input property" do
       schema = %Schema{type: :object, properties: %{}}
       assert cast(value: %{}, schema: schema) == {:ok, %{}}
-      assert {:error, error} = cast(value: %{"unknown" => "hello"}, schema: schema)
-      assert %Error{} = error
+      assert {:error, [error]} = cast(value: %{"unknown" => "hello"}, schema: schema)
+      assert %CastError{} = error
     end
 
     test "with schema properties set, given known input property" do
@@ -37,8 +37,8 @@ defmodule OpenApiSpex.CastObjectTest do
         required: [:age]
       }
 
-      assert {:error, error} = cast(value: %{}, schema: schema)
-      assert %Error{} = error
+      assert {:error, [error]} = cast(value: %{}, schema: schema)
+      assert %CastError{} = error
       assert error.reason == :missing_field
       assert error.name == :age
     end
@@ -51,7 +51,7 @@ defmodule OpenApiSpex.CastObjectTest do
 
       assert cast(value: %{}, schema: schema) == {:ok, %{}}
       assert {:error, [error]} = cast(value: %{"age" => "hello"}, schema: schema)
-      assert %Error{} = error
+      assert %CastError{} = error
       assert error.reason == :invalid_type
       assert error.path == [:age]
     end

@@ -1,6 +1,6 @@
 defmodule OpenApiSpec.CastTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Cast, CastContext, Error, Reference, Schema}
+  alias OpenApiSpex.{Cast, CastContext, CastError, Reference, Schema}
 
   def cast(ctx), do: Cast.cast(struct(CastContext, ctx))
 
@@ -32,8 +32,8 @@ defmodule OpenApiSpec.CastTest do
       assert cast(value: [1, 2, 3], schema: schema) == {:ok, [1, 2, 3]}
       assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, ["1", "2", "3"]}
 
-      assert {:error, error} = cast(value: %{}, schema: schema)
-      assert %Error{} = error
+      assert {:error, [error]} = cast(value: %{}, schema: schema)
+      assert %CastError{} = error
       assert error.reason == :invalid_type
       assert error.value == %{}
     end
@@ -46,7 +46,7 @@ defmodule OpenApiSpec.CastTest do
       assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, [1, 2, 3]}
 
       assert {:error, errors} = cast(value: [1, "two"], schema: schema)
-      assert [%Error{} = error] = errors
+      assert [%CastError{} = error] = errors
       assert error.reason == :invalid_type
       assert error.value == "two"
       assert error.path == [1]
@@ -100,7 +100,7 @@ defmodule OpenApiSpec.CastTest do
 
       assert {:error, errors} = cast(value: %{"age" => "twenty"}, schema: schema)
       assert [error] = errors
-      assert %Error{} = error
+      assert %CastError{} = error
       assert error.path == [:age]
     end
 
@@ -119,7 +119,7 @@ defmodule OpenApiSpec.CastTest do
 
       assert {:error, errors} = cast(value: %{"data" => %{"age" => "twenty"}}, schema: schema)
       assert [error] = errors
-      assert %Error{} = error
+      assert %CastError{} = error
       assert error.path == [:data, :age]
     end
 
@@ -143,7 +143,7 @@ defmodule OpenApiSpec.CastTest do
                cast(value: %{"data" => [%{"age" => "20"}, %{"age" => "twenty"}]}, schema: schema)
 
       assert [error] = errors
-      assert %Error{} = error
+      assert %CastError{} = error
       assert error.path == [:data, 1, :age]
     end
 
@@ -156,7 +156,7 @@ defmodule OpenApiSpec.CastTest do
       value = [1, "two", 3, "four"]
       assert {:error, errors} = cast(value: value, schema: schema)
       assert [error | _] = errors
-      assert %Error{} = error
+      assert %CastError{} = error
       assert error.reason == :invalid_type
       assert error.path == [1]
     end
