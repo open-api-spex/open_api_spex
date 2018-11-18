@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastObject do
   @moduledoc false
-  alias OpenApiSpex.{Cast, CastContext}
+  alias OpenApiSpex.{Cast, CastError, CastContext}
 
   def cast(%{value: value} = ctx) when not is_map(value) do
     CastContext.error(ctx, {:invalid_type, :object})
@@ -43,9 +43,13 @@ defmodule OpenApiSpex.CastObject do
     if missing_keys == [] do
       :ok
     else
-      [key | _] = missing_keys
-      ctx = %{ctx | path: [key | ctx.path]}
-      CastContext.error(ctx, {:missing_field, key})
+      errors =
+        Enum.map(missing_keys, fn key ->
+          ctx = %{ctx | path: [key | ctx.path]}
+          CastError.new(ctx, {:missing_field, key})
+        end)
+
+      {:error, errors ++ ctx.errors}
     end
   end
 

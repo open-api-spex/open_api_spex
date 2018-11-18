@@ -41,15 +41,19 @@ defmodule OpenApiSpex.CastObjectTest do
     test "required fields" do
       schema = %Schema{
         type: :object,
-        properties: %{age: nil},
-        required: [:age]
+        properties: %{age: nil, name: nil},
+        required: [:age, :name]
       }
 
-      assert {:error, [error]} = cast(value: %{}, schema: schema)
+      assert {:error, [error, error2]} = cast(value: %{}, schema: schema)
       assert %CastError{} = error
       assert error.reason == :missing_field
       assert error.name == :age
       assert error.path == [:age]
+
+      assert error2.reason == :missing_field
+      assert error2.name == :name
+      assert error2.path == [:name]
     end
 
     test "cast property against schema" do
