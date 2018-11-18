@@ -15,7 +15,9 @@ defmodule OpenApiSpec.CastTest do
         {:integer, 1, :ok},
         {:integer, "1", :ok},
         {:integer, %{}, :invalid},
-        {:integer, nil, :invalid}
+        {:integer, nil, :invalid},
+        {:array, nil, :invalid},
+        {:object, nil, :invalid}
       ]
 
       for {type, input, expected} <- tests do
@@ -121,7 +123,7 @@ defmodule OpenApiSpec.CastTest do
       assert [error] = errors
       assert %CastError{} = error
       assert error.path == [:data, :age]
-      assert to_string(error) == "#/data/age: Invalid integer: \"twenty\""
+      assert to_string(error) == "#/data/age: Invalid integer. Got: string"
     end
 
     test "paths involving arrays" do
@@ -146,7 +148,7 @@ defmodule OpenApiSpec.CastTest do
       assert [error] = errors
       assert %CastError{} = error
       assert error.path == [:data, 1, :age]
-      assert to_string(error) == "#/data/1/age: Invalid integer: \"twenty\""
+      assert to_string(error) == "#/data/1/age: Invalid integer. Got: string"
     end
 
     test "multiple errors" do
@@ -161,9 +163,9 @@ defmodule OpenApiSpec.CastTest do
       assert %CastError{} = error
       assert error.reason == :invalid_type
       assert error.path == [1]
-      assert to_string(error) == "#/1: Invalid integer: \"two\""
+      assert to_string(error) == "#/1: Invalid integer. Got: string"
 
-      assert to_string(error2) == "#/3: Invalid integer: \"four\""
+      assert to_string(error2) == "#/3: Invalid integer. Got: string"
     end
   end
 end

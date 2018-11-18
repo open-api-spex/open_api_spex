@@ -29,7 +29,7 @@ defmodule OpenApiSpex.CastError do
   end
 
   def message(%{reason: :invalid_type, type: type, value: value} = ctx) do
-    prepend_path("Invalid #{type}: #{inspect(TermType.type(value))}", ctx)
+    prepend_path("Invalid #{type}. Got: #{TermType.type(value)}", ctx)
   end
 
   def message(%{reason: :polymorphic_failed, type: polymorphic_type} = ctx) do
