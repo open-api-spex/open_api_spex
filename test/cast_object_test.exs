@@ -39,5 +39,18 @@ defmodule OpenApiSpex.CastObjectTest do
       assert error.reason == :missing_field
       assert error.name == :age
     end
+
+    test "cast property against schema" do
+      schema = %Schema{
+        type: :object,
+        properties: %{age: %Schema{type: :integer}}
+      }
+
+      assert cast(%{}, schema) == {:ok, %{}}
+      assert {:error, error} = cast(%{"age" => "hello"}, schema)
+      assert %Error{} = error
+      assert error.reason == :invalid_type
+      assert error.path == [:age]
+    end
   end
 end

@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastObject do
   @moduledoc false
-  alias OpenApiSpex.Error
+  alias OpenApiSpex.{Cast, Error}
 
   def cast(value, schema, schemas \\ %{})
 
@@ -9,9 +9,12 @@ defmodule OpenApiSpex.CastObject do
   end
 
   def cast(value, schema, _schemas) do
-    with :ok <- check_unrecognized_properties(value, schema.properties),
-         value <- cast_atom_keys(value, schema.properties),
-         :ok <- check_required_fields(value, schema) do
+    schema_properties = schema.properties || %{}
+
+    with :ok <- check_unrecognized_properties(value, schema_properties),
+         value <- cast_atom_keys(value, schema_properties),
+         :ok <- check_required_fields(value, schema),
+         :ok <- cast_properties(value, schema_properties) do
       {:ok, value}
     end
   end
@@ -52,5 +55,22 @@ defmodule OpenApiSpex.CastObject do
         _ -> output
       end
     end)
+  end
+
+  defp cast_properties(object, schema_properties) do
+    Enum.reduce(object, {:ok, %{}}, fn
+      {key, value}, {:ok, output} -> cast_property(key, value, output, schema_properties)
+      _, error -> error
+    end)
+  end
+
+  defp cast_property(key, value, output, schema_properties) do
+    prop_schema = Map.get(schema_properties, key)
+
+    with {:error, error} <- Cast.cast(value, prop_schema) do
+      {:error, %{error | path: [key | error.path]}}
+    else
+      {:ok, value} -> {:ok, Map.put(output, key, value)}
+    end
   end
 end
