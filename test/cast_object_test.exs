@@ -5,6 +5,14 @@ defmodule OpenApiSpex.CastObjectTest do
   defp cast(ctx), do: CastObject.cast(struct(CastContext, ctx))
 
   describe "cast/3" do
+    test "not an object" do
+      schema = %Schema{type: :object}
+      assert {:error, [error]} = cast(value: ["hello"], schema: schema)
+      assert %CastError{} = error
+      assert error.reason == :invalid_type
+      assert error.value == ["hello"]
+    end
+
     test "properties:nil, given unknown input property" do
       schema = %Schema{type: :object}
       assert cast(value: %{}, schema: schema) == {:ok, %{}}

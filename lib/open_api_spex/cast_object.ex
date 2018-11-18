@@ -2,6 +2,10 @@ defmodule OpenApiSpex.CastObject do
   @moduledoc false
   alias OpenApiSpex.{Cast, CastContext}
 
+  def cast(%{value: value} = ctx) when not is_map(value) do
+    CastContext.error(ctx, {:invalid_type, :object})
+  end
+
   def cast(%{value: value, schema: %{properties: nil}}) do
     {:ok, value}
   end

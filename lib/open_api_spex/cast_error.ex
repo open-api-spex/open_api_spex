@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.CastError do
+  alias OpenApiSpex.TermType
+
   defstruct reason: nil,
             value: nil,
             format: nil,
@@ -27,15 +29,15 @@ defmodule OpenApiSpex.CastError do
   end
 
   def message(%{reason: :invalid_type, type: type, value: value} = ctx) do
-    prepend_path("Invalid #{type}: #{inspect(value)}", ctx)
+    prepend_path("Invalid #{type}: #{inspect(TermType.type(value))}", ctx)
   end
 
   def message(%{reason: :polymorphic_failed, type: polymorphic_type} = ctx) do
     prepend_path("Failed to cast to any schema in #{polymorphic_type}", ctx)
   end
 
-  def message(%{reason: :unexpected_field, value: value} = ctx) do
-    prepend_path("Unexpected field with value #{inspect(value)}", ctx)
+  def message(%{reason: :unexpected_field, name: name} = ctx) do
+    prepend_path("Unexpected field: #{safe_string(name)}", ctx)
   end
 
   def message(%{reason: :no_value_required_for_discriminator, name: field} = ctx) do
@@ -57,6 +59,10 @@ defmodule OpenApiSpex.CastError do
   defp prepend_path(message, ctx) do
     path = "/" <> (ctx.path |> Enum.map(&to_string/1) |> Path.join())
     "#" <> path <> ": " <> message
+  end
+
+  defp safe_string(string) do
+    to_string(string) |> String.slice(1..40)
   end
 end
 
