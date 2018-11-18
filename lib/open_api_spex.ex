@@ -3,7 +3,7 @@ defmodule OpenApiSpex do
   Provides the entry-points for defining schemas, validating and casting.
   """
 
-  alias OpenApiSpex.{OpenApi, Operation, Reference, Schema, SchemaResolver}
+  alias OpenApiSpex.{OpenApi, Operation, Operation2, Reference, Schema, SchemaResolver}
 
   @doc """
   Adds schemas to the api spec from the modules specified in the Operations.
@@ -22,6 +22,15 @@ defmodule OpenApiSpex do
   @spec resolve_schema_modules(OpenApi.t) :: OpenApi.t
   def resolve_schema_modules(spec = %OpenApi{}) do
     SchemaResolver.resolve_schema_modules(spec)
+  end
+
+  def cast_and_validate(
+        spec = %OpenApi{},
+        operation = %Operation{},
+        conn = %Plug.Conn{},
+        content_type \\ nil
+      ) do
+    Operation2.cast(operation, conn, content_type, spec.components.schemas)
   end
 
   @doc """

@@ -2,6 +2,11 @@ defmodule OpenApiSpex.Cast do
   alias OpenApiSpex.{CastArray, CastContext, CastObject, CastPrimitive, Reference}
   @primitives [:boolean, :integer, :number, :string]
 
+  def cast(schema, value, schemas) do
+    ctx = %CastContext{schema: schema, value: value, schemas: schemas}
+    cast(ctx)
+  end
+
   def cast(%CastContext{value: value, schema: nil}),
     do: {:ok, value}
 
