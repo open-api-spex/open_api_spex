@@ -37,7 +37,7 @@ defmodule OpenApiSpec.CastTest do
       schema = %Schema{type: :array}
       assert {:error, [error]} = cast(value: nil, schema: schema)
       assert error.reason == :null_value
-      assert to_string(error) == "#: Null value"
+      assert to_string(error) == "#: null value where array expected"
     end
 
     test "array" do

@@ -9,7 +9,9 @@ defmodule OpenApiSpex.CastError do
             path: []
 
   def new(ctx, {:null_value}) do
-    %__MODULE__{reason: :null_value}
+    type = ctx.schema && ctx.schema.type
+
+    %__MODULE__{reason: :null_value, type: type}
     |> add_context_fields(ctx)
   end
 
@@ -34,7 +36,13 @@ defmodule OpenApiSpex.CastError do
   end
 
   def message(%{reason: :null_value} = ctx) do
-    prepend_path("Null value", ctx)
+    message =
+      case ctx.type do
+        nil -> "null value"
+        type -> "null value where #{type} expected"
+      end
+
+    prepend_path(message, ctx)
   end
 
   def message(%{reason: :invalid_type, type: type, value: value} = ctx) do
