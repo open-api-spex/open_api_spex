@@ -16,8 +16,8 @@ defmodule OpenApiSpex.CastPrimitive do
   def cast(value, %{type: :number}, _schemas),
     do: cast_number(value)
 
-  def cast(value, %{type: :string}, _schemas),
-    do: cast_string(value)
+  def cast(value, %{type: :string} = schema, _schemas),
+    do: cast_string(value, schema)
 
   ## Private functions
 
@@ -70,11 +70,19 @@ defmodule OpenApiSpex.CastPrimitive do
     {:error, Error.new(:invalid_type, :number, value)}
   end
 
-  defp cast_string(value) when is_binary(value) do
+  defp cast_string(value, %{pattern: pattern}) when not is_nil(pattern) and is_binary(value) do
+    if Regex.match?(pattern, value) do
+      {:ok, value}
+    else
+      {:error, Error.new(:invalid_format, pattern, value)}
+    end
+  end
+
+  defp cast_string(value, _schema) when is_binary(value) do
     {:ok, value}
   end
 
-  defp cast_string(value) do
+  defp cast_string(value, _schema) do
     {:error, Error.new(:invalid_type, :string, value)}
   end
 end
