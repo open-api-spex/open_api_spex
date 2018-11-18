@@ -51,19 +51,7 @@ defmodule OpenApiSpec.CastTest do
       assert error.path == [1]
     end
 
-    test "object with nil schema properties, and unknown input property" do
-      schema = %Schema{type: :object}
-      assert cast(%{}, schema) == {:ok, %{}}
-      assert cast(%{"unknown" => "hello"}, schema) == {:ok, %{"unknown" => "hello"}}
-    end
-
-    test "object with schema properties set, given unknown input property" do
-      schema = %Schema{type: :object, properties: %{}}
-      assert cast(%{}, schema) == {:ok, %{}}
-      assert {:error, error} = cast(%{"unknown" => "hello"}, schema)
-      assert %Error{} = error
-    end
-
+    # Additional object tests found in CastObjectTest
     test "object with schema properties set, given known input property" do
       schema = %Schema{
         type: :object,
