@@ -26,32 +26,37 @@ defmodule OpenApiSpex.CastError do
     |> add_context_fields(ctx)
   end
 
-  def message(%{reason: :invalid_type, type: type, value: value}) do
-    "Invalid #{type}: #{inspect(value)}"
+  def message(%{reason: :invalid_type, type: type, value: value} = ctx) do
+    prepend_path("Invalid #{type}: #{inspect(value)}", ctx)
   end
 
-  def message(%{reason: :polymorphic_failed, type: polymorphic_type}) do
-    "Failed to cast to any schema in #{polymorphic_type}"
+  def message(%{reason: :polymorphic_failed, type: polymorphic_type} = ctx) do
+    prepend_path("Failed to cast to any schema in #{polymorphic_type}", ctx)
   end
 
-  def message(%{reason: :unexpected_field, value: value}) do
-    "Unexpected field with value #{inspect(value)}"
+  def message(%{reason: :unexpected_field, value: value} = ctx) do
+    prepend_path("Unexpected field with value #{inspect(value)}", ctx)
   end
 
-  def message(%{reason: :no_value_required_for_discriminator, name: field}) do
-    "No value for required disciminator property: #{field}"
+  def message(%{reason: :no_value_required_for_discriminator, name: field} = ctx) do
+    prepend_path("No value for required disciminator property: #{field}", ctx)
   end
 
-  def message(%{reason: :unknown_schema, name: name}) do
-    "Unknown schema: #{name}"
+  def message(%{reason: :unknown_schema, name: name} = ctx) do
+    prepend_path("Unknown schema: #{name}", ctx)
   end
 
-  def message(%{reason: :missing_field, name: name}) do
-    "Missing field: #{name}"
+  def message(%{reason: :missing_field, name: name} = ctx) do
+    prepend_path("Missing field: #{name}", ctx)
   end
 
   defp add_context_fields(error, ctx) do
     %{error | path: Enum.reverse(ctx.path), value: ctx.value}
+  end
+
+  defp prepend_path(message, ctx) do
+    path = "/" <> (ctx.path |> Enum.map(&to_string/1) |> Path.join())
+    "#" <> path <> ": " <> message
   end
 end
 
