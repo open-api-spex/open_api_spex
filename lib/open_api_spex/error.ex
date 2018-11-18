@@ -22,6 +22,10 @@ defmodule OpenApiSpex.Error do
     %__MODULE__{reason: :unexpected_field, name: name}
   end
 
+  def new(:missing_field, name) do
+    %__MODULE__{reason: :missing_field, name: name}
+  end
+
   def new(:no_value_required_for_discriminator, property_name) do
     %__MODULE__{reason: :no_value_required_for_discriminator, name: property_name}
   end
@@ -48,6 +52,10 @@ defmodule OpenApiSpex.Error do
 
   def message(%{reason: :unknown_schema, name: name}) do
     "Unknown schema: #{name}"
+  end
+
+  def message(%{reason: :missing_field, name: name}) do
+    "Missing field: #{name}"
   end
 end
 

@@ -9,8 +9,10 @@ defmodule OpenApiSpex.CastObject do
   end
 
   def cast(value, schema, _schemas) do
-    with :ok <- check_unrecognized_properties(value, schema.properties) do
-      {:ok, cast_atom_keys(value, schema.properties)}
+    with :ok <- check_unrecognized_properties(value, schema.properties),
+         value <- cast_atom_keys(value, schema.properties),
+         :ok <- check_required_fields(value, schema) do
+      {:ok, value}
     end
   end
 
@@ -24,6 +26,19 @@ defmodule OpenApiSpex.CastObject do
     else
       [name | _] = extra_keys
       {:error, Error.new(:unexpected_field, name)}
+    end
+  end
+
+  defp check_required_fields(input_map, schema) do
+    required = schema.required || []
+    input_keys = Map.keys(input_map)
+    missing_keys = required -- input_keys
+
+    if missing_keys == [] do
+      :ok
+    else
+      [key | _] = missing_keys
+      {:error, Error.new(:missing_field, key)}
     end
   end
 

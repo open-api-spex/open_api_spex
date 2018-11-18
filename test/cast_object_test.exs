@@ -26,5 +26,18 @@ defmodule OpenApiSpex.CastObjectTest do
       assert cast(%{}, schema) == {:ok, %{}}
       assert cast(%{"age" => "hello"}, schema) == {:ok, %{age: "hello"}}
     end
+
+    test "required fields" do
+      schema = %Schema{
+        type: :object,
+        properties: %{age: nil},
+        required: [:age]
+      }
+
+      assert {:error, error} = cast(%{}, schema)
+      assert %Error{} = error
+      assert error.reason == :missing_field
+      assert error.name == :age
+    end
   end
 end
