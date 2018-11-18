@@ -4,7 +4,10 @@ defmodule OpenApiSpex.Cast do
 
   def cast(schema, value, schemas) do
     ctx = %CastContext{schema: schema, value: value, schemas: schemas}
-    cast(ctx)
+
+    with {:error, [error | _]} <- cast(ctx) do
+      {:error, to_string(error)}
+    end
   end
 
   def cast(%CastContext{value: value, schema: nil}),
