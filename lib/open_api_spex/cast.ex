@@ -11,8 +11,10 @@ defmodule OpenApiSpex.Cast do
     CastPrimitive.cast(ctx)
   end
 
-  def cast(value, %{type: :array} = schema, schemas),
-    do: CastArray.cast(value, schema, schemas)
+  def cast(value, %{type: :array} = schema, schemas) do
+    ctx = %CastContext{value: value, schema: schema, schemas: schemas}
+    CastArray.cast(ctx)
+  end
 
   def cast(value, %{type: :object} = schema, schemas),
     do: CastObject.cast(value, schema, schemas)

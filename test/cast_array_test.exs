@@ -1,16 +1,19 @@
 defmodule OpenApiSpec.CastArrayTest do
   use ExUnit.Case
-  import OpenApiSpex.CastArray
-  alias OpenApiSpex.{Error, Schema}
+  alias OpenApiSpex.{CastArray, CastContext, Error, Schema}
+
+  defp cast(map) do
+    CastArray.cast(struct(CastContext, map))
+  end
 
   describe "cast/4" do
     test "array" do
       schema = %Schema{type: :array}
-      assert cast([], schema) == {:ok, []}
-      assert cast([1, 2, 3], schema) == {:ok, [1, 2, 3]}
-      assert cast(["1", "2", "3"], schema) == {:ok, ["1", "2", "3"]}
+      assert cast(%{value: [], schema: schema}) == {:ok, []}
+      assert cast(%{value: [1, 2, 3], schema: schema}) == {:ok, [1, 2, 3]}
+      assert cast(%{value: ["1", "2", "3"], schema: schema}) == {:ok, ["1", "2", "3"]}
 
-      assert {:error, error} = cast(%{}, schema)
+      assert {:error, error} = cast(%{value: %{}, schema: schema})
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == %{}
@@ -19,11 +22,11 @@ defmodule OpenApiSpec.CastArrayTest do
     test "array with items schema" do
       items_schema = %Schema{type: :integer}
       schema = %Schema{type: :array, items: items_schema}
-      assert cast([], schema) == {:ok, []}
-      assert cast([1, 2, 3], schema) == {:ok, [1, 2, 3]}
-      assert cast(["1", "2", "3"], schema) == {:ok, [1, 2, 3]}
+      assert cast(%{value: [], schema: schema}) == {:ok, []}
+      assert cast(%{value: [1, 2, 3], schema: schema}) == {:ok, [1, 2, 3]}
+      assert cast(%{value: ["1", "2", "3"], schema: schema}) == {:ok, [1, 2, 3]}
 
-      assert {:error, error} = cast([1, "two"], schema)
+      assert {:error, error} = cast(%{value: [1, "two"], schema: schema})
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == "two"
