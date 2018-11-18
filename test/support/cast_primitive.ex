@@ -2,22 +2,20 @@ defmodule OpenApiSpex.CastPrimitive do
   @moduledoc false
   alias OpenApiSpex.Error
 
-  def cast(value, _schema, _schemas \\ %{})
-
-  def cast(nil, %{nullable: true}, _schemas),
+  def cast(%{value: nil, schema: %{nullable: true}}),
     do: {:ok, nil}
 
-  def cast(value, %{type: :boolean}, _schemas),
+  def cast(%{value: value, schema: %{type: :boolean}}),
     do: cast_boolean(value)
 
-  def cast(value, %{type: :integer}, _schemas),
+  def cast(%{value: value, schema: %{type: :integer}}),
     do: cast_integer(value)
 
-  def cast(value, %{type: :number}, _schemas),
+  def cast(%{value: value, schema: %{type: :number}}),
     do: cast_number(value)
 
-  def cast(value, %{type: :string} = schema, _schemas),
-    do: cast_string(value, schema)
+  def cast(%{schema: %{type: :string}} = ctx),
+    do: cast_string(ctx)
 
   ## Private functions
 
@@ -70,7 +68,8 @@ defmodule OpenApiSpex.CastPrimitive do
     {:error, Error.new(:invalid_type, :number, value)}
   end
 
-  defp cast_string(value, %{pattern: pattern}) when not is_nil(pattern) and is_binary(value) do
+  defp cast_string(%{value: value, schema: %{pattern: pattern}})
+       when not is_nil(pattern) and is_binary(value) do
     if Regex.match?(pattern, value) do
       {:ok, value}
     else
@@ -78,11 +77,11 @@ defmodule OpenApiSpex.CastPrimitive do
     end
   end
 
-  defp cast_string(value, _schema) when is_binary(value) do
+  defp cast_string(%{value: value}) when is_binary(value) do
     {:ok, value}
   end
 
-  defp cast_string(value, _schema) do
+  defp cast_string(%{value: value}) do
     {:error, Error.new(:invalid_type, :string, value)}
   end
 end
