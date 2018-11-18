@@ -2,7 +2,7 @@ defmodule OpenApiSpex.CastArray do
   @moduledoc false
   alias OpenApiSpex.{Cast, Error}
 
-  def cast(_value, _schema, _schemas, index \\ 0)
+  def cast(value, schema, schemas \\ %{}, index \\ 0)
 
   def cast([], _schema, _schemas, _index) do
     {:ok, []}
