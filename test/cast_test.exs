@@ -1,7 +1,8 @@
 defmodule OpenApiSpec.CastTest do
   use ExUnit.Case
-  import OpenApiSpex.Cast
-  alias OpenApiSpex.{Error, Schema}
+  alias OpenApiSpex.{Cast, CastContext, Error, Schema}
+
+  def cast(ctx), do: Cast.cast(struct(CastContext, ctx))
 
   describe "cast/3" do
     # Note: full tests for primitives are covered in CastPrimitiveTest
@@ -19,19 +20,19 @@ defmodule OpenApiSpec.CastTest do
 
       for {type, input, expected} <- tests do
         case expected do
-          :ok -> assert {:ok, _} = cast(input, %Schema{type: type})
-          :invalid -> assert {:error, _} = cast(input, %Schema{type: type})
+          :ok -> assert {:ok, _} = cast(value: input, schema: %Schema{type: type})
+          :invalid -> assert {:error, _} = cast(value: input, schema: %Schema{type: type})
         end
       end
     end
 
     test "array" do
       schema = %Schema{type: :array}
-      assert cast([], schema) == {:ok, []}
-      assert cast([1, 2, 3], schema) == {:ok, [1, 2, 3]}
-      assert cast(["1", "2", "3"], schema) == {:ok, ["1", "2", "3"]}
+      assert cast(value: [], schema: schema) == {:ok, []}
+      assert cast(value: [1, 2, 3], schema: schema) == {:ok, [1, 2, 3]}
+      assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, ["1", "2", "3"]}
 
-      assert {:error, error} = cast(%{}, schema)
+      assert {:error, error} = cast(value: %{}, schema: schema)
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == %{}
@@ -40,11 +41,11 @@ defmodule OpenApiSpec.CastTest do
     test "array with items schema" do
       items_schema = %Schema{type: :integer}
       schema = %Schema{type: :array, items: items_schema}
-      assert cast([], schema) == {:ok, []}
-      assert cast([1, 2, 3], schema) == {:ok, [1, 2, 3]}
-      assert cast(["1", "2", "3"], schema) == {:ok, [1, 2, 3]}
+      assert cast(value: [], schema: schema) == {:ok, []}
+      assert cast(value: [1, 2, 3], schema: schema) == {:ok, [1, 2, 3]}
+      assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, [1, 2, 3]}
 
-      assert {:error, error} = cast([1, "two"], schema)
+      assert {:error, error} = cast(value: [1, "two"], schema: schema)
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == "two"
@@ -58,8 +59,8 @@ defmodule OpenApiSpec.CastTest do
         properties: %{age: nil}
       }
 
-      assert cast(%{}, schema) == {:ok, %{}}
-      assert cast(%{"age" => "hello"}, schema) == {:ok, %{age: "hello"}}
+      assert cast(value: %{}, schema: schema) == {:ok, %{}}
+      assert cast(value: %{"age" => "hello"}, schema: schema) == {:ok, %{age: "hello"}}
     end
   end
 end

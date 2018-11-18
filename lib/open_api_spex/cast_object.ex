@@ -2,19 +2,18 @@ defmodule OpenApiSpex.CastObject do
   @moduledoc false
   alias OpenApiSpex.{Cast, Error}
 
-  def cast(value, schema, schemas \\ %{})
-
-  def cast(value, %{properties: nil}, _schemas) do
+  def cast(%{value: value, schema: %{properties: nil}}) do
     {:ok, value}
   end
 
-  def cast(value, schema, _schemas) do
+  def cast(%{value: value, schema: schema} = ctx) do
     schema_properties = schema.properties || %{}
 
     with :ok <- check_unrecognized_properties(value, schema_properties),
          value <- cast_atom_keys(value, schema_properties),
+         ctx = %{ctx | value: value},
          :ok <- check_required_fields(value, schema),
-         :ok <- cast_properties(value, schema_properties) do
+         :ok <- cast_properties(%{ctx | schema: schema_properties}) do
       {:ok, value}
     end
   end
@@ -57,17 +56,20 @@ defmodule OpenApiSpex.CastObject do
     end)
   end
 
-  defp cast_properties(object, schema_properties) do
+  defp cast_properties(%{value: object, schema: schema_properties} = ctx) do
     Enum.reduce(object, {:ok, %{}}, fn
-      {key, value}, {:ok, output} -> cast_property(key, value, output, schema_properties)
-      _, error -> error
+      {key, value}, {:ok, output} ->
+        cast_property(%{ctx | key: key, value: value, schema: schema_properties}, output)
+
+      _, error ->
+        error
     end)
   end
 
-  defp cast_property(key, value, output, schema_properties) do
+  defp cast_property(%{key: key, schema: schema_properties} = ctx, output) do
     prop_schema = Map.get(schema_properties, key)
 
-    with {:error, error} <- Cast.cast(value, prop_schema) do
+    with {:error, error} <- Cast.cast(%{ctx | schema: prop_schema}) do
       {:error, %{error | path: [key | error.path]}}
     else
       {:ok, value} -> {:ok, Map.put(output, key, value)}

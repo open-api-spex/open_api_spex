@@ -18,7 +18,7 @@ defmodule OpenApiSpex.CastArray do
   end
 
   defp cast_item(%{value: item, schema: items_schema} = ctx) do
-    with {:error, error} <- Cast.cast(item, items_schema, ctx.schemas) do
+    with {:error, error} <- Cast.cast(%{ctx | value: item, schema: items_schema}) do
       {:error, %{error | path: [ctx.index | error.path]}}
     end
   end

@@ -3,6 +3,7 @@ defmodule OpenApiSpex.CastContext do
             schema: nil,
             schemas: %{},
             path: [],
+            key: nil,
             index: 0,
             errors: []
 end

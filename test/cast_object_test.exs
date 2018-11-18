@@ -1,19 +1,22 @@
 defmodule OpenApiSpex.CastObjectTest do
   use ExUnit.Case
-  import OpenApiSpex.CastObject
-  alias OpenApiSpex.{Error, Schema}
+  alias OpenApiSpex.{CastContext, CastObject, Error, Schema}
+
+  defp cast(ctx), do: CastObject.cast(struct(CastContext, ctx))
 
   describe "cast/3" do
     test "properties:nil, given unknown input property" do
       schema = %Schema{type: :object}
-      assert cast(%{}, schema) == {:ok, %{}}
-      assert cast(%{"unknown" => "hello"}, schema) == {:ok, %{"unknown" => "hello"}}
+      assert cast(value: %{}, schema: schema) == {:ok, %{}}
+
+      assert cast(value: %{"unknown" => "hello"}, schema: schema) ==
+               {:ok, %{"unknown" => "hello"}}
     end
 
     test "with empty schema properties, given unknown input property" do
       schema = %Schema{type: :object, properties: %{}}
-      assert cast(%{}, schema) == {:ok, %{}}
-      assert {:error, error} = cast(%{"unknown" => "hello"}, schema)
+      assert cast(value: %{}, schema: schema) == {:ok, %{}}
+      assert {:error, error} = cast(value: %{"unknown" => "hello"}, schema: schema)
       assert %Error{} = error
     end
 
@@ -23,8 +26,8 @@ defmodule OpenApiSpex.CastObjectTest do
         properties: %{age: nil}
       }
 
-      assert cast(%{}, schema) == {:ok, %{}}
-      assert cast(%{"age" => "hello"}, schema) == {:ok, %{age: "hello"}}
+      assert cast(value: %{}, schema: schema) == {:ok, %{}}
+      assert cast(value: %{"age" => "hello"}, schema: schema) == {:ok, %{age: "hello"}}
     end
 
     test "required fields" do
@@ -34,7 +37,7 @@ defmodule OpenApiSpex.CastObjectTest do
         required: [:age]
       }
 
-      assert {:error, error} = cast(%{}, schema)
+      assert {:error, error} = cast(value: %{}, schema: schema)
       assert %Error{} = error
       assert error.reason == :missing_field
       assert error.name == :age
@@ -46,8 +49,8 @@ defmodule OpenApiSpex.CastObjectTest do
         properties: %{age: %Schema{type: :integer}}
       }
 
-      assert cast(%{}, schema) == {:ok, %{}}
-      assert {:error, error} = cast(%{"age" => "hello"}, schema)
+      assert cast(value: %{}, schema: schema) == {:ok, %{}}
+      assert {:error, error} = cast(value: %{"age" => "hello"}, schema: schema)
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.path == [:age]
