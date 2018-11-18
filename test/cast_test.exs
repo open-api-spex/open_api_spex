@@ -1,6 +1,6 @@
 defmodule OpenApiSpec.CastTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Cast, CastContext, Error, Schema}
+  alias OpenApiSpex.{Cast, CastContext, Error, Reference, Schema}
 
   def cast(ctx), do: Cast.cast(struct(CastContext, ctx))
 
@@ -61,6 +61,33 @@ defmodule OpenApiSpec.CastTest do
 
       assert cast(value: %{}, schema: schema) == {:ok, %{}}
       assert cast(value: %{"age" => "hello"}, schema: schema) == {:ok, %{age: "hello"}}
+    end
+
+    test "reference" do
+      age_schema = %Schema{type: :integer}
+
+      assert cast(
+               value: "20",
+               schema: %Reference{"$ref": "#/components/schemas/Age"},
+               schemas: %{"Age" => age_schema}
+             ) == {:ok, 20}
+    end
+
+    test "reference nested in object" do
+      age_schema = %Schema{type: :integer}
+
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          age: %Reference{"$ref": "#/components/schemas/Age"}
+        }
+      }
+
+      assert cast(
+               value: %{"age" => "20"},
+               schema: schema,
+               schemas: %{"Age" => age_schema}
+             ) == {:ok, %{age: 20}}
     end
   end
 end
