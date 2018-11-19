@@ -42,7 +42,7 @@ defmodule OpenApiSpex.Cast do
     end
   end
 
-  # Specific types
+  ## Specific types
 
   def cast(%CastContext{schema: %{type: type}} = ctx) when type in @primitives,
     do: CastPrimitive.cast(ctx)

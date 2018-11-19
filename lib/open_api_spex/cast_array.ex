@@ -7,7 +7,20 @@ defmodule OpenApiSpex.CastArray do
   end
 
   def cast(%{value: items} = ctx) when is_list(items) do
-    results =
+    case cast_items(ctx) do
+      {items, []} -> {:ok, items}
+      {_, errors} -> {:error, errors}
+    end
+  end
+
+  def cast(ctx) do
+    CastContext.error(ctx, {:invalid_type, :array})
+  end
+
+  ## Private functions
+
+  defp cast_items(%{value: items} = ctx) do
+    cast_results =
       items
       |> Enum.with_index()
       |> Enum.map(fn {item, index} ->
@@ -16,20 +29,13 @@ defmodule OpenApiSpex.CastArray do
       end)
 
     errors =
-      Enum.flat_map(results, fn
+      Enum.flat_map(cast_results, fn
         {:error, errors} -> errors
         _ -> []
       end)
 
-    if errors == [] do
-      items = Enum.map(results, fn {:ok, item} -> item end)
-      {:ok, items}
-    else
-      {:error, errors}
-    end
-  end
+    items = for {:ok, item} <- cast_results, do: item
 
-  def cast(ctx) do
-    CastContext.error(ctx, {:invalid_type, :array})
+    {items, errors}
   end
 end
