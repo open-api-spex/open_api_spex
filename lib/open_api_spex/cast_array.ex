@@ -29,10 +29,8 @@ defmodule OpenApiSpex.CastArray do
       end)
 
     errors =
-      Enum.flat_map(cast_results, fn
-        {:error, errors} -> errors
-        _ -> []
-      end)
+      for({:error, errors} <- cast_results, do: errors)
+      |> Enum.concat()
 
     items = for {:ok, item} <- cast_results, do: item
 
