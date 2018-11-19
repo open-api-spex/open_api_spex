@@ -149,6 +149,19 @@ defmodule OpenApiSpex.SchemaTest do
 
       assert {:error, _} = Schema.validate(schema, %{}, %{})
     end
+
+    test "Validate schema type number when value is exclusive" do
+      schema = %Schema{
+        type: :integer,
+        minimum: -1,
+        maximum: 1,
+        exclusiveMinimum: true,
+        exclusiveMaximum: true
+      }
+
+      assert {:error, _} = Schema.validate(schema, 1, %{})
+      assert {:error, _} = Schema.validate(schema, -1, %{})
+    end
   end
 
   describe "String validation" do
