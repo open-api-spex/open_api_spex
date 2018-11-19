@@ -1,8 +1,9 @@
 defmodule OpenApiSpec.CastTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Cast, CastContext, CastError, Reference, Schema}
+  alias OpenApiSpex.Cast.{Context, Error}
+  alias OpenApiSpex.{Cast, Schema, Reference}
 
-  def cast(ctx), do: Cast.cast(struct(CastContext, ctx))
+  def cast(ctx), do: Cast.cast(struct(Context, ctx))
 
   describe "cast/3" do
     # Note: full tests for primitives are covered in CastPrimitiveTest
@@ -37,7 +38,7 @@ defmodule OpenApiSpec.CastTest do
       schema = %Schema{type: :array}
       assert {:error, [error]} = cast(value: nil, schema: schema)
       assert error.reason == :null_value
-      assert CastError.message_with_path(error) == "#: null value where array expected"
+      assert Error.message_with_path(error) == "#: null value where array expected"
     end
 
     test "array" do
@@ -47,7 +48,7 @@ defmodule OpenApiSpec.CastTest do
       assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, ["1", "2", "3"]}
 
       assert {:error, [error]} = cast(value: %{}, schema: schema)
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == %{}
     end
@@ -60,7 +61,7 @@ defmodule OpenApiSpec.CastTest do
       assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, [1, 2, 3]}
 
       assert {:error, errors} = cast(value: [1, "two"], schema: schema)
-      assert [%CastError{} = error] = errors
+      assert [%Error{} = error] = errors
       assert error.reason == :invalid_type
       assert error.value == "two"
       assert error.path == [1]
@@ -114,7 +115,7 @@ defmodule OpenApiSpec.CastTest do
 
       assert {:error, errors} = cast(value: %{"age" => "twenty"}, schema: schema)
       assert [error] = errors
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.path == [:age]
     end
 
@@ -133,9 +134,9 @@ defmodule OpenApiSpec.CastTest do
 
       assert {:error, errors} = cast(value: %{"data" => %{"age" => "twenty"}}, schema: schema)
       assert [error] = errors
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.path == [:data, :age]
-      assert CastError.message_with_path(error) == "#/data/age: Invalid integer. Got: string"
+      assert Error.message_with_path(error) == "#/data/age: Invalid integer. Got: string"
     end
 
     test "paths involving arrays" do
@@ -158,9 +159,9 @@ defmodule OpenApiSpec.CastTest do
                cast(value: %{"data" => [%{"age" => "20"}, %{"age" => "twenty"}]}, schema: schema)
 
       assert [error] = errors
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.path == [:data, 1, :age]
-      assert CastError.message_with_path(error) == "#/data/1/age: Invalid integer. Got: string"
+      assert Error.message_with_path(error) == "#/data/1/age: Invalid integer. Got: string"
     end
 
     test "multiple errors" do
@@ -172,19 +173,19 @@ defmodule OpenApiSpec.CastTest do
       value = [1, "two", 3, "four"]
       assert {:error, errors} = cast(value: value, schema: schema)
       assert [error, error2] = errors
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.path == [1]
-      assert CastError.message_with_path(error) == "#/1: Invalid integer. Got: string"
+      assert Error.message_with_path(error) == "#/1: Invalid integer. Got: string"
 
-      assert CastError.message_with_path(error2) == "#/3: Invalid integer. Got: string"
+      assert Error.message_with_path(error2) == "#/3: Invalid integer. Got: string"
     end
 
     test "enum - invalid" do
       schema = %Schema{type: :string, enum: ["one"]}
       assert {:error, [error]} = cast(value: "two", schema: schema)
 
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.reason == :invalid_enum
     end
 

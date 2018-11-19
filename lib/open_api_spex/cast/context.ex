@@ -1,5 +1,5 @@
-defmodule OpenApiSpex.CastContext do
-  alias OpenApiSpex.CastError
+defmodule OpenApiSpex.Cast.Context do
+  alias OpenApiSpex.Cast.Error
 
   defstruct value: nil,
             schema: nil,
@@ -10,7 +10,7 @@ defmodule OpenApiSpex.CastContext do
             errors: []
 
   def error(ctx, error_args) do
-    error = CastError.new(ctx, error_args)
+    error = Error.new(ctx, error_args)
     {:error, [error | ctx.errors]}
   end
 end

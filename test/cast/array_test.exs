@@ -1,8 +1,9 @@
-defmodule OpenApiSpec.CastArrayTest do
+defmodule OpenApiSpec.Cast.ArrayTest do
   use ExUnit.Case
-  alias OpenApiSpex.{CastArray, CastContext, CastError, Schema}
+  alias OpenApiSpex.Cast.{Array, Context, Error}
+  alias OpenApiSpex.Schema
 
-  defp cast(map), do: CastArray.cast(struct(CastContext, map))
+  defp cast(map), do: Array.cast(struct(Context, map))
 
   describe "cast/4" do
     test "array" do
@@ -12,7 +13,7 @@ defmodule OpenApiSpec.CastArrayTest do
       assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, ["1", "2", "3"]}
 
       assert {:error, [error]} = cast(value: %{}, schema: schema)
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == %{}
     end
@@ -25,7 +26,7 @@ defmodule OpenApiSpec.CastArrayTest do
       assert cast(value: ["1", "2", "3"], schema: schema) == {:ok, [1, 2, 3]}
 
       assert {:error, [error]} = cast(value: [1, "two"], schema: schema)
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == "two"
       assert error.path == [1]

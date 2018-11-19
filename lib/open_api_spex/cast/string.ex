@@ -1,13 +1,13 @@
-defmodule OpenApiSpex.CastString do
+defmodule OpenApiSpex.Cast.String do
   @moduledoc false
-  alias OpenApiSpex.CastContext
+  alias OpenApiSpex.Cast.Context
 
   def cast(%{value: value} = ctx) when is_binary(value) do
     cast_binary(ctx)
   end
 
   def cast(ctx) do
-    CastContext.error(ctx, {:invalid_type, :string})
+    Context.error(ctx, {:invalid_type, :string})
   end
 
   ## Private functions
@@ -16,7 +16,7 @@ defmodule OpenApiSpex.CastString do
     if Regex.match?(pattern, value) do
       {:ok, value}
     else
-      CastContext.error(ctx, {:invalid_format, pattern})
+      Context.error(ctx, {:invalid_format, pattern})
     end
   end
 
@@ -28,7 +28,7 @@ defmodule OpenApiSpex.CastString do
     length = String.length(trimmed)
 
     if length < min_length do
-      CastContext.error(ctx, {:min_length, length})
+      Context.error(ctx, {:min_length, length})
     else
       {:ok, value}
     end

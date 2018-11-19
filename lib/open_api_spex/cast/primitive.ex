@@ -1,6 +1,6 @@
-defmodule OpenApiSpex.CastPrimitive do
+defmodule OpenApiSpex.Cast.Primitive do
   @moduledoc false
-  alias OpenApiSpex.{CastContext, CastString}
+  alias OpenApiSpex.Cast.{Context, String}
 
   def cast(%{schema: %{type: :boolean}} = ctx),
     do: cast_boolean(ctx)
@@ -12,7 +12,7 @@ defmodule OpenApiSpex.CastPrimitive do
     do: cast_number(ctx)
 
   def cast(%{schema: %{type: :string}} = ctx),
-    do: CastString.cast(ctx)
+    do: String.cast(ctx)
 
   ## Private functions
 
@@ -24,7 +24,7 @@ defmodule OpenApiSpex.CastPrimitive do
   defp cast_boolean(%{value: "false"}), do: {:ok, false}
 
   defp cast_boolean(ctx) do
-    CastContext.error(ctx, {:invalid_type, :boolean})
+    Context.error(ctx, {:invalid_type, :boolean})
   end
 
   defp cast_integer(%{value: value}) when is_integer(value) do
@@ -38,12 +38,12 @@ defmodule OpenApiSpex.CastPrimitive do
   defp cast_integer(%{value: value} = ctx) when is_binary(value) do
     case Float.parse(value) do
       {value, ""} -> cast_integer(%{ctx | value: value})
-      _ -> CastContext.error(ctx, {:invalid_type, :integer})
+      _ -> Context.error(ctx, {:invalid_type, :integer})
     end
   end
 
   defp cast_integer(ctx) do
-    CastContext.error(ctx, {:invalid_type, :integer})
+    Context.error(ctx, {:invalid_type, :integer})
   end
 
   defp cast_number(%{value: value}) when is_number(value) do
@@ -57,11 +57,11 @@ defmodule OpenApiSpex.CastPrimitive do
   defp cast_number(%{value: value} = ctx) when is_binary(value) do
     case Float.parse(value) do
       {value, ""} -> {:ok, value}
-      _ -> CastContext.error(ctx, {:invalid_type, :number})
+      _ -> Context.error(ctx, {:invalid_type, :number})
     end
   end
 
   defp cast_number(ctx) do
-    CastContext.error(ctx, {:invalid_type, :number})
+    Context.error(ctx, {:invalid_type, :number})
   end
 end

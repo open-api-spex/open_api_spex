@@ -1,9 +1,10 @@
-defmodule OpenApiSpex.CastObject do
+defmodule OpenApiSpex.Cast.Object do
   @moduledoc false
-  alias OpenApiSpex.{Cast, CastError, CastContext}
+  alias OpenApiSpex.Cast
+  alias OpenApiSpex.Cast.{Error, Context}
 
   def cast(%{value: value} = ctx) when not is_map(value) do
-    CastContext.error(ctx, {:invalid_type, :object})
+    Context.error(ctx, {:invalid_type, :object})
   end
 
   def cast(%{value: value, schema: %{properties: nil}}) do
@@ -32,7 +33,7 @@ defmodule OpenApiSpex.CastObject do
       :ok
     else
       [name | _] = extra_keys
-      CastContext.error(ctx, {:unexpected_field, name})
+      Context.error(ctx, {:unexpected_field, name})
     end
   end
 
@@ -47,7 +48,7 @@ defmodule OpenApiSpex.CastObject do
       errors =
         Enum.map(missing_keys, fn key ->
           ctx = %{ctx | path: [key | ctx.path]}
-          CastError.new(ctx, {:missing_field, key})
+          Error.new(ctx, {:missing_field, key})
         end)
 
       {:error, ctx.errors ++ errors}

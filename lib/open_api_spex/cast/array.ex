@@ -1,7 +1,10 @@
-defmodule OpenApiSpex.CastArray do
+defmodule OpenApiSpex.Cast.Array do
   @moduledoc false
-  alias OpenApiSpex.{Cast, CastContext}
+  alias OpenApiSpex.Cast
+  alias OpenApiSpex.Cast.Context
 
+  @spec cast(atom() | %{value: any()}) ::
+          {:error, nonempty_maybe_improper_list()} | {:ok, [any()]}
   def cast(%{value: []}), do: {:ok, []}
 
   def cast(%{value: items} = ctx) when is_list(items) do
@@ -12,7 +15,7 @@ defmodule OpenApiSpex.CastArray do
   end
 
   def cast(ctx),
-    do: CastContext.error(ctx, {:invalid_type, :array})
+    do: Context.error(ctx, {:invalid_type, :array})
 
   ## Private functions
 

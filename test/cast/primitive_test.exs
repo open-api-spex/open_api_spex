@@ -1,8 +1,9 @@
-defmodule OpenApiSpex.CastPrimitiveTest do
+defmodule OpenApiSpex.PrimitiveTest do
   use ExUnit.Case
-  alias OpenApiSpex.{CastContext, CastPrimitive, CastError, Schema}
+  alias OpenApiSpex.Cast.{Context, Primitive, Error}
+  alias OpenApiSpex.Schema
 
-  defp cast(ctx), do: CastPrimitive.cast(struct(CastContext, ctx))
+  defp cast(ctx), do: Primitive.cast(struct(Context, ctx))
 
   describe "cast/3" do
     test "boolean" do
@@ -12,7 +13,7 @@ defmodule OpenApiSpex.CastPrimitiveTest do
       assert cast(value: "true", schema: schema) == {:ok, true}
       assert cast(value: "false", schema: schema) == {:ok, false}
       assert {:error, [error]} = cast(value: "other", schema: schema)
-      assert %CastError{reason: :invalid_type} = error
+      assert %Error{reason: :invalid_type} = error
       assert error.value == "other"
     end
 
@@ -23,7 +24,7 @@ defmodule OpenApiSpex.CastPrimitiveTest do
       assert cast(value: "1", schema: schema) == {:ok, 1}
       assert cast(value: "1.5", schema: schema) == {:ok, 2}
       assert {:error, [error]} = cast(value: "other", schema: schema)
-      assert %CastError{reason: :invalid_type} = error
+      assert %Error{reason: :invalid_type} = error
       assert error.value == "other"
     end
 
@@ -34,7 +35,7 @@ defmodule OpenApiSpex.CastPrimitiveTest do
       assert cast(value: "1", schema: schema) == {:ok, 1.0}
       assert cast(value: "1.5", schema: schema) == {:ok, 1.5}
       assert {:error, [error]} = cast(value: "other", schema: schema)
-      assert %CastError{reason: :invalid_type} = error
+      assert %Error{reason: :invalid_type} = error
       assert error.value == "other"
     end
 
@@ -44,7 +45,7 @@ defmodule OpenApiSpex.CastPrimitiveTest do
       assert cast(value: "hello", schema: schema) == {:ok, "hello"}
       assert cast(value: "", schema: schema) == {:ok, ""}
       assert {:error, [error]} = cast(value: %{}, schema: schema)
-      assert %CastError{reason: :invalid_type} = error
+      assert %Error{reason: :invalid_type} = error
       assert error.value == %{}
     end
   end

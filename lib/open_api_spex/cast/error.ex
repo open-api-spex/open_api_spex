@@ -1,4 +1,4 @@
-defmodule OpenApiSpex.CastError do
+defmodule OpenApiSpex.Cast.Error do
   alias OpenApiSpex.TermType
 
   defstruct reason: nil,
@@ -116,8 +116,8 @@ defmodule OpenApiSpex.CastError do
   end
 end
 
-defimpl String.Chars, for: OpenApiSpex.CastError do
+defimpl String.Chars, for: OpenApiSpex.Cast.Error do
   def to_string(error) do
-    OpenApiSpex.CastError.message(error)
+    OpenApiSpex.Cast.Error.message(error)
   end
 end

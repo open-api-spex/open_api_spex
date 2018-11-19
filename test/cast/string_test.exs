@@ -1,8 +1,9 @@
 defmodule OpenApiSpex.CastStringTest do
   use ExUnit.Case
-  alias OpenApiSpex.{CastContext, CastError, CastString, Schema}
+  alias OpenApiSpex.Cast.{Context, Error, String}
+  alias OpenApiSpex.Schema
 
-  defp cast(ctx), do: CastString.cast(struct(CastContext, ctx))
+  defp cast(ctx), do: String.cast(struct(Context, ctx))
 
   describe "cast/1" do
     test "basics" do
@@ -10,7 +11,7 @@ defmodule OpenApiSpex.CastStringTest do
       assert cast(value: "hello", schema: schema) == {:ok, "hello"}
       assert cast(value: "", schema: schema) == {:ok, ""}
       assert {:error, [error]} = cast(value: %{}, schema: schema)
-      assert %CastError{reason: :invalid_type} = error
+      assert %Error{reason: :invalid_type} = error
       assert error.value == %{}
     end
 
@@ -27,7 +28,7 @@ defmodule OpenApiSpex.CastStringTest do
     test "minLength" do
       schema = %Schema{type: :string, minLength: 1}
       assert {:error, [error]} = cast(value: "   ", schema: schema)
-      assert %CastError{} = error
+      assert %Error{} = error
       assert error.reason == :min_length
     end
   end
