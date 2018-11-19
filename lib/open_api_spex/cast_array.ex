@@ -17,8 +17,7 @@ defmodule OpenApiSpex.CastArray do
 
     errors =
       Enum.flat_map(results, fn
-        {:error, errors} when is_list(errors) -> errors
-        {:error, error} -> [error]
+        {:error, errors} -> errors
         _ -> []
       end)
 
