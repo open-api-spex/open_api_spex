@@ -47,13 +47,10 @@ defmodule OpenApiSpex.CastError do
   end
 
   def message(%{reason: :null_value} = error) do
-    message =
-      case error.type do
-        nil -> "null value"
-        type -> "null value where #{type} expected"
-      end
-
-    message
+    case error.type do
+      nil -> "null value"
+      type -> "null value where #{type} expected"
+    end
   end
 
   def message(%{reason: :min_length, length: length}) do
