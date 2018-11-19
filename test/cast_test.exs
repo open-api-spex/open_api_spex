@@ -5,7 +5,17 @@ defmodule OpenApiSpec.CastTest do
 
   def cast(ctx), do: Cast.cast(ctx)
 
-  describe "cast/3" do
+  describe "cast/1" do
+    test "unknown schema type" do
+      assert {:error, [error]} = cast(value: "string", schema: %Schema{type: :nope})
+      assert error.reason == :invalid_schema_type
+      assert error.type == :nope
+
+      assert {:error, [error]} = cast(value: "string", schema: %Schema{type: nil})
+      assert error.reason == :invalid_schema_type
+      assert error.type == nil
+    end
+
     # Note: full tests for primitives are covered in Cast.PrimitiveTest
     test "primitives" do
       tests = [

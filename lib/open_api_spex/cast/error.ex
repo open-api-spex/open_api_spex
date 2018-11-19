@@ -9,6 +9,11 @@ defmodule OpenApiSpex.Cast.Error do
             path: [],
             length: 0
 
+  def new(ctx, {:invalid_schema_type}) do
+    %__MODULE__{reason: :invalid_schema_type, type: ctx.schema.type}
+    |> add_context_fields(ctx)
+  end
+
   def new(ctx, {:null_value}) do
     type = ctx.schema && ctx.schema.type
 
@@ -44,6 +49,10 @@ defmodule OpenApiSpex.Cast.Error do
   def new(ctx, {:missing_field, name}) do
     %__MODULE__{reason: :missing_field, name: name}
     |> add_context_fields(ctx)
+  end
+
+  def message(%{reason: :invalid_schema_type, type: type}) do
+    "Invalid schema.type. Got: #{inspect(type)}"
   end
 
   def message(%{reason: :null_value} = error) do

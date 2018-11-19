@@ -62,6 +62,9 @@ defmodule OpenApiSpex.Cast do
   def cast(%__MODULE__{schema: %{type: :object}} = ctx),
     do: Object.cast(ctx)
 
+  def cast(%__MODULE__{schema: %{type: _other}} = ctx),
+    do: error(ctx, {:invalid_schema_type})
+
   def cast(%{} = ctx), do: cast(struct(__MODULE__, ctx))
   def cast(ctx) when is_list(ctx), do: cast(struct(__MODULE__, ctx))
 
