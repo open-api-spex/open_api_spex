@@ -1,9 +1,9 @@
 defmodule OpenApiSpex.CastStringTest do
   use ExUnit.Case
-  alias OpenApiSpex.Cast.{Context, Error, String}
-  alias OpenApiSpex.Schema
+  alias OpenApiSpex.{Cast, Schema}
+  alias OpenApiSpex.Cast.{Error, String}
 
-  defp cast(ctx), do: String.cast(struct(Context, ctx))
+  defp cast(ctx), do: String.cast(struct(Cast, ctx))
 
   describe "cast/1" do
     test "basics" do

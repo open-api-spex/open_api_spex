@@ -1,9 +1,9 @@
 defmodule OpenApiSpex.ObjectTest do
   use ExUnit.Case
-  alias OpenApiSpex.Cast.{Context, Object, Error}
-  alias OpenApiSpex.Schema
+  alias OpenApiSpex.{Cast, Schema}
+  alias OpenApiSpex.Cast.{Object, Error}
 
-  defp cast(ctx), do: Object.cast(struct(Context, ctx))
+  defp cast(ctx), do: Object.cast(struct(Cast, ctx))
 
   describe "cast/3" do
     test "not an object" do

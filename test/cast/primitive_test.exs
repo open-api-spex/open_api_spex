@@ -1,9 +1,9 @@
 defmodule OpenApiSpex.PrimitiveTest do
   use ExUnit.Case
-  alias OpenApiSpex.Cast.{Context, Primitive, Error}
-  alias OpenApiSpex.Schema
+  alias OpenApiSpex.{Cast, Schema}
+  alias OpenApiSpex.Cast.{Primitive, Error}
 
-  defp cast(ctx), do: Primitive.cast(struct(Context, ctx))
+  defp cast(ctx), do: Primitive.cast(struct(Cast, ctx))
 
   describe "cast/3" do
     test "boolean" do

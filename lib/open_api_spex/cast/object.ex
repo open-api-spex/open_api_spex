@@ -1,10 +1,10 @@
 defmodule OpenApiSpex.Cast.Object do
   @moduledoc false
   alias OpenApiSpex.Cast
-  alias OpenApiSpex.Cast.{Error, Context}
+  alias OpenApiSpex.Cast.Error
 
   def cast(%{value: value} = ctx) when not is_map(value) do
-    Context.error(ctx, {:invalid_type, :object})
+    Cast.error(ctx, {:invalid_type, :object})
   end
 
   def cast(%{value: value, schema: %{properties: nil}}) do
@@ -33,7 +33,7 @@ defmodule OpenApiSpex.Cast.Object do
       :ok
     else
       [name | _] = extra_keys
-      Context.error(ctx, {:unexpected_field, name})
+      Cast.error(ctx, {:unexpected_field, name})
     end
   end
 

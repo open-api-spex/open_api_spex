@@ -1,7 +1,6 @@
 defmodule OpenApiSpex.Cast.Array do
   @moduledoc false
   alias OpenApiSpex.Cast
-  alias OpenApiSpex.Cast.Context
 
   @spec cast(atom() | %{value: any()}) ::
           {:error, nonempty_maybe_improper_list()} | {:ok, [any()]}
@@ -15,7 +14,7 @@ defmodule OpenApiSpex.Cast.Array do
   end
 
   def cast(ctx),
-    do: Context.error(ctx, {:invalid_type, :array})
+    do: Cast.error(ctx, {:invalid_type, :array})
 
   ## Private functions
 

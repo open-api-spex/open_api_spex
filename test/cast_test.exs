@@ -1,12 +1,12 @@
 defmodule OpenApiSpec.CastTest do
   use ExUnit.Case
-  alias OpenApiSpex.Cast.{Context, Error}
   alias OpenApiSpex.{Cast, Schema, Reference}
+  alias OpenApiSpex.Cast.Error
 
-  def cast(ctx), do: Cast.cast(struct(Context, ctx))
+  def cast(ctx), do: Cast.cast(ctx)
 
   describe "cast/3" do
-    # Note: full tests for primitives are covered in CastPrimitiveTest
+    # Note: full tests for primitives are covered in Cast.PrimitiveTest
     test "primitives" do
       tests = [
         {:string, "1", :ok},
@@ -67,7 +67,7 @@ defmodule OpenApiSpec.CastTest do
       assert error.path == [1]
     end
 
-    # Additional object tests found in CastObjectTest
+    # Additional object tests found in Cast.ObjectTest
     test "object with schema properties set, given known input property" do
       schema = %Schema{
         type: :object,

@@ -1,9 +1,9 @@
 defmodule OpenApiSpec.Cast.ArrayTest do
   use ExUnit.Case
-  alias OpenApiSpex.Cast.{Array, Context, Error}
-  alias OpenApiSpex.Schema
+  alias OpenApiSpex.Cast.{Array, Error}
+  alias OpenApiSpex.{Cast, Schema}
 
-  defp cast(map), do: Array.cast(struct(Context, map))
+  defp cast(map), do: Array.cast(struct(Cast, map))
 
   describe "cast/4" do
     test "array" do
