@@ -68,5 +68,22 @@ defmodule OpenApiSpex.CastObjectTest do
       assert error.reason == :invalid_type
       assert error.path == [:age]
     end
+
+    defmodule User do
+      defstruct [:name]
+    end
+
+    test "optionally casts to struct" do
+      schema = %Schema{
+        type: :object,
+        "x-struct": User,
+        properties: %{
+          name: %Schema{type: :string}
+        }
+      }
+
+      assert {:ok, user} = cast(value: %{"name" => "Name"}, schema: schema)
+      assert user == %User{name: "Name"}
+    end
   end
 end

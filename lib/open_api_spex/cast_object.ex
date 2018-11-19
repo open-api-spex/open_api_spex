@@ -17,8 +17,9 @@ defmodule OpenApiSpex.CastObject do
          value = cast_atom_keys(value, schema_properties),
          ctx = %{ctx | value: value},
          :ok <- check_required_fields(ctx, schema),
-         :ok <- cast_properties(%{ctx | schema: schema_properties}) do
-      {:ok, value}
+         {:ok, value} <- cast_properties(%{ctx | schema: schema_properties}) do
+      ctx = to_struct(%{ctx | value: value})
+      {:ok, ctx}
     end
   end
 
@@ -85,4 +86,10 @@ defmodule OpenApiSpex.CastObject do
       {:ok, value} -> {:ok, Map.put(output, key, value)}
     end
   end
+
+  defp to_struct(%{value: value = %_{}}), do: value
+  defp to_struct(%{value: value, schema: %{"x-struct": nil}}), do: value
+
+  defp to_struct(%{value: value, schema: %{"x-struct": module}}),
+    do: struct(module, value)
 end

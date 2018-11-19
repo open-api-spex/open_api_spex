@@ -2,9 +2,7 @@ defmodule OpenApiSpex.CastArray do
   @moduledoc false
   alias OpenApiSpex.{Cast, CastContext}
 
-  def cast(%{value: []}) do
-    {:ok, []}
-  end
+  def cast(%{value: []}), do: {:ok, []}
 
   def cast(%{value: items} = ctx) when is_list(items) do
     case cast_items(ctx) do
@@ -13,9 +11,8 @@ defmodule OpenApiSpex.CastArray do
     end
   end
 
-  def cast(ctx) do
-    CastContext.error(ctx, {:invalid_type, :array})
-  end
+  def cast(ctx),
+    do: CastContext.error(ctx, {:invalid_type, :array})
 
   ## Private functions
 
