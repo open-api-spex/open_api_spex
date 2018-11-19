@@ -7,6 +7,7 @@ defmodule OpenApiSpex.Cast do
     cast(ctx)
   end
 
+  # nil schema
   def cast(%CastContext{value: value, schema: nil}),
     do: {:ok, value}
 
@@ -15,12 +16,12 @@ defmodule OpenApiSpex.Cast do
     cast(%{ctx | schema: schema})
   end
 
-  # nullable
+  # nullable: true
   def cast(%CastContext{value: nil, schema: %{nullable: true}}) do
     {:ok, nil}
   end
 
-  # nullable
+  # nullable: false
   def cast(%CastContext{value: nil} = ctx) do
     CastContext.error(ctx, {:null_value})
   end
@@ -30,6 +31,7 @@ defmodule OpenApiSpex.Cast do
     cast(%{ctx | enum: nil})
   end
 
+  # Enum
   def cast(%CastContext{schema: %{enum: enum}} = ctx) when is_list(enum) do
     with {:ok, value} <- cast(%{ctx | schema: %{ctx.schema | enum: nil}}) do
       if value in enum do

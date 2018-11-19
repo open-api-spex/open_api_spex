@@ -6,12 +6,18 @@ defmodule OpenApiSpex.CastError do
             format: nil,
             type: nil,
             name: nil,
-            path: []
+            path: [],
+            length: 0
 
   def new(ctx, {:null_value}) do
     type = ctx.schema && ctx.schema.type
 
     %__MODULE__{reason: :null_value, type: type}
+    |> add_context_fields(ctx)
+  end
+
+  def new(ctx, {:min_length, length}) do
+    %__MODULE__{reason: :min_length, length: length}
     |> add_context_fields(ctx)
   end
 
@@ -48,6 +54,10 @@ defmodule OpenApiSpex.CastError do
       end
 
     message
+  end
+
+  def message(%{reason: :min_length, length: length}) do
+    "String length is smaller than minLength: #{length}"
   end
 
   def message(%{reason: :invalid_type, type: type, value: value}) do

@@ -22,5 +22,13 @@ defmodule OpenApiSpex.CastStringTest do
       assert error.value == "hello"
       assert error.format == ~r/\d-\d/
     end
+
+    # Note: we measure length of string after trimming leading and trailing whitespace
+    test "minLength" do
+      schema = %Schema{type: :string, minLength: 1}
+      assert {:error, [error]} = cast(value: "   ", schema: schema)
+      assert %CastError{} = error
+      assert error.reason == :min_length
+    end
   end
 end
