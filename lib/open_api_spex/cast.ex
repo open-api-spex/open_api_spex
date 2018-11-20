@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.Cast do
   alias OpenApiSpex.Reference
-  alias OpenApiSpex.Cast.{Array, Error, Object, Primitive}
+  alias OpenApiSpex.Cast.{Array, Error, Object, Primitive, String}
   @primitives [:boolean, :integer, :number, :string]
 
   defstruct value: nil,
@@ -53,8 +53,17 @@ defmodule OpenApiSpex.Cast do
 
   ## Specific types
 
-  def cast(%__MODULE__{schema: %{type: type}} = ctx) when type in @primitives,
-    do: Primitive.cast(ctx)
+  def cast(%__MODULE__{schema: %{type: :boolean}} = ctx),
+    do: Primitive.cast_boolean(ctx)
+
+  def cast(%__MODULE__{schema: %{type: :integer}} = ctx),
+    do: Primitive.cast_integer(ctx)
+
+  def cast(%__MODULE__{schema: %{type: :number}} = ctx),
+    do: Primitive.cast_number(ctx)
+
+  def cast(%__MODULE__{schema: %{type: :string}} = ctx),
+    do: String.cast(ctx)
 
   def cast(%__MODULE__{schema: %{type: :array}} = ctx),
     do: Array.cast(ctx)
