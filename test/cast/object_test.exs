@@ -115,7 +115,7 @@ defmodule OpenApiSpex.ObjectTest do
         maxProperties: 1
       }
 
-      assert {:error, error} = cast(value: %{one: "one", two: "two"}, schema: schema)
+      assert {:error, [error]} = cast(value: %{one: "one", two: "two"}, schema: schema)
       assert %Error{} = error
       assert error.reason == :max_properties
 
