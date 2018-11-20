@@ -2,8 +2,6 @@ defmodule OpenApiSpex.Cast.Array do
   @moduledoc false
   alias OpenApiSpex.Cast
 
-  @spec cast(atom() | %{value: any()}) ::
-          {:error, nonempty_maybe_improper_list()} | {:ok, [any()]}
   def cast(%{value: []}), do: {:ok, []}
 
   def cast(%{value: items} = ctx) when is_list(items) do

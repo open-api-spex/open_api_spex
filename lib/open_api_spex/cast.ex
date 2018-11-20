@@ -1,7 +1,6 @@
 defmodule OpenApiSpex.Cast do
   alias OpenApiSpex.Reference
   alias OpenApiSpex.Cast.{Array, Error, Object, Primitive, String}
-  @primitives [:boolean, :integer, :number, :string]
 
   defstruct value: nil,
             schema: nil,
