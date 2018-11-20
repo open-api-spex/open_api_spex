@@ -6,12 +6,30 @@ defmodule OpenApiSpex.ObjectTest do
   defp cast(ctx), do: Object.cast(struct(Cast, ctx))
 
   describe "cast/3" do
-    test "not an object" do
+    test "when input is not an object" do
       schema = %Schema{type: :object}
       assert {:error, [error]} = cast(value: ["hello"], schema: schema)
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.value == ["hello"]
+    end
+
+    test "input map can have atom keys" do
+      schema = %Schema{type: :object}
+      assert {:ok, map} = cast(value: %{one: "one"}, schema: schema)
+      assert map == %{one: "one"}
+    end
+
+    test "converting string keys to atom keys when properties are defined" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          one: nil
+        }
+      }
+
+      assert {:ok, map} = cast(value: %{"one" => "one"}, schema: schema)
+      assert map == %{one: "one"}
     end
 
     test "properties:nil, given unknown input property" do
@@ -85,6 +103,23 @@ defmodule OpenApiSpex.ObjectTest do
 
       assert {:ok, user} = cast(value: %{"name" => "Name"}, schema: schema)
       assert user == %User{name: "Name"}
+    end
+
+    test "validates maxProperties" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          one: nil,
+          two: nil
+        },
+        maxProperties: 1
+      }
+
+      assert {:error, error} = cast(value: %{one: "one", two: "two"}, schema: schema)
+      assert %Error{} = error
+      assert error.reason == :max_properties
+
+      assert {:ok, _} = cast(value: %{one: "one"}, schema: schema)
     end
   end
 end

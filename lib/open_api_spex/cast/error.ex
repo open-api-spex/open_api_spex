@@ -7,7 +7,8 @@ defmodule OpenApiSpex.Cast.Error do
             type: nil,
             name: nil,
             path: [],
-            length: 0
+            length: 0,
+            meta: %{}
 
   def new(ctx, {:invalid_schema_type}) do
     %__MODULE__{reason: :invalid_schema_type, type: ctx.schema.type}
@@ -48,6 +49,11 @@ defmodule OpenApiSpex.Cast.Error do
 
   def new(ctx, {:missing_field, name}) do
     %__MODULE__{reason: :missing_field, name: name}
+    |> add_context_fields(ctx)
+  end
+
+  def new(ctx, {:max_properties, max_properties}) do
+    %__MODULE__{reason: :max_properties, meta: %{max_properties: max_properties}}
     |> add_context_fields(ctx)
   end
 
@@ -96,6 +102,10 @@ defmodule OpenApiSpex.Cast.Error do
 
   def message(%{reason: :missing_field, name: name}) do
     "Missing field: #{name}"
+  end
+
+  def message(%{reason: :max_properties, meta: meta}) do
+    "More object properties than allowed by maxProperties, #{meta.max_properties}"
   end
 
   def message_with_path(error) do
