@@ -52,8 +52,11 @@ defmodule OpenApiSpex.Cast.Error do
     |> add_context_fields(ctx)
   end
 
-  def new(ctx, {:max_properties, max_properties}) do
-    %__MODULE__{reason: :max_properties, meta: %{max_properties: max_properties}}
+  def new(ctx, {:max_properties, max_properties, property_count}) do
+    %__MODULE__{
+      reason: :max_properties,
+      meta: %{max_properties: max_properties, property_count: property_count}
+    }
     |> add_context_fields(ctx)
   end
 
@@ -105,7 +108,9 @@ defmodule OpenApiSpex.Cast.Error do
   end
 
   def message(%{reason: :max_properties, meta: meta}) do
-    "More object properties than allowed by maxProperties, #{meta.max_properties}"
+    "Object property count #{meta.property_count} is greater than maxProperties: #{
+      meta.max_properties
+    }"
   end
 
   def message_with_path(error) do
