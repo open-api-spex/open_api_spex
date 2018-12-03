@@ -61,8 +61,7 @@ defmodule OpenApiSpex.Cast.Object do
     count = ctx.value |> Map.keys() |> length()
 
     if count > max_properties do
-      error = Error.new(ctx, {:max_properties, max_properties})
-      {:error, error}
+      Cast.error(ctx, {:max_properties, max_properties, count})
     else
       :ok
     end
