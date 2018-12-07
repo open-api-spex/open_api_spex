@@ -1,6 +1,7 @@
 defmodule OpenApiSpex.Operation2Test do
   use ExUnit.Case
   alias OpenApiSpex.{Operation, Operation2, Schema}
+  alias OpenApiSpex.Cast.Error
 
   defmodule SchemaFixtures do
     @user %Schema{
@@ -67,7 +68,7 @@ defmodule OpenApiSpex.Operation2Test do
     test "cast request body" do
       conn = create_conn(%{"user" => %{"email" => "foo@bar.com"}})
 
-      assert {:ok, value} =
+      assert {:ok, conn} =
                Operation2.cast(
                  OperationFixtures.create_user(),
                  conn,
@@ -75,10 +76,28 @@ defmodule OpenApiSpex.Operation2Test do
                  SchemaFixtures.schemas()
                )
 
-      assert %Plug.Conn{} = value
+      assert %Plug.Conn{} = conn
     end
 
-    # TODO Verify query params are casted
+    test "cast request body - validation error" do
+      conn = create_conn(%{"user" => %{"email" => 123}})
+
+      assert {:error, errors} =
+               Operation2.cast(
+                 OperationFixtures.create_user(),
+                 conn,
+                 "application/json",
+                 SchemaFixtures.schemas()
+               )
+
+      assert [error] = errors
+      assert %Error{} = error
+      assert error.reason == :invalid_type
+    end
+
+    test "cast query params" do
+      # TODO Verify query params are casted
+    end
 
     defp create_conn(body_params) do
       :post

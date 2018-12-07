@@ -69,9 +69,8 @@ defmodule OpenApiSpex.Operation2 do
     end
   end
 
-  @spec cast_request_body(RequestBody.t() | nil, map, String.t() | nil, %{
-          String.t() => Schema.t()
-        }) :: {:ok, map} | {:error, String.t()}
+  @spec cast_request_body(RequestBody.t() | nil, map, String.t() | nil, Schema.schemas()) ::
+          {:ok, map} | {:error, String.t()}
   defp cast_request_body(nil, _, _, _), do: {:ok, %{}}
 
   defp cast_request_body(%RequestBody{content: content}, params, content_type, schemas) do
