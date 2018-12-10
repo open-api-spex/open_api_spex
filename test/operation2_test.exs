@@ -132,15 +132,29 @@ defmodule OpenApiSpex.Operation2Test do
       assert error.value == "asdf"
     end
 
-    defp do_index_cast(query_params) do
+    test "validate missing required query param" do
+      parameter =
+        Operation.parameter(:name, :query, :string, "Filter by user name", required: true)
+
+      operation = %{OperationFixtures.user_index() | parameters: [parameter]}
+
+      assert {:error, [error]} = do_index_cast(%{}, operation: operation)
+      assert %Error{} = error
+      assert error.reason == :missing_field
+      assert error.name == :name
+    end
+
+    defp do_index_cast(query_params, opts \\ []) do
       conn =
         :get
         |> Plug.Test.conn("/api/users?" <> URI.encode_query(query_params))
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> Plug.Conn.fetch_query_params()
 
+      operation = opts[:operation] || OperationFixtures.user_index()
+
       Operation2.cast(
-        OperationFixtures.user_index(),
+        operation,
         conn,
         "application/json",
         SchemaFixtures.schemas()
@@ -151,6 +165,7 @@ defmodule OpenApiSpex.Operation2Test do
       :post
       |> Plug.Test.conn("/api/users")
       |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> Plug.Conn.fetch_query_params()
       |> Map.put(:body_params, body_params)
     end
   end
