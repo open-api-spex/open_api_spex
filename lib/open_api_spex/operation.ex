@@ -18,20 +18,18 @@ defmodule OpenApiSpex.Operation do
   }
 
   @enforce_keys :responses
-  defstruct [
-    :tags,
-    :summary,
-    :description,
-    :externalDocs,
-    :operationId,
-    :parameters,
-    :requestBody,
-    :responses,
-    :callbacks,
-    :deprecated,
-    :security,
-    :servers
-  ]
+  defstruct tags: [],
+            summary: nil,
+            description: nil,
+            externalDocs: nil,
+            operationId: nil,
+            parameters: [],
+            requestBody: nil,
+            responses: nil,
+            callbacks: %{},
+            deprecated: false,
+            security: [],
+            servers: []
 
   @typedoc """
   [Operation Object](https://swagger.io/specification/#operationObject)

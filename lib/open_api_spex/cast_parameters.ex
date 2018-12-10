@@ -11,12 +11,12 @@ defmodule OpenApiSpex.CastParameters do
     # Convert parameters to an object schema, then delegate to `Cast.Object.cast/1`
 
     properties =
-      (operation.parameters || [])
+      operation.parameters
       |> Enum.map(fn parameter -> {parameter.name, Parameter.schema(parameter)} end)
       |> Map.new()
 
     required =
-      (operation.parameters || [])
+      operation.parameters
       |> Enum.filter(& &1.required)
       |> Enum.map(& &1.name)
 
