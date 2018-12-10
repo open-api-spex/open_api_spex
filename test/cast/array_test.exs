@@ -18,6 +18,36 @@ defmodule OpenApiSpec.Cast.ArrayTest do
       assert error.value == %{}
     end
 
+    test "with maxItems" do
+      schema = %Schema{type: :array, maxItems: 2}
+      assert cast(value: [1, 2], schema: schema) == {:ok, [1, 2]}
+      assert {:error, [error]} = cast(value: [1, 2, 3], schema: schema)
+
+      assert %Error{} = error
+      assert error.reason == :max_items
+      assert error.value == [1, 2, 3]
+    end
+
+    test "with minItems" do
+      schema = %Schema{type: :array, minItems: 2}
+      assert cast(value: [1, 2], schema: schema) == {:ok, [1, 2]}
+      assert {:error, [error]} = cast(value: [1], schema: schema)
+
+      assert %Error{} = error
+      assert error.reason == :min_items
+      assert error.value == [1]
+    end
+
+    test "with uniqueItems" do
+      schema = %Schema{type: :array, uniqueItems: true}
+      assert cast(value: [1, 2], schema: schema) == {:ok, [1, 2]}
+      assert {:error, [error]} = cast(value: [1, 1], schema: schema)
+
+      assert %Error{} = error
+      assert error.reason == :unique_items
+      assert error.value == [1, 1]
+    end
+
     test "array with items schema" do
       items_schema = %Schema{type: :integer}
       schema = %Schema{type: :array, items: items_schema}

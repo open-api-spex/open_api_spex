@@ -15,27 +15,6 @@ defmodule OpenApiSpex.Cast.Primitive do
     Cast.error(ctx, {:invalid_type, :boolean})
   end
 
-  ## integer
-
-  def cast_integer(%{value: value}) when is_integer(value) do
-    {:ok, value}
-  end
-
-  def cast_integer(%{value: value}) when is_number(value) do
-    {:ok, round(value)}
-  end
-
-  def cast_integer(%{value: value} = ctx) when is_binary(value) do
-    case Float.parse(value) do
-      {value, ""} -> cast_integer(%{ctx | value: value})
-      _ -> Cast.error(ctx, {:invalid_type, :integer})
-    end
-  end
-
-  def cast_integer(ctx) do
-    Cast.error(ctx, {:invalid_type, :integer})
-  end
-
   ## number
   def cast_number(%{value: value}) when is_number(value) do
     {:ok, value}
