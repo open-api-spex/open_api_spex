@@ -33,11 +33,7 @@ defmodule OpenApiSpex.Operation2 do
       end)
 
     with :ok <- check_query_params_defined(conn, operation.parameters),
-         {:ok, parameter_values} <- cast_parameters(parameters, conn.params, schemas),
-         conn = %{conn | params: parameter_values},
-         parameters =
-           Enum.filter(operation.parameters || [], &Map.has_key?(conn.params, &1.name)),
-         :ok <- validate_parameter_schemas(parameters, conn.params, schemas) do
+         {:ok, parameter_values} <- cast_parameters(parameters, conn.params, schemas) do
       {:ok, %{conn | params: parameter_values}}
     end
   end
@@ -76,16 +72,6 @@ defmodule OpenApiSpex.Operation2 do
            Cast.cast(Parameter.schema(p), params[Atom.to_string(p.name)], schemas),
          {:ok, cast_tail} <- cast_parameters(rest, params, schemas) do
       {:ok, Map.put_new(cast_tail, p.name, cast_val)}
-    end
-  end
-
-  defp validate_parameter_schemas([], %{} = _params, _schemas), do: :ok
-
-  defp validate_parameter_schemas([p | rest], %{} = params, schemas) do
-    {:ok, parameter_value} = Map.fetch(params, p.name)
-
-    with {:ok, _value} <- Cast.cast(Parameter.schema(p), parameter_value, schemas) do
-      validate_parameter_schemas(rest, params, schemas)
     end
   end
 
