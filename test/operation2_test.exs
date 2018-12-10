@@ -112,7 +112,7 @@ defmodule OpenApiSpex.Operation2Test do
       assert error.reason == :invalid_type
     end
 
-    test "cast query params" do
+    test "validate param name is defined" do
       query_params = %{"unknown" => "asdf"}
 
       conn =
