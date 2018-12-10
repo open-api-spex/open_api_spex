@@ -10,7 +10,17 @@ defmodule OpenApiSpex.Operation2 do
     Schema
   }
 
+  alias OpenApiSpex.Cast.Error
+
   def cast(operation = %Operation{}, conn = %Plug.Conn{}, content_type, schemas) do
+    with {:ok, conn} <- cast_query_parameters(conn, operation, schemas),
+         {:ok, body} <-
+           cast_request_body(operation.requestBody, conn.body_params, content_type, schemas) do
+      {:ok, %{conn | body_params: body}}
+    end
+  end
+
+  defp cast_query_parameters(conn, operation, schemas) do
     parameters =
       Enum.filter(operation.parameters || [], fn p ->
         Map.has_key?(conn.params, Atom.to_string(p.name))
@@ -21,10 +31,8 @@ defmodule OpenApiSpex.Operation2 do
          conn = %{conn | params: parameter_values},
          parameters =
            Enum.filter(operation.parameters || [], &Map.has_key?(conn.params, &1.name)),
-         :ok <- validate_parameter_schemas(parameters, conn.params, schemas),
-         {:ok, body} <-
-           cast_request_body(operation.requestBody, conn.body_params, content_type, schemas) do
-      {:ok, %{conn | params: parameter_values, body_params: body}}
+         :ok <- validate_parameter_schemas(parameters, conn.params, schemas) do
+      {:ok, %{conn | params: parameter_values}}
     end
   end
 
@@ -42,7 +50,7 @@ defmodule OpenApiSpex.Operation2 do
           do: to_string(param.name)
 
     case validate_parameter_keys(Map.keys(conn.query_params), defined_query_params) do
-      {:error, param} -> {:error, "Undefined query parameter: #{inspect(param)}"}
+      {:error, name} -> {:error, [%Error{reason: :unexpected_field, name: name}]}
       :ok -> :ok
     end
   end
@@ -50,15 +58,15 @@ defmodule OpenApiSpex.Operation2 do
   @spec validate_parameter_keys([String.t()], MapSet.t()) :: {:error, String.t()} | :ok
   defp validate_parameter_keys([], _defined_params), do: :ok
 
-  defp validate_parameter_keys([param | params], defined_params) do
-    case MapSet.member?(defined_params, param) do
-      false -> {:error, param}
+  defp validate_parameter_keys([name | params], defined_params) do
+    case MapSet.member?(defined_params, name) do
+      false -> {:error, name}
       _ -> validate_parameter_keys(params, defined_params)
     end
   end
 
-  @spec cast_parameters([Parameter.t()], map, %{String.t() => Schema.t()}) ::
-          {:ok, map} | {:error, String.t()}
+  @spec cast_parameters([Parameter.t()], map, Schema.schemas()) ::
+          {:ok, map} | {:error, [Error.t()]}
   defp cast_parameters([], _params, _schemas), do: {:ok, %{}}
 
   defp cast_parameters([p | rest], params = %{}, schemas) do

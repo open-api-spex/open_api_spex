@@ -15,13 +15,30 @@ defmodule OpenApiSpex.Operation2Test do
         }
       }
     }
-    @schemas %{"User" => @user}
+    @user_list %Schema{
+      type: :array,
+      items: @user
+    }
+    @schemas %{"User" => @user, "UserList" => @user_list}
 
     def user, do: @user
+    def user_list, do: @user_list
     def schemas, do: @schemas
   end
 
   defmodule OperationFixtures do
+    @user_index %Operation{
+      operationId: "UserController.index",
+      parameters: [
+        Operation.parameter(:name, :query, :string, "Filter by user name")
+      ],
+      responses: %{
+        200 => Operation.response("User", "application/json", SchemaFixtures.user())
+      }
+    }
+
+    def user_index, do: @user_index
+
     @create_user %Operation{
       operationId: "UserController.create",
       requestBody:
@@ -29,7 +46,7 @@ defmodule OpenApiSpex.Operation2Test do
           required: true
         ),
       responses: %{
-        200 => Operation.response("User", "application/json", SchemaFixtures.user())
+        200 => Operation.response("User list", "application/json", SchemaFixtures.user_list())
       }
     }
 
@@ -96,7 +113,26 @@ defmodule OpenApiSpex.Operation2Test do
     end
 
     test "cast query params" do
-      # TODO Verify query params are casted
+      query_params = %{"unknown" => "asdf"}
+
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> Map.put(:query_params, query_params)
+
+      assert {:error, errors} =
+               Operation2.cast(
+                 OperationFixtures.user_index(),
+                 conn,
+                 "application/json",
+                 SchemaFixtures.schemas()
+               )
+
+      assert [error] = errors
+      assert %Error{} = error
+      assert error.reason == :unexpected_field
+      assert error.name == "unknown"
     end
 
     defp create_conn(body_params) do
