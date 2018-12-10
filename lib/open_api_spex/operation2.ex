@@ -10,14 +10,13 @@ defmodule OpenApiSpex.Operation2 do
     Schema
   }
 
-  alias Plug.Conn
-
   alias OpenApiSpex.Cast.Error
+  alias Plug.Conn
 
   @spec cast(Operation.t(), Conn.t(), String.t() | nil, Schema.schemas()) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
   def cast(operation = %Operation{}, conn = %Conn{}, content_type, schemas) do
-    with {:ok, conn} <- cast_query_parameters(conn, operation, schemas),
+    with {:ok, conn} <- cast_parameters(conn, operation, schemas),
          {:ok, body} <-
            cast_request_body(operation.requestBody, conn.body_params, content_type, schemas) do
       {:ok, %{conn | body_params: body}}
@@ -26,14 +25,14 @@ defmodule OpenApiSpex.Operation2 do
 
   ## Private functions
 
-  defp cast_query_parameters(conn, operation, schemas) do
+  defp cast_parameters(conn, operation, schemas) do
     parameters =
       Enum.filter(operation.parameters || [], fn p ->
         Map.has_key?(conn.params, Atom.to_string(p.name))
       end)
 
     with :ok <- check_query_params_defined(conn, operation.parameters),
-         {:ok, parameter_values} <- cast_parameters(parameters, conn.params, schemas) do
+         {:ok, parameter_values} <- cast_known_parameters(parameters, conn.params, schemas) do
       {:ok, %{conn | params: parameter_values}}
     end
   end
@@ -65,12 +64,12 @@ defmodule OpenApiSpex.Operation2 do
     end
   end
 
-  defp cast_parameters([], _params, _schemas), do: {:ok, %{}}
+  defp cast_known_parameters([], _params, _schemas), do: {:ok, %{}}
 
-  defp cast_parameters([p | rest], params = %{}, schemas) do
+  defp cast_known_parameters([p | rest], params = %{}, schemas) do
     with {:ok, cast_val} <-
            Cast.cast(Parameter.schema(p), params[Atom.to_string(p.name)], schemas),
-         {:ok, cast_tail} <- cast_parameters(rest, params, schemas) do
+         {:ok, cast_tail} <- cast_known_parameters(rest, params, schemas) do
       {:ok, Map.put_new(cast_tail, p.name, cast_val)}
     end
   end

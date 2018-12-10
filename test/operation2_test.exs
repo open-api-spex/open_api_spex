@@ -30,7 +30,8 @@ defmodule OpenApiSpex.Operation2Test do
     @user_index %Operation{
       operationId: "UserController.index",
       parameters: [
-        Operation.parameter(:name, :query, :string, "Filter by user name")
+        Operation.parameter(:name, :query, :string, "Filter by user name"),
+        Operation.parameter(:age, :query, :integer, "User's age")
       ],
       responses: %{
         200 => Operation.response("User", "application/json", SchemaFixtures.user())
@@ -96,7 +97,7 @@ defmodule OpenApiSpex.Operation2Test do
       assert %Plug.Conn{} = conn
     end
 
-    test "cast request body - validation error" do
+    test "cast request body - invalid data type" do
       conn = create_conn(%{"user" => %{"email" => 123}})
 
       assert {:error, errors} =
@@ -112,27 +113,38 @@ defmodule OpenApiSpex.Operation2Test do
       assert error.reason == :invalid_type
     end
 
-    test "validate param name is defined" do
+    test "validate undefined query param name" do
       query_params = %{"unknown" => "asdf"}
 
-      conn =
-        :get
-        |> Plug.Test.conn("/api/users")
-        |> Plug.Conn.put_req_header("content-type", "application/json")
-        |> Map.put(:query_params, query_params)
+      assert {:error, [error]} = do_index_cast(query_params)
 
-      assert {:error, errors} =
-               Operation2.cast(
-                 OperationFixtures.user_index(),
-                 conn,
-                 "application/json",
-                 SchemaFixtures.schemas()
-               )
-
-      assert [error] = errors
       assert %Error{} = error
       assert error.reason == :unexpected_field
       assert error.name == "unknown"
+    end
+
+    test "validate invalid data type for query param" do
+      query_params = %{"age" => "asdf"}
+      assert {:error, [error]} = do_index_cast(query_params)
+      assert %Error{} = error
+      assert error.reason == :invalid_type
+      assert error.type == :integer
+      assert error.value == "asdf"
+    end
+
+    defp do_index_cast(query_params) do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users?" <> URI.encode_query(query_params))
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> Plug.Conn.fetch_query_params()
+
+      Operation2.cast(
+        OperationFixtures.user_index(),
+        conn,
+        "application/json",
+        SchemaFixtures.schemas()
+      )
     end
 
     defp create_conn(body_params) do
