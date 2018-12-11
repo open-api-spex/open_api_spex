@@ -37,19 +37,19 @@ defmodule OpenApiSpex.Operation do
   Describes a single API operation on a path.
   """
   @type t :: %__MODULE__{
-    tags: [String.t] | nil,
-    summary: String.t | nil,
-    description: String.t | nil,
-    externalDocs: ExternalDocumentation.t | nil,
-    operationId: String.t | nil,
-    parameters: [Parameter.t | Reference.t] | nil,
-    requestBody: RequestBody.t | Reference.t | nil,
-    responses: Responses.t,
-    callbacks: %{String.t => Callback.t | Reference.t} | nil,
-    deprecated: boolean | nil,
-    security: [SecurityRequirement.t] | nil,
-    servers: [Server.t] | nil
-  }
+          tags: [String.t()],
+          summary: String.t() | nil,
+          description: String.t() | nil,
+          externalDocs: ExternalDocumentation.t() | nil,
+          operationId: String.t() | nil,
+          parameters: [Parameter.t() | Reference.t()],
+          requestBody: RequestBody.t() | Reference.t() | nil,
+          responses: Responses.t(),
+          callbacks: %{String.t() => Callback.t() | Reference.t()},
+          deprecated: boolean | nil,
+          security: [SecurityRequirement.t()],
+          servers: [Server.t()]
+        }
 
   @doc """
   Constructs an Operation struct from the plug and opts specified in the given route
