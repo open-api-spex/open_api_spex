@@ -243,6 +243,9 @@ defmodule OpenApiSpex.Schema do
   """
   @type data_type :: :string | :number | :integer | :boolean | :array | :object
 
+  @typedoc """
+  Global schemas lookup by name.
+  """
   @type schemas :: %{String.t() => t()}
 
   @doc """
