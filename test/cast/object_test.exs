@@ -57,6 +57,18 @@ defmodule OpenApiSpex.ObjectTest do
       assert cast(value: %{"age" => "hello"}, schema: schema) == {:ok, %{age: "hello"}}
     end
 
+    test "unexpected field" do
+      schema = %Schema{
+        type: :object,
+        properties: %{}
+      }
+
+      assert {:error, [error]} = cast(value: %{foo: "foo"}, schema: schema)
+      assert %Error{} = error
+      assert error.reason == :unexpected_field
+      assert error.path == ["foo"]
+    end
+
     test "required fields" do
       schema = %Schema{
         type: :object,

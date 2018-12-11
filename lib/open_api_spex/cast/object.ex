@@ -34,6 +34,7 @@ defmodule OpenApiSpex.Cast.Object do
       :ok
     else
       [name | _] = extra_keys
+      ctx = %{ctx | path: [name | ctx.path]}
       Cast.error(ctx, {:unexpected_field, name})
     end
   end

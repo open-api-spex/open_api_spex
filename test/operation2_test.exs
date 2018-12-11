@@ -42,6 +42,9 @@ defmodule OpenApiSpex.Operation2Test do
 
     @create_user %Operation{
       operationId: "UserController.create",
+      parameters: [
+        Operation.parameter(:name, :query, :string, "Filter by user name")
+      ],
       requestBody:
         Operation.request_body("request body", "application/json", SchemaFixtures.user(),
           required: true
@@ -121,6 +124,7 @@ defmodule OpenApiSpex.Operation2Test do
       assert %Error{} = error
       assert error.reason == :unexpected_field
       assert error.name == "unknown"
+      assert error.path == ["unknown"]
     end
 
     test "validate invalid data type for query param" do
@@ -150,6 +154,7 @@ defmodule OpenApiSpex.Operation2Test do
         |> Plug.Test.conn("/api/users?" <> URI.encode_query(query_params))
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> Plug.Conn.fetch_query_params()
+        |> build_params()
 
       operation = opts[:operation] || OperationFixtures.user_index()
 
@@ -167,6 +172,16 @@ defmodule OpenApiSpex.Operation2Test do
       |> Plug.Conn.put_req_header("content-type", "application/json")
       |> Plug.Conn.fetch_query_params()
       |> Map.put(:body_params, body_params)
+      |> build_params()
+    end
+
+    defp build_params(conn) do
+      params =
+        conn.path_params
+        |> Map.merge(conn.query_params)
+        |> Map.merge(conn.body_params)
+
+      %{conn | params: params}
     end
   end
 end

@@ -26,7 +26,9 @@ defmodule OpenApiSpex.CastParameters do
       required: required
     }
 
-    ctx = %Cast{value: conn.params, schema: object_schema, schemas: schemas}
+    params = Map.merge(conn.path_params, conn.query_params)
+
+    ctx = %Cast{value: params, schema: object_schema, schemas: schemas}
 
     with {:ok, params} <- Object.cast(ctx) do
       {:ok, %{conn | params: params}}
