@@ -46,7 +46,7 @@ defmodule OpenApiSpex.Operation do
           requestBody: RequestBody.t() | Reference.t() | nil,
           responses: Responses.t(),
           callbacks: %{String.t() => Callback.t() | Reference.t()},
-          deprecated: boolean | nil,
+          deprecated: boolean,
           security: [SecurityRequirement.t()],
           servers: [Server.t()]
         }
