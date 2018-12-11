@@ -5,7 +5,7 @@ defmodule OpenApiSpex.Cast.ErrorTest do
   describe "path_to_string/1" do
     test "with empty path" do
       error = %Error{path: []}
-      Error.path_to_string(error)
+      assert Error.path_to_string(error) == "/"
     end
   end
 end
