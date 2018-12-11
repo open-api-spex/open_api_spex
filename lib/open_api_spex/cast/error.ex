@@ -118,7 +118,14 @@ defmodule OpenApiSpex.Cast.Error do
   end
 
   def path_to_string(%{path: path} = _error) do
-    "/" <> (path |> Enum.map(&to_string/1) |> Path.join())
+    path =
+      if path == [] do
+        ""
+      else
+        path |> Enum.map(&to_string/1) |> Path.join()
+      end
+
+    "/" <> path
   end
 
   defp add_context_fields(error, ctx) do

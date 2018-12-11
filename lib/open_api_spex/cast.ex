@@ -1,6 +1,17 @@
 defmodule OpenApiSpex.Cast do
-  alias OpenApiSpex.Reference
+  alias OpenApiSpex.{Reference, Schema}
   alias OpenApiSpex.Cast.{Array, Error, Object, Primitive, String}
+
+  @type schema_or_reference :: Schema.t() | Reference.t()
+  @type t :: %__MODULE__{
+          value: term(),
+          schema: schema_or_reference | nil,
+          schemas: map(),
+          path: [atom() | String.t() | integer()],
+          key: atom() | nil,
+          index: integer,
+          errors: [Error.t()]
+        }
 
   defstruct value: nil,
             schema: nil,
@@ -10,10 +21,13 @@ defmodule OpenApiSpex.Cast do
             index: 0,
             errors: []
 
+  @spec cast(schema_or_reference | nil, term(), map()) :: {:ok, term()} | {:error, [Error.t()]}
   def cast(schema, value, schemas) do
     ctx = %__MODULE__{schema: schema, value: value, schemas: schemas}
     cast(ctx)
   end
+
+  @spec cast(t()) :: {:ok, term()} | {:error, [Error.t()]}
 
   # nil schema
   def cast(%__MODULE__{value: value, schema: nil}),
@@ -36,7 +50,7 @@ defmodule OpenApiSpex.Cast do
 
   # Enum
   def cast(%__MODULE__{schema: %{enum: []}} = ctx) do
-    cast(%{ctx | enum: nil})
+    cast(%{ctx | schema: %{ctx.schema | enum: nil}})
   end
 
   # Enum
