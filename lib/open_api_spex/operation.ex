@@ -28,8 +28,8 @@ defmodule OpenApiSpex.Operation do
             responses: nil,
             callbacks: %{},
             deprecated: false,
-            security: [],
-            servers: []
+            security: nil,
+            servers: nil
 
   @typedoc """
   [Operation Object](https://swagger.io/specification/#operationObject)
