@@ -47,8 +47,8 @@ defmodule OpenApiSpex.Operation do
           responses: Responses.t(),
           callbacks: %{String.t() => Callback.t() | Reference.t()},
           deprecated: boolean,
-          security: [SecurityRequirement.t()],
-          servers: [Server.t()]
+          security: [SecurityRequirement.t()] | nil,
+          servers: [Server.t()] | nil
         }
 
   @doc """
