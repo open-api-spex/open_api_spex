@@ -3,7 +3,16 @@ defmodule OpenApiSpex do
   Provides the entry-points for defining schemas, validating and casting.
   """
 
-  alias OpenApiSpex.{OpenApi, Operation, Operation2, Reference, Schema, SchemaResolver}
+  alias OpenApiSpex.{
+    OpenApi,
+    Operation,
+    Operation2,
+    Reference,
+    Schema,
+    SchemaException,
+    SchemaResolver
+  }
+
   alias OpenApiSpex.Cast.Error
 
   @doc """
@@ -20,7 +29,7 @@ defmodule OpenApiSpex do
 
   See `OpenApiSpex.schema` macro for a convenient syntax for defining schema modules.
   """
-  @spec resolve_schema_modules(OpenApi.t) :: OpenApi.t
+  @spec resolve_schema_modules(OpenApi.t()) :: OpenApi.t()
   def resolve_schema_modules(spec = %OpenApi{}) do
     SchemaResolver.resolve_schema_modules(spec)
   end
@@ -39,10 +48,11 @@ defmodule OpenApiSpex do
 
   See `OpenApiSpex.Schema.cast/3` for additional examples and details.
   """
-  @spec cast(OpenApi.t, Schema.t | Reference.t, any) :: {:ok, any} | {:error, String.t}
+  @spec cast(OpenApi.t(), Schema.t() | Reference.t(), any) :: {:ok, any} | {:error, String.t()}
   def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
+
   def cast(spec = %OpenApi{}, schema = %Reference{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
@@ -55,8 +65,9 @@ defmodule OpenApiSpex do
 
   `content_type` may optionally be supplied to select the `requestBody` schema.
   """
-  @spec cast(OpenApi.t, Operation.t, Plug.Conn.t, content_type | nil) :: {:ok, Plug.Conn.t} | {:error, String.t}
-      when content_type: String.t
+  @spec cast(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
+          {:ok, Plug.Conn.t()} | {:error, String.t()}
+        when content_type: String.t()
   def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
     Operation.cast(operation, conn, content_type, spec.components.schemas)
   end
@@ -66,10 +77,11 @@ defmodule OpenApiSpex do
 
   See `OpenApiSpex.Schema.validate/3` for examples of error messages.
   """
-  @spec validate(OpenApi.t, Schema.t | Reference.t, any) :: :ok | {:error, String.t}
+  @spec validate(OpenApi.t(), Schema.t() | Reference.t(), any) :: :ok | {:error, String.t()}
   def validate(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.validate(schema, params, spec.components.schemas)
   end
+
   def validate(spec = %OpenApi{}, schema = %Reference{}, params) do
     Schema.validate(schema, params, spec.components.schemas)
   end
@@ -79,9 +91,15 @@ defmodule OpenApiSpex do
 
   `content_type` may be optionally supplied to select the `requestBody` schema.
   """
-  @spec validate(OpenApi.t, Operation.t, Plug.Conn.t, content_type | nil) :: :ok | {:error, String.t}
-      when content_type: String.t
-  def validate(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
+  @spec validate(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
+          :ok | {:error, String.t()}
+        when content_type: String.t()
+  def validate(
+        spec = %OpenApi{},
+        operation = %Operation{},
+        conn = %Plug.Conn{},
+        content_type \\ nil
+      ) do
     Operation.validate(operation, conn, content_type, spec.components.schemas)
   end
 
@@ -129,12 +147,65 @@ defmodule OpenApiSpex do
   """
   defmacro schema(body) do
     quote do
+      @compile {:report_warnings, false}
       @behaviour OpenApiSpex.Schema
-      @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct",  __MODULE__))
+      @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct", __MODULE__))
       def schema, do: @schema
       @derive [Poison.Encoder]
       defstruct Schema.properties(@schema)
       @type t :: %__MODULE__{}
+
+      Map.from_struct(@schema) |> OpenApiSpex.validate_compiled_schema()
     end
+  end
+
+  @doc """
+  Validate the compiled schema's properties to ensure the schema is not improperly
+  defined. Only errors which would cause a given schema to _always_ fail should be
+  raised here.
+  """
+  def validate_compiled_schema(schema) do
+    Enum.each(schema, fn prop_and_val ->
+      :ok = validate_compiled_schema(prop_and_val, schema)
+    end)
+  end
+
+  def validate_compiled_schema({_, %Schema{} = schema}, _parent) do
+    validate_compiled_schema(schema)
+  end
+
+  @doc """
+  Used for validating the schema at compile time, otherwise we're forced
+  to raise errors for improperly defined schemas at runtime.
+  """
+  def validate_compiled_schema({:discriminator, %{propertyName: property, mapping: _}}, %{
+        anyOf: schemas
+      })
+      when is_list(schemas) do
+    Enum.each(schemas, fn schema ->
+      case schema do
+        %Schema{title: title} when is_binary(title) -> :ok
+        _ -> error!(:discriminator_schema_missing_title, schema, property_name: property)
+      end
+    end)
+  end
+
+  def validate_compiled_schema({:discriminator, %{propertyName: _, mapping: _}}, schema) do
+    case {schema.anyOf, schema.allOf, schema.oneOf} do
+      {nil, nil, nil} ->
+        error!(:discriminator_missing_composite_key, schema)
+
+      _ ->
+        :ok
+    end
+  end
+
+  def validate_compiled_schema({_property, _value}, _schema), do: :ok
+
+  @doc """
+  Raises compile time errors for improperly defined schemas.
+  """
+  def error!(error, schema, details \\ []) do
+    raise SchemaException, %{error: error, schema: schema, details: details}
   end
 end

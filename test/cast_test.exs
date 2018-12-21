@@ -204,4 +204,28 @@ defmodule OpenApiSpec.CastTest do
       assert {:ok, "one"} = cast(value: "one", schema: schema)
     end
   end
+
+  describe "ok/1" do
+    test "basics" do
+      assert {:ok, 1} = Cast.ok(%Cast{value: 1})
+    end
+  end
+
+  describe "success/2" do
+    test "nils out property" do
+      schema = %Schema{minimum: 1}
+      ctx = %Cast{schema: schema}
+      expected = {:cast, %Cast{schema: %Schema{minimum: nil}}}
+
+      assert expected == Cast.success(ctx, :minimum)
+    end
+
+    test "nils out properties" do
+      schema = %Schema{minimum: 1, exclusiveMinimum: true}
+      ctx = %Cast{schema: schema}
+      expected = {:cast, %Cast{schema: %Schema{minimum: nil, exclusiveMinimum: nil}}}
+
+      assert expected == Cast.success(ctx, [:minimum, :exclusiveMinimum])
+    end
+  end
 end

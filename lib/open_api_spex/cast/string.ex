@@ -3,7 +3,10 @@ defmodule OpenApiSpex.Cast.String do
   alias OpenApiSpex.Cast
 
   def cast(%{value: value} = ctx) when is_binary(value) do
-    cast_binary(ctx)
+    case cast_binary(ctx) do
+      {:cast, ctx} -> cast(ctx)
+      result -> result
+    end
   end
 
   def cast(ctx) do
@@ -12,9 +15,24 @@ defmodule OpenApiSpex.Cast.String do
 
   ## Private functions
 
+  defp cast_binary(%{value: value, schema: %{format: :"date-time"}} = ctx)
+       when is_binary(value) do
+    case DateTime.from_iso8601(value) do
+      {:ok, %DateTime{}, _offset} -> Cast.success(ctx, :format)
+      _ -> Cast.error(ctx, {:invalid_format, :"date-time"})
+    end
+  end
+
+  defp cast_binary(%{value: value, schema: %{format: :date}} = ctx) do
+    case Date.from_iso8601(value) do
+      {:ok, %Date{}} -> Cast.success(ctx, :format)
+      _ -> Cast.error(ctx, {:invalid_format, :date})
+    end
+  end
+
   defp cast_binary(%{value: value, schema: %{pattern: pattern}} = ctx) when not is_nil(pattern) do
     if Regex.match?(pattern, value) do
-      {:ok, value}
+      Cast.success(ctx, :pattern)
     else
       Cast.error(ctx, {:invalid_format, pattern})
     end
@@ -24,17 +42,27 @@ defmodule OpenApiSpex.Cast.String do
        when is_integer(min_length) do
     # Note: This is not part of the JSON Shema spec: trim string before measuring length
     # It's just too important to miss
-    trimmed = String.trim(value)
-    length = String.length(trimmed)
+    length = String.trim(value) |> String.length()
 
     if length < min_length do
-      Cast.error(ctx, {:min_length, length})
+      Cast.error(ctx, {:min_length, min_length})
     else
-      {:ok, value}
+      Cast.success(ctx, :minLength)
     end
   end
 
-  defp cast_binary(%{value: value}) do
-    {:ok, value}
+  defp cast_binary(%{value: value, schema: %{maxLength: max_length}} = ctx)
+       when is_integer(max_length) do
+    # Note: This is not part of the JSON Shema spec: trim string before measuring length
+    # It's just too important to miss
+    length = String.trim(value) |> String.length()
+
+    if length > max_length do
+      Cast.error(ctx, {:max_length, max_length})
+    else
+      Cast.success(ctx, :maxLength)
+    end
   end
+
+  defp cast_binary(ctx), do: Cast.ok(ctx)
 end

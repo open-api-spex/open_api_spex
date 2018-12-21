@@ -13,6 +13,7 @@ defmodule OpenApiSpex.Mixfile do
       description: description(),
       package: package(),
       deps: deps(),
+      consolidate_protocols: Mix.env() != :test,
       source_url: "https://github.com/open-api-spex/open_api_spex",
       homepage_url: "https://github.com/open-api-spex/open_api_spex",
       docs: [extras: ["README.md"], main: "readme", source_ref: "v#{@version}"],

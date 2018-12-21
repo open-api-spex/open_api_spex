@@ -24,12 +24,52 @@ defmodule OpenApiSpex.CastStringTest do
       assert error.format == ~r/\d-\d/
     end
 
+    test "string with format (date time)" do
+      schema = %Schema{type: :string, format: :"date-time"}
+      time_string = DateTime.utc_now() |> DateTime.to_string()
+      assert cast(value: time_string, schema: schema) == {:ok, time_string}
+      assert {:error, [error]} = cast(value: "hello", schema: schema)
+      assert error.reason == :invalid_format
+      assert error.value == "hello"
+      assert error.format == :"date-time"
+    end
+
+    test "string with format (date)" do
+      schema = %Schema{type: :string, format: :date}
+      date_string = DateTime.utc_now() |> DateTime.to_date() |> Date.to_string()
+      assert cast(value: date_string, schema: schema) == {:ok, date_string}
+      assert {:error, [error]} = cast(value: "hello", schema: schema)
+      assert error.reason == :invalid_format
+      assert error.value == "hello"
+      assert error.format == :date
+    end
+
     # Note: we measure length of string after trimming leading and trailing whitespace
     test "minLength" do
       schema = %Schema{type: :string, minLength: 1}
+      assert {:ok, "a"} = cast(value: "a", schema: schema)
       assert {:error, [error]} = cast(value: "   ", schema: schema)
       assert %Error{} = error
       assert error.reason == :min_length
+    end
+
+    # Note: we measure length of string after trimming leading and trailing whitespace
+    test "maxLength" do
+      schema = %Schema{type: :string, maxLength: 1}
+      assert {:ok, "a"} = cast(value: "a", schema: schema)
+      assert {:error, [error]} = cast(value: "aa", schema: schema)
+      assert %Error{} = error
+      assert error.reason == :max_length
+    end
+
+    test "maxLength and minLength" do
+      schema = %Schema{type: :string, minLength: 1, maxLength: 2}
+      assert {:error, [error]} = cast(value: "", schema: schema)
+      assert %Error{} = error
+      assert error.reason == :min_length
+      assert {:error, [error]} = cast(value: "aaa", schema: schema)
+      assert %Error{} = error
+      assert error.reason == :max_length
     end
   end
 end

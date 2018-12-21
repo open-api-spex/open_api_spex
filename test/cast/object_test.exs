@@ -45,6 +45,9 @@ defmodule OpenApiSpex.ObjectTest do
       assert cast(value: %{}, schema: schema) == {:ok, %{}}
       assert {:error, [error]} = cast(value: %{"unknown" => "hello"}, schema: schema)
       assert %Error{} = error
+      assert error.reason == :unexpected_field
+      assert error.name == "unknown"
+      assert error.path == ["unknown"]
     end
 
     test "with schema properties set, given known input property" do
