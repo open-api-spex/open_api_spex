@@ -205,6 +205,8 @@ defmodule OpenApiSpex do
   @doc """
   Raises compile time errors for improperly defined schemas.
   """
+  @spec error!(atom(), Schema.t(), keyword()) :: no_return()
+  @spec error!(atom(), Schema.t()) :: no_return()
   def error!(error, schema, details \\ []) do
     raise SchemaException, %{error: error, schema: schema, details: details}
   end

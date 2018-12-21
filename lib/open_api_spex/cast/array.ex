@@ -7,7 +7,6 @@ defmodule OpenApiSpex.Cast.Array do
   def cast(%{value: items} = ctx) when is_list(items) do
     case cast_array(ctx) do
       {:cast, ctx} -> cast(ctx)
-      {:ok, items} -> {:ok, items}
       {items, []} -> Cast.ok(%{ctx | value: items})
       {_, errors} -> {:error, errors}
     end
