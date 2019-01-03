@@ -118,7 +118,8 @@ defmodule OpenApiSpex do
       @behaviour OpenApiSpex.Schema
       @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct",  __MODULE__))
       def schema, do: @schema
-      @derive [Poison.Encoder]
+
+      @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
       defstruct Schema.properties(@schema)
       @type t :: %__MODULE__{}
     end

@@ -24,6 +24,8 @@ defmodule OpenApiSpex.Plug.RenderSpec do
   """
   @behaviour Plug
 
+  @json_encoder Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
+
   @impl Plug
   def init(opts), do: opts
 
@@ -31,6 +33,6 @@ defmodule OpenApiSpex.Plug.RenderSpec do
   def call(conn, _opts) do
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.send_resp(200, Poison.encode!(conn.private.open_api_spex.spec))
+    |> Plug.Conn.send_resp(200, @json_encoder.encode!(conn.private.open_api_spex.spec))
   end
 end

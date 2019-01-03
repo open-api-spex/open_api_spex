@@ -48,7 +48,8 @@ defmodule OpenApiSpex.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:poison, "~> 3.1"},
+      {:poison, "~> 3.1", optional: true},
+      {:jason, "~> 1.0", optional: true},
       {:plug, "~> 1.7"},
       {:phoenix, "~> 1.3", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
