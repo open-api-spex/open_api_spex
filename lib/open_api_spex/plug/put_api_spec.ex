@@ -15,11 +15,7 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
 
   @impl Plug
   def call(conn, module: mod) do
-    {spec, operation_lookup} =
-      case Application.get_env(:open_api_spex, mod) do
-        nil -> build_spec(mod)
-        cached -> cached
-      end
+    {spec, operation_lookup} = lookup(mod)
 
     private_data =
       conn
@@ -31,11 +27,23 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
     Plug.Conn.put_private(conn, :open_api_spex, private_data)
   end
 
-  @spec build_spec(module) :: {OpenApiSpex.OpenApi.t, %{String.t => OpenApiSpex.Operation.t}}
-  defp build_spec(mod) do
+  @spec lookup(module) :: {OpenApiSpex.OpenApi.t, %{String.t => OpenApiSpex.Operation.t}}
+  defp lookup(mod) do
+    hash = mod.module_info(:md5)
+
+    case Application.get_env(:open_api_spex, mod) do
+      {^hash, spec, operation_lookup} -> {spec, operation_lookup}
+      _ -> build_spec(mod, hash)
+    end
+  end
+
+  @spec build_spec(module, binary()) :: {OpenApiSpex.OpenApi.t, %{String.t => OpenApiSpex.Operation.t}}
+  defp build_spec(mod, hash) do
     spec = mod.spec()
     operation_lookup = build_operation_lookup(spec)
-    Application.put_env(:open_api_spex, mod, {spec, operation_lookup})
+
+    Application.put_env(:open_api_spex, mod, {hash, spec, operation_lookup})
+
     {spec, operation_lookup}
   end
 
