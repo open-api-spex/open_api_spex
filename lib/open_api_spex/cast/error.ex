@@ -56,6 +56,7 @@ defmodule OpenApiSpex.Cast.Error do
           | invalid_schema_error()
           | exclusive_max_error()
           | exclusive_min_error()
+          | invalid_discriminator_value_error()
           | invalid_enum_error()
           | invalid_format_error()
           | invalid_type_error()
