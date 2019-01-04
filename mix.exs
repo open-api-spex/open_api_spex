@@ -17,7 +17,7 @@ defmodule OpenApiSpex.Mixfile do
       homepage_url: "https://github.com/open-api-spex/open_api_spex",
       docs: [extras: ["README.md"], main: "readme", source_ref: "v#{@version}"],
       dialyzer: [
-        plt_add_apps: [:mix],
+        plt_add_apps: [:mix, :jason, :poison],
         plt_add_deps: :apps_direct,
         flags: ["-Werror_handling", "-Wno_unused", "-Wunmatched_returns", "-Wunderspecs"],
         remove_defaults: [:unknown]
