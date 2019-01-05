@@ -35,32 +35,36 @@ defmodule OpenApiSpex.OpenApi do
     externalDocs: ExternalDocumentation.t | nil
   }
 
-  defimpl Poison.Encoder do
-    def encode(api_spec = %OpenApi{}, options) do
-      api_spec
-      |> to_json()
-      |> Poison.Encoder.encode(options)
-    end
+  for encoder <- [Poison.Encoder, Jason.Encoder] do
+    if Code.ensure_loaded?(encoder) do
+      defimpl encoder do
+        def encode(api_spec = %OpenApi{}, options) do
+          api_spec
+          |> to_json()
+          |> unquote(encoder).encode(options)
+        end
 
-    defp to_json(%Regex{source: source}), do: source
-    defp to_json(value = %{__struct__: _}) do
-      value
-      |> Map.from_struct()
-      |> to_json()
+        defp to_json(%Regex{source: source}), do: source
+        defp to_json(value = %{__struct__: _}) do
+          value
+          |> Map.from_struct()
+          |> to_json()
+        end
+        defp to_json(value) when is_map(value) do
+          value
+          |> Stream.map(fn {k,v} -> {to_string(k), to_json(v)} end)
+          |> Stream.filter(fn {_, nil} -> false; _ -> true end)
+          |> Enum.into(%{})
+        end
+        defp to_json(value) when is_list(value) do
+          Enum.map(value, &to_json/1)
+        end
+        defp to_json(nil), do: nil
+        defp to_json(true), do: true
+        defp to_json(false), do: false
+        defp to_json(value) when is_atom(value), do: to_string(value)
+        defp to_json(value), do: value
+      end
     end
-    defp to_json(value) when is_map(value) do
-      value
-      |> Stream.map(fn {k,v} -> {to_string(k), to_json(v)} end)
-      |> Stream.filter(fn {_, nil} -> false; _ -> true end)
-      |> Enum.into(%{})
-    end
-    defp to_json(value) when is_list(value) do
-      Enum.map(value, &to_json/1)
-    end
-    defp to_json(nil), do: nil
-    defp to_json(true), do: true
-    defp to_json(false), do: false
-    defp to_json(value) when is_atom(value), do: to_string(value)
-    defp to_json(value), do: value
   end
 end

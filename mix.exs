@@ -17,7 +17,7 @@ defmodule OpenApiSpex.Mixfile do
       homepage_url: "https://github.com/open-api-spex/open_api_spex",
       docs: [extras: ["README.md"], main: "readme", source_ref: "v#{@version}"],
       dialyzer: [
-        plt_add_apps: [:mix],
+        plt_add_apps: [:mix, :jason, :poison],
         plt_add_deps: :apps_direct,
         flags: ["-Werror_handling", "-Wno_unused", "-Wunmatched_returns", "-Wunderspecs"],
         remove_defaults: [:unknown]
@@ -48,7 +48,8 @@ defmodule OpenApiSpex.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:poison, "~> 3.1"},
+      {:poison, "~> 3.1", optional: true},
+      {:jason, "~> 1.0", optional: true},
       {:plug, "~> 1.7"},
       {:phoenix, "~> 1.3", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
