@@ -48,7 +48,7 @@ defmodule OpenApiSpex.CastStringTest do
     test "minLength" do
       schema = %Schema{type: :string, minLength: 1}
       assert {:ok, "a"} = cast(value: "a", schema: schema)
-      assert {:error, [error]} = cast(value: "   ", schema: schema)
+      assert {:error, [error]} = cast(value: "", schema: schema)
       assert %Error{} = error
       assert error.reason == :min_length
     end

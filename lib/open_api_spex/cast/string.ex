@@ -39,12 +39,8 @@ defmodule OpenApiSpex.Cast.String do
   end
 
   defp cast_binary(%{value: value, schema: %{minLength: min_length}} = ctx)
-       when is_integer(min_length) do
-    # Note: This is not part of the JSON Shema spec: trim string before measuring length
-    # It's just too important to miss
-    length = String.trim(value) |> String.length()
-
-    if length < min_length do
+  when is_integer(min_length) do
+    if String.length(value) < min_length do
       Cast.error(ctx, {:min_length, min_length})
     else
       Cast.success(ctx, :minLength)
@@ -52,12 +48,8 @@ defmodule OpenApiSpex.Cast.String do
   end
 
   defp cast_binary(%{value: value, schema: %{maxLength: max_length}} = ctx)
-       when is_integer(max_length) do
-    # Note: This is not part of the JSON Shema spec: trim string before measuring length
-    # It's just too important to miss
-    length = String.trim(value) |> String.length()
-
-    if length > max_length do
+  when is_integer(max_length) do
+    if String.length(value) > max_length do
       Cast.error(ctx, {:max_length, max_length})
     else
       Cast.success(ctx, :maxLength)
