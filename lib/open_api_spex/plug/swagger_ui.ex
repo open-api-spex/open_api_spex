@@ -112,7 +112,11 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl
         ],
-        layout: "StandaloneLayout"
+        layout: "StandaloneLayout",
+        requestInterceptor: function(request){
+          request.headers["x-csrf-token"] = "<%= Plug.CSRFProtection.get_csrf_token() %>";
+          return request;
+        }
       })
       window.ui = ui
     }
