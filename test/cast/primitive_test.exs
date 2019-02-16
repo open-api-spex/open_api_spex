@@ -16,10 +16,10 @@ defmodule OpenApiSpex.PrimitiveTest do
     end
 
     test "number" do
-      assert cast_number(%Cast{value: 1}) == {:ok, 1.0}
-      assert cast_number(%Cast{value: 1.5}) == {:ok, 1.5}
-      assert cast_number(%Cast{value: "1"}) == {:ok, 1.0}
-      assert cast_number(%Cast{value: "1.5"}) == {:ok, 1.5}
+      assert cast_number(%Cast{value: 1}) === {:ok, 1.0}
+      assert cast_number(%Cast{value: 1.5}) === {:ok, 1.5}
+      assert cast_number(%Cast{value: "1"}) === {:ok, 1.0}
+      assert cast_number(%Cast{value: "1.5"}) === {:ok, 1.5}
       assert {:error, [error]} = cast_number(%Cast{value: "other"})
       assert %Error{reason: :invalid_type} = error
       assert error.value == "other"

@@ -16,7 +16,7 @@ defmodule OpenApiSpex.Cast.Primitive do
   end
 
   ## number
-  def cast_number(%{value: value}) when is_number(value) do
+  def cast_number(%{value: value}) when is_float(value) do
     {:ok, value}
   end
 
