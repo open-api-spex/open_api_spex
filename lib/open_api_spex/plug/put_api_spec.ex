@@ -11,15 +11,18 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
   @behaviour Plug
 
   @impl Plug
-  def init(opts = [module: _mod]), do: opts
+  def init([module: _spec_module] = opts) do
+    if function_exported?(:persistent_term, :info, 0) do
+      {opts[:module], :term}
+    else
+      {opts[:module], :env}
+    end
+  end
 
   @impl Plug
-  def call(conn, module: mod) do
+  def call(conn, {spec_module, storage}) do
     {spec, operation_lookup} =
-      case Application.get_env(:open_api_spex, mod) do
-        nil -> build_spec(mod)
-        cached -> cached
-      end
+      fetch_spec(spec_module, storage)
 
     private_data =
       conn
@@ -35,7 +38,6 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
   defp build_spec(mod) do
     spec = mod.spec()
     operation_lookup = build_operation_lookup(spec)
-    Application.put_env(:open_api_spex, mod, {spec, operation_lookup})
     {spec, operation_lookup}
   end
 
@@ -47,5 +49,35 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
     |> Stream.filter(fn x -> match?(%OpenApiSpex.Operation{}, x) end)
     |> Stream.map(fn operation -> {operation.operationId, operation} end)
     |> Enum.into(%{})
+  end
+
+  defp fetch_spec(spec_module, :term) do
+    try do
+      :persistent_term.get(spec_module)
+    rescue
+      ArgumentError ->
+        term_not_found()
+        spec = build_spec(spec_module)
+        :ok = :persistent_term.put(spec_module, spec)
+        spec
+    end
+  end
+
+  defp fetch_spec(spec_module, :env) do
+    case Application.get_env(:open_api_spex, spec_module) do
+      nil ->
+        spec = build_spec(spec_module)
+        Application.put_env(:open_api_spex, spec_module, spec)
+        spec
+      spec -> spec
+    end
+  end
+
+  defp term_not_found do
+    if Application.get_env(:open_api_spex, :persistent_term_warn, false) do
+      IO.warn("Warning: the OpenApiSpec spec was deleted from persistent terms. This can cause serious issues.")
+    else
+      Application.put_env(:open_api_spex, :persistent_term, true)
+    end
   end
 end
