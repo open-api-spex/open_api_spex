@@ -112,7 +112,11 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl
         ],
-        layout: "StandaloneLayout"
+        layout: "StandaloneLayout",
+        requestInterceptor: function(request){
+          request.headers["x-csrf-token"] = "<%= csrf_token %>";
+          return request;
+        }
       })
       window.ui = ui
     }
@@ -123,12 +127,18 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   """
 
   @impl Plug
-  def init(path: path), do: [html:  EEx.eval_string(@html, path: path)]
+  def init(path: path), do: %{path: path}
 
   @impl Plug
-  def call(conn, html: html) do
+  def call(conn, %{path: path}) do
+    csrf_token = Plug.CSRFProtection.get_csrf_token()
+    html = render(path, csrf_token)
+
     conn
     |> Plug.Conn.put_resp_content_type("text/html")
     |> Plug.Conn.send_resp(200, html)
   end
+
+  require EEx
+  EEx.function_from_string(:defp, :render, @html, [:path, :csrf_token])
 end
