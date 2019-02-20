@@ -300,7 +300,9 @@ defmodule OpenApiSpex.Schema do
     end
   end
 
-  def cast(%Schema{type: :number}, value, _schemas) when is_number(value), do: {:ok, value}
+  def cast(%Schema{type: :number}, value, _schemas) when is_float(value), do: {:ok, value}
+
+  def cast(%Schema{type: :number}, value, _schemas) when is_integer(value), do: {:ok, value / 1}
 
   def cast(%Schema{type: :number}, value, _schemas) when is_binary(value) do
     case Float.parse(value) do
