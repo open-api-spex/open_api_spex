@@ -108,6 +108,12 @@ defmodule OpenApiSpex.SchemaTest do
       assert {:ok, 123.0} = result
     end
 
+    test "Cast integer to float" do
+      schema = %Schema{type: :number}
+
+      assert Schema.cast(schema, 123, %{}) === {:ok, 123.0}
+    end
+
     test "Cast string to oneOf number or datetime" do
       schema = %Schema{
         oneOf: [
