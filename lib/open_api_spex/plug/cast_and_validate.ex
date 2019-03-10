@@ -46,7 +46,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
   def init(opts) do
     opts
     |> Map.new()
-    |> Map.put_new(:render_error, OpenApiSpex.Plug.DefaultRenderError)
+    |> Map.put_new(:render_error, OpenApiSpex.Plug.JsonRenderError)
   end
 
   @impl Plug

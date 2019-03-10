@@ -34,8 +34,61 @@ defmodule OpenApiSpex.Cast do
             index: 0,
             errors: []
 
+  @doc ~S"""
+  Cast and validate a value against the given schema.
+
+  Recognizes all the types defined in Open API (itself a superset of JSON Schema).
+
+  JSON Schema types:
+  [https://json-schema.org/latest/json-schema-core.html#rfc.section.4.2.1](https://json-schema.org/latest/json-schema-core.html#rfc.section.4.2.1)
+
+  Open API primitive types:
+  [https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#data-types](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#data-types)
+
+  For an `:object` schema type, the cast operation returns a map with atom keys.
+
+  ## Examples
+
+      iex> alias OpenApiSpex.{Cast, Schema}
+      iex> schema = %Schema{type: :string}
+      iex> Cast.cast(schema, "a string")
+      {:ok, "a string"}
+      iex> Cast.cast(schema, :not_a_string)
+      {
+        :error,
+        [
+          %OpenApiSpex.Cast.Error{
+            reason: :invalid_type,
+            type: :string,
+            value: :not_a_string
+          }
+        ]
+      }
+      iex> schema = %Schema{
+      ...>    type: :object,
+      ...>    properties: %{
+      ...>      name: nil
+      ...>    }
+      ...> }
+      iex> Cast.cast(schema, %{"name" => "spex"})
+      {:ok, %{name: "spex"}}
+      iex> Cast.cast(schema, %{"bad" => "spex"})
+      {
+        :error,
+        [
+          %OpenApiSpex.Cast.Error{
+            name: "bad",
+            path: ["bad"],
+            reason: :unexpected_field,
+            value: %{"bad" => "spex"}
+          }
+        ]
+      }
+
+  """
+
   @spec cast(schema_or_reference | nil, term(), map()) :: {:ok, term()} | {:error, [Error.t()]}
-  def cast(schema, value, schemas) do
+  def cast(schema, value, schemas \\ %{}) do
     ctx = %__MODULE__{schema: schema, value: value, schemas: schemas}
     cast(ctx)
   end

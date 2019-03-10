@@ -35,6 +35,10 @@ defmodule OpenApiSpex.OpenApi do
     externalDocs: ExternalDocumentation.t | nil
   }
 
+  @json_encoder Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
+
+  def json_encoder, do: @json_encoder
+
   for encoder <- [Poison.Encoder, Jason.Encoder] do
     if Code.ensure_loaded?(encoder) do
       defimpl encoder do

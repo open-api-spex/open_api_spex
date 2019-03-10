@@ -104,8 +104,9 @@ defmodule MyApp.Schemas do
       type: :object,
       properties: %{
         id: %Schema{type: :integer, description: "User ID"},
-        name:  %Schema{type: :string, description: "User name"},
+        name: %Schema{type: :string, description: "User name"},
         email: %Schema{type: :string, description: "Email address", format: :email},
+        birthday: %Schema{type: :string, description: "Birth date", format: :date},
         inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :datetime},
         updated_at: %Schema{type: :string, description: "Update timestamp", format: :datetime}
       },
@@ -114,9 +115,10 @@ defmodule MyApp.Schemas do
         "id" => 123,
         "name" => "Joe",
         "email" => "joe@gmail.com"
-      }
+      },
       "x-struct": __MODULE__
     }
+
     def schema, do: @schema
     defstruct Map.keys(@schema.properties)
   end
@@ -144,7 +146,7 @@ defmodule Mix.Tasks.MyApp.OpenApiSpec do
   def run([output_file]) do
     json =
       MyApp.ApiSpec.spec()
-      |> Poison.encode!(pretty: true)
+      |> Jason.encode!(pretty: true)
 
     :ok = File.write!(output_file, json)
   end
@@ -178,7 +180,7 @@ The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
 
 Once your API spec is available through a route, the `OpenApiSpex.Plug.SwaggerUI` plug can be used to serve a SwaggerUI interface.  The `path:` plug option must be supplied to give the path to the API spec.
 
-All javascript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
+All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
 
 ```elixir
   scope "/" do
@@ -196,12 +198,12 @@ All javascript and CSS assets are sourced from cdnjs.cloudflare.com, rather than
   end
 ```
 
-## Cast Params
+## Validating and Casting Params
 
-Add the `OpenApiSpex.Plug.Cast` plug to a controller to cast the request parameters and body to elixir types defined by the operation schema.
+Add the `OpenApiSpex.Plug.CastAndValidate` plug to a controller to validate request parameters, and to cast to Elixir types defined by the operation schema.
 
 ```elixir
-plug OpenApiSpex.Plug.Cast, operation_id: "UserController.show"
+plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserController.show"
 ```
 
 The `operation_id` can be inferred when used from a Phoenix controller from the contents of `conn.private`.
@@ -212,7 +214,7 @@ defmodule MyApp.UserController do
   alias OpenApiSpex.Operation
   alias MyApp.Schemas.{User, UserRequest, UserResponse}
 
-  plug OpenApiSpex.Plug.Cast
+  plug OpenApiSpex.Plug.CastAndValidate
 
   def open_api_operation(action) do
     apply(__MODULE__, :"#{action}_operation", [])
@@ -241,17 +243,6 @@ defmodule MyApp.UserController do
   end
 end
 ```
-See also `OpenApiSpex.cast/3` and `OpenApiSpex.Schema.cast/3` for more examples outside of a `plug` pipeline.
-
-
-## Validate Params
-
-Add both the `OpenApiSpex.Plug.Cast` and `OpenApiSpex.Plug.Validate` plugs to your controller / plug:
-
-```elixir
-plug OpenApiSpex.Plug.Cast
-plug OpenApiSpex.Plug.Validate
-```
 
 Now the client will receive a 422 response whenever the request fails to meet the validation rules from the api spec.
 
@@ -261,7 +252,7 @@ The response body will include the validation error message:
 #/user/name: Value does not match pattern: [a-zA-Z][a-zA-Z0-9_]+
 ```
 
-See `OpenApiSpex.validate/3` and `OpenApiSpex.Schema.validate/3` for usage outside of a plug pipeline.
+See also `OpenApiSpex.cast_and_validate/3` and `OpenApiSpex.Cast.cast/3` for more examples outside of a `plug` pipeline.
 
 ## Validate Examples
 
@@ -281,7 +272,7 @@ end
 
 ## Validate Responses
 
-Api responses can be tested against schemas using `OpenApiSpex.Test.Assertions` also:
+API responses can be tested against schemas using `OpenApiSpex.Test.Assertions` also:
 
 ```elixir
 use MyApp.ConnCase
