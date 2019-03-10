@@ -1,3 +1,26 @@
+# 3.2.0
+
+This release contains many improvements and internal changes thanks to the contributions of the community!
+
+* [moxley](https://github.com/moxley)
+* [kpanic](https://github.com/kpanic)
+* [hauleth](https://github.com/hauleth)
+* [nurugger07](https://github.com/nurugger07)
+* [ggpasqualino](https://github.com/ggpasqualino)
+* [teamon](https://github.com/teamon)
+* [bryannaegele](https://github.com/bryannaegele)
+
+ - Feature: Send Plug CSRF token in x-csrf-token header from Swagger UI (#82)
+ - Feature: Support `Jason` library for JSON serialization (#75)
+ - Feature: Combine casting and validation into a single `CastAndValidate` Plug (#69) (#86)
+ - Feature: Improved performance by avoiding copying of API Spec data in each request (#83)
+ - Fix: Convert `integers` to `float` when casting to `number` type (#81) (#84)
+ - Fix: Validate strings without trimming whitespace first (#79)
+ - Fix: Exclusive Minimum and Exclusive maximum are validated correctly (#68)
+ - Fix: Report errors when unable to convert to the expected number/string/boolean type (#64)
+ - Fix: Gracefully report error when failing to convert request params to an object type (#63)
+ - Internals: Improved code organisation of unit test suite (#62)
+
 # 3.1.0
 
  - Add support for validating polymorphic schemas using `oneOf`, `anyOf`, `allOf`, `not` constructs.

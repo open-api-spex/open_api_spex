@@ -1,7 +1,7 @@
 defmodule OpenApiSpex.Mixfile do
   use Mix.Project
 
-  @version "3.1.0"
+  @version "3.2.0"
 
   def project do
     [
@@ -40,7 +40,11 @@ defmodule OpenApiSpex.Mixfile do
     [
       name: "open_api_spex",
       files: ["lib", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md"],
-      maintainers: ["Mike Buhot (m.buhot@gmail.com)"],
+      maintainers: [
+        "Mike Buhot (m.buhot@gmail.com)",
+        "Moxley Stratton",
+        "Pierre Fenoll (pierrefenoll@gmail.com)"
+      ],
       licenses: ["Mozilla Public License, version 2.0"],
       links: %{"GitHub" => "https://github.com/open-api-spex/open_api_spex"}
     ]

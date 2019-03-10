@@ -20,7 +20,7 @@ The package can be installed by adding `open_api_spex` to your list of dependenc
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.1"}
+    {:open_api_spex, "~> 3.2"}
   ]
 end
 ```
@@ -97,7 +97,7 @@ defmodule MyApp.Schemas do
 
   defmodule User do
     @behaviour OpenApiSpex.Schema
-    @derive [Poison.Encoder]
+    @derive [Jason.Encoder]
     @schema %Schema{
       title: "User",
       description: "A user of the app",
