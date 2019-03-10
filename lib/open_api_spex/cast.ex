@@ -40,10 +40,10 @@ defmodule OpenApiSpex.Cast do
   Recognizes all the types defined in Open API (itself a superset of JSON Schema).
 
   JSON Schema types:
-  https://json-schema.org/latest/json-schema-core.html#rfc.section.4.2.1
+  [https://json-schema.org/latest/json-schema-core.html#rfc.section.4.2.1](https://json-schema.org/latest/json-schema-core.html#rfc.section.4.2.1)
 
   Open API primitive types:
-  https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#data-types
+  [https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#data-types](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#data-types)
 
   For an `:object` schema type, the cast operation returns a map with atom keys.
 
