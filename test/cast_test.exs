@@ -2,6 +2,7 @@ defmodule OpenApiSpec.CastTest do
   use ExUnit.Case
   alias OpenApiSpex.{Cast, Schema, Reference}
   alias OpenApiSpex.Cast.Error
+  doctest OpenApiSpex.Cast
 
   def cast(ctx), do: Cast.cast(ctx)
 

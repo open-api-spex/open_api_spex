@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.Operation2 do
   @moduledoc """
-  Defines the `OpenApiSpex.Operation.t` type.
+  Casts and validates a request from a Plug conn.
   """
   alias OpenApiSpex.{
     Cast,
