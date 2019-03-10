@@ -1,3 +1,11 @@
+# 3.2.1
+
+Patch release for documentation updates and improved error rendering Plug when using `CastAndValidate`.
+
+Thanks [moxley](https://github.com/moxley)!
+
+ - Cast and validate guide (#89)
+
 # 3.2.0
 
 This release contains many improvements and internal changes thanks to the contributions of the community!
