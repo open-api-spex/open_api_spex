@@ -8,9 +8,9 @@ defmodule OpenApiSpex.Plug.JsonRenderError do
   def init(opts), do: opts
 
   @impl Plug
-  def call(conn, reasons) when is_list(reasons) do
+  def call(conn, errors) when is_list(errors) do
     response = %{
-      errors: Enum.map(reasons, &to_string/1)
+      errors: Enum.map(errors, &render_error/1)
     }
 
     json = OpenApi.json_encoder().encode!(response)
@@ -22,5 +22,18 @@ defmodule OpenApiSpex.Plug.JsonRenderError do
 
   def call(conn, reason) do
     call(conn, [reason])
+  end
+
+  defp render_error(error) do
+    path = error.path |> Enum.map(&to_string/1) |> Path.join()
+    pointer = "/" <> path
+
+    %{
+      title: "Invalid value",
+      source: %{
+        pointer: pointer
+      },
+      message: to_string(error)
+    }
   end
 end
