@@ -14,7 +14,10 @@ defmodule OpenApiSpexTest.Router do
   scope "/api" do
     pipe_through :api
     resources "/users", UserController, only: [:create, :index, :show]
+
+    # Used by ParamsTest
     resources "/custom_error_users", CustomErrorUserController, only: [:index]
+
     get "/users/:id/payment_details", UserController, :payment_details
     post "/users/:id/contact_info", UserController, :contact_info
     post "/users/create_entity", UserController, :create_entity
