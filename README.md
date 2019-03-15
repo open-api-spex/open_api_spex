@@ -248,8 +248,18 @@ Now the client will receive a 422 response whenever the request fails to meet th
 
 The response body will include the validation error message:
 
-```
-#/user/name: Value does not match pattern: [a-zA-Z][a-zA-Z0-9_]+
+```json
+{
+  "errors": [
+    {
+      "message": "Invalid format. Expected :date",
+      "source": {
+        "pointer": "/data/birthday"
+      },
+      "title": "Invalid value"
+    }
+  ]
+}
 ```
 
 See also `OpenApiSpex.cast_and_validate/3` and `OpenApiSpex.Cast.cast/3` for more examples outside of a `plug` pipeline.
