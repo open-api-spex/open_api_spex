@@ -27,7 +27,7 @@ defmodule OpenApiSpex.CastStringTest do
     test "string with format (date time)" do
       schema = %Schema{type: :string, format: :"date-time"}
       time_string = DateTime.utc_now() |> DateTime.to_string()
-      assert cast(value: time_string, schema: schema) == {:ok, time_string}
+      assert {:ok, %DateTime{}} = cast(value: time_string, schema: schema)
       assert {:error, [error]} = cast(value: "hello", schema: schema)
       assert error.reason == :invalid_format
       assert error.value == "hello"
@@ -37,7 +37,7 @@ defmodule OpenApiSpex.CastStringTest do
     test "string with format (date)" do
       schema = %Schema{type: :string, format: :date}
       date_string = DateTime.utc_now() |> DateTime.to_date() |> Date.to_string()
-      assert cast(value: date_string, schema: schema) == {:ok, date_string}
+      assert {:ok, %Date{}} = cast(value: date_string, schema: schema)
       assert {:error, [error]} = cast(value: "hello", schema: schema)
       assert error.reason == :invalid_format
       assert error.value == "hello"
@@ -70,6 +70,13 @@ defmodule OpenApiSpex.CastStringTest do
       assert {:error, [error]} = cast(value: "aaa", schema: schema)
       assert %Error{} = error
       assert error.reason == :max_length
+    end
+
+    test "minLength and pattern" do
+      schema = %Schema{type: :string, minLength: 1, pattern: ~r/\d-\d/ }
+      assert {:error, errors} = cast(value: "", schema: schema)
+      assert length(errors) == 2
+      assert Enum.map(errors, &(&1.reason)) == [:invalid_format, :min_length]
     end
   end
 end
