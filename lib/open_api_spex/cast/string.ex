@@ -14,7 +14,9 @@ defmodule OpenApiSpex.Cast.String do
     case Date.from_iso8601(value) do
       {:ok, %Date{} = date} ->
         {:ok, date}
-      _ -> Cast.error(ctx, {:invalid_format, :date})
+
+      _ ->
+        Cast.error(ctx, {:invalid_format, :date})
     end
   end
 
@@ -22,7 +24,9 @@ defmodule OpenApiSpex.Cast.String do
     case DateTime.from_iso8601(value) do
       {:ok, %DateTime{} = datetime, _offset} ->
         {:ok, datetime}
-      _ -> Cast.error(ctx, {:invalid_format, :"date-time"})
+
+      _ ->
+        Cast.error(ctx, {:invalid_format, :"date-time"})
     end
   end
 
@@ -36,8 +40,10 @@ defmodule OpenApiSpex.Cast.String do
 
   ## Private functions
 
-  defp apply_validation(%{value: value, schema: %{maxLength: max_length}} = ctx, [:maxLength|fields])
-  when is_integer(max_length) do
+  defp apply_validation(%{value: value, schema: %{maxLength: max_length}} = ctx, [
+         :maxLength | fields
+       ])
+       when is_integer(max_length) do
     if String.length(value) > max_length do
       ctx
       |> apply_error({:max_length, max_length})
@@ -47,8 +53,10 @@ defmodule OpenApiSpex.Cast.String do
     end
   end
 
-  defp apply_validation(%{value: value, schema: %{minLength: min_length}} = ctx, [:minLength|fields])
-  when is_integer(min_length) do
+  defp apply_validation(%{value: value, schema: %{minLength: min_length}} = ctx, [
+         :minLength | fields
+       ])
+       when is_integer(min_length) do
     if String.length(value) < min_length do
       ctx
       |> apply_error({:min_length, min_length})
@@ -58,8 +66,8 @@ defmodule OpenApiSpex.Cast.String do
     end
   end
 
-  defp apply_validation(%{value: value, schema: %{pattern: pattern}} = ctx, [:pattern|fields])
-  when not is_nil(pattern) do
+  defp apply_validation(%{value: value, schema: %{pattern: pattern}} = ctx, [:pattern | fields])
+       when not is_nil(pattern) do
     if Regex.match?(pattern, value) do
       apply_validation(ctx, fields)
     else
@@ -69,7 +77,7 @@ defmodule OpenApiSpex.Cast.String do
     end
   end
 
-  defp apply_validation(ctx, [_field|fields]), do: apply_validation(ctx, fields)
+  defp apply_validation(ctx, [_field | fields]), do: apply_validation(ctx, fields)
   defp apply_validation(%{value: value, errors: []}, []), do: {:ok, value}
   defp apply_validation(%{errors: errors}, []) when length(errors) > 0, do: {:error, errors}
 
