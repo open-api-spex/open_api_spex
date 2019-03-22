@@ -1,12 +1,37 @@
 defmodule OpenApiSpex.Cast.String do
-  @moduledoc false
-  alias OpenApiSpex.Cast
+  @moduledoc """
+
+  This module will cast a binary to either an Elixir DateTime or Date. Otherwise it will
+  validate a binary based on maxLength, minLength, or a Regex pattern passed through the
+  schema struct.
+
+  """
+  alias OpenApiSpex.{Cast, Cast.Error}
+
+  @schema_fields [:maxLength, :minLength, :pattern]
+
+  def cast(%{value: value, schema: %{format: :date}} = ctx) when is_binary(value) do
+    case Date.from_iso8601(value) do
+      {:ok, %Date{} = date} ->
+        {:ok, date}
+
+      _ ->
+        Cast.error(ctx, {:invalid_format, :date})
+    end
+  end
+
+  def cast(%{value: value, schema: %{format: :"date-time"}} = ctx) when is_binary(value) do
+    case DateTime.from_iso8601(value) do
+      {:ok, %DateTime{} = datetime, _offset} ->
+        {:ok, datetime}
+
+      _ ->
+        Cast.error(ctx, {:invalid_format, :"date-time"})
+    end
+  end
 
   def cast(%{value: value} = ctx) when is_binary(value) do
-    case cast_binary(ctx) do
-      {:cast, ctx} -> cast(ctx)
-      result -> result
-    end
+    apply_validation(ctx, @schema_fields)
   end
 
   def cast(ctx) do
@@ -15,46 +40,48 @@ defmodule OpenApiSpex.Cast.String do
 
   ## Private functions
 
-  defp cast_binary(%{value: value, schema: %{format: :"date-time"}} = ctx)
-       when is_binary(value) do
-    case DateTime.from_iso8601(value) do
-      {:ok, %DateTime{}, _offset} -> Cast.success(ctx, :format)
-      _ -> Cast.error(ctx, {:invalid_format, :"date-time"})
-    end
-  end
-
-  defp cast_binary(%{value: value, schema: %{format: :date}} = ctx) do
-    case Date.from_iso8601(value) do
-      {:ok, %Date{}} -> Cast.success(ctx, :format)
-      _ -> Cast.error(ctx, {:invalid_format, :date})
-    end
-  end
-
-  defp cast_binary(%{value: value, schema: %{pattern: pattern}} = ctx) when not is_nil(pattern) do
-    if Regex.match?(pattern, value) do
-      Cast.success(ctx, :pattern)
-    else
-      Cast.error(ctx, {:invalid_format, pattern})
-    end
-  end
-
-  defp cast_binary(%{value: value, schema: %{minLength: min_length}} = ctx)
-  when is_integer(min_length) do
-    if String.length(value) < min_length do
-      Cast.error(ctx, {:min_length, min_length})
-    else
-      Cast.success(ctx, :minLength)
-    end
-  end
-
-  defp cast_binary(%{value: value, schema: %{maxLength: max_length}} = ctx)
-  when is_integer(max_length) do
+  defp apply_validation(%{value: value, schema: %{maxLength: max_length}} = ctx, [
+         :maxLength | fields
+       ])
+       when is_integer(max_length) do
     if String.length(value) > max_length do
-      Cast.error(ctx, {:max_length, max_length})
+      ctx
+      |> apply_error({:max_length, max_length})
+      |> apply_validation(fields)
     else
-      Cast.success(ctx, :maxLength)
+      apply_validation(ctx, fields)
     end
   end
 
-  defp cast_binary(ctx), do: Cast.ok(ctx)
+  defp apply_validation(%{value: value, schema: %{minLength: min_length}} = ctx, [
+         :minLength | fields
+       ])
+       when is_integer(min_length) do
+    if String.length(value) < min_length do
+      ctx
+      |> apply_error({:min_length, min_length})
+      |> apply_validation(fields)
+    else
+      apply_validation(ctx, fields)
+    end
+  end
+
+  defp apply_validation(%{value: value, schema: %{pattern: pattern}} = ctx, [:pattern | fields])
+       when not is_nil(pattern) do
+    if Regex.match?(pattern, value) do
+      apply_validation(ctx, fields)
+    else
+      ctx
+      |> apply_error({:invalid_format, pattern})
+      |> apply_validation(fields)
+    end
+  end
+
+  defp apply_validation(ctx, [_field | fields]), do: apply_validation(ctx, fields)
+  defp apply_validation(%{value: value, errors: []}, []), do: {:ok, value}
+  defp apply_validation(%{errors: errors}, []) when length(errors) > 0, do: {:error, errors}
+
+  defp apply_error(%{errors: errors} = ctx, error_args) do
+    Map.put(ctx, :errors, [Error.new(ctx, error_args) | errors])
+  end
 end
