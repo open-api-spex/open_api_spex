@@ -270,9 +270,14 @@ defmodule OpenApiSpex.Cast.Error do
     "#{size} is larger than maximum #{max}"
   end
 
-  def message(%{reason: min, length: min, value: size})
-      when min in [:exclusive_min, :minimum] do
-    "#{size} is smaller than (exclusive) minimum #{min}"
+  def message(%{reason: :exclusive_min, length: min, value: value})
+      when value <= min do
+    "#{value} is smaller than exclusive minimum #{min}"
+  end
+
+  def message(%{reason: :minimum, length: min, value: value})
+      when value < min do
+    "#{value} is smaller than inclusive minimum #{min}"
   end
 
   def message(%{reason: :invalid_type, type: type, value: value}) do
