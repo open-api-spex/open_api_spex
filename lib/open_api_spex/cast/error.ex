@@ -265,14 +265,24 @@ defmodule OpenApiSpex.Cast.Error do
     "#{count} is not a multiple of #{multiple}"
   end
 
-  def message(%{reason: max, length: max, value: size})
-      when max in [:exclusive_max, :maximum] do
-    "#{size} is larger than maximum #{max}"
+  def message(%{reason: :exclusive_max, length: max, value: value})
+      when value >= max do
+    "#{value} is larger than exclusive maximum #{max}"
   end
 
-  def message(%{reason: min, length: min, value: size})
-      when min in [:exclusive_min, :minimum] do
-    "#{size} is smaller than (exclusive) minimum #{min}"
+  def message(%{reason: :maximum, length: max, value: value})
+      when value > max do
+    "#{value} is larger than inclusive maximum #{max}"
+  end
+
+  def message(%{reason: :exclusive_min, length: min, value: value})
+      when value <= min do
+    "#{value} is smaller than exclusive minimum #{min}"
+  end
+
+  def message(%{reason: :minimum, length: min, value: value})
+      when value < min do
+    "#{value} is smaller than inclusive minimum #{min}"
   end
 
   def message(%{reason: :invalid_type, type: type, value: value}) do
