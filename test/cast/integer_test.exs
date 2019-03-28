@@ -42,11 +42,13 @@ defmodule OpenApiSpex.CastIntegerTest do
     test "with maximum" do
       schema = %Schema{type: :integer, maximum: 2}
       assert cast(value: 1, schema: schema) == {:ok, 1}
-      assert {:error, [error]} = cast(value: 2, schema: schema)
+      assert cast(value: 2, schema: schema) == {:ok, 2}
+      assert {:error, [error]} = cast(value: 3, schema: schema)
       assert error.reason == :maximum
-      assert error.value == 2
+      assert error.value == 3
       # error.length is the maximum
       assert error.length == 2
+      assert Error.message(error) =~ "larger than inclusive maximum"
     end
 
     test "with minimum w/ exclusiveMinimum" do
@@ -62,12 +64,13 @@ defmodule OpenApiSpex.CastIntegerTest do
 
     test "with maximum w/ exclusiveMaximum" do
       schema = %Schema{type: :integer, maximum: 2, exclusiveMaximum: true}
-      assert cast(value: 2, schema: schema) == {:ok, 2}
-      assert {:error, [error]} = cast(value: 3, schema: schema)
+      assert cast(value: 1, schema: schema) == {:ok, 1}
+      assert {:error, [error]} = cast(value: 2, schema: schema)
       assert error.reason == :exclusive_max
-      assert error.value == 3
+      assert error.value == 2
       # error.length is the maximum
       assert error.length == 2
+      assert Error.message(error) =~ "larger than exclusive maximum"
     end
   end
 end
