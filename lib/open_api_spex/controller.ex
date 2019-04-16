@@ -30,14 +30,13 @@ defmodule OpenApiSpex.Controller do
 
   ### `responses`
 
-  Responses are controlled by `:responses` tag and currently supports only
-  `application/json` responses. Responses must be defined as a map or keyword list
-  in form of:
+  Responses are controlled by `:responses` tag. Responses must be defined as
+  a map or keyword list in form of:
 
   ```
   %{
-    200 => {"Response name", schema},
-    :not_found => {"Response name", schema}
+    200 => {"Response name", "application/json", schema},
+    :not_found => {"Response name", "application/json", schema}
   }
   ```
 
@@ -46,7 +45,7 @@ defmodule OpenApiSpex.Controller do
   ### `requestBody`
 
   Controlled by `:body` parameter and is defined as a tuple in form
-  `{description, schema}`.
+  `{description, mime, schema}`.
 
   ### `tags`
 
@@ -66,11 +65,13 @@ defmodule OpenApiSpex.Controller do
 
     More docs
     """
-    @doc parameters: [
-      id: [in: :path, type: :string, required: true]
-    ]
-    @doc responses: [
-      ok: {"Foo document", FooSchema}
+    @doc [
+      parameters: [
+        id: [in: :path, type: :string, required: true]
+      ],
+      responses: [
+        ok: {"Foo document", "application/json", FooSchema}
+      ]
     ]
     def show(conn, %{id: id}) do
       # …
@@ -138,16 +139,16 @@ defmodule OpenApiSpex.Controller do
   defp build_parameters(_), do: []
 
   defp build_responses(%{responses: responses}) do
-    for {status, {description, schema}} <- responses, into: %{} do
+    for {status, {description, mime, schema}} <- responses, into: %{} do
       {Plug.Conn.Status.code(status),
-       Operation.response(description, "application/json", schema)}
+       Operation.response(description, mime, schema)}
     end
   end
 
   defp build_responses(_), do: []
 
-  defp build_request_body(%{body: {name, schema}}),
-    do: Operation.request_body(name, "application/json", schema)
+  defp build_request_body(%{body: {name, mime, schema}}),
+    do: Operation.request_body(name, mime, schema)
 
   defp build_request_body(_), do: nil
 end
