@@ -54,7 +54,7 @@ defmodule OpenApiSpex.Operation do
   @doc """
   Constructs an Operation struct from the plug and opts specified in the given route
   """
-  @spec from_route(PathItem.route) :: t
+  @spec from_route(PathItem.route()) :: t | nil
   def from_route(route)
 
   def from_route(route = %_{}) do
@@ -74,7 +74,7 @@ defmodule OpenApiSpex.Operation do
   @doc """
   Constructs an Operation struct from plug module and opts
   """
-  @spec from_plug(module, any) :: t
+  @spec from_plug(module, any) :: t | nil
   def from_plug(plug, opts) do
     plug.open_api_operation(opts)
   end
