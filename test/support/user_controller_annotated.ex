@@ -12,7 +12,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
     id: [in: :path, type: :string, required: true]
   ]
   @doc responses: [
-    ok: {"Foo document", FooSchema}
+    ok: {"Foo document", "application/json", FooSchema}
   ]
   def show, do: :ok
 end
