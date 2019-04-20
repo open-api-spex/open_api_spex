@@ -10,7 +10,7 @@ defmodule OpenApiSpex.PathItemTest do
             route.path == "/api/users",
             do: route
 
-      path_item = PathItem.from_routes(routes)
+      {:ok, path_item} = PathItem.from_routes(routes)
       assert path_item == %PathItem{
         get: UserController.index_operation(),
         post: UserController.create_operation()

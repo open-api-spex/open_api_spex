@@ -52,11 +52,43 @@ defmodule OpenApiSpex.Operation do
         }
 
   @doc """
-  Constructs an Operation struct from the plug and opts specified in the given route
+  Constructs an Operation struct from the plug and opts specified in the given route.
+
+  If any path parameters declared in the `route.path` do not have corresponding
+  parameters defined in the `Operation`, the result is an error tuple with a message
+  descring which parameters are missing.
   """
-  @spec from_route(PathItem.route) :: t
+  @spec from_route(PathItem.route) :: {:ok, t} | {:error, String.t()}
   def from_route(route) do
-    from_plug(route.plug, route.opts)
+    operation = from_plug(route.plug, Map.get(route, :opts, []))
+
+    case route do
+      %{path: path} -> check_all_path_params_declared(operation, path)
+      _ -> {:ok, operation}
+    end
+  end
+
+  defp check_all_path_params_declared(operation, route_path) do
+    {expected_path_params, _} = Plug.Router.Utils.build_path_match(route_path)
+
+    actual_path_params =
+      operation.parameters
+      |> Enum.filter(&(&1.in == :path))
+      |> Enum.map(& &1.name)
+
+    missing_params = expected_path_params -- actual_path_params
+
+    case missing_params do
+      [] ->
+        {:ok, operation}
+
+      _ ->
+        message =
+          "Operation for route: #{inspect(route_path)} " <>
+            "did not declare path parameters: #{inspect(missing_params)}"
+
+        {:error, message}
+    end
   end
 
   @doc """
