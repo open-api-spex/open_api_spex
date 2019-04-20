@@ -204,6 +204,11 @@ defmodule OpenApiSpec.CastTest do
       schema = %Schema{type: :string, enum: ["one"]}
       assert {:ok, "one"} = cast(value: "one", schema: schema)
     end
+
+    test "enum - atoms" do
+      schema = %Schema{type: :string, enum: [:one, :two, :three]}
+      assert {:ok, :three} = cast(value: "three", schema: schema)
+    end
   end
 
   describe "ok/1" do

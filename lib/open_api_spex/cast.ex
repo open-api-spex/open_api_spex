@@ -122,11 +122,7 @@ defmodule OpenApiSpex.Cast do
   # Enum
   def cast(%__MODULE__{schema: %{enum: enum}} = ctx) when is_list(enum) do
     with {:ok, value} <- cast(%{ctx | schema: %{ctx.schema | enum: nil}}) do
-      if value in enum do
-        {:ok, value}
-      else
-        error(ctx, {:invalid_enum})
-      end
+      OpenApiSpex.Cast.Enum.cast(%{ctx | value: value})
     end
   end
 
