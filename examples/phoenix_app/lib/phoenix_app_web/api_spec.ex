@@ -1,6 +1,8 @@
 defmodule PhoenixAppWeb.ApiSpec do
   alias OpenApiSpex.{Info, OpenApi, Paths}
+  @behaviour OpenApi
 
+  @impl OpenApi
   def spec do
     %OpenApi{
       info: %Info{

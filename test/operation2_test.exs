@@ -58,6 +58,9 @@ defmodule OpenApiSpex.Operation2Test do
   end
 
   defmodule SpecModule do
+    @behaviour OpenApiSpex.OpenApi
+
+    @impl OpenApiSpex.OpenApi
     def spec do
       paths = %{
         "/users" => %{

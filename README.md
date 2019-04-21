@@ -32,7 +32,9 @@ Start by adding an `ApiSpec` module to your application to populate an `OpenApiS
 ```elixir
 defmodule MyApp.ApiSpec do
   alias OpenApiSpex.{OpenApi, Server, Info, Paths}
+  @behaviour OpenApi
 
+  @impl OpenApi
   def spec do
     %OpenApi{
       servers: [

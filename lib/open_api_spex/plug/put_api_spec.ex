@@ -4,6 +4,10 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
 
   This allows downstream plugs to use the API spec for casting, validating and rendering.
 
+  ## Options
+
+   - module: A module implementing the `OpenApiSpex.OpenApi` behaviour
+
   ## Example
 
       plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec

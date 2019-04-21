@@ -1,6 +1,8 @@
 defmodule PlugApp.ApiSpec do
-  alias OpenApiSpex.{Info, OpenApi, Paths}
+  alias OpenApiSpex.{Info, OpenApi}
+  @behaviour OpenApi
 
+  @impl OpenApi
   def spec do
     %OpenApi{
       info: %Info{
