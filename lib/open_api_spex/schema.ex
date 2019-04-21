@@ -2,7 +2,7 @@ defmodule OpenApiSpex.Schema do
   @moduledoc """
   Defines the `OpenApiSpex.Schema.t` type and operations for casting and validating against a schema.
 
-  The `OpenApiSpex.schema` macro can be used to declare schemas with an associated struct and `Poison.Encoder`.
+  The `OpenApiSpex.schema` macro can be used to declare schemas with an associated struct and JSON Encoder.
 
   ## Examples
 

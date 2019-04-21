@@ -41,7 +41,8 @@ defmodule PhoenixApp.Mixfile do
       {:ecto, "~> 2.2"},
       {:sqlite_ecto2, "~> 2.2"},
       {:phoenix, "~> 1.3"},
-      {:plug_cowboy, "~> 1.0"}
+      {:plug_cowboy, "~> 1.0"},
+      {:jason, "~> 1.0"}
     ]
   end
 end

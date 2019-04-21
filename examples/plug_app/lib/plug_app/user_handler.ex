@@ -34,7 +34,7 @@ defmodule PlugApp.UserHandler do
       %{
         data: Enum.map(users, &Map.take(&1, [:id, :name, :email]))
       }
-      |> Poison.encode!(pretty: true)
+      |> Jason.encode!(pretty: true)
     end
   end
 
@@ -83,7 +83,7 @@ defmodule PlugApp.UserHandler do
       %{
         data: Map.take(user, [:id, :name, :email])
       }
-      |> Poison.encode!(pretty: true)
+      |> Jason.encode!(pretty: true)
     end
   end
 
