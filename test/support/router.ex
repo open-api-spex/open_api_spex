@@ -6,7 +6,7 @@ defmodule OpenApiSpexTest.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug PutApiSpec, module: OpenApiSpexTest.ApiSpec
-    plug Parsers, parsers: [:json], pass: ["text/*"], json_decoder: Poison
+    plug Parsers, parsers: [:json], pass: ["text/*"], json_decoder: Jason
   end
 
   scope "/api", OpenApiSpexTest do

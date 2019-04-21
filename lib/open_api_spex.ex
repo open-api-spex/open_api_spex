@@ -114,7 +114,7 @@ defmodule OpenApiSpex do
    - ensures the schema is linked to the module by "x-struct" extension property
    - defines a struct with keys matching the schema properties
    - defines a @type `t` for the struct
-   - derives a `Poison.Encoder` for the struct
+   - derives a `Jason.Encoder` and/or `Poison.Encoder` for the struct
 
   See `OpenApiSpex.Schema` for additional examples and details.
 

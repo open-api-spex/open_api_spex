@@ -32,7 +32,7 @@ defmodule OpenApiSpex.Plug.CastTest do
 
     test "with requestBody" do
       body =
-        Poison.encode!(%{
+        Jason.encode!(%{
           phone_number: "123-456-789",
           postal_address: "123 Lane St"
         })
@@ -90,7 +90,7 @@ defmodule OpenApiSpex.Plug.CastTest do
 
       conn =
         :post
-        |> Plug.Test.conn("/api/users", Poison.encode!(request_body))
+        |> Plug.Test.conn("/api/users", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
         |> OpenApiSpexTest.Router.call([])
 
@@ -103,7 +103,7 @@ defmodule OpenApiSpex.Plug.CastTest do
                }
              }
 
-      assert Poison.decode!(conn.resp_body) == %{
+      assert Jason.decode!(conn.resp_body) == %{
                "data" => %{
                  "email" => "foo@bar.com",
                  "id" => 1234,
@@ -126,7 +126,7 @@ defmodule OpenApiSpex.Plug.CastTest do
 
       conn =
         :post
-        |> Plug.Test.conn("/api/users", Poison.encode!(request_body))
+        |> Plug.Test.conn("/api/users", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json")
 
       conn = OpenApiSpexTest.Router.call(conn, [])

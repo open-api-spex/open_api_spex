@@ -39,7 +39,7 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
     @tag :capture_log
     test "with requestBody" do
       body =
-        Poison.encode!(%{
+        Jason.encode!(%{
           phone_number: "123-456-789",
           postal_address: "123 Lane St"
         })
@@ -70,7 +70,7 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
 
       conn =
         :post
-        |> Plug.Test.conn("/api/cast_and_validate_test/users", Poison.encode!(request_body))
+        |> Plug.Test.conn("/api/cast_and_validate_test/users", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
         |> OpenApiSpexTest.Router.call([])
 
@@ -83,7 +83,7 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
                }
              }
 
-      assert Poison.decode!(conn.resp_body) == %{
+      assert Jason.decode!(conn.resp_body) == %{
                "data" => %{
                  "email" => "foo@bar.com",
                  "id" => 1234,
@@ -107,13 +107,13 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
 
       conn =
         :post
-        |> Plug.Test.conn("/api/cast_and_validate_test/users", Poison.encode!(request_body))
+        |> Plug.Test.conn("/api/cast_and_validate_test/users", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json")
 
       conn = OpenApiSpexTest.Router.call(conn, [])
       assert conn.status == 422
 
-      resp_body = Poison.decode!(conn.resp_body)
+      resp_body = Jason.decode!(conn.resp_body)
 
       assert resp_body == %{
                "errors" => [

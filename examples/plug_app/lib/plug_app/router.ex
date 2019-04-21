@@ -25,7 +25,7 @@ defmodule PlugApp.Router do
 
   plug Plug.RequestId
   plug Plug.Logger
-  plug Plug.Parsers, parsers: [:json], pass: ["*/*"], json_decoder: Poison
+  plug Plug.Parsers, parsers: [:json], pass: ["*/*"], json_decoder: Jason
   plug :match
   plug :dispatch
 
