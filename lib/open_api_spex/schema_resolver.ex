@@ -73,10 +73,10 @@ defmodule OpenApiSpex.SchemaResolver do
     {Enum.reverse(parameters), schemas}
   end
 
-  defp resolve_schema_modules_from_parameter(parameter = %Parameter{schema: schema, content: nil}, schemas) when is_atom(schema) do
-    {ref, new_schemas} = resolve_schema_modules_from_schema(schema, schemas)
-    new_parameter = %{parameter | schema: ref}
-    {new_parameter, new_schemas}
+  defp resolve_schema_modules_from_parameter(parameter = %Parameter{schema: schema, content: nil}, schemas) do
+    {schema, schemas} = resolve_schema_modules_from_schema(schema, schemas)
+    new_parameter = %{parameter | schema: schema}
+    {new_parameter, schemas}
   end
   defp resolve_schema_modules_from_parameter(parameter = %Parameter{schema: nil, content: content = %{}}, schemas) do
     {new_content, schemas} = resolve_schema_modules_from_content(content, schemas)
@@ -97,10 +97,10 @@ defmodule OpenApiSpex.SchemaResolver do
     end)
   end
 
-  defp resolve_schema_modules_from_media_type(media = %MediaType{schema: schema}, schemas) when is_atom(schema) do
-    {ref, new_schemas} = resolve_schema_modules_from_schema(schema, schemas)
-    new_media = %{media | schema: ref}
-    {new_media, new_schemas}
+  defp resolve_schema_modules_from_media_type(media = %MediaType{schema: schema}, schemas) do
+    {schema, schemas} = resolve_schema_modules_from_schema(schema, schemas)
+    new_media = %{media | schema: schema}
+    {new_media, schemas}
   end
   defp resolve_schema_modules_from_media_type(media = %MediaType{}, schemas) do
     {media, schemas}
