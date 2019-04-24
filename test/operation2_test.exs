@@ -148,6 +148,27 @@ defmodule OpenApiSpex.Operation2Test do
       assert error.name == :name
     end
 
+    test "validate invalid value for integer range" do
+      parameter =
+        Operation.parameter(
+          :age,
+          :query,
+          %Schema{type: :integer, minimum: 1, maximum: 99},
+          "Filter by user age",
+          required: true
+        )
+
+      operation = %{OperationFixtures.user_index() | parameters: [parameter]}
+
+      assert {:error, [error]} = do_index_cast(%{"age" => 100}, operation: operation)
+      assert %Error{} = error
+      assert error.reason == :maximum
+
+      assert {:error, [error]} = do_index_cast(%{"age" => 0}, operation: operation)
+      assert %Error{} = error
+      assert error.reason == :minimum
+    end
+
     defp do_index_cast(query_params, opts \\ []) do
       conn =
         :get
