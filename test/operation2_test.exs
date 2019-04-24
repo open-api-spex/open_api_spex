@@ -162,6 +162,11 @@ defmodule OpenApiSpex.Operation2Test do
 
       assert {:error, [error]} = do_index_cast(%{"age" => 100}, operation: operation)
       assert %Error{} = error
+      assert error.reason == :maximum
+
+      assert {:error, [error]} = do_index_cast(%{"age" => 0}, operation: operation)
+      assert %Error{} = error
+      assert error.reason == :minimum
     end
 
     defp do_index_cast(query_params, opts \\ []) do

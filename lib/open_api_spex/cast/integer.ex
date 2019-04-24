@@ -9,8 +9,8 @@ defmodule OpenApiSpex.Cast.Integer do
     end
   end
 
-  def cast(%{value: value}) when is_number(value) do
-    {:ok, round(value)}
+  def cast(%{value: value} = ctx) when is_number(value) do
+    cast(%{ctx | value: round(value)})
   end
 
   def cast(%{value: value} = ctx) when is_binary(value) do
