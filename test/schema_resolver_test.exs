@@ -68,6 +68,30 @@ defmodule OpenApiSpex.SchemaResolverTest do
               }
             }
           }
+        },
+        "/api/users/{id}/friends" => %PathItem{
+          get: %Operation{
+            parameters: [
+              %OpenApiSpex.Parameter{
+                name: :id,
+                in: :path,
+                schema: %Schema{type: :integer}
+              }
+            ],
+            responses: %{
+              200 => %Response{
+                description: "Success",
+                content: %{
+                  "application/json" => %MediaType{
+                    schema: %Schema{
+                      type: :array,
+                      items: OpenApiSpexTest.Schemas.User
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -91,5 +115,9 @@ defmodule OpenApiSpex.SchemaResolverTest do
              "CreditCardPaymentDetails" => %Schema{},
              "DirectDebitPaymentDetails" => %Schema{}
            } = resolved.components.schemas
+
+    get_friends = resolved.paths["/api/users/{id}/friends"].get
+    assert %Reference{"$ref": "#/components/schemas/User"} =
+             get_friends.responses[200].content["application/json"].schema.items
   end
 end
