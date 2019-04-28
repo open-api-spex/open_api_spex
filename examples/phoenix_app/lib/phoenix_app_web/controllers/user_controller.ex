@@ -48,7 +48,7 @@ defmodule PhoenixAppWeb.UserController do
     }
   end
 
-  def create(conn = %{body_params: %Schemas.UserRequest{user: user_params}}, %{group_id: group_id}) do
+  def create(conn = %{body_params: %Schemas.UserRequest{user: user_params}}, %{group_id: _group_id}) do
     with {:ok, %User{} = user} <- Accounts.create_user(user_params) do
       conn
       |> put_status(:created)

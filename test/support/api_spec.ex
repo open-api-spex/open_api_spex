@@ -1,7 +1,9 @@
 defmodule OpenApiSpexTest.ApiSpec do
   alias OpenApiSpex.{OpenApi, Contact, License, Paths, Server, Info, Components}
   alias OpenApiSpexTest.{Router, Schemas}
+  @behaviour OpenApi
 
+  @impl OpenApi
   def spec() do
     %OpenApi{
       servers: [

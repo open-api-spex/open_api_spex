@@ -1,6 +1,7 @@
-defmodule OpenApiSpex.OpenApi do
+defmodule   OpenApiSpex.OpenApi do
   @moduledoc """
-  Defines the `OpenApiSpex.OpenApi.t` type.
+  Defines the `OpenApiSpex.OpenApi.t` type and the behaviour for application modules that
+  construct an `OpenApiSpex.OpenApi.t` at runtime.
   """
   alias OpenApiSpex.{
     Info, Server, Paths, Components,
@@ -34,6 +35,30 @@ defmodule OpenApiSpex.OpenApi do
     tags: [Tag.t] | nil,
     externalDocs: ExternalDocumentation.t | nil
   }
+
+  @doc """
+  A spec/0 callback function is required for use with the `OpenApiSpex.Plug.PutApiSpec` plug.
+
+  ## Example
+
+      @impl OpenApiSpex.OpenApi
+      def spec do
+        %OpenApi{
+          servers: [
+            # Populate the Server info from a phoenix endpoint
+            Server.from_endpoint(MyAppWeb.Endpoint, otp_app: :my_app)
+          ],
+          info: %Info{
+            title: "My App",
+            version: "1.0"
+          },
+          # populate the paths from a phoenix router
+          paths: Paths.from_router(MyAppWeb.Router)
+        }
+        |> OpenApiSpex.resolve_schema_modules() # discover request/response schemas from path specs
+      end
+  """
+  @callback spec() :: t
 
   @json_encoder Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
 
