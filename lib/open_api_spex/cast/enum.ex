@@ -2,47 +2,29 @@ defmodule OpenApiSpex.Cast.Enum do
   @moduledoc false
   alias OpenApiSpex.Cast
 
-  def cast(%Cast{schema: %{enum: []}} = ctx) do
-    Cast.error(ctx, {:invalid_enum})
-  end
-
-  def cast(%Cast{schema: %{enum: [value | _]}, value: value}) do
-    {:ok, value}
-  end
-
-  # Special case: convert binary to atom enum
-  def cast(ctx = %Cast{schema: schema = %{enum: [atom_value | tail]}, value: value})
-      when is_binary(value) and is_atom(atom_value) do
-    if value == to_string(atom_value) do
-      {:ok, atom_value}
-    else
-      cast(%{ctx | schema: %{schema | enum: tail}})
+  def cast(ctx = %Cast{schema: %{enum: enum}, value: value}) do
+    case Enum.find(enum, {:error, :invalid_enum}, &equivalent?(&1, value)) do
+      {:error, :invalid_enum} -> Cast.error(ctx, {:invalid_enum})
+      found -> {:ok, found}
     end
   end
 
-  # Special case: convert string-keyed map to atom-keyed map enum
-  def cast(ctx = %Cast{schema: schema = %{enum: [enum_map = %{} | tail]}, value: value = %{}}) do
-    if maps_equivalent?(value, enum_map) do
-      {:ok, enum_map}
-    else
-      cast(%{ctx | schema: %{schema | enum: tail}})
-    end
-  end
+  defp equivalent?(x, x), do: true
 
-  def cast(ctx = %Cast{schema: schema = %{enum: [_ | tail]}}) do
-    cast(%{ctx | schema: %{schema | enum: tail}})
+  # Special case: atoms are equivalent to their stringified representation
+  defp equivalent?(left, right) when is_atom(left) and is_binary(right) do
+    to_string(left) == right
   end
-
-  defp maps_equivalent?(x, x), do: true
 
   # an explicit schema should be used to cast to enum of structs
-  defp maps_equivalent?(_left, %_struct{}), do: false
+  defp equivalent?(_x, %_struct{}), do: false
 
-  defp maps_equivalent?(left = %{}, right = %{}) when map_size(left) == map_size(right) do
-    Enum.all?(right, fn {k, v} ->
-      maps_equivalent?(Map.get(left, to_string(k)), v)
+  # Special case: Atom-keyed maps are equivalent to their string-keyed representation
+  defp equivalent?(left, right) when is_map(left) and is_map(right) do
+    Enum.all?(left, fn {k, v} ->
+      equivalent?(v, Map.get(right, to_string(k)))
     end)
   end
 
-  defp maps_equivalent?(_left, _right), do: false
+  defp equivalent?(_left, _right), do: false
 end
