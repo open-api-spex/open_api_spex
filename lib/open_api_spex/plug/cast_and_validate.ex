@@ -80,14 +80,37 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
   def call(
         conn = %{
-          private: %{phoenix_controller: controller, phoenix_action: action, open_api_spex: _pd}
+          private: %{
+            phoenix_controller: controller,
+            phoenix_action: action,
+            open_api_spex: private_data
+          }
         },
         opts
       ) do
-    operation_id = controller.open_api_operation(action).operationId
+    operation =
+      case private_data.operation_lookup[{controller, action}] do
+        nil ->
+          operationId = controller.open_api_operation(action).operationId
+          operation = private_data.operation_lookup[operationId]
 
-    if operation_id do
-      call(conn, Map.put(opts, :operation_id, operation_id))
+          operation_lookup =
+            private_data.operation_lookup
+            |> Map.put({controller, action}, operation)
+
+          OpenApiSpex.Plug.Cache.adapter().put(
+            private_data.spec_module,
+            {private_data.spec, operation_lookup}
+          )
+
+          operation
+
+        operation ->
+          operation
+      end
+
+    if operation.operationId do
+      call(conn, Map.put(opts, :operation_id, operation.operationId))
     else
       raise "operationId was not found in action API spec"
     end
