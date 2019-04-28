@@ -191,19 +191,6 @@ defmodule OpenApiSpec.CastTest do
 
       assert Error.message_with_path(error2) == "#/3: Invalid integer. Got: string"
     end
-
-    test "enum - invalid" do
-      schema = %Schema{type: :string, enum: ["one"]}
-      assert {:error, [error]} = cast(value: "two", schema: schema)
-
-      assert %Error{} = error
-      assert error.reason == :invalid_enum
-    end
-
-    test "enum - valid" do
-      schema = %Schema{type: :string, enum: ["one"]}
-      assert {:ok, "one"} = cast(value: "one", schema: schema)
-    end
   end
 
   describe "ok/1" do
