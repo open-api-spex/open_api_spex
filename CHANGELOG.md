@@ -1,3 +1,50 @@
+# 3.3.0
+
+Thanks to the contributions from the community! 👍
+
+ * [hauleth](https://github.com/hauleth)
+ * [cstaud](https://github.com/cstaud)
+ * [xadhoom](https://github.com/xadhoom)
+ * [nurugger07](https://github.com/nurugger07)
+ * [fenollp](https://github.com/fenollp)
+ * [moxley](https://github.com/moxley)
+
+ - Feature: Enums expressed as atoms or atom-keyed maps can be cast from strings (or string-keyed maps). (#60) (#101)
+
+Example:
+
+```elixir
+  parameters: [
+    Operation.parameter(:sort, :query, :string, "sort direction", enum: [:asc, :desc])
+  ],
+```
+
+ - Fix: Schema module references are resolved in in-line parameter/response schemas. (#77) (#105)
+
+Example: The response schema is given in-line as an array, but items are resolved from the `User` module.
+
+```elixir
+  responses: %{
+    200 => Operation.response(
+      "User array",
+      "application/json",
+      %Schema{
+        type: :array,
+        items: MyApp.Schemas.User
+      }
+    )
+  }
+```
+
+ - Fix: Ensure integer query parameters are validated correctly after conversion from string. (#106)
+ - Fix: Ensure integers are validated correctly against schema `minimum`, `maximum`, `exlcusiveMinimum` and `exclusiveMaximum` attributes. (#97)
+ - Fix: Ensure strings are cast to `Date` or `DateTime` types when the schema format is `:date` or `:date-time`. (#90) (#94)
+ - Docs: The contract for module supplied to the `PutApiSpec` plug is now documented by the `OpenApi` behaviour. (#73) (#103)
+ - Docs: Poison replaced with Jason in example and tests (#104)
+ - Docs: Improved documentation for combined `CastAndValidate` plug. (#91)
+ - Internals: Cache mapping from phoenix controller/action to OpenApi operation. (#102)
+
+
 # 3.2.1
 
 Patch release for documentation updates and improved error rendering Plug when using `CastAndValidate`.
