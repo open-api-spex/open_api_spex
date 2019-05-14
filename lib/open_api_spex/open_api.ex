@@ -80,10 +80,11 @@ defmodule   OpenApiSpex.OpenApi do
           |> to_json()
         end
         defp to_json(value) when is_map(value) do
+          extensions = to_json(value[:extensions]) || %{}
           value
           |> Stream.map(fn {k,v} -> {to_string(k), to_json(v)} end)
-          |> Stream.filter(fn {_, nil} -> false; _ -> true end)
-          |> Enum.into(%{})
+          |> Stream.filter(fn {_, nil} -> false; {"extensions", _} -> false;_ -> true end)
+          |> Enum.into(extensions)
         end
         defp to_json(value) when is_list(value) do
           Enum.map(value, &to_json/1)

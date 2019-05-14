@@ -10,7 +10,8 @@ defmodule OpenApiSpex.Info do
     :termsOfService,
     :contact,
     :license,
-    :version
+    :version,
+    :extensions
   ]
 
   @typedoc """
@@ -25,6 +26,7 @@ defmodule OpenApiSpex.Info do
     termsOfService: String.t | nil,
     contact: Contact.t | nil,
     license: License.t | nil,
-    version: String.t
+    version: String.t,
+    extensions: %{String.t() => String.t()} | nil,
   }
 end
