@@ -4,7 +4,7 @@ defmodule   OpenApiSpex.OpenApi do
   construct an `OpenApiSpex.OpenApi.t` at runtime.
   """
   alias OpenApiSpex.{
-    Info, Server, Paths, Components,
+    Extendable, Info, Server, Paths, Components,
     SecurityRequirement, Tag, ExternalDocumentation,
     OpenApi
   }
@@ -76,15 +76,14 @@ defmodule   OpenApiSpex.OpenApi do
         defp to_json(%Regex{source: source}), do: source
         defp to_json(value = %{__struct__: _}) do
           value
-          |> Map.from_struct()
+          |> Extendable.to_map()
           |> to_json()
         end
         defp to_json(value) when is_map(value) do
-          extensions = to_json(value[:extensions]) || %{}
           value
           |> Stream.map(fn {k,v} -> {to_string(k), to_json(v)} end)
-          |> Stream.filter(fn {_, nil} -> false; {"extensions", _} -> false;_ -> true end)
-          |> Enum.into(extensions)
+          |> Stream.filter(fn {_, nil} -> false; _ -> true end)
+          |> Enum.into(%{})
         end
         defp to_json(value) when is_list(value) do
           Enum.map(value, &to_json/1)
