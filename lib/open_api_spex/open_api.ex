@@ -4,7 +4,7 @@ defmodule   OpenApiSpex.OpenApi do
   construct an `OpenApiSpex.OpenApi.t` at runtime.
   """
   alias OpenApiSpex.{
-    Info, Server, Paths, Components,
+    Extendable, Info, Server, Paths, Components,
     SecurityRequirement, Tag, ExternalDocumentation,
     OpenApi
   }
@@ -76,7 +76,7 @@ defmodule   OpenApiSpex.OpenApi do
         defp to_json(%Regex{source: source}), do: source
         defp to_json(value = %{__struct__: _}) do
           value
-          |> Map.from_struct()
+          |> Extendable.to_map()
           |> to_json()
         end
         defp to_json(value) when is_map(value) do
