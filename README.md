@@ -272,7 +272,7 @@ As schemas evolve, you may want to confirm that the examples given match the sch
 Use the `OpenApiSpex.Test.Assertions` module to assert on schema validations.
 
 ```elixir
-Use ExUnit.Case
+use ExUnit.Case
 import OpenApiSpex.Test.Assertions
 
 test "UsersResponse example matches schema" do
