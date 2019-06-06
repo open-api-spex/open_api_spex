@@ -17,7 +17,8 @@ defmodule   OpenApiSpex.OpenApi do
     components: nil,
     security: [],
     tags: [],
-    externalDocs: nil
+    externalDocs: nil,
+    extensions: nil
   ]
 
   @typedoc """
@@ -33,7 +34,8 @@ defmodule   OpenApiSpex.OpenApi do
     components: Components.t | nil,
     security: [SecurityRequirement.t] | nil,
     tags: [Tag.t] | nil,
-    externalDocs: ExternalDocumentation.t | nil
+    externalDocs: ExternalDocumentation.t | nil,
+    extensions: %{String.t() => any()} | nil,
   }
 
   @doc """
