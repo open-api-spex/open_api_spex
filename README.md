@@ -62,7 +62,10 @@ defmodule MyApp.UserController do
   alias MyApp.Schemas.UserResponse
 
   @spec open_api_operation(any) :: Operation.t
-  def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
+  def open_api_operation(action) do
+    operation = String.to_existing_atom("#{action}_operation")
+    apply(__MODULE__, operation, [])
+  end
 
   @spec show_operation() :: Operation.t
   def show_operation() do
