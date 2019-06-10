@@ -149,7 +149,10 @@ defmodule OpenApiSpex do
     quote do
       @compile {:report_warnings, false}
       @behaviour OpenApiSpex.Schema
-      @schema struct(OpenApiSpex.Schema, Map.put(unquote(body), :"x-struct", __MODULE__))
+      @schema struct(
+                OpenApiSpex.Schema,
+                Map.put(Map.delete(unquote(body), :__struct__), :"x-struct", __MODULE__)
+              )
       def schema, do: @schema
 
       @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
