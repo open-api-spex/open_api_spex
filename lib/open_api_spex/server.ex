@@ -25,16 +25,20 @@ defmodule OpenApiSpex.Server do
   @doc """
   Builds a Server from a phoenix Endpoint module
   """
-  @spec from_endpoint(module, [otp_app: atom]) :: t
-  def from_endpoint(endpoint, opts) do
-    app = opts[:otp_app]
-    url_config = Application.get_env(app, endpoint, []) |> Keyword.get(:url, [])
-    scheme = Keyword.get(url_config, :scheme, "http")
-    host = Keyword.get(url_config, :host, "localhost")
-    port = Keyword.get(url_config, :port, "80")
-    path = Keyword.get(url_config, :path, "/")
+  @deprecated "Use from_endpoint/1 instead"
+  @spec from_endpoint(module, ignored :: any()) :: t
+  def from_endpoint(endpoint, _opts) do
+    from_endpoint(endpoint)
+  end
+
+  @doc """
+  Builds a Server from a phoenix Endpoint module
+  """
+  @spec from_endpoint(module) :: t
+  def from_endpoint(endpoint) do
+    uri = apply(endpoint, :struct_url, [])
     %Server{
-      url: "#{scheme}://#{host}:#{port}#{path}"
+      url: URI.to_string(uri)
     }
   end
 end

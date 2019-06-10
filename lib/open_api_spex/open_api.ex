@@ -48,7 +48,7 @@ defmodule   OpenApiSpex.OpenApi do
         %OpenApi{
           servers: [
             # Populate the Server info from a phoenix endpoint
-            Server.from_endpoint(MyAppWeb.Endpoint, otp_app: :my_app)
+            Server.from_endpoint(MyAppWeb.Endpoint)
           ],
           info: %Info{
             title: "My App",
