@@ -11,25 +11,30 @@ defmodule OpenApiSpex.Paths do
   The path is appended to the URL from the Server Object in order to construct the full URL.
   The Paths MAY be empty, due to ACL constraints.
   """
-  @type t :: %{String.t => PathItem.t}
+  @type t :: %{String.t() => PathItem.t()}
 
   @doc """
   Create a Paths map from the routes in the given router module.
   """
-  @spec from_router(module) :: t
+  @spec from_router(module) :: {:ok, t} | {:error, String.t()}
   def from_router(router) do
     router.__routes__()
-    |> Enum.group_by(fn route -> route.path end)
-    |> Enum.map(fn {k, v} -> {open_api_path(k), PathItem.from_routes(v)} end)
-    |> Enum.filter(fn {_k, v} -> !is_nil(v) end)
-    |> Map.new()
+    |> Enum.group_by(fn route -> open_api_path(route.path) end)
+    |> Enum.map(fn {path, routes} -> {path, PathItem.from_routes(routes)} end)
+    |> Enum.reduce_while(%{}, fn
+      {_path, {:error, reason}}, _acc -> {:halt, {:error, reason}}
+      {_path, {:ok, nil}}, acc -> {:cont, acc}
+      {path, {:ok, path_item}}, acc -> {:cont, Map.put(acc, path, path_item)}
+    end)
+    |> case do
+      {:error, reason} -> raise reason
+      paths -> paths
+    end
   end
 
-  @spec open_api_path(String.t) :: String.t
+  @spec open_api_path(String.t()) :: String.t()
   defp open_api_path(path) do
-    path
-    |> String.split("/")
-    |> Enum.map(fn ":"<>segment -> "{#{segment}}"; segment -> segment end)
-    |> Enum.join("/")
+    pattern = ~r{:([^/]+)}
+    Regex.replace(pattern, path, "{\\1}")
   end
 end
