@@ -55,8 +55,20 @@ defmodule OpenApiSpex.Operation do
   Constructs an Operation struct from the plug and opts specified in the given route
   """
   @spec from_route(PathItem.route) :: t
-  def from_route(route) do
-    from_plug(route.plug, route.opts)
+  def from_route(route)
+
+  def from_route(route = %_{}) do
+    route
+    |> Map.from_struct()
+    |> from_route()
+  end
+
+  def from_route(%{plug: plug, plug_opts: opts}) do
+    from_plug(plug, opts)
+  end
+
+  def from_route(%{plug: plug, opts: opts}) do
+    from_plug(plug, opts)
   end
 
   @doc """

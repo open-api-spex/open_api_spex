@@ -48,7 +48,9 @@ defmodule OpenApiSpex.PathItem do
   Represents a route from in a Plug/Phoenix application.
   Eg from the generated `__routes__` function in a Phoenix.Router module.
   """
-  @type route :: %{verb: atom, plug: atom, opts: any}
+  @type route ::
+    %{verb: atom, plug: atom, opts: any} |
+    %{verb: atom, plug: atom, plug_opts: any}
 
   @doc """
   Builds a PathItem struct from a list of routes that share a path.
