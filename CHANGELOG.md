@@ -1,3 +1,55 @@
+# 3.4.0
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+ * [surik](https://github.com/surik)
+ * [holsee](https://github.com/holsee)
+ * [fmcgeough](https://github.com/fmcgeough)
+
+
+ - Feature: the `OpenApiSpex` and `OpenApiSpex.Info` structs now support [extensions](https://swagger.io/docs/specification/openapi-extensions/) (#108) (#114)
+
+ The `extensions` key may contain any additional data that should be included in the info, eg the `x-logo` and `x-tagGroups` extensions:
+
+ ```elixir
+  spec = %OpenApi{
+    info: %Info{
+      title: "Test",
+      version: "1.0.0",
+      extensions: %{
+        "x-logo" => %{
+          "url" => "https://example.com/logo.png",
+          "backgroundColor" => "#FFFFFF",
+          "altText" => "Example logo"
+        }
+      }
+    },
+    extensions: %{
+      "x-tagGroups" => [
+        %{
+          "name" => "Methods",
+          "tags" => [
+            "Search",
+            "Fetch",
+            "Delete"
+          ]
+        }
+      ]
+    },
+    paths: %{ ... }
+  }
+ ```
+
+ - Deprecation: `OpenApiSpex.Server.from_endpoint/2` has been deprecated in favor of `OpenApiSpex.Server.from_endpoint/1`.
+   Simply remove the `otp_app:` option from the call to use the new function. (#116)
+
+```elixir
+  # server = Server.from_endpoint(Endpoint, otp_app: :my_phoenix_app)
+  server = Server.from_endpoint(MyPhoenixAppWeb.Endpoint)
+```
+
+ - Fix: The internal representation of a Phoenix Route struct changed in Phoenix 1.4.7 breaking the `OpenApiSpex.Paths.from_router/1` function. OpenApiSpex 3.4.0 will support both representations until the Phoenix API becomes stable. (#118)
+
 # 3.3.0
 
 Thanks to the contributions from the community! 👍
