@@ -55,9 +55,6 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
   end
 
   describe "body params" do
-    # TODO Fix this test. The datetime should be parsed, but it isn't.
-    # https://github.com/open-api-spex/open_api_spex/issues/90
-    @tag :skip
     test "Valid Request" do
       request_body = %{
         "user" => %{
