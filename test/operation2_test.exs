@@ -151,6 +151,31 @@ defmodule OpenApiSpex.Operation2Test do
       assert error.name == :name
     end
 
+    test "validate missing content-type header for required requestBody" do
+      conn = :post |> Plug.Test.conn("/api/users/") |> Plug.Conn.fetch_query_params()
+      operation = OperationFixtures.create_user()
+      assert {:error, [%Error{reason: :missing_header, name: "content-type"}]} = Operation2.cast(
+        operation,
+        conn,
+        nil,
+        SchemaFixtures.schemas()
+      )
+    end
+
+    test "validate invalid content-type header for required requestBody" do
+      conn =
+        create_conn(%{})
+        |> Plug.Conn.put_req_header("content-type", "text/html")
+
+      operation = OperationFixtures.create_user()
+      assert {:error, [%Error{reason: :invalid_header, name: "content-type"}]} = Operation2.cast(
+        operation,
+        conn,
+        "text/html",
+        SchemaFixtures.schemas()
+      )
+    end
+
     test "validate invalid value for integer range" do
       parameter =
         Operation.parameter(

@@ -17,6 +17,8 @@ defmodule OpenApiSpex.Cast.Error do
   @type min_length_error :: {:min_length, non_neg_integer()}
   @type minimum_error :: {:minimum, integer(), integer()}
   @type missing_field_error :: {:missing_field, String.t() | atom()}
+  @type missing_header_error :: {:missing_header, String.t() | atom()}
+  @type invalid_header_error :: {:invalid_header, String.t() | atom()}
   @type multiple_of_error :: {:multiple_of, non_neg_integer(), non_neg_integer()}
   @type no_value_for_discriminator_error :: {:no_value_for_discriminator, String.t() | atom()}
   @type invalid_discriminator_value_error :: {:invalid_discriminator_value, String.t() | atom()}
@@ -43,6 +45,8 @@ defmodule OpenApiSpex.Cast.Error do
           | :min_length
           | :minimum
           | :missing_field
+          | :missing_header
+          | :invalid_header
           | :multiple_of
           | :no_value_for_discriminator
           | :null_value
@@ -68,6 +72,8 @@ defmodule OpenApiSpex.Cast.Error do
           | min_length_error()
           | minimum_error()
           | missing_field_error()
+          | missing_header_error()
+          | invalid_header_error()
           | multiple_of_error()
           | no_value_for_discriminator_error()
           | null_value_error()
@@ -198,6 +204,16 @@ defmodule OpenApiSpex.Cast.Error do
     |> add_context_fields(ctx)
   end
 
+  def new(ctx, {:missing_header, name}) do
+    %__MODULE__{reason: :missing_header, name: name}
+    |> add_context_fields(ctx)
+  end
+
+  def new(ctx, {:invalid_header, name}) do
+    %__MODULE__{reason: :invalid_header, name: name}
+    |> add_context_fields(ctx)
+  end
+
   def new(ctx, {:no_value_for_discriminator, field}) do
     %__MODULE__{reason: :no_value_for_discriminator, name: field}
     |> add_context_fields(ctx)
@@ -319,6 +335,14 @@ defmodule OpenApiSpex.Cast.Error do
 
   def message(%{reason: :missing_field, name: name}) do
     "Missing field: #{name}"
+  end
+
+  def message(%{reason: :missing_header, name: name}) do
+    "Missing header: #{name}"
+  end
+
+  def message(%{reason: :invalid_header, name: name, value: value}) do
+    "Invalid value for header: #{name}. Got: #{inspect(value)}"
   end
 
   def message(%{reason: :max_properties, meta: meta}) do
