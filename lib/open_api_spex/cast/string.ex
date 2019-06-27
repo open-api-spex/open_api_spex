@@ -29,6 +29,10 @@ defmodule OpenApiSpex.Cast.String do
         Cast.error(ctx, {:invalid_format, :"date-time"})
     end
   end
+  
+  def cast(%{value: value = %Plug.Upload{}, schema: %{format: :binary}}) do
+    {:ok, value}
+  end
 
   def cast(%{value: value} = ctx) when is_binary(value) do
     apply_validation(ctx, @schema_fields)
