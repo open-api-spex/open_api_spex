@@ -841,7 +841,8 @@ defmodule OpenApiSpex.Schema do
   included in the `allOf` list.
   """
   def properties(schema = %Schema{type: :object, properties: properties = %{}}) do
-    Map.keys(properties) ++ properties(%{schema | properties: nil})
+    for({name, property} <- properties, do: {name, default(property)}) ++
+      properties(%{schema | properties: nil})
   end
 
   def properties(%Schema{allOf: schemas}) when is_list(schemas) do
@@ -853,4 +854,7 @@ defmodule OpenApiSpex.Schema do
   end
 
   def properties(_), do: []
+
+  defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
+  defp default(%{default: default}), do: default
 end

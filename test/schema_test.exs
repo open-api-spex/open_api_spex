@@ -437,4 +437,24 @@ defmodule OpenApiSpex.SchemaTest do
       assert :ok = Schema.validate(schema, "bla", %{})
     end
   end
+
+  describe "Default property value" do
+    test "Available in structure" do
+      size = %Schemas.Size{}
+      assert "cm" == size.unit
+      assert 100 == size.value
+    end
+
+    test "Available after cast" do
+      api_spec = ApiSpec.spec()
+      schemas = api_spec.components.schemas
+      size = Map.fetch!(schemas, "Size")
+
+      assert {:ok, %Schemas.Size{value: 100, unit: "cm"}} ==
+               Schema.cast(size, %{}, schemas)
+
+      assert {:ok, %Schemas.Size{value: 110, unit: "cm"}} ==
+               Schema.cast(size, %{value: 110}, schemas)
+    end
+  end
 end

@@ -7,7 +7,7 @@ defmodule OpenApiSpexTest.ApiSpec do
   def spec() do
     %OpenApi{
       servers: [
-        %Server{url: "http://example.com"},
+        %Server{url: "http://example.com"}
       ],
       info: %Info{
         title: "A",
@@ -24,7 +24,14 @@ defmodule OpenApiSpexTest.ApiSpec do
       },
       components: %Components{
         schemas:
-          for schemaMod <- [Schemas.Pet, Schemas.Cat, Schemas.Dog, Schemas.CatOrDog], into: %{} do
+          for schemaMod <- [
+                Schemas.Pet,
+                Schemas.Cat,
+                Schemas.Dog,
+                Schemas.CatOrDog,
+                Schemas.Size
+              ],
+              into: %{} do
             schema = schemaMod.schema()
             {schema.title, schema}
           end
