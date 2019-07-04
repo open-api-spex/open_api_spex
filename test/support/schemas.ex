@@ -2,6 +2,19 @@ defmodule OpenApiSpexTest.Schemas do
   require OpenApiSpex
   alias OpenApiSpex.Schema
 
+  defmodule Size do
+    OpenApiSpex.schema(%{
+      title: "Size",
+      description: "A size of a pet",
+      type: :object,
+      properties: %{
+        unit: %Schema{type: :string, description: "SI unit name", default: "cm"},
+        value: %Schema{type: :integer, description: "Size in given unit", default: 100}
+      },
+      required: [:unit, :value]
+    })
+  end
+
   defmodule User do
     OpenApiSpex.schema(%{
       title: "User",
