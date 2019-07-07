@@ -3,16 +3,21 @@ defmodule PhoenixAppWeb.Schemas do
   alias OpenApiSpex.Schema
 
   defmodule User do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "User",
       description: "A user of the app",
       type: :object,
       properties: %{
         id: %Schema{type: :integer, description: "User ID"},
-        name:  %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
+        name: %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
         email: %Schema{type: :string, description: "Email address", format: :email},
-        inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :'date-time'},
-        updated_at: %Schema{type: :string, description: "Update timestamp", format: :'date-time'}
+        birthday: %Schema{type: :string, description: "Birth date", format: :date},
+        inserted_at: %Schema{
+          type: :string,
+          description: "Creation timestamp",
+          format: :"date-time"
+        },
+        updated_at: %Schema{type: :string, description: "Update timestamp", format: :"date-time"}
       },
       required: [:name, :email],
       example: %{
@@ -22,11 +27,11 @@ defmodule PhoenixAppWeb.Schemas do
         "inserted_at" => "2017-09-12T12:34:55Z",
         "updated_at" => "2017-09-13T10:11:12Z"
       }
-    }
+    })
   end
 
   defmodule UserRequest do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "UserRequest",
       description: "POST body for creating a user",
       type: :object,
@@ -40,11 +45,11 @@ defmodule PhoenixAppWeb.Schemas do
           "email" => "joe@gmail.com"
         }
       }
-    }
+    })
   end
 
   defmodule UserResponse do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "UserResponse",
       description: "Response schema for single user",
       type: :object,
@@ -61,11 +66,11 @@ defmodule PhoenixAppWeb.Schemas do
         }
       },
       "x-struct": __MODULE__
-    }
+    })
   end
 
   defmodule UsersResponse do
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "UsersResponse",
       description: "Response schema for multiple users",
       type: :object,
@@ -86,6 +91,6 @@ defmodule PhoenixAppWeb.Schemas do
           }
         ]
       }
-    }
+    })
   end
 end

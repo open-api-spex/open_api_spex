@@ -30,8 +30,9 @@ end
 Start by adding an `ApiSpec` module to your application to populate an `OpenApiSpex.OpenApi` struct.
 
 ```elixir
-defmodule MyApp.ApiSpec do
+defmodule MyAppWeb.ApiSpec do
   alias OpenApiSpex.{OpenApi, Server, Info, Paths}
+  alias MyAppWeb.{Endpoint, Router}
   @behaviour OpenApi
 
   @impl OpenApi
@@ -39,14 +40,14 @@ defmodule MyApp.ApiSpec do
     %OpenApi{
       servers: [
         # Populate the Server info from a phoenix endpoint
-        Server.from_endpoint(MyAppWeb.Endpoint, otp_app: :my_app)
+        Server.from_endpoint(Endpoint)
       ],
       info: %Info{
         title: "My App",
         version: "1.0"
       },
       # populate the paths from a phoenix router
-      paths: Paths.from_router(MyAppWeb.Router)
+      paths: Paths.from_router(Router)
     }
     |> OpenApiSpex.resolve_schema_modules() # discover request/response schemas from path specs
   end
@@ -57,36 +58,40 @@ For each plug (controller) that will handle api requests, add an `open_api_opera
 It will be passed the plug opts that were declared in the router, this will be the action for a phoenix controller. The callback populates an `OpenApiSpex.Operation` struct describing the plug/action.
 
 ```elixir
-defmodule MyApp.UserController do
+defmodule MyAppWeb.UserController do
   alias OpenApiSpex.Operation
-  alias MyApp.Schemas.UserResponse
+  alias MyAppWeb.Schemas.UserResponse
 
-  @spec open_api_operation(any) :: Operation.t
+  @spec open_api_operation(atom) :: Operation.t()
   def open_api_operation(action) do
     operation = String.to_existing_atom("#{action}_operation")
     apply(__MODULE__, operation, [])
   end
 
-  @spec show_operation() :: Operation.t
+  @spec show_operation() :: Operation.t()
   def show_operation() do
-
     %Operation{
       tags: ["users"],
       summary: "Show user",
       description: "Show a user by ID",
       operationId: "UserController.show",
       parameters: [
-        Operation.parameter(:id, :path, :integer, "User ID", example: 123)
+        Operation.parameter(:id, :path, :integer, "User ID", example: 123, required: true)
       ],
       responses: %{
         200 => Operation.response("User", "application/json", UserResponse)
       }
     }
   end
-  def show(conn, %{"id" => id}) do
+
+  # Controller's `show` action
+  def show(conn, %{id: id}) do
     {:ok, user} = MyApp.Users.find_by_id(id)
     json(conn, 200, user)
   end
+
+  # For examples of other action operations, see
+  # https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex
 end
 ```
 
@@ -97,52 +102,64 @@ You may optionally declare a struct, linked to the JSON schema through the `x-st
 See `OpenApiSpex.schema/1` macro for a convenient way to reduce some boilerplate.
 
 ```elixir
-defmodule MyApp.Schemas do
+defmodule MyAppWeb.Schemas do
   alias OpenApiSpex.Schema
 
   defmodule User do
-    @behaviour OpenApiSpex.Schema
-    @derive [Jason.Encoder]
-    @schema %Schema{
+    OpenApiSpex.schema(%{
       title: "User",
       description: "A user of the app",
       type: :object,
       properties: %{
         id: %Schema{type: :integer, description: "User ID"},
-        name: %Schema{type: :string, description: "User name"},
+        name: %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
         email: %Schema{type: :string, description: "Email address", format: :email},
         birthday: %Schema{type: :string, description: "Birth date", format: :date},
-        inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :datetime},
-        updated_at: %Schema{type: :string, description: "Update timestamp", format: :datetime}
+        inserted_at: %Schema{
+          type: :string,
+          description: "Creation timestamp",
+          format: :"date-time"
+        },
+        updated_at: %Schema{type: :string, description: "Update timestamp", format: :"date-time"}
       },
       required: [:name, :email],
       example: %{
         "id" => 123,
-        "name" => "Joe",
-        "email" => "joe@gmail.com"
-      },
-      "x-struct": __MODULE__
-    }
-
-    def schema, do: @schema
-    defstruct Map.keys(@schema.properties)
+        "name" => "Joe User",
+        "email" => "joe@gmail.com",
+        "birthday" => "1970-01-01T12:34:55Z",
+        "inserted_at" => "2017-09-12T12:34:55Z",
+        "updated_at" => "2017-09-13T10:11:12Z"
+      }
+    })
   end
 
   defmodule UserResponse do
     require OpenApiSpex
 
-    # OpenApiSpex.schema/1 macro can be optionally used to reduce boilerplate code
-    OpenApiSpex.schema %{
+    OpenApiSpex.schema(%{
       title: "UserResponse",
       description: "Response schema for single user",
       type: :object,
       properties: %{
         data: User
+      },
+      example: %{
+        "data" => %{
+          "id" => 123,
+          "name" => "Joe User",
+          "email" => "joe@gmail.com",
+          "birthday" => "1970-01-01T12:34:55Z",
+          "inserted_at" => "2017-09-12T12:34:55Z",
+          "updated_at" => "2017-09-13T10:11:12Z"
+        }
       }
-    }
+    })
   end
 end
 ```
+
+For more examples of schema definitions, see the [sample Phoenix app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/schemas.ex)
 
 Now you can create a mix task to write the swagger file to disk:
 
@@ -150,7 +167,7 @@ Now you can create a mix task to write the swagger file to disk:
 defmodule Mix.Tasks.MyApp.OpenApiSpec do
   def run([output_file]) do
     json =
-      MyApp.ApiSpec.spec()
+      MyAppWeb.ApiSpec.spec()
       |> Jason.encode!(pretty: true)
 
     :ok = File.write!(output_file, json)
@@ -166,7 +183,7 @@ To serve the API spec from your application, first add the `OpenApiSpex.Plug.Put
 
 ```elixir
   pipeline :api do
-    plug OpenApiSpex.Plug.PutApiSpec, module: MyApp.ApiSpec
+    plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec
   end
 ```
 
@@ -176,7 +193,7 @@ The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
 ```elixir
   scope "/api" do
     pipe_through :api
-    resources "/users", MyApp.UserController, only: [:create, :index, :show]
+    resources "/users", MyAppWeb.UserController, only: [:create, :index, :show]
     get "/openapi", OpenApiSpex.Plug.RenderSpec, []
   end
 ```
@@ -205,19 +222,25 @@ All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than
 
 ## Validating and Casting Params
 
+OpenApiSpex can automatically validate requests before they reach the controller action function. Or if you prefer,
+you can explicitly call on OpenApiSpex to cast and validate the params within the controller action. This section
+describes the former.
+
+First, the `plug OpenApiSpex.Plug.PutApiSpec` needs to be called in the Router, as described above.
+
 Add the `OpenApiSpex.Plug.CastAndValidate` plug to a controller to validate request parameters, and to cast to Elixir types defined by the operation schema.
 
 ```elixir
-plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserController.show"
+plug OpenApiSpex.Plug.CastAndValidate
 ```
 
 The `operation_id` can be inferred when used from a Phoenix controller from the contents of `conn.private`.
 
 ```elixir
-defmodule MyApp.UserController do
+defmodule MyAppWeb.UserController do
   use MyAppWeb, :controller
   alias OpenApiSpex.Operation
-  alias MyApp.Schemas.{User, UserRequest, UserResponse}
+  alias MyAppWeb.Schemas.{User, UserRequest, UserResponse}
 
   plug OpenApiSpex.Plug.CastAndValidate
 
@@ -279,8 +302,8 @@ use ExUnit.Case
 import OpenApiSpex.Test.Assertions
 
 test "UsersResponse example matches schema" do
-  api_spec = MyApp.ApiSpec.spec()
-  schema = MyApp.Schemas.UsersResponse.schema()
+  api_spec = MyAppWeb.ApiSpec.spec()
+  schema = MyAppWeb.Schemas.UsersResponse.schema()
   assert_schema(schema.example, "UsersResponse", api_spec)
 end
 ```
@@ -290,11 +313,11 @@ end
 API responses can be tested against schemas using `OpenApiSpex.Test.Assertions` also:
 
 ```elixir
-use MyApp.ConnCase
+use MyAppWeb.ConnCase
 import OpenApiSpex.Test.Assertions
 
 test "UserController produces a UsersResponse", %{conn: conn} do
-  api_spec = MyApp.ApiSpec.spec()
+  api_spec = MyAppWeb.ApiSpec.spec()
   json =
     conn
     |> get(user_path(conn, :index))
