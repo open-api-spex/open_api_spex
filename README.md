@@ -90,12 +90,12 @@ defmodule MyAppWeb.UserController do
     json(conn, 200, user)
   end
 
-  # For examples of other action operations, see
-  # https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex
 end
 ```
+For examples of other action operations, see the
+[example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex).
 
-Declare the JSON schemas for request/response bodies in a `Schemas` module:
+Next, declare the JSON schemas for request/response bodies in a `Schemas` module:
 Each module should implement the `OpenApiSpex.Schema` behaviour.
 The only callback is `schema/0`, which should return an `OpenApiSpex.Schema` struct.
 You may optionally declare a struct, linked to the JSON schema through the `x-struct` extension property.
