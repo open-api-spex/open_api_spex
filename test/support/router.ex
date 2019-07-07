@@ -23,7 +23,9 @@ defmodule OpenApiSpexTest.Router do
       post "/users", CastAndValidateUserController, :create
       post "/users/:id/contact_info", CastAndValidateUserController, :contact_info
       post "/users/:id/payment_details", CastAndValidateUserController, :payment_details
-      resources "/custom_error_users", CastAndValidate.CustomErrorUserController, only: [:index]
+
+      resources "/custom_error_users", CastAndValidate.CustomErrorUserController,
+        only: [:index, :create]
     end
 
     get "/users/:id/payment_details", UserController, :payment_details

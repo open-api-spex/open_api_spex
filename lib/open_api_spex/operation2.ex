@@ -31,8 +31,33 @@ defmodule OpenApiSpex.Operation2 do
 
   defp cast_request_body(nil, _, _, _), do: {:ok, %{}}
 
-  defp cast_request_body(%RequestBody{content: content}, params, content_type, schemas) do
-    schema = content[content_type].schema
-    Cast.cast(schema, params, schemas)
+  defp cast_request_body(%RequestBody{} = request_body_spec, params, content_type, schemas) do
+    with {:ok, content_type} <- validate_content_type(content_type),
+         {:ok, schema} <- fetch_schema(request_body_spec, content_type) do
+      Cast.cast(schema, params, schemas)
+    else
+      {:error, reason} -> {:error, [reason]}
+    end
+  end
+
+  defp validate_content_type(content_type) when is_binary(content_type) do
+    content_type = String.trim(content_type)
+
+    case content_type do
+      "" -> {:error, :missing_content_type}
+      _ -> {:ok, content_type}
+    end
+  end
+
+  defp validate_content_type(_content_type) do
+    {:error, :expected_binary_for_content_type}
+  end
+
+  defp fetch_schema(%RequestBody{content: content}, content_type) do
+    with %{^content_type => %{schema: schema}} <- content do
+      {:ok, schema}
+    else
+      _ -> {:error, :unexpected_content_type}
+    end
   end
 end

@@ -119,6 +119,7 @@ defmodule OpenApiSpexTest.Schemas do
       properties: %{
         user: User
       },
+      required: [:user],
       example: %{
         "user" => %{
           "name" => "Joe User",

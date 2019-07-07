@@ -53,4 +53,38 @@ defmodule OpenApiSpexTest.CastAndValidate.CustomErrorUserController do
       ]
     })
   end
+
+  def create_operation() do
+    import Operation
+
+    %Operation{
+      tags: ["users"],
+      summary: "Create user",
+      operationId: "UserController.create",
+      requestBody:
+        Operation.request_body(
+          "Create User request body",
+          "application/json",
+          Schemas.UserRequest,
+          required: true
+        ),
+      responses: %{
+        200 => response("User Response", "application/json", Schemas.UserResponse)
+      }
+    }
+  end
+
+  def create(conn, _params) do
+    conn
+    |> put_status(:created)
+    |> json(%Schemas.UsersResponse{
+      data: [
+        %Schemas.User{
+          id: 123,
+          name: "joe user",
+          email: "joe@gmail.com"
+        }
+      ]
+    })
+  end
 end
