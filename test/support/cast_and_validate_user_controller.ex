@@ -19,7 +19,7 @@ defmodule OpenApiSpexTest.CastAndValidateUserController do
       tags: ["users"],
       summary: "Show user",
       description: "Show a user by ID",
-      operationId: "UserController.show",
+      operationId: "CastAndValidateUserController.show",
       parameters: [
         parameter(:id, :path, :integer, "User ID", example: 123, minimum: 1)
       ],
@@ -46,7 +46,7 @@ defmodule OpenApiSpexTest.CastAndValidateUserController do
       tags: ["users"],
       summary: "List users",
       description: "List all useres",
-      operationId: "UserController.index",
+      operationId: "CastAndValidateUserController.index",
       parameters: [
         parameter(:validParam, :query, :boolean, "Valid Param", example: true)
       ],
@@ -75,9 +75,12 @@ defmodule OpenApiSpexTest.CastAndValidateUserController do
       tags: ["users"],
       summary: "Create user",
       description: "Create a user",
-      operationId: "UserController.create",
+      operationId: "CastAndValidateUserController.create",
       parameters: [],
-      requestBody: request_body("The user attributes", "application/json", Schemas.UserRequest),
+      requestBody:
+        request_body("The user attributes", "application/json", Schemas.UserRequest,
+          required: true
+        ),
       responses: %{
         201 => response("User", "application/json", Schemas.UserResponse)
       }
@@ -97,11 +100,12 @@ defmodule OpenApiSpexTest.CastAndValidateUserController do
       tags: ["users"],
       summary: "Update contact info",
       description: "Update contact info",
-      operationId: "UserController.contact_info",
+      operationId: "CastAndValidateUserController.contact_info",
       parameters: [
         parameter(:id, :path, :integer, "user ID")
       ],
-      requestBody: request_body("Contact info", "application/json", Schemas.ContactInfo),
+      requestBody:
+        request_body("Contact info", "application/json", Schemas.ContactInfo, required: true),
       responses: %{
         200 => %OpenApiSpex.Response{
           description: "OK"
@@ -111,7 +115,9 @@ defmodule OpenApiSpexTest.CastAndValidateUserController do
   end
 
   # POST /contact_info
-  def contact_info(conn = %{body_params: %Schemas.ContactInfo{}}, %{id: id}) do
+  def contact_info(conn, %{id: id}) do
+    %Schemas.ContactInfo{} = Map.get(conn, :body_params)
+
     conn
     |> put_status(200)
     |> json(%{id: id})
@@ -124,7 +130,7 @@ defmodule OpenApiSpexTest.CastAndValidateUserController do
       tags: ["users"],
       summary: "Show user payment details",
       description: "Shows a users payment details",
-      operationId: "UserController.payment_details",
+      operationId: "CastAndValidateUserController.payment_details",
       parameters: [
         parameter(:id, :path, :integer, "User ID", example: 123, minimum: 1)
       ],
@@ -162,7 +168,7 @@ defmodule OpenApiSpexTest.CastAndValidateUserController do
       tags: ["EntityWithDict"],
       summary: "Create an EntityWithDict",
       description: "Create an EntityWithDict",
-      operationId: "UserController.create_entity",
+      operationId: "CastAndValidateUserController.create_entity",
       parameters: [],
       requestBody: request_body("Entity attributes", "application/json", Schemas.EntityWithDict),
       responses: %{

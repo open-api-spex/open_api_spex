@@ -39,7 +39,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate.CustomErrorUserControllerTest do
 
   describe "create" do
     @tag :capture_log
-    test "missing content-type" do
+    test "missing content-type when body is required" do
       body = "{}"
 
       conn =

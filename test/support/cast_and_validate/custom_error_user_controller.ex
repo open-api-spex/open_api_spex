@@ -32,7 +32,7 @@ defmodule OpenApiSpexTest.CastAndValidate.CustomErrorUserController do
       tags: ["users"],
       summary: "List users",
       description: "List all useres",
-      operationId: "UserController.index",
+      operationId: "CustomErrorUserController.index",
       parameters: [
         parameter(:validParam, :query, :boolean, "Valid Param", example: true)
       ],
@@ -60,7 +60,7 @@ defmodule OpenApiSpexTest.CastAndValidate.CustomErrorUserController do
     %Operation{
       tags: ["users"],
       summary: "Create user",
-      operationId: "UserController.create",
+      operationId: "CustomErrorUserController.create",
       requestBody:
         Operation.request_body(
           "Create User request body",

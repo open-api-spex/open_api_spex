@@ -29,24 +29,34 @@ defmodule OpenApiSpex.Operation2 do
     CastParameters.cast(conn, operation, schemas)
   end
 
-  defp cast_request_body(nil, _, _, _), do: {:ok, %{}}
-
   defp cast_request_body(%RequestBody{} = request_body_spec, params, content_type, schemas) do
     with {:ok, content_type} <- validate_content_type(content_type),
          {:ok, schema} <- fetch_schema(request_body_spec, content_type) do
       Cast.cast(schema, params, schemas)
     else
-      {:error, reason} -> {:error, [reason]}
+      {:error, :missing_content_type} ->
+        if request_body_spec.required do
+          {:error, [:missing_content_type]}
+        else
+          {:ok, %{}}
+        end
+
+      {:error, reason} ->
+        {:error, [reason]}
     end
   end
 
-  defp validate_content_type(content_type) when is_binary(content_type) do
-    content_type = String.trim(content_type)
+  defp cast_request_body(_, _, _, _), do: {:ok, %{}}
 
+  defp validate_content_type(content_type) when is_binary(content_type) do
     case content_type do
       "" -> {:error, :missing_content_type}
       _ -> {:ok, content_type}
     end
+  end
+
+  defp validate_content_type(nil) do
+    {:error, :missing_content_type}
   end
 
   defp validate_content_type(_content_type) do
