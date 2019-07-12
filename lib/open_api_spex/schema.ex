@@ -313,7 +313,7 @@ defmodule OpenApiSpex.Schema do
 
   def cast(%Schema{type: :string, format: :"date-time"}, value, _schemas) when is_binary(value) do
     case DateTime.from_iso8601(value) do
-      {:ok, datetime = %DateTime{}, _offset} -> {:ok, datetime}
+      {:ok, date_time = %DateTime{}, _offset} -> {:ok, date_time}
       error = {:error, _reason} -> error
     end
   end

@@ -22,8 +22,8 @@ defmodule OpenApiSpex.Cast.String do
 
   def cast(%{value: value, schema: %{format: :"date-time"}} = ctx) when is_binary(value) do
     case DateTime.from_iso8601(value) do
-      {:ok, %DateTime{} = datetime, _offset} ->
-        {:ok, datetime}
+      {:ok, %DateTime{} = date_time, _offset} ->
+        {:ok, date_time}
 
       _ ->
         Cast.error(ctx, {:invalid_format, :"date-time"})
