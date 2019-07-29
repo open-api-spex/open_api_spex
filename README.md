@@ -194,6 +194,8 @@ Optionally, you can create a mix task to write the swagger file to disk:
 ```elixir
 defmodule Mix.Tasks.MyApp.OpenApiSpec do
   def run([output_file]) do
+    MyAppWeb.Endpoint.start_link() # Required if using for OpenApiSpex.Server.from_endpoint/1
+
     json =
       MyAppWeb.ApiSpec.spec()
       |> Jason.encode!(pretty: true)
