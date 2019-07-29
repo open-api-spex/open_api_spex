@@ -6,6 +6,8 @@ config :phoenix_app, PhoenixAppWeb.Endpoint,
 
 config :phoenix_app, ecto_repos: [PhoenixApp.Repo]
 
+config :phoenix, :json_library, Jason
+
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]

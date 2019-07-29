@@ -1,171 +1,62 @@
 {
-  "tags": [],
-  "servers": [],
-  "security": [],
-  "paths": {
-    "/api/users/{id}": {
-      "get": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Show user",
-        "responses": {
-          "200": {
-            "description": "User",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
-                }
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "schema": {
-              "type": "integer"
-            },
-            "required": true,
-            "name": "id",
-            "in": "path",
-            "example": 123,
-            "description": "User ID"
-          }
-        ],
-        "operationId": "UserController.show",
-        "description": "Show a user by ID"
-      }
-    },
-    "/api/users": {
-      "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Create user",
-        "responses": {
-          "201": {
-            "description": "User",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "description": "The user attributes",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserRequest"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "schema": {
-              "type": "integer"
-            },
-            "required": true,
-            "name": "group_id",
-            "in": "path",
-            "example": 1,
-            "description": "Group ID"
-          }
-        ],
-        "operationId": "UserController.create",
-        "description": "Create a user"
-      },
-      "get": {
-        "tags": [
-          "users"
-        ],
-        "summary": "List users",
-        "responses": {
-          "200": {
-            "description": "User List Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UsersResponse"
-                }
-              }
-            }
-          }
-        },
-        "operationId": "UserController.index",
-        "description": "List all useres"
-      }
-    }
-  },
-  "openapi": "3.0.0",
-  "info": {
-    "version": "1.0",
-    "title": "Phoenix App"
-  },
   "components": {
     "schemas": {
-      "UsersResponse": {
-        "x-struct": "Elixir.PhoenixAppWeb.Schemas.UsersResponse",
-        "type": "object",
-        "title": "UsersResponse",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
-            },
-            "description": "The users details"
-          }
-        },
+      "User": {
+        "description": "A user of the app",
         "example": {
-          "data": [
-            {
-              "name": "Joe User",
-              "id": 123,
-              "email": "joe@gmail.com"
-            },
-            {
-              "name": "Jay Consumer",
-              "id": 456,
-              "email": "jay@yahoo.com"
-            }
-          ]
+          "email": "joe@gmail.com",
+          "id": 123,
+          "inserted_at": "2017-09-12T12:34:55Z",
+          "name": "Joe User",
+          "updated_at": "2017-09-13T10:11:12Z"
         },
-        "description": "Response schema for multiple users"
-      },
-      "UserResponse": {
-        "x-struct": "Elixir.PhoenixAppWeb.Schemas.UserResponse",
-        "type": "object",
-        "title": "UserResponse",
         "properties": {
-          "data": {
-            "$ref": "#/components/schemas/User"
+          "birthday": {
+            "description": "Birth date",
+            "format": "date",
+            "type": "string"
+          },
+          "email": {
+            "description": "Email address",
+            "format": "email",
+            "type": "string"
+          },
+          "id": {
+            "description": "User ID",
+            "type": "integer"
+          },
+          "inserted_at": {
+            "description": "Creation timestamp",
+            "format": "date-time",
+            "type": "string"
+          },
+          "name": {
+            "description": "User name",
+            "pattern": "[a-zA-Z][a-zA-Z0-9_]+",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Update timestamp",
+            "format": "date-time",
+            "type": "string"
           }
         },
-        "example": {
-          "data": {
-            "updated_at": "2017-09-13T10:11:12Z",
-            "name": "Joe User",
-            "inserted_at": "2017-09-12T12:34:55Z",
-            "id": 123,
-            "email": "joe@gmail.com"
-          }
-        },
-        "description": "Response schema for single user"
+        "required": [
+          "name",
+          "email"
+        ],
+        "title": "User",
+        "type": "object",
+        "x-struct": "Elixir.PhoenixAppWeb.Schemas.User"
       },
       "UserRequest": {
-        "x-struct": "Elixir.PhoenixAppWeb.Schemas.UserRequest",
-        "type": "object",
-        "title": "UserRequest",
-        "required": [
-          "user"
-        ],
+        "description": "POST body for creating a user",
+        "example": {
+          "user": {
+            "email": "joe@gmail.com",
+            "name": "Joe User"
+          }
+        },
         "properties": {
           "user": {
             "anyOf": [
@@ -175,57 +66,185 @@
             ]
           }
         },
-        "example": {
-          "user": {
-            "name": "Joe User",
-            "email": "joe@gmail.com"
-          }
-        },
-        "description": "POST body for creating a user"
-      },
-      "User": {
-        "x-struct": "Elixir.PhoenixAppWeb.Schemas.User",
-        "type": "object",
-        "title": "User",
         "required": [
-          "name",
-          "email"
+          "user"
         ],
-        "properties": {
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Update timestamp"
-          },
-          "name": {
-            "type": "string",
-            "pattern": "[a-zA-Z][a-zA-Z0-9_]+",
-            "description": "User name"
-          },
-          "inserted_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp"
-          },
-          "id": {
-            "type": "integer",
-            "description": "User ID"
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "description": "Email address"
+        "title": "UserRequest",
+        "type": "object",
+        "x-struct": "Elixir.PhoenixAppWeb.Schemas.UserRequest"
+      },
+      "UserResponse": {
+        "description": "Response schema for single user",
+        "example": {
+          "data": {
+            "email": "joe@gmail.com",
+            "id": 123,
+            "inserted_at": "2017-09-12T12:34:55Z",
+            "name": "Joe User",
+            "updated_at": "2017-09-13T10:11:12Z"
           }
         },
-        "example": {
-          "updated_at": "2017-09-13T10:11:12Z",
-          "name": "Joe User",
-          "inserted_at": "2017-09-12T12:34:55Z",
-          "id": 123,
-          "email": "joe@gmail.com"
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/User"
+          }
         },
-        "description": "A user of the app"
+        "title": "UserResponse",
+        "type": "object",
+        "x-struct": "Elixir.PhoenixAppWeb.Schemas.UserResponse"
+      },
+      "UsersResponse": {
+        "description": "Response schema for multiple users",
+        "example": {
+          "data": [
+            {
+              "email": "joe@gmail.com",
+              "id": 123,
+              "name": "Joe User"
+            },
+            {
+              "email": "jay@yahoo.com",
+              "id": 456,
+              "name": "Jay Consumer"
+            }
+          ]
+        },
+        "properties": {
+          "data": {
+            "description": "The users details",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "type": "array"
+          }
+        },
+        "title": "UsersResponse",
+        "type": "object",
+        "x-struct": "Elixir.PhoenixAppWeb.Schemas.UsersResponse"
       }
     }
-  }
+  },
+  "info": {
+    "title": "Phoenix App",
+    "version": "1.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/users": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "List all useres",
+        "operationId": "UserController.index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersResponse"
+                }
+              }
+            },
+            "description": "User List Response"
+          }
+        },
+        "summary": "List users",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/{group_id}": {
+      "post": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Create a user",
+        "operationId": "UserController.create",
+        "parameters": [
+          {
+            "description": "Group ID",
+            "example": 1,
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequest"
+              }
+            }
+          },
+          "description": "The user attributes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "User"
+          }
+        },
+        "summary": "Create user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "callbacks": {},
+        "deprecated": false,
+        "description": "Show a user by ID",
+        "operationId": "UserController.show",
+        "parameters": [
+          {
+            "description": "User ID",
+            "example": 123,
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "User"
+          }
+        },
+        "summary": "Show user",
+        "tags": [
+          "users"
+        ]
+      }
+    }
+  },
+  "security": [],
+  "servers": [
+    {
+      "url": "http://localhost:4000",
+      "variables": {}
+    }
+  ],
+  "tags": []
 }

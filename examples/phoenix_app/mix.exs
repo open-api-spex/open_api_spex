@@ -39,9 +39,9 @@ defmodule PhoenixApp.Mixfile do
     [
       {:open_api_spex, path: "../../"},
       {:ecto, "~> 2.2"},
-      {:sqlite_ecto2, "~> 2.2"},
-      {:phoenix, "~> 1.3"},
-      {:plug_cowboy, "~> 1.0"},
+      {:sqlite_ecto2, "~> 2.4"},
+      {:phoenix, "~> 1.4"},
+      {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.0"}
     ]
   end
