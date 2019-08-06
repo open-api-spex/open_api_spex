@@ -136,5 +136,22 @@ defmodule OpenApiSpex.ObjectTest do
 
       assert {:ok, _} = cast(value: %{one: "one"}, schema: schema)
     end
+
+    test "validates minProperties" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          one: nil,
+          two: nil
+        },
+        minProperties: 1
+      }
+
+      assert {:error, [error]} = cast(value: %{}, schema: schema)
+      assert %Error{} = error
+      assert error.reason == :min_properties
+
+      assert {:ok, _} = cast(value: %{one: "one"}, schema: schema)
+    end
   end
 end

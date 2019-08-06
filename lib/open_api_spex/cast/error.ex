@@ -15,6 +15,7 @@ defmodule OpenApiSpex.Cast.Error do
   @type maximum_error :: {:maximum, integer(), integer()}
   @type min_items_error :: {:min_items, non_neg_integer(), non_neg_integer()}
   @type min_length_error :: {:min_length, non_neg_integer()}
+  @type min_properties_error :: {:min_properties, non_neg_integer(), non_neg_integer()}
   @type minimum_error :: {:minimum, integer(), integer()}
   @type missing_field_error :: {:missing_field, String.t() | atom()}
   @type multiple_of_error :: {:multiple_of, non_neg_integer(), non_neg_integer()}
@@ -66,6 +67,7 @@ defmodule OpenApiSpex.Cast.Error do
           | maximum_error()
           | min_items_error()
           | min_length_error()
+          | min_properties_error()
           | minimum_error()
           | missing_field_error()
           | multiple_of_error()
@@ -216,6 +218,14 @@ defmodule OpenApiSpex.Cast.Error do
     |> add_context_fields(ctx)
   end
 
+  def new(ctx, {:min_properties, min_properties, property_count}) do
+    %__MODULE__{
+      reason: :min_properties,
+      meta: %{min_properties: min_properties, property_count: property_count}
+    }
+    |> add_context_fields(ctx)
+  end
+
   @spec message(t()) :: String.t()
 
   def message(%{reason: :invalid_schema_type, type: type}) do
@@ -324,6 +334,12 @@ defmodule OpenApiSpex.Cast.Error do
   def message(%{reason: :max_properties, meta: meta}) do
     "Object property count #{meta.property_count} is greater than maxProperties: #{
       meta.max_properties
+    }"
+  end
+
+  def message(%{reason: :min_properties, meta: meta}) do
+    "Object property count #{meta.property_count} is less than minProperties: #{
+      meta.min_properties
     }"
   end
 
