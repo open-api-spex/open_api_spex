@@ -19,6 +19,7 @@ defmodule OpenApiSpex.Cast.Object do
          ctx = %{ctx | value: value},
          :ok <- check_required_fields(ctx, schema),
          :ok <- check_max_properties(ctx),
+         :ok <- check_min_properties(ctx),
          {:ok, value} <- cast_properties(%{ctx | schema: schema_properties}) do
       ctx = to_struct(%{ctx | value: value})
       {:ok, ctx}
@@ -69,6 +70,19 @@ defmodule OpenApiSpex.Cast.Object do
   end
 
   defp check_max_properties(_ctx), do: :ok
+
+  defp check_min_properties(%{schema: %{minProperties: min_properties}} = ctx)
+       when is_integer(min_properties) do
+    count = ctx.value |> Map.keys() |> length()
+
+    if count < min_properties do
+      Cast.error(ctx, {:min_properties, min_properties, count})
+    else
+      :ok
+    end
+  end
+
+  defp check_min_properties(_ctx), do: :ok
 
   defp cast_atom_keys(input_map, properties) do
     Enum.reduce(properties, %{}, fn {key, _}, output ->
