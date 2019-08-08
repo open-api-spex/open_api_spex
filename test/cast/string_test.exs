@@ -44,6 +44,13 @@ defmodule OpenApiSpex.CastStringTest do
       assert error.format == :date
     end
 
+    test "file upload" do
+      schema = %Schema{type: :string, format: :binary}
+      upload = %Plug.Upload{}
+      assert {:ok, %Plug.Upload{}} = cast(value: upload, schema: schema)
+      # There is no error case when a regular string is passed
+    end
+
     # Note: we measure length of string after trimming leading and trailing whitespace
     test "minLength" do
       schema = %Schema{type: :string, minLength: 1}
@@ -73,10 +80,10 @@ defmodule OpenApiSpex.CastStringTest do
     end
 
     test "minLength and pattern" do
-      schema = %Schema{type: :string, minLength: 1, pattern: ~r/\d-\d/ }
+      schema = %Schema{type: :string, minLength: 1, pattern: ~r/\d-\d/}
       assert {:error, errors} = cast(value: "", schema: schema)
       assert length(errors) == 2
-      assert Enum.map(errors, &(&1.reason)) == [:invalid_format, :min_length]
+      assert Enum.map(errors, & &1.reason) == [:invalid_format, :min_length]
     end
   end
 end
