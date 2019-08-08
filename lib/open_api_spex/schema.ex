@@ -324,7 +324,7 @@ defmodule OpenApiSpex.Schema do
       error = {:error, _reason} -> error
     end
   end
-  
+
   def cast(%Schema{type: :string, format: :binary}, %Plug.Upload{} = value, _schemas) do
     {:ok, value}
   end
@@ -561,7 +561,7 @@ defmodule OpenApiSpex.Schema do
   def validate(%Schema{type: :string, format: :"date-time"}, %DateTime{}, _path, _schemas) do
     :ok
   end
-  
+
   def validate(%Schema{type: :string, format: :binary}, %Plug.Upload{}, _path, _schemas) do
     :ok
   end
