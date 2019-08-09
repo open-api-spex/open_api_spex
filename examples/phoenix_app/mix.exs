@@ -42,7 +42,8 @@ defmodule PhoenixApp.Mixfile do
       {:sqlite_ecto2, "~> 2.4"},
       {:phoenix, "~> 1.4"},
       {:plug_cowboy, "~> 2.0"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:dialyxir, "1.0.0-rc.6"}
     ]
   end
 end
