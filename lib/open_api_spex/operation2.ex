@@ -31,8 +31,18 @@ defmodule OpenApiSpex.Operation2 do
 
   defp cast_request_body(nil, _, _, _), do: {:ok, %{}}
 
+  defp cast_request_body(%{required: false}, _, nil, _), do: {:ok, %{}}
+
+  defp cast_request_body(%{required: true}, _, nil, _) do
+    {:error, [Error.new(%{path: [], value: nil}, {:missing_header, "content-type"})]}
+  end
+
   defp cast_request_body(%RequestBody{content: content}, params, content_type, schemas) do
-    schema = content[content_type].schema
-    Cast.cast(schema, params, schemas)
+    case content do
+      %{^content_type => media_type} ->
+        Cast.cast(media_type.schema, params, schemas)
+      _ ->
+        {:error, [Error.new(%{path: [], value: content_type}, {:invalid_header, "content-type"})]}
+    end
   end
 end
