@@ -26,6 +26,7 @@ defmodule OpenApiSpex.Cast.Object do
     end
   end
 
+  defp check_unrecognized_properties(%{schema: %{additionalProperties: true}} = ctx, _), do: :ok
   defp check_unrecognized_properties(%{value: value} = ctx, expected_keys) do
     input_keys = value |> Map.keys() |> Enum.map(&to_string/1)
     schema_keys = expected_keys |> Map.keys() |> Enum.map(&to_string/1)

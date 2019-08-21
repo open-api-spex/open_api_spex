@@ -26,5 +26,35 @@ defmodule OpenApiSpex.CastAllOfTest do
       assert Error.message(error_with_schema_title) ==
                "Failed to cast value as Age. Value must be castable using `allOf` schemas listed."
     end
+
+    @tag :mr_wip
+    test "allOf, inheritance schema" do
+      schema = %Schema{
+        allOf: [
+          %Schema{
+            type: :object,
+            additionalProperties: true,
+            properties: %{
+              id: %Schema{
+                type: :string
+              }
+            }
+          },
+          %Schema{
+            type: :object,
+            additionalProperties: true,
+            properties: %{
+              bar: %Schema{
+                type: :string
+              }
+            }
+          }
+        ]
+      }
+
+      value = %{id: "e30aee0f-dbda-40bd-9198-6cf609b8b640", bar: "foo"}
+
+      assert {:ok, %{id: "e30aee0f-dbda-40bd-9198-6cf609b8b640", bar: "foo"}} = cast(value: value, schema: schema)
+    end
   end
 end
