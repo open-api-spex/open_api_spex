@@ -32,4 +32,7 @@ defmodule OpenApiSpex.Reference do
   """
   @spec resolve_schema(Reference.t, %{String.t => Schema.t}) :: Schema.t | nil
   def resolve_schema(%Reference{"$ref": "#/components/schemas/" <> name}, schemas), do: schemas[name]
+
+  @spec resolve_parameter(Reference.t, %{String.t => Parameter.t}) :: Parameter.t | nil
+  def resolve_parameter(%Reference{"$ref": "#/components/parameters/" <> name}, parameters), do: parameters[name]
 end

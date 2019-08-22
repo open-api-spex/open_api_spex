@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.Operation2Test do
   use ExUnit.Case
-  alias OpenApiSpex.{Operation, Operation2, Schema}
+  alias OpenApiSpex.{Operation, Operation2, Schema, Components, Reference}
   alias OpenApiSpex.Cast.Error
 
   defmodule SchemaFixtures do
@@ -26,12 +26,23 @@ defmodule OpenApiSpex.Operation2Test do
     def schemas, do: @schemas
   end
 
+  defmodule ParameterFixtures do
+    alias OpenApiSpex.Operation
+
+    def parameters do
+      %{
+        "member" => Operation.parameter(:member, :query, :boolean, "Membership flag")
+      }
+    end
+  end
+
   defmodule OperationFixtures do
     @user_index %Operation{
       operationId: "UserController.index",
       parameters: [
         Operation.parameter(:name, :query, :string, "Filter by user name"),
-        Operation.parameter(:age, :query, :integer, "User's age")
+        Operation.parameter(:age, :query, :integer, "User's age"),
+        %Reference{"$ref": "#/components/parameters/member"}
       ],
       responses: %{
         200 => Operation.response("User", "application/json", SchemaFixtures.user())
@@ -71,8 +82,9 @@ defmodule OpenApiSpex.Operation2Test do
       %OpenApiSpex.OpenApi{
         info: nil,
         paths: paths,
-        components: %{
-          schemas: SchemaFixtures.schemas()
+        components: %Components{
+          schemas: SchemaFixtures.schemas(),
+          parameters: ParameterFixtures.parameters()
         }
       }
     end
@@ -97,7 +109,7 @@ defmodule OpenApiSpex.Operation2Test do
                  OperationFixtures.create_user(),
                  conn,
                  "application/json",
-                 SchemaFixtures.schemas()
+                 SpecModule.spec().components
                )
 
       assert %Plug.Conn{} = conn
@@ -111,12 +123,18 @@ defmodule OpenApiSpex.Operation2Test do
                  OperationFixtures.create_user(),
                  conn,
                  "application/json",
-                 SchemaFixtures.schemas()
+                 SpecModule.spec().components
                )
 
       assert [error] = errors
       assert %Error{} = error
       assert error.reason == :invalid_type
+    end
+
+    test "casts valid query params" do
+      valid_query_params = %{"name" => "Rubi", "age" => "31", "member" => "true"}
+      assert {:ok, conn} = do_index_cast(valid_query_params)
+      assert conn.params == %{age: 31, member: true, name: "Rubi"}
     end
 
     test "validate undefined query param name" do
@@ -154,12 +172,14 @@ defmodule OpenApiSpex.Operation2Test do
     test "validate missing content-type header for required requestBody" do
       conn = :post |> Plug.Test.conn("/api/users/") |> Plug.Conn.fetch_query_params()
       operation = OperationFixtures.create_user()
-      assert {:error, [%Error{reason: :missing_header, name: "content-type"}]} = Operation2.cast(
-        operation,
-        conn,
-        nil,
-        SchemaFixtures.schemas()
-      )
+
+      assert {:error, [%Error{reason: :missing_header, name: "content-type"}]} =
+               Operation2.cast(
+                 operation,
+                 conn,
+                 nil,
+                 SpecModule.spec().components
+               )
     end
 
     test "validate invalid content-type header for required requestBody" do
@@ -168,12 +188,14 @@ defmodule OpenApiSpex.Operation2Test do
         |> Plug.Conn.put_req_header("content-type", "text/html")
 
       operation = OperationFixtures.create_user()
-      assert {:error, [%Error{reason: :invalid_header, name: "content-type"}]} = Operation2.cast(
-        operation,
-        conn,
-        "text/html",
-        SchemaFixtures.schemas()
-      )
+
+      assert {:error, [%Error{reason: :invalid_header, name: "content-type"}]} =
+               Operation2.cast(
+                 operation,
+                 conn,
+                 "text/html",
+                 SpecModule.spec().components
+               )
     end
 
     test "validate invalid value for integer range" do
@@ -211,7 +233,7 @@ defmodule OpenApiSpex.Operation2Test do
         operation,
         conn,
         "application/json",
-        SchemaFixtures.schemas()
+        SpecModule.spec().components
       )
     end
 
