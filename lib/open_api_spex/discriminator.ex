@@ -52,7 +52,7 @@ defmodule OpenApiSpex.Discriminator do
   end
 
   @spec lookup_schema(%{String.t => Schema.t}, String.t) :: {:ok, Schema.t} | {:error, String.t}
-  defp lookup_schema(schemas, "#components/schemas/" <> name) do
+  defp lookup_schema(schemas, "#/components/schemas/" <> name) do
     lookup_schema(schemas, name)
   end
   defp lookup_schema(schemas, name) do

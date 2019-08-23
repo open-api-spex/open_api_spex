@@ -27,7 +27,7 @@ defmodule OpenApiSpex.Schema do
             required: [:name],
             properties: %{
               name: %Schema{type: :string},
-              address: %Reference{"$ref": "#components/schemas/Address"},
+              address: %Reference{"$ref": "#/components/schemas/Address"},
               age: %Schema{type: :integer, format: :int32, minimum: 0}
             }
           })

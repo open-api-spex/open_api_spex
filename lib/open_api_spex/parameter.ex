@@ -64,6 +64,8 @@ defmodule OpenApiSpex.Parameter do
     content: %{String.t => MediaType.t} | nil
   }
 
+  @type parameters :: %{String.t =>  t | Reference.t} | nil
+
   @doc """
   Sets the schema for a parameter from a simple type, reference or Schema
   """

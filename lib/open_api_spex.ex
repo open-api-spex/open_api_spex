@@ -40,7 +40,7 @@ defmodule OpenApiSpex do
         conn = %Plug.Conn{},
         content_type \\ nil
       ) do
-    Operation2.cast(operation, conn, content_type, spec.components.schemas)
+    Operation2.cast(operation, conn, content_type, spec.components)
   end
 
   @doc """
