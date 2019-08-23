@@ -127,11 +127,20 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     </html>
   """
 
+  @doc """
+  Initializes the plug.
+
+  Required params: `[:path]`
+
+  ## Example
+
+      use OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+
+  """
   @impl Plug
   def init(opts) when is_list(opts) do
     opts
     |> Enum.into(%{})
-    |> Map.put_new(:path, "/api/openapi")
     |> Map.put_new(:display_operation_id, false)
   end
 
