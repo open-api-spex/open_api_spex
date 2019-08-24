@@ -3,6 +3,7 @@ defmodule OpenApiSpex.SchemaTest do
   alias OpenApiSpex.Schema
   alias OpenApiSpexTest.{ApiSpec, Schemas}
   import OpenApiSpex.Test.Assertions
+  import ExUnit.CaptureIO
 
   doctest Schema
 
@@ -19,6 +20,27 @@ defmodule OpenApiSpex.SchemaTest do
       assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec)
       assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
       assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
+    end
+  end
+
+  describe "type introspection" do
+    test "matches schema types" do
+      type =
+        capture_io(fn ->
+          IEx.Introspection.t(OpenApiSpexTest.Schemas.Size)
+        end)
+
+      assert type =~ "%OpenApiSpexTest.Schemas.Size{"
+      assert type =~ "unit: String.t() | nil"
+      assert type =~ "value: integer() | nil"
+
+      type =
+        capture_io(fn ->
+          IEx.Introspection.t(OpenApiSpexTest.Schemas.UsersResponse)
+        end)
+
+      assert type =~ "%OpenApiSpexTest.Schemas.UsersResponse{"
+      assert type =~ "data: [OpenApiSpexTest.Schemas.User.t()] | nil"
     end
   end
 

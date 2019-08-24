@@ -842,6 +842,44 @@ defmodule OpenApiSpex.Schema do
     validate(schema, value, path, schemas)
   end
 
+  @doc false
+  def types(schema = %Schema{type: :object, properties: properties = %{}}) do
+    for {name, property} <- properties do
+      type = type(property)
+      format = format(property)
+      items = items(property)
+      {name, type_for(type, format, items)}
+    end ++ types(%{schema | properties: nil})
+  end
+
+  def types(%Schema{allOf: schemas}) when is_list(schemas) do
+    Enum.flat_map(schemas, &types/1) |> Enum.uniq()
+  end
+
+  def types(schema_module) when is_atom(schema_module) do
+    types(schema_module.schema())
+  end
+
+  def types(_), do: []
+
+  defp type(schema_module) when is_atom(schema_module), do: schema_module.schema().type
+  defp type(schema), do: schema.type
+
+  defp format(schema_module) when is_atom(schema_module), do: schema_module.schema().format
+  defp format(schema), do: schema.format
+
+  defp items(schema_module) when is_atom(schema_module), do: nil
+  defp items(schema), do: schema.items
+
+  defp type_for(:string, :date, _), do: quote(do: Date.t() | nil)
+  defp type_for(:string, :"date-time", _), do: quote(do: DateTime.t() | nil)
+  defp type_for(:string, _, _), do: quote(do: String.t() | nil)
+  defp type_for(:number, _, _), do: quote(do: float() | nil)
+  defp type_for(:integer, _, _), do: quote(do: integer() | nil)
+  defp type_for(:boolean, _, _), do: quote(do: boolean() | nil)
+  defp type_for(:array, _, items), do: quote(do: list(unquote(items).t()) | nil)
+  defp type_for(type, _, _), do: quote(do: unquote(type) | nil)
+
   @doc """
   Get the names of all properties definied for a schema.
 

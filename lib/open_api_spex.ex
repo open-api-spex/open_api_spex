@@ -157,9 +157,17 @@ defmodule OpenApiSpex do
 
       @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
       defstruct Schema.properties(@schema)
-      @type t :: %__MODULE__{}
+
+      Schema.types(@schema) |> OpenApiSpex.__type__()
 
       Map.from_struct(@schema) |> OpenApiSpex.validate_compiled_schema()
+    end
+  end
+
+  @doc false
+  defmacro __type__(types) do
+    quote bind_quoted: [types: types] do
+      @type t() :: %__MODULE__{unquote_splicing(types)}
     end
   end
 
