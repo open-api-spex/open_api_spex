@@ -6,7 +6,7 @@ defmodule   OpenApiSpex.OpenApi do
   alias OpenApiSpex.{
     Extendable, Info, Server, Paths, Components,
     SecurityRequirement, Tag, ExternalDocumentation,
-    OpenApi
+    OpenApi, MediaType
   }
   @enforce_keys [:info, :paths]
   defstruct [
@@ -76,6 +76,16 @@ defmodule   OpenApiSpex.OpenApi do
         end
 
         defp to_json(%Regex{source: source}), do: source
+        defp to_json(value = %MediaType{}) do
+          value
+          |> Extendable.to_map()
+          |> Stream.map(fn
+            {:example, v} -> {"example", to_json_example(v)}
+            {k,v} -> {to_string(k), to_json(v)}
+          end)
+          |> Stream.filter(fn {_, nil} -> false; _ -> true end)
+          |> Enum.into(%{})
+        end
         defp to_json(value = %{__struct__: _}) do
           value
           |> Extendable.to_map()
@@ -95,6 +105,24 @@ defmodule   OpenApiSpex.OpenApi do
         defp to_json(false), do: false
         defp to_json(value) when is_atom(value), do: to_string(value)
         defp to_json(value), do: value
+
+        defp to_json_example(value = %{__struct__: _}) do
+          value
+          |> Extendable.to_map()
+          |> to_json_example()
+        end
+        defp to_json_example(value) when is_map(value) do
+          value
+          |> Stream.map(fn {k,v} -> {to_string(k), to_json_example(v)} end)
+          |> Enum.into(%{})
+        end
+        defp to_json_example(value) when is_list(value) do
+          Enum.map(value, fn
+            x when is_map(x) or is_list(x) -> to_json_example(x)
+            x -> to_json(x)
+          end)
+        end
+        defp to_json_example(value), do: to_json(value)
       end
     end
   end
