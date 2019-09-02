@@ -59,9 +59,22 @@ It will be passed the plug opts that were declared in the router, this will be t
 
 ```elixir
 defmodule MyAppWeb.UserController do
+  defdelegate open_api_operation(action), to: MyAppWeb.UserApiOperation
+
+  def show(conn, %{id: id}) do
+    {:ok, user} = MyApp.Users.find_by_id(id)
+    json(conn, 200, user)
+  end
+end
+```
+
+Then create an operation module `my_app_web/controllers/user_api_operation.ex`
+
+```elixir
+defmodule MyAppWeb.UserApiOperation do
   alias OpenApiSpex.Operation
   alias MyAppWeb.Schemas.UserResponse
-
+  
   @spec open_api_operation(atom) :: Operation.t()
   def open_api_operation(action) do
     operation = String.to_existing_atom("#{action}_operation")
@@ -83,13 +96,6 @@ defmodule MyAppWeb.UserController do
       }
     }
   end
-
-  # Controller's `show` action
-  def show(conn, %{id: id}) do
-    {:ok, user} = MyApp.Users.find_by_id(id)
-    json(conn, 200, user)
-  end
-
 end
 ```
 For examples of other action operations, see the
