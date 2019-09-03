@@ -116,7 +116,8 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         requestInterceptor: function(request){
           request.headers["x-csrf-token"] = "<%= csrf_token %>";
           return request;
-        }
+        },
+        displayOperationId: <%= display_operation_id %>
       })
       window.ui = ui
     }
@@ -126,13 +127,27 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     </html>
   """
 
+  @doc """
+  Initializes the plug.
+
+  Required params: `[:path]`
+
+  ## Example
+
+      use OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+
+  """
   @impl Plug
-  def init(path: path), do: %{path: path}
+  def init(opts) when is_list(opts) do
+    opts
+    |> Enum.into(%{})
+    |> Map.put_new(:display_operation_id, false)
+  end
 
   @impl Plug
-  def call(conn, %{path: path}) do
+  def call(conn, %{path: path, display_operation_id: display_operation_id}) do
     csrf_token = Plug.CSRFProtection.get_csrf_token()
-    html = render(path, csrf_token)
+    html = render(path, csrf_token, display_operation_id)
 
     conn
     |> Plug.Conn.put_resp_content_type("text/html")
@@ -140,5 +155,5 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   end
 
   require EEx
-  EEx.function_from_string(:defp, :render, @html, [:path, :csrf_token])
+  EEx.function_from_string(:defp, :render, @html, [:path, :csrf_token, :display_operation_id])
 end
