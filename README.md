@@ -59,6 +59,45 @@ It will be passed the plug opts that were declared in the router, this will be t
 
 ```elixir
 defmodule MyAppWeb.UserController do
+  alias OpenApiSpex.Operation
+  alias MyAppWeb.Schemas.UserResponse
+
+  @spec open_api_operation(atom) :: Operation.t()
+  def open_api_operation(action) do
+    operation = String.to_existing_atom("#{action}_operation")
+    apply(__MODULE__, operation, [])
+  end
+
+  @spec show_operation() :: Operation.t()
+  def show_operation() do
+    %Operation{
+      tags: ["users"],
+      summary: "Show user",
+      description: "Show a user by ID",
+      operationId: "UserController.show",
+      parameters: [
+        Operation.parameter(:id, :path, :integer, "User ID", example: 123, required: true)
+      ],
+      responses: %{
+        200 => Operation.response("User", "application/json", UserResponse)
+      }
+    }
+  end
+
+  # Controller's `show` action
+  def show(conn, %{id: id}) do
+    {:ok, user} = MyApp.Users.find_by_id(id)
+    json(conn, 200, user)
+  end
+
+end
+```
+
+Alternatively, you can create an operation file separately using `defdelegate`.
+
+```elixir
+# Phoenix's controller
+defmodule MyAppWeb.UserController do
   defdelegate open_api_operation(action), to: MyAppWeb.UserApiOperation
 
   def show(conn, %{id: id}) do
@@ -66,15 +105,12 @@ defmodule MyAppWeb.UserController do
     json(conn, 200, user)
   end
 end
-```
 
-Then create an operation module `my_app_web/controllers/user_api_operation.ex`
-
-```elixir
+# Open API Spex operations
 defmodule MyAppWeb.UserApiOperation do
   alias OpenApiSpex.Operation
   alias MyAppWeb.Schemas.UserResponse
-  
+
   @spec open_api_operation(atom) :: Operation.t()
   def open_api_operation(action) do
     operation = String.to_existing_atom("#{action}_operation")
@@ -98,6 +134,7 @@ defmodule MyAppWeb.UserApiOperation do
   end
 end
 ```
+
 For examples of other action operations, see the
 [example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex).
 
