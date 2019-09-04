@@ -139,7 +139,63 @@ defmodule OpenApiSpex.EncodeTest do
                "components",
                "schemas",
                "User",
-               "example",
+               "example"
+             ]),
+             "phone_number"
+           )
+  end
+
+  test "Value field from Example object properly encoded" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
+        "/example" => %OpenApiSpex.PathItem{
+          get: %OpenApiSpex.Operation{
+            responses: %{
+              200 => %OpenApiSpex.Response{
+                description: "An example",
+                content: %{
+                  "application/json" => %OpenApiSpex.MediaType{
+                    examples: %{
+                      "John" => %OpenApiSpex.Example{
+                        summary: "Its John",
+                        value: %{
+                          "id" => 678,
+                          "first_name" => "John",
+                          "last_name" => "Doe",
+                          "phone_number" => nil
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    decoded =
+      OpenApiSpex.resolve_schema_modules(spec)
+      |> Jason.encode!()
+      |> Jason.decode!()
+
+    assert Map.has_key?(
+             get_in(decoded, [
+               "paths",
+               "/example",
+               "get",
+               "responses",
+               "200",
+               "content",
+               "application/json",
+               "examples",
+               "John",
+               "value"
              ]),
              "phone_number"
            )
