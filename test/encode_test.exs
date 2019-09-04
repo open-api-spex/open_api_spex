@@ -3,7 +3,8 @@ defmodule OpenApiSpex.EncodeTest do
 
   alias OpenApiSpex.{
     Info,
-    OpenApi
+    OpenApi,
+    Schema
   }
 
   test "Vendor extensions x-logo properly encoded" do
@@ -66,7 +67,7 @@ defmodule OpenApiSpex.EncodeTest do
     assert is_nil(decoded["extensions"])
   end
 
-  test "MediaType example properly encoded" do
+  test "Example field properly encoded (MediaType, Schema)" do
     spec = %OpenApi{
       info: %Info{
         title: "Test",
@@ -77,7 +78,7 @@ defmodule OpenApiSpex.EncodeTest do
           get: %OpenApiSpex.Operation{
             responses: %{
               200 => %OpenApiSpex.Response{
-                description: "A list of examples",
+                description: "An example",
                 content: %{
                   "application/json" => %OpenApiSpex.MediaType{
                     example: %{
@@ -89,6 +90,25 @@ defmodule OpenApiSpex.EncodeTest do
                   }
                 }
               }
+            }
+          }
+        }
+      },
+      components: %OpenApiSpex.Components{
+        schemas: %{
+          "User" => %Schema{
+            type: :object,
+            properties: %{
+              id: %Schema{type: :integer},
+              first_name: %Schema{type: :string},
+              last_name: %Schema{type: :string},
+              phone_number: %Schema{type: :string, nullable: true}
+            },
+            example: %{
+              "id" => 42,
+              "first_name" => "Jane",
+              "last_name" => "Doe",
+              "phone_number" => nil
             }
           }
         }
@@ -110,6 +130,16 @@ defmodule OpenApiSpex.EncodeTest do
                "content",
                "application/json",
                "example"
+             ]),
+             "phone_number"
+           )
+
+    assert Map.has_key?(
+             get_in(decoded, [
+               "components",
+               "schemas",
+               "User",
+               "example",
              ]),
              "phone_number"
            )

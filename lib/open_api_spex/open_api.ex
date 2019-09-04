@@ -6,7 +6,7 @@ defmodule   OpenApiSpex.OpenApi do
   alias OpenApiSpex.{
     Extendable, Info, Server, Paths, Components,
     SecurityRequirement, Tag, ExternalDocumentation,
-    OpenApi, MediaType
+    OpenApi, MediaType, Schema
   }
   @enforce_keys [:info, :paths]
   defstruct [
@@ -76,7 +76,7 @@ defmodule   OpenApiSpex.OpenApi do
         end
 
         defp to_json(%Regex{source: source}), do: source
-        defp to_json(value = %MediaType{}) do
+        defp to_json(value = %object{}) when object in [MediaType, Schema] do
           value
           |> Extendable.to_map()
           |> Stream.map(fn
