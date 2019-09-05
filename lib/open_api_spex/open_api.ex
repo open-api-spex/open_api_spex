@@ -85,7 +85,7 @@ defmodule OpenApiSpex.OpenApi do
 
         defp to_json(%Regex{source: source}), do: source
 
-        defp to_json(value = %object{}) when object in [MediaType, Schema, Example] do
+        defp to_json(%object{} = value) when object in [MediaType, Schema, Example] do
           value
           |> Extendable.to_map()
           |> Stream.map(fn
@@ -139,10 +139,7 @@ defmodule OpenApiSpex.OpenApi do
         end
 
         defp to_json_example(value) when is_list(value) do
-          Enum.map(value, fn
-            x when is_map(x) or is_list(x) -> to_json_example(x)
-            x -> to_json(x)
-          end)
+          Enum.map(value, &to_json_example/1)
         end
 
         defp to_json_example(value), do: to_json(value)
