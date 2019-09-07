@@ -3,7 +3,8 @@ defmodule OpenApiSpex.EncodeTest do
 
   alias OpenApiSpex.{
     Info,
-    OpenApi
+    OpenApi,
+    Schema
   }
 
   test "Vendor extensions x-logo properly encoded" do
@@ -64,5 +65,139 @@ defmodule OpenApiSpex.EncodeTest do
     assert hd(decoded["x-tagGroups"])["tags"] == ["Search", "Fetch", "Delete"]
 
     assert is_nil(decoded["extensions"])
+  end
+
+  test "Example field properly encoded (MediaType, Schema)" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
+        "/example" => %OpenApiSpex.PathItem{
+          get: %OpenApiSpex.Operation{
+            responses: %{
+              200 => %OpenApiSpex.Response{
+                description: "An example",
+                content: %{
+                  "application/json" => %OpenApiSpex.MediaType{
+                    example: %{
+                      "id" => 678,
+                      "first_name" => "John",
+                      "last_name" => "Doe",
+                      "phone_number" => nil
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      components: %OpenApiSpex.Components{
+        schemas: %{
+          "User" => %Schema{
+            type: :object,
+            properties: %{
+              id: %Schema{type: :integer},
+              first_name: %Schema{type: :string},
+              last_name: %Schema{type: :string},
+              phone_number: %Schema{type: :string, nullable: true}
+            },
+            example: %{
+              "id" => 42,
+              "first_name" => "Jane",
+              "last_name" => "Doe",
+              "phone_number" => nil
+            }
+          }
+        }
+      }
+    }
+
+    decoded =
+      OpenApiSpex.resolve_schema_modules(spec)
+      |> Jason.encode!()
+      |> Jason.decode!()
+
+    assert Map.has_key?(
+             get_in(decoded, [
+               "paths",
+               "/example",
+               "get",
+               "responses",
+               "200",
+               "content",
+               "application/json",
+               "example"
+             ]),
+             "phone_number"
+           )
+
+    assert Map.has_key?(
+             get_in(decoded, [
+               "components",
+               "schemas",
+               "User",
+               "example"
+             ]),
+             "phone_number"
+           )
+  end
+
+  test "Value field from Example object properly encoded" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
+        "/example" => %OpenApiSpex.PathItem{
+          get: %OpenApiSpex.Operation{
+            responses: %{
+              200 => %OpenApiSpex.Response{
+                description: "An example",
+                content: %{
+                  "application/json" => %OpenApiSpex.MediaType{
+                    examples: %{
+                      "John" => %OpenApiSpex.Example{
+                        summary: "Its John",
+                        value: %{
+                          "id" => 678,
+                          "first_name" => "John",
+                          "last_name" => "Doe",
+                          "phone_number" => nil
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    decoded =
+      OpenApiSpex.resolve_schema_modules(spec)
+      |> Jason.encode!()
+      |> Jason.decode!()
+
+    assert Map.has_key?(
+             get_in(decoded, [
+               "paths",
+               "/example",
+               "get",
+               "responses",
+               "200",
+               "content",
+               "application/json",
+               "examples",
+               "John",
+               "value"
+             ]),
+             "phone_number"
+           )
   end
 end
