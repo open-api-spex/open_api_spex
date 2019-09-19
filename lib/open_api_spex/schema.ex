@@ -365,8 +365,9 @@ defmodule OpenApiSpex.Schema do
          {:ok, partial_cast} <-
            cast(%Schema{type: :object, properties: schema.properties}, value, schemas),
          {:ok, derived_schema} <- Discriminator.resolve(discriminator, value, schemas),
-         {:ok, result} <- cast(derived_schema, partial_cast, schemas) do
-      {:ok, make_struct(result, schema)}
+         {:ok, result} <- cast(derived_schema, partial_cast, schemas),
+         {:ok, struct} <- make_struct(result, schema) do
+      {:ok, struct}
     else
       {:error, :already_cast} -> {:ok, value}
       {:error, reason} -> {:error, reason}
@@ -389,7 +390,7 @@ defmodule OpenApiSpex.Schema do
   def cast(schema = %Schema{oneOf: [first | rest]}, value, schemas) do
     case cast(first, value, schemas) do
       {:ok, result} ->
-        cast(%{schema | oneOf: nil}, result, schemas)
+        {:ok, result}
 
       {:error, _reason} ->
         cast(%{schema | oneOf: rest}, value, schemas)
@@ -422,9 +423,9 @@ defmodule OpenApiSpex.Schema do
       |> no_struct()
       |> Enum.split_with(fn {k, _v} -> is_binary(k) end)
 
-    with {:ok, props} <- cast_properties(schema, regular_properties, schemas) do
-      result = Map.new(others ++ props) |> make_struct(schema)
-      {:ok, result}
+    with {:ok, props} <- cast_properties(schema, regular_properties, schemas),
+         {:ok, struct} <- Map.new(others ++ props) |> make_struct(schema) do
+      {:ok, struct}
     end
   end
 
@@ -437,13 +438,17 @@ defmodule OpenApiSpex.Schema do
 
   def cast(_additionalProperties, val, _schemas), do: {:ok, val}
 
-  defp make_struct(val = %_{}, _), do: val
-  defp make_struct(val, %{"x-struct": nil}), do: val
+  defp make_struct(val = %_{}, _), do: {:ok, val}
+  defp make_struct(val, %{"x-struct": nil}), do: {:ok, val}
 
   defp make_struct(val, %{"x-struct": mod}) do
-    Enum.reduce(val, struct(mod), fn {k, v}, acc ->
-      Map.put(acc, k, v)
-    end)
+    keys = mod.schema |> OpenApiSpex.Schema.properties() |> Keyword.keys()
+
+    if Map.keys(val) -- keys == [] do
+      {:ok, struct(mod, val)}
+    else
+      {:error, :bad_structure}
+    end
   end
 
   defp no_struct(val), do: Map.delete(val, :__struct__)
