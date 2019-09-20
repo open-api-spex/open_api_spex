@@ -95,6 +95,20 @@ defmodule OpenApiSpex.SchemaTest do
                Schema.cast(cat_or_dog, input, schemas)
     end
 
+    test "Cast Cat from oneOf [cat, dog] schema" do
+      api_spec = ApiSpec.spec()
+      schemas = api_spec.components.schemas
+      cat_or_dog = Map.fetch!(schemas, "CatOrDog")
+
+      input = %{
+        "pet_type" => "Cat",
+        "meow" => "meow"
+      }
+
+      assert {:ok, %Schemas.Cat{meow: "meow", pet_type: "Cat"}} =
+               Schema.cast(cat_or_dog, input, schemas)
+    end
+
     test "Cast number to string or number" do
       schema = %Schema{
         oneOf: [
