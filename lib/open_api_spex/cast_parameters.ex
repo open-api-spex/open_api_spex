@@ -38,7 +38,29 @@ defmodule OpenApiSpex.CastParameters do
     ctx = %Cast{value: params, schema: object_schema, schemas: components.schemas}
 
     with {:ok, params} <- Object.cast(ctx) do
-      {:ok, %{conn | params: params}}
+      {:ok, %{conn | params: add_defaults(params, object_schema)}}
+    end
+  end
+
+  # Whenever an optional parameter is missing in the request (e.g. in a query) a default
+  # can be applied from API schema. The implementation is naive because:
+  # * it doesn't allow specifying nil as a default
+  # * it doesn't support defaults in nested parameters (if that's possible)
+  # * only tested with query string parameters (obvious place for improvements)
+  #
+  # QUESTION: should defaults be applied in schema.ex instead?
+  #
+  defp add_defaults(params, schema) do
+    Enum.reduce(schema.properties, params, &apply_default/2)
+  end
+
+  defp apply_default({_key, %Schema{default: nil}}, params), do: params
+
+  defp apply_default({key, %Schema{default: value}}, params) do
+    if Map.has_key?(params, key) do
+      params
+    else
+      Map.put(params, key, value)
     end
   end
 end
