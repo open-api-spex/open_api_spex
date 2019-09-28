@@ -10,7 +10,8 @@ defmodule OpenApiSpex do
     Reference,
     Schema,
     SchemaException,
-    SchemaResolver
+    SchemaResolver,
+    SchemaConsistency
   }
 
   alias OpenApiSpex.Cast.Error
@@ -153,6 +154,7 @@ defmodule OpenApiSpex do
                 OpenApiSpex.Schema,
                 Map.put(Map.delete(unquote(body), :__struct__), :"x-struct", __MODULE__)
               )
+
       def schema, do: @schema
 
       @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
@@ -160,6 +162,11 @@ defmodule OpenApiSpex do
       @type t :: %__MODULE__{}
 
       Map.from_struct(@schema) |> OpenApiSpex.validate_compiled_schema()
+
+      # Throwing warnings to prevent runtime bugs (like in issue #144)
+      @schema
+      |> SchemaConsistency.warnings()
+      |> Enum.each(&IO.warn("Inconsistent schema: #{&1}", Macro.Env.stacktrace(__ENV__)))
     end
   end
 
