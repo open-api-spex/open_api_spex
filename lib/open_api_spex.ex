@@ -4,6 +4,7 @@ defmodule OpenApiSpex do
   """
 
   alias OpenApiSpex.{
+    Components,
     OpenApi,
     Operation,
     Operation2,
@@ -214,4 +215,11 @@ defmodule OpenApiSpex do
   def error!(error, schema, details \\ []) do
     raise SchemaException, %{error: error, schema: schema, details: details}
   end
+
+  @doc """
+  Resolve a schema or reference to a schema.
+  """
+  @spec resolve_schema(Schema.t() | Reference.t(), Components.schemas_map()) :: Schema.t()
+  def resolve_schema(%Schema{} = schema, _), do: schema
+  def resolve_schema(%Reference{} = ref, schemas), do: Reference.resolve_schema(ref, schemas)
 end

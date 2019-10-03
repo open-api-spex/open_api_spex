@@ -2,6 +2,7 @@ defmodule OpenApiSpex.CastOneOfTest do
   use ExUnit.Case
   alias OpenApiSpex.{Cast, Schema}
   alias OpenApiSpex.Cast.{Error, OneOf}
+  alias OpenApiSpex.Test.Assertions2
 
   defp cast(ctx), do: OneOf.cast(struct(Cast, ctx))
 
@@ -26,6 +27,11 @@ defmodule OpenApiSpex.CastOneOfTest do
       assert error.reason == :one_of
 
       assert Error.message(error) == "Failed to cast value to one of: [] (no schemas provided)"
+    end
+
+    test "a more sophisticated case" do
+      dog = %{"bark" => "woof", "pet_type" => "Dog"}
+      Assertions2.assert_schema(dog, "CatOrDog", OpenApiSpexTest.ApiSpec.spec())
     end
   end
 end

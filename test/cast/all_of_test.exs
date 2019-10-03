@@ -2,6 +2,7 @@ defmodule OpenApiSpex.CastAllOfTest do
   use ExUnit.Case
   alias OpenApiSpex.{Cast, Schema}
   alias OpenApiSpex.Cast.{Error, AllOf}
+  alias OpenApiSpex.Test.Assertions2
 
   defp cast(ctx), do: AllOf.cast(struct(Cast, ctx))
 
@@ -25,6 +26,11 @@ defmodule OpenApiSpex.CastAllOfTest do
 
       assert Error.message(error_with_schema_title) ==
                "Failed to cast value as Age. Value must be castable using `allOf` schemas listed."
+    end
+
+    test "a more sophisticated example" do
+      dog = %{"bark" => "woof", "pet_type" => "Dog"}
+      Assertions2.assert_schema(dog, "Dog", OpenApiSpexTest.ApiSpec.spec())
     end
   end
 end

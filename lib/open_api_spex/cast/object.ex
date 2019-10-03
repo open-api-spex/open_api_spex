@@ -26,6 +26,11 @@ defmodule OpenApiSpex.Cast.Object do
     end
   end
 
+  # When additionalProperties is true, extra properties are allowed in input
+  defp check_unrecognized_properties(%{schema: %{additionalProperties: true}}, _expected_keys) do
+    :ok
+  end
+
   defp check_unrecognized_properties(%{value: value} = ctx, expected_keys) do
     input_keys = value |> Map.keys() |> Enum.map(&to_string/1)
     schema_keys = expected_keys |> Map.keys() |> Enum.map(&to_string/1)
