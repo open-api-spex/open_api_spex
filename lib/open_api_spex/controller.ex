@@ -96,22 +96,21 @@ defmodule OpenApiSpex.Controller do
   @doc false
   @spec __api_operation__(module(), atom()) :: Operation.t()
   def __api_operation__(mod, name) do
-    {mod_meta, summary, docs, meta} = get_docs(mod, name)
-
-    %Operation{
-      description: docs,
-      operationId: "#{inspect(mod)}.#{name}",
-      parameters: build_parameters(meta),
-      requestBody: build_request_body(meta),
-      responses: build_responses(meta),
-      summary: summary,
-      tags: Map.get(mod_meta, :tags, []) ++ Map.get(meta, :tags, [])
-    }
+    with {mod_meta, summary, docs, meta} <- get_docs(mod, name) do
+      %Operation{
+        description: docs,
+        operationId: "#{inspect(mod)}.#{name}",
+        parameters: build_parameters(meta),
+        requestBody: build_request_body(meta),
+        responses: build_responses(meta),
+        summary: summary,
+        tags: Map.get(mod_meta, :tags, []) ++ Map.get(meta, :tags, [])
+      }
+    end
   end
 
   defp get_docs(module, name) do
-    {:docs_v1, _anno, _lang, _format, _module_doc, mod_meta, mod_docs} =
-      Code.fetch_docs(module)
+    {:docs_v1, _anno, _lang, _format, _module_doc, mod_meta, mod_docs} = Code.fetch_docs(module)
 
     {_, _, _, docs, meta} =
       Enum.find(mod_docs, fn
@@ -119,11 +118,16 @@ defmodule OpenApiSpex.Controller do
         _ -> false
       end)
 
-    docs = Map.get(docs, "en", "")
+    if docs == :none do
+      IO.puts("docs == :none. module=#{inspect(module)}, name=#{inspect(name)}")
+      nil
+    else
+      docs = Map.get(docs, "en", "")
 
-    [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
+      [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
 
-    {mod_meta, summary, docs, meta}
+      {mod_meta, summary, docs, meta}
+    end
   end
 
   defp build_parameters(%{parameters: params}) do
@@ -140,8 +144,7 @@ defmodule OpenApiSpex.Controller do
 
   defp build_responses(%{responses: responses}) do
     for {status, {description, mime, schema}} <- responses, into: %{} do
-      {Plug.Conn.Status.code(status),
-       Operation.response(description, mime, schema)}
+      {Plug.Conn.Status.code(status), Operation.response(description, mime, schema)}
     end
   end
 
