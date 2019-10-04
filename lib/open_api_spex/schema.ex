@@ -863,6 +863,7 @@ defmodule OpenApiSpex.Schema do
 
   def properties(_), do: []
 
+  defp default(default) when default in [nil, false, true], do: default
   defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
   defp default(%{default: default}), do: default
 end

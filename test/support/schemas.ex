@@ -284,4 +284,15 @@ defmodule OpenApiSpexTest.Schemas do
       oneOf: [Cat, Dog]
     })
   end
+
+  defmodule WithNilProperties do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      type: :object,
+      properties: %{
+        meta: nil
+      }
+    })
+  end
 end
