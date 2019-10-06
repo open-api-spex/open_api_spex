@@ -21,7 +21,8 @@ defmodule OpenApiSpex.Cast.Object do
          :ok <- check_max_properties(ctx),
          :ok <- check_min_properties(ctx),
          {:ok, value} <- cast_properties(%{ctx | schema: schema_properties}) do
-      ctx = to_struct(%{ctx | value: value})
+      value_with_defaults = apply_defaults(value, schema_properties)
+      ctx = to_struct(%{ctx | value: value_with_defaults})
       {:ok, ctx}
     end
   end
@@ -119,6 +120,22 @@ defmodule OpenApiSpex.Cast.Object do
       {:ok, Map.put(output, key, value)}
     end
   end
+
+  defp apply_defaults(object_value, schema_properties) do
+    Enum.reduce(schema_properties, object_value, &apply_default/2)
+  end
+
+  defp apply_default({_key, %{default: nil}}, object_value), do: object_value
+
+  defp apply_default({key, %{default: default_value}}, object_value) do
+    if Map.has_key?(object_value, key) do
+      object_value
+    else
+      Map.put(object_value, key, default_value)
+    end
+  end
+
+  defp apply_default(_, object_value), do: object_value
 
   defp to_struct(%{value: value = %_{}}), do: value
   defp to_struct(%{value: value, schema: %{"x-struct": nil}}), do: value
