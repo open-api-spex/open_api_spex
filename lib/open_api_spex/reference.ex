@@ -3,7 +3,7 @@ defmodule OpenApiSpex.Reference do
   Defines the `OpenApiSpex.Reference.t` type.
   """
 
-  alias OpenApiSpex.Reference
+  alias OpenApiSpex.{Components, Reference}
 
   @enforce_keys :"$ref"
   defstruct [
@@ -17,8 +17,8 @@ defmodule OpenApiSpex.Reference do
   The Reference Object is defined by JSON Reference and follows the same structure, behavior and rules.
   """
   @type t :: %Reference{
-    "$ref": String.t
-  }
+          "$ref": String.t()
+        }
 
   @doc """
   Resolve a `Reference` to the `Schema` it refers to.
@@ -30,9 +30,11 @@ defmodule OpenApiSpex.Reference do
       ...> Reference.resolve_schema(%Reference{"$ref": "#/components/schemas/user"}, schemas)
       %OpenApiSpex.Schema{type: :object, title: "user"}
   """
-  @spec resolve_schema(Reference.t, %{String.t => Schema.t}) :: Schema.t | nil
-  def resolve_schema(%Reference{"$ref": "#/components/schemas/" <> name}, schemas), do: schemas[name]
+  @spec resolve_schema(Reference.t(), Components.schema_map()) :: Schema.t() | nil
+  def resolve_schema(%Reference{"$ref": "#/components/schemas/" <> name}, schemas),
+    do: schemas[name]
 
-  @spec resolve_parameter(Reference.t, %{String.t => Parameter.t}) :: Parameter.t | nil
-  def resolve_parameter(%Reference{"$ref": "#/components/parameters/" <> name}, parameters), do: parameters[name]
+  @spec resolve_parameter(Reference.t(), %{String.t() => Parameter.t()}) :: Parameter.t() | nil
+  def resolve_parameter(%Reference{"$ref": "#/components/parameters/" <> name}, parameters),
+    do: parameters[name]
 end
