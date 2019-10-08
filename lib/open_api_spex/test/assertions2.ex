@@ -25,7 +25,12 @@ defmodule OpenApiSpex.Test.Assertions2 do
         data
 
       {:error, errors} ->
-        errors = Enum.map(errors, &to_string/1)
+        errors =
+          Enum.map(errors, fn error ->
+            message = OpenApiSpex.Cast.Error.message(error)
+            path = OpenApiSpex.Cast.Error.path_to_string(error)
+            "#{message} at #{path}"
+          end)
 
         flunk(
           "Value does not conform to schema #{schema_title}: #{Enum.join(errors, "\n")}\n#{
