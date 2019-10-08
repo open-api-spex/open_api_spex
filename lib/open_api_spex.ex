@@ -52,10 +52,12 @@ defmodule OpenApiSpex do
   """
   @spec cast(OpenApi.t(), Schema.t() | Reference.t(), any) :: {:ok, any} | {:error, String.t()}
   def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
+    IO.warn("#{__MODULE__}.cast/3 is deprecated. Please use OpenApiSpecs.Cast.cast/3 instead.")
     Schema.cast(schema, params, spec.components.schemas)
   end
 
   def cast(spec = %OpenApi{}, schema = %Reference{}, params) do
+    IO.warn("#{__MODULE__}.cast/3 is deprecated. Please use OpenApiSpecs.Cast.cast/3 instead.")
     Schema.cast(schema, params, spec.components.schemas)
   end
 
@@ -71,6 +73,10 @@ defmodule OpenApiSpex do
           {:ok, Plug.Conn.t()} | {:error, String.t()}
         when content_type: String.t()
   def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
+    IO.warn(
+      "#{__MODULE__}.cast/4 is deprecated. Please use OpenApiSpecs.Operation2.cast/4 instead."
+    )
+
     Operation.cast(operation, conn, content_type, spec.components.schemas)
   end
 
@@ -81,10 +87,18 @@ defmodule OpenApiSpex do
   """
   @spec validate(OpenApi.t(), Schema.t() | Reference.t(), any) :: :ok | {:error, String.t()}
   def validate(spec = %OpenApi{}, schema = %Schema{}, params) do
+    IO.warn(
+      "#{__MODULE__}.validate/3 is deprecated. Please use OpenApiSpecs.Cast.cast/3 instead."
+    )
+
     Schema.validate(schema, params, spec.components.schemas)
   end
 
   def validate(spec = %OpenApi{}, schema = %Reference{}, params) do
+    IO.warn(
+      "#{__MODULE__}.validate/3 is deprecated. Please use OpenApiSpecs.Cast.cast/3 instead."
+    )
+
     Schema.validate(schema, params, spec.components.schemas)
   end
 
@@ -102,6 +116,10 @@ defmodule OpenApiSpex do
         conn = %Plug.Conn{},
         content_type \\ nil
       ) do
+    IO.warn(
+      "#{__MODULE__}.validate/4 is deprecated. Please use OpenApiSpex.Operation2.cast/4 instead."
+    )
+
     Operation.validate(operation, conn, content_type, spec.components.schemas)
   end
 
