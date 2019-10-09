@@ -2,9 +2,9 @@ defmodule OpenApiSpex.Test.Assertions2 do
   @moduledoc """
   Defines helpers for testing API responses and examples against API spec schemas.
   """
-  alias OpenApiSpex.OpenApi
-  alias OpenApiSpex.Cast
   import ExUnit.Assertions
+  alias OpenApiSpex.{Cast, OpenApi}
+  alias OpenApiSpex.Cast.Error
 
   @dialyzer {:no_match, assert_schema: 3}
 
@@ -25,7 +25,12 @@ defmodule OpenApiSpex.Test.Assertions2 do
         data
 
       {:error, errors} ->
-        errors = Enum.map(errors, &to_string/1)
+        errors =
+          Enum.map(errors, fn error ->
+            message = Error.message(error)
+            path = Error.path_to_string(error)
+            "#{message} at #{path}"
+          end)
 
         flunk(
           "Value does not conform to schema #{schema_title}: #{Enum.join(errors, "\n")}\n#{
