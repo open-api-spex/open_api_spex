@@ -94,9 +94,9 @@ defmodule OpenApiSpex.Controller do
   end
 
   @doc false
-  @spec __api_operation__(module(), atom()) :: Operation.t()
+  @spec __api_operation__(module(), atom()) :: Operation.t() | nil
   def __api_operation__(mod, name) do
-    with {mod_meta, summary, docs, meta} <- get_docs(mod, name) do
+    with {:ok, {mod_meta, summary, docs, meta}} <- get_docs(mod, name) do
       %Operation{
         description: docs,
         operationId: "#{inspect(mod)}.#{name}",
@@ -106,6 +106,8 @@ defmodule OpenApiSpex.Controller do
         summary: summary,
         tags: Map.get(mod_meta, :tags, []) ++ Map.get(meta, :tags, [])
       }
+    else
+      _ -> nil
     end
   end
 
@@ -119,14 +121,13 @@ defmodule OpenApiSpex.Controller do
       end)
 
     if docs == :none do
-      IO.puts("docs == :none. module=#{inspect(module)}, name=#{inspect(name)}")
-      nil
+      :error
     else
       docs = Map.get(docs, "en", "")
 
       [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
 
-      {mod_meta, summary, docs, meta}
+      {:ok, {mod_meta, summary, docs, meta}}
     end
   end
 
