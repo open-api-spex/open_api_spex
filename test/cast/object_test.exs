@@ -90,6 +90,54 @@ defmodule OpenApiSpex.ObjectTest do
       assert error2.path == [:name]
     end
 
+    test "fields with default values" do
+      schema = %Schema{
+        type: :object,
+        properties: %{name: %Schema{type: :string, default: "Rubi"}}
+      }
+
+      assert cast(value: %{}, schema: schema) == {:ok, %{name: "Rubi"}}
+      assert cast(value: %{"name" => "Jane"}, schema: schema) == {:ok, %{name: "Jane"}}
+      assert cast(value: %{name: "Robin"}, schema: schema) == {:ok, %{name: "Robin"}}
+    end
+
+    test "explicitly passing nil for fields with default values (not nullable)" do
+      schema = %Schema{
+        type: :object,
+        properties: %{name: %Schema{type: :string, default: "Rubi"}}
+      }
+
+      assert {:error, [%{reason: :null_value}]} = cast(value: %{"name" => nil}, schema: schema)
+      assert {:error, [%{reason: :null_value}]} = cast(value: %{name: nil}, schema: schema)
+    end
+
+    test "explicitly passing nil for fields with default values (nullable)" do
+      schema = %Schema{
+        type: :object,
+        properties: %{name: %Schema{type: :string, default: "Rubi", nullable: true}}
+      }
+
+      assert cast(value: %{"name" => nil}, schema: schema) == {:ok, %{name: nil}}
+      assert cast(value: %{name: nil}, schema: schema) == {:ok, %{name: nil}}
+    end
+
+    test "default values in nested schemas" do
+      child_schema = %Schema{
+        type: :object,
+        properties: %{name: %Schema{type: :string, default: "Rubi"}}
+      }
+
+      parent_schema = %Schema{
+        type: :object,
+        properties: %{child: child_schema}
+      }
+
+      assert cast(value: %{child: %{}}, schema: parent_schema) == {:ok, %{child: %{name: "Rubi"}}}
+
+      assert cast(value: %{child: %{"name" => "Jane"}}, schema: parent_schema) ==
+               {:ok, %{child: %{name: "Jane"}}}
+    end
+
     test "cast property against schema" do
       schema = %Schema{
         type: :object,
