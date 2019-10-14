@@ -2,7 +2,7 @@ defmodule OpenApiSpex.SchemaTest do
   use ExUnit.Case
   alias OpenApiSpex.Schema
   alias OpenApiSpexTest.{ApiSpec, Schemas}
-  import OpenApiSpex.Test.Assertions
+  import OpenApiSpex.TestAssertions
 
   doctest Schema
 

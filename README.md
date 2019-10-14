@@ -366,7 +366,7 @@ end
 
 ## Validate Responses
 
-API responses can be tested against schemas using `OpenApiSpex.Test.Assertions` also:
+API responses can be tested against schemas using `OpenApiSpex.TestAssertions` also:
 
 ```elixir
 use MyAppWeb.ConnCase
