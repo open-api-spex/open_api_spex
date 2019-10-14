@@ -1,6 +1,6 @@
 defmodule PhoenixAppWeb.UserControllerTest do
   use PhoenixAppWeb.ConnCase, async: true
-  import OpenApiSpex.Test.Assertions
+  import OpenApiSpex.TestAssertions
 
   setup do
     %{spec: PhoenixAppWeb.ApiSpec.spec()}
@@ -9,13 +9,16 @@ defmodule PhoenixAppWeb.UserControllerTest do
   test "create user", %{conn: conn, spec: spec} do
     conn
     |> Plug.Conn.put_req_header("content-type", "application/json")
-    |> post(user_path(conn, :create, 1), %{"user" => %{"name" => "Joe", "email" => "joe@gmail.com"}})
+    |> post(user_path(conn, :create, 1), %{
+      "user" => %{"name" => "Joe", "email" => "joe@gmail.com"}
+    })
     |> json_response(201)
     |> assert_schema("UserResponse", spec)
   end
 
   test "get user", %{conn: conn, spec: spec} do
-    %{id: id} = PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Carl", email: "Carl@yahoo.com"})
+    %{id: id} =
+      PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Carl", email: "Carl@yahoo.com"})
 
     conn
     |> Plug.Conn.put_req_header("accept", "application/json")
@@ -25,9 +28,14 @@ defmodule PhoenixAppWeb.UserControllerTest do
   end
 
   test "list users", %{conn: conn, spec: spec} do
-    %{id: id1} = PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Aaron", email: "aaron@hotmail.com"})
-    %{id: id2} = PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Benjamin", email: "ben@lycos.com"})
-    %{id: id3} = PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Chuck", email: "chuck@aol.com"})
+    %{id: id1} =
+      PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Aaron", email: "aaron@hotmail.com"})
+
+    %{id: id2} =
+      PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Benjamin", email: "ben@lycos.com"})
+
+    %{id: id3} =
+      PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Chuck", email: "chuck@aol.com"})
 
     response =
       conn
