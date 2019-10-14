@@ -53,18 +53,22 @@ defmodule OpenApiSpex.Plug.Validate do
   alias Plug.Conn
 
   @impl Plug
+  @deprecated "Use OpenApiSpex.Plug.CastAndValidate.init/1 instead"
   def init(opts), do: Keyword.put_new(opts, :render_error, OpenApiSpex.Plug.DefaultRenderError)
 
   @impl Plug
+  @deprecated "Use OpenApiSpex.Plug.CastAndValidate.call/2 instead"
   def call(conn, render_error: render_error) do
     spec = conn.private.open_api_spex.spec
     operation_id = conn.private.open_api_spex.operation_id
     operation_lookup = conn.private.open_api_spex.operation_lookup
     operation = operation_lookup[operation_id]
-    content_type = Conn.get_req_header(conn, "content-type")
-        |> Enum.at(0, "")
-        |> String.split(";")
-        |> Enum.at(0)
+
+    content_type =
+      Conn.get_req_header(conn, "content-type")
+      |> Enum.at(0, "")
+      |> String.split(";")
+      |> Enum.at(0)
 
     with :ok <- OpenApiSpex.validate(spec, operation, conn, content_type) do
       conn

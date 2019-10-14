@@ -1,9 +1,9 @@
-defmodule OpenApiSpex.Test.Assertions2 do
+defmodule OpenApiSpex.TestAssertions do
   @moduledoc """
   Defines helpers for testing API responses and examples against API spec schemas.
   """
   import ExUnit.Assertions
-  alias OpenApiSpex.{Cast, OpenApi}
+  alias OpenApiSpex.OpenApi
   alias OpenApiSpex.Cast.Error
 
   @dialyzer {:no_match, assert_schema: 3}
@@ -12,7 +12,6 @@ defmodule OpenApiSpex.Test.Assertions2 do
   Asserts that `value` conforms to the schema with title `schema_title` in `api_spec`.
   """
   @spec assert_schema(map, String.t(), OpenApi.t()) :: map | no_return
-  @deprecated "Use OpenApiSpex.TestAssertions.assert_schema/3 instead"
   def assert_schema(value = %{}, schema_title, api_spec = %OpenApi{}) do
     schemas = api_spec.components.schemas
     schema = schemas[schema_title]
@@ -21,7 +20,7 @@ defmodule OpenApiSpex.Test.Assertions2 do
       flunk("Schema: #{schema_title} not found in #{inspect(Map.keys(schemas))}")
     end
 
-    case Cast.cast(schema, value, api_spec.components.schemas) do
+    case OpenApiSpex.cast_value(value, schema, api_spec) do
       {:ok, data} ->
         data
 
