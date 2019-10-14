@@ -66,7 +66,7 @@ defmodule OpenApiSpex do
   See `OpenApiSpex.Schema.cast/3` for additional examples and details.
   """
   @spec cast(OpenApi.t(), Schema.t() | Reference.t(), any) :: {:ok, any} | {:error, String.t()}
-  @deprecated "Use OpenApiSpecs.Cast.cast/3 or cast/2 instead"
+  @deprecated "Use OpenApiSpex.cast_value/3 or cast_value/2 instead"
   def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
@@ -86,7 +86,7 @@ defmodule OpenApiSpex do
   @spec cast(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
           {:ok, Plug.Conn.t()} | {:error, String.t()}
         when content_type: String.t()
-  @deprecated "Use OpenApiSpecs.Cast.cast_and_validate/3 instead"
+  @deprecated "Use OpenApiSpex.cast_and_validate/3 instead"
   def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
     Operation.cast(operation, conn, content_type, spec.components.schemas)
   end
@@ -97,7 +97,7 @@ defmodule OpenApiSpex do
   See `OpenApiSpex.Schema.validate/3` for examples of error messages.
   """
   @spec validate(OpenApi.t(), Schema.t() | Reference.t(), any) :: :ok | {:error, String.t()}
-  @deprecated "Use OpenApiSpecs.Cast.cast_value/3 or cast_value/2 instead"
+  @deprecated "Use OpenApiSpex.cast_value/3 or cast_value/2 instead"
   def validate(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.validate(schema, params, spec.components.schemas)
   end
