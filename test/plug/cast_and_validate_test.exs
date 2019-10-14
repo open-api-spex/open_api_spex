@@ -1,42 +1,45 @@
-defmodule OpenApiSpex.Plug.CastAndValidateTest do
-  use ExUnit.Case, async: true
+defmodule OpenApiSpex.Plug.CastTest do
+  use ExUnit.Case
 
   describe "query params - basics" do
     test "Valid Param" do
       conn =
         :get
-        |> Plug.Test.conn("/api/cast_and_validate_test/users?validParam=true")
+        |> Plug.Test.conn("/api/users?validParam=true")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
     end
 
-    @tag :capture_log
     test "Invalid value" do
       conn =
         :get
-        |> Plug.Test.conn("/api/cast_and_validate_test/users?validParam=123")
+        |> Plug.Test.conn("/api/users?validParam=123")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 422
     end
 
-    @tag :capture_log
     test "Invalid Param" do
       conn =
         :get
-        |> Plug.Test.conn(
-          "/api/cast_and_validate_test/users?validParam=123&inValidParam=123&inValid2=hi"
-        )
+        |> Plug.Test.conn("/api/users?validParam=123&inValidParam=123&inValid2=hi")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 422
+      error_resp = Jason.decode!(conn.resp_body)
 
-      assert conn.resp_body ==
-               "{\"errors\":[{\"message\":\"Unexpected field: inValid2\",\"source\":{\"pointer\":\"/inValid2\"},\"title\":\"Invalid value\"}]}"
+      assert error_resp == %{
+               "errors" => [
+                 %{
+                   "message" => "Unexpected field: inValid2",
+                   "source" => %{"pointer" => "/inValid2"},
+                   "title" => "Invalid value"
+                 }
+               ]
+             }
     end
 
-    @tag :capture_log
     test "with requestBody" do
       body =
         Jason.encode!(%{
@@ -46,11 +49,41 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
 
       conn =
         :post
-        |> Plug.Test.conn("/api/cast_and_validate_test/users/123/contact_info", body)
+        |> Plug.Test.conn("/api/users/123/contact_info", body)
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
+    end
+  end
+
+  describe "query params - param with custom error handling" do
+    test "Valid Param" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/custom_error_users?validParam=true")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+    end
+
+    test "Invalid value" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/custom_error_users?validParam=123")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 400
+    end
+
+    test "Invalid Param" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/custom_error_users?validParam=123&inValidParam=123&inValid2=hi")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 400
+      assert conn.resp_body == "Unexpected field: inValid2"
     end
   end
 
@@ -67,7 +100,7 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
 
       conn =
         :post
-        |> Plug.Test.conn("/api/cast_and_validate_test/users", Jason.encode!(request_body))
+        |> Plug.Test.conn("/api/users", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
         |> OpenApiSpexTest.Router.call([])
 
@@ -91,7 +124,6 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
              }
     end
 
-    @tag :capture_log
     test "Invalid Request" do
       request_body = %{
         "user" => %{
@@ -104,23 +136,24 @@ defmodule OpenApiSpex.Plug.CastAndValidateTest do
 
       conn =
         :post
-        |> Plug.Test.conn("/api/cast_and_validate_test/users", Jason.encode!(request_body))
+        |> Plug.Test.conn("/api/users", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json")
 
       conn = OpenApiSpexTest.Router.call(conn, [])
       assert conn.status == 422
 
-      resp_body = Jason.decode!(conn.resp_body)
+      resp_data = Jason.decode!(conn.resp_body)
 
-      assert resp_body == %{
-               "errors" => [
-                 %{
-                   "message" => "Invalid format. Expected ~r/[a-zA-Z][a-zA-Z0-9_]+/",
-                   "source" => %{"pointer" => "/user/name"},
-                   "title" => "Invalid value"
-                 }
-               ]
-             }
+      assert resp_data ==
+               %{
+                 "errors" => [
+                   %{
+                     "message" => "Invalid format. Expected ~r/[a-zA-Z][a-zA-Z0-9_]+/",
+                     "source" => %{"pointer" => "/user/name"},
+                     "title" => "Invalid value"
+                   }
+                 ]
+               }
     end
   end
 end

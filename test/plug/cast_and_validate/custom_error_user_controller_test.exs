@@ -5,7 +5,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate.CustomErrorUserControllerTest do
     test "Valid Param" do
       conn =
         :get
-        |> Plug.Test.conn("/api/cast_and_validate_test/custom_error_users?validParam=true")
+        |> Plug.Test.conn("/api/custom_error_users?validParam=true")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
@@ -15,7 +15,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate.CustomErrorUserControllerTest do
     test "Invalid value" do
       conn =
         :get
-        |> Plug.Test.conn("/api/cast_and_validate_test/custom_error_users?validParam=123")
+        |> Plug.Test.conn("/api/custom_error_users?validParam=123")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 400
@@ -27,9 +27,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate.CustomErrorUserControllerTest do
     test "Invalid Param" do
       conn =
         :get
-        |> Plug.Test.conn(
-          "/api/cast_and_validate_test/custom_error_users?validParam=123&inValidParam=123&inValid2=hi"
-        )
+        |> Plug.Test.conn("/api/custom_error_users?validParam=123&inValidParam=123&inValid2=hi")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 400

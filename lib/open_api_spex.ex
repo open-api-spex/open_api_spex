@@ -128,6 +128,10 @@ defmodule OpenApiSpex do
     Error.path_to_string(error)
   end
 
+  def error_message(%Error{} = error) do
+    Error.message(error)
+  end
+
   @doc """
   Declares a struct based `OpenApiSpex.Schema`
 
