@@ -67,7 +67,7 @@ defmodule OpenApiSpex.Plug.Validate do
     content_type =
       Conn.get_req_header(conn, "content-type")
       |> Enum.at(0, "")
-      |> String.split(";")
+      |> String.split(";", parts: 2)
       |> Enum.at(0)
 
     with :ok <- OpenApiSpex.validate(spec, operation, conn, content_type) do
