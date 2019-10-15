@@ -355,7 +355,7 @@ Use the `OpenApiSpex.TestAssertions` module to assert on schema validations.
 
 ```elixir
 use ExUnit.Case
-import OpenApiSpex.Test.TestAssertions
+import OpenApiSpex.TestAssertions
 
 test "UsersResponse example matches schema" do
   api_spec = MyAppWeb.ApiSpec.spec()
