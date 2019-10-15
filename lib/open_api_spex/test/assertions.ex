@@ -21,7 +21,7 @@ defmodule OpenApiSpex.Test.Assertions do
     end
 
     data =
-      case OpenApiSpex.cast(api_spec, schema, value) do
+      case Kernel.apply(OpenApiSpex, :cast, [api_spec, schema, value]) do
         {:ok, data} ->
           data
 
@@ -29,7 +29,7 @@ defmodule OpenApiSpex.Test.Assertions do
           flunk("Value does not conform to schema #{schema_title}: #{reason}\n#{inspect(value)}")
       end
 
-    case OpenApiSpex.validate(api_spec, schema, data) do
+    case Kernel.apply(OpenApiSpex, :validate, [api_spec, schema, value]) do
       :ok ->
         :ok
 
