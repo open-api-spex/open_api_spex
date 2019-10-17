@@ -15,7 +15,7 @@ defmodule OpenApiSpex.ObjectTest do
     end
 
     test "input map can have atom keys" do
-      schema = %Schema{type: :object}
+      schema = %Schema{type: :object, properties: %{one: %Schema{type: :string}}}
       assert {:ok, map} = cast(value: %{one: "one"}, schema: schema)
       assert map == %{one: "one"}
     end
@@ -149,6 +149,16 @@ defmodule OpenApiSpex.ObjectTest do
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.path == [:age]
+    end
+
+    test "allow unrecognized fields when additionalProperties is true" do
+      schema = %Schema{
+        type: :object,
+        properties: %{},
+        additionalProperties: true
+      }
+
+      assert cast(value: %{"foo" => "foo"}, schema: schema) == {:ok, %{"foo" => "foo"}}
     end
 
     defmodule User do
