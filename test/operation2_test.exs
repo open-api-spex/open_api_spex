@@ -27,7 +27,7 @@ defmodule OpenApiSpex.Operation2Test do
   end
 
   defmodule ParameterFixtures do
-    alias OpenApiSpex.Operation
+    alias OpenApiSpex.{Schema, Operation}
 
     def parameters do
       %{
@@ -41,8 +41,14 @@ defmodule OpenApiSpex.Operation2Test do
       operationId: "UserController.index",
       parameters: [
         Operation.parameter(:name, :query, :string, "Filter by user name"),
-        Operation.parameter(:age, :query, :integer, "User's age"),
-        %Reference{"$ref": "#/components/parameters/member"}
+        Operation.parameter(:age, :query, :integer, "Filter by user age"),
+        %Reference{"$ref": "#/components/parameters/member"},
+        Operation.parameter(
+          :include_archived,
+          :query,
+          %Schema{type: :boolean, default: false},
+          "Example of a default value"
+        )
       ],
       responses: %{
         200 => Operation.response("User", "application/json", SchemaFixtures.user())
@@ -131,10 +137,22 @@ defmodule OpenApiSpex.Operation2Test do
       assert error.reason == :invalid_type
     end
 
-    test "casts valid query params" do
+    test "casts valid query params and respects defaults" do
       valid_query_params = %{"name" => "Rubi", "age" => "31", "member" => "true"}
       assert {:ok, conn} = do_index_cast(valid_query_params)
-      assert conn.params == %{age: 31, member: true, name: "Rubi"}
+      assert conn.params == %{age: 31, member: true, name: "Rubi", include_archived: false}
+    end
+
+    test "casts valid query params and overrides defaults" do
+      valid_query_params = %{
+        "name" => "Rubi",
+        "age" => "31",
+        "member" => "true",
+        "include_archived" => "true"
+      }
+
+      assert {:ok, conn} = do_index_cast(valid_query_params)
+      assert conn.params == %{age: 31, member: true, name: "Rubi", include_archived: true}
     end
 
     test "validate undefined query param name" do
