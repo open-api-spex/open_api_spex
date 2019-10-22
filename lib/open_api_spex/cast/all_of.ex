@@ -10,7 +10,7 @@ defmodule OpenApiSpex.Cast.AllOf do
     # Since we parse a multi-type array, acc has to be a list or nil
     acc = acc || []
 
-    case Cast.cast(%{ctx | schema: schema}) |> IO.inspect() do
+    case Cast.cast(%{ctx | schema: schema}) do
       {:ok, value} when is_list(value) ->
         # Since the cast for the list didn't result in a cast error,
         # we do not proceed the values through the remaining schemas
@@ -35,7 +35,7 @@ defmodule OpenApiSpex.Cast.AllOf do
     relaxed_schema = %{schema | additionalProperties: true}
     new_ctx = put_in(ctx.schema.allOf, remaining)
 
-    case Cast.cast(%{ctx | schema: relaxed_schema}) |> IO.inspect() do
+    case Cast.cast(%{ctx | schema: relaxed_schema}) do
       {:ok, value} when is_map(value) ->
         cast_all_of(new_ctx, Map.merge(acc || %{}, value))
 

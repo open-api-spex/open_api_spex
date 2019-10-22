@@ -74,6 +74,6 @@ defmodule OpenApiSpex.CastAllOfTest do
     }
 
     value = ["Test #1", "2", "3", "4", "true", "Five!"]
-    assert {:ok,  [2, 3, 4, true, "Test #1", "Five!"]} = cast(value: value, schema: schema)
+    assert {:ok, [2, 3, 4, true, "Test #1", "Five!"]} = cast(value: value, schema: schema)
   end
 end
