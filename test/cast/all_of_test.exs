@@ -17,7 +17,7 @@ defmodule OpenApiSpex.CastAllOfTest do
       assert {:error, [error]} = cast(value: [:whoops], schema: schema)
 
       assert Error.message(error) ==
-               "Failed to cast value as integer. Value must be castable using `allOf` schemas listed."
+               "Failed to cast value as string. Value must be castable using `allOf` schemas listed."
 
       schema_with_title = %Schema{allOf: [%Schema{title: "Age", type: :integer}]}
 
@@ -32,5 +32,48 @@ defmodule OpenApiSpex.CastAllOfTest do
       dog = %{"bark" => "woof", "pet_type" => "Dog"}
       Assertions2.assert_schema(dog, "Dog", OpenApiSpexTest.ApiSpec.spec())
     end
+
+    test "allOf, for inheritance schema" do
+      schema = %Schema{
+        allOf: [
+          %Schema{
+            type: :object,
+            additionalProperties: true,
+            properties: %{
+              id: %Schema{
+                type: :string
+              }
+            }
+          },
+          %Schema{
+            type: :object,
+            additionalProperties: true,
+            properties: %{
+              bar: %Schema{
+                type: :string
+              }
+            }
+          }
+        ]
+      }
+
+      value = %{id: "e30aee0f-dbda-40bd-9198-6cf609b8b640", bar: "foo"}
+
+      assert {:ok, %{id: "e30aee0f-dbda-40bd-9198-6cf609b8b640", bar: "foo"}} =
+               cast(value: value, schema: schema)
+    end
+  end
+
+  test "allOf, for multi-type array" do
+    schema = %Schema{
+      allOf: [
+        %Schema{type: :array, items: %Schema{type: :integer}},
+        %Schema{type: :array, items: %Schema{type: :boolean}},
+        %Schema{type: :array, items: %Schema{type: :string}}
+      ]
+    }
+
+    value = ["Test #1", "2", "3", "4", "true", "Five!"]
+    assert {:ok,  [2, 3, 4, true, "Test #1", "Five!"]} = cast(value: value, schema: schema)
   end
 end
