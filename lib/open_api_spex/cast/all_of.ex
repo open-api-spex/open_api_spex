@@ -43,11 +43,11 @@ defmodule OpenApiSpex.Cast.AllOf do
         # primitive value with no previous (valid) casts -> return
         {:ok, value}
 
-      {:error, errors} when remaining == [] ->
+      {:error, _} when remaining == [] ->
         # Since no schema is left to parse the remaining values, we return a error
         Cast.error(ctx, {:all_of, to_string(relaxed_schema.title || relaxed_schema.type)})
 
-      {:error, errors} ->
+      {:error, _} ->
         # in case the cast results in a error, we just skip this schema
         cast_all_of(new_ctx, acc)
     end
@@ -77,7 +77,7 @@ defmodule OpenApiSpex.Cast.AllOf do
     {:ok, ctx}
   end
 
-  defp reject_error_values(ctx, errors) do
+  defp reject_error_values(_ctx, errors) do
     # Some errors couldn't be resolved, we break and return the remaining errors
     errors
   end
