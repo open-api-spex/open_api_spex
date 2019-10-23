@@ -68,7 +68,8 @@ defmodule OpenApiSpex.Cast do
       ...>    type: :object,
       ...>    properties: %{
       ...>      name: nil
-      ...>    }
+      ...>    },
+      ...>    additionalProperties: false
       ...> }
       iex> Cast.cast(schema, %{"name" => "spex"})
       {:ok, %{name: "spex"}}

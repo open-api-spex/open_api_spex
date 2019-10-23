@@ -23,7 +23,7 @@ defmodule OpenApiSpex.Plug.CastTest do
     test "Invalid Param" do
       conn =
         :get
-        |> Plug.Test.conn("/api/users?validParam=123&inValidParam=123&inValid2=hi")
+        |> Plug.Test.conn("/api/users?validParam=123")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 422
@@ -32,8 +32,8 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert error_resp == %{
                "errors" => [
                  %{
-                   "message" => "Unexpected field: inValid2",
-                   "source" => %{"pointer" => "/inValid2"},
+                   "message" => "Invalid boolean. Got: string",
+                   "source" => %{"pointer" => "/validParam"},
                    "title" => "Invalid value"
                  }
                ]

@@ -155,17 +155,6 @@ defmodule OpenApiSpex.Operation2Test do
       assert conn.params == %{age: 31, member: true, name: "Rubi", include_archived: true}
     end
 
-    test "validate undefined query param name" do
-      query_params = %{"unknown" => "asdf"}
-
-      assert {:error, [error]} = do_index_cast(query_params)
-
-      assert %Error{} = error
-      assert error.reason == :unexpected_field
-      assert error.name == "unknown"
-      assert error.path == ["unknown"]
-    end
-
     test "validate invalid data type for query param" do
       query_params = %{"age" => "asdf"}
       assert {:error, [error]} = do_index_cast(query_params)

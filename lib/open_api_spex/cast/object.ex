@@ -30,7 +30,8 @@ defmodule OpenApiSpex.Cast.Object do
   end
 
   # When additionalProperties is true, extra properties are allowed in input
-  defp check_unrecognized_properties(%{schema: %{additionalProperties: true}}, _expected_keys) do
+  defp check_unrecognized_properties(%{schema: %{additionalProperties: ap}}, _expected_keys)
+       when ap in [nil, true] do
     :ok
   end
 
@@ -116,7 +117,8 @@ defmodule OpenApiSpex.Cast.Object do
 
   # Pass additional properties through when `additionalProperties` is true.
   # Map string keys are not converted to atoms. That would require calling `String.to_atom/1`, which is not safe.
-  defp cast_additional_properties(%{schema: %{additionalProperties: true}} = ctx, original_value) do
+  defp cast_additional_properties(%{schema: %{additionalProperties: ap}} = ctx, original_value)
+       when ap in [nil, true] do
     recognized_keys = Map.keys(ctx.schema.properties || %{})
     # Create MapSet with both atom and string versions of the property keys
     recognized_keys = MapSet.new(recognized_keys ++ Enum.map(recognized_keys, &to_string/1))
