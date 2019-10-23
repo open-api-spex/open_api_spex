@@ -5,8 +5,7 @@ defmodule PhoenixAppWeb.UserController do
   alias PhoenixApp.{Accounts, Accounts.User}
   alias PhoenixAppWeb.Schemas
 
-  plug(OpenApiSpex.Plug.Cast)
-  plug(OpenApiSpex.Plug.Validate)
+  plug OpenApiSpex.Plug.CastAndValidate
 
   def open_api_operation(action) do
     apply(__MODULE__, :"#{action}_operation", [])

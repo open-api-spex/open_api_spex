@@ -346,16 +346,16 @@ The response body will include the validation error message:
 }
 ```
 
-See also `OpenApiSpex.cast_and_validate/3` and `OpenApiSpex.Cast.cast/3` for more examples outside of a `plug` pipeline.
+See also `OpenApiSpex.cast_value/3` for casting and validating outside of a `plug` pipeline.
 
 ## Validate Examples
 
 As schemas evolve, you may want to confirm that the examples given match the schemas.
-Use the `OpenApiSpex.Test.Assertions` module to assert on schema validations.
+Use the `OpenApiSpex.TestAssertions` module to assert on schema validations.
 
 ```elixir
 use ExUnit.Case
-import OpenApiSpex.Test.Assertions
+import OpenApiSpex.TestAssertions
 
 test "UsersResponse example matches schema" do
   api_spec = MyAppWeb.ApiSpec.spec()
@@ -366,11 +366,11 @@ end
 
 ## Validate Responses
 
-API responses can be tested against schemas using `OpenApiSpex.Test.Assertions` also:
+API responses can be tested against schemas using `OpenApiSpex.TestAssertions` also:
 
 ```elixir
 use MyAppWeb.ConnCase
-import OpenApiSpex.Test.Assertions
+import OpenApiSpex.TestAssertions
 
 test "UserController produces a UsersResponse", %{conn: conn} do
   api_spec = MyAppWeb.ApiSpec.spec()

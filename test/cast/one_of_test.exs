@@ -2,7 +2,7 @@ defmodule OpenApiSpex.CastOneOfTest do
   use ExUnit.Case
   alias OpenApiSpex.{Cast, Schema}
   alias OpenApiSpex.Cast.{Error, OneOf}
-  alias OpenApiSpex.Test.Assertions2
+  alias OpenApiSpex.TestAssertions
 
   defp cast(ctx), do: OneOf.cast(struct(Cast, ctx))
 
@@ -31,7 +31,7 @@ defmodule OpenApiSpex.CastOneOfTest do
 
     test "a more sophisticated case" do
       dog = %{"bark" => "woof", "pet_type" => "Dog"}
-      Assertions2.assert_schema(dog, "CatOrDog", OpenApiSpexTest.ApiSpec.spec())
+      TestAssertions.assert_schema(dog, "CatOrDog", OpenApiSpexTest.ApiSpec.spec())
     end
   end
 end

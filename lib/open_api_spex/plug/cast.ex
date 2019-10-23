@@ -47,6 +47,7 @@ defmodule OpenApiSpex.Plug.Cast do
   alias Plug.Conn
 
   @impl Plug
+  @deprecated "Use OpenApiSpex.Plug.CastAndValidate instead"
   def init(opts) do
     opts
     |> Map.new()
@@ -54,18 +55,27 @@ defmodule OpenApiSpex.Plug.Cast do
   end
 
   @impl Plug
-  def call(conn = %{private: %{open_api_spex: private_data}}, %{operation_id: operation_id, render_error: render_error}) do
+  @deprecated "Use OpenApiSpex.Plug.CastAndValidate instead"
+  def call(conn = %{private: %{open_api_spex: private_data}}, %{
+        operation_id: operation_id,
+        render_error: render_error
+      }) do
     spec = private_data.spec
     operation = private_data.operation_lookup[operation_id]
-    content_type = Conn.get_req_header(conn, "content-type")
-        |> Enum.at(0, "")
-        |> String.split(";")
-        |> Enum.at(0)
+
+    content_type =
+      Conn.get_req_header(conn, "content-type")
+      |> Enum.at(0, "")
+      |> String.split(";")
+      |> Enum.at(0)
+
     private_data = Map.put(private_data, :operation_id, operation_id)
     conn = Conn.put_private(conn, :open_api_spex, private_data)
 
-    case OpenApiSpex.cast(spec, operation, conn, content_type) do
-      {:ok, conn} -> conn
+    case apply(OpenApiSpex, :cast, [spec, operation, conn, content_type]) do
+      {:ok, conn} ->
+        conn
+
       {:error, reason} ->
         opts = render_error.init(reason)
 
@@ -74,19 +84,27 @@ defmodule OpenApiSpex.Plug.Cast do
         |> Plug.Conn.halt()
     end
   end
-  def call(conn = %{private: %{phoenix_controller: controller, phoenix_action: action, open_api_spex: _pd}}, opts) do
+
+  def call(
+        conn = %{
+          private: %{phoenix_controller: controller, phoenix_action: action, open_api_spex: _pd}
+        },
+        opts
+      ) do
     operation_id = controller.open_api_operation(action).operationId
-    if (operation_id) do
+
+    if operation_id do
       call(conn, Map.put(opts, :operation_id, operation_id))
     else
       raise "operationId was not found in action API spec"
     end
   end
+
   def call(_conn = %{private: %{open_api_spex: _pd}}, _opts) do
     raise ":operation_id was neither provided nor inferred from conn. Consider putting plug OpenApiSpex.Plug.Cast rather into your phoenix controller."
   end
+
   def call(_conn, _opts) do
     raise ":open_api_spex was not found under :private. Maybe OpenApiSpex.Plug.PutApiSpec was not called before?"
   end
-
 end

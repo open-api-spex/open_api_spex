@@ -36,6 +36,21 @@ defmodule OpenApiSpex do
     SchemaResolver.resolve_schema_modules(spec)
   end
 
+  @doc """
+  Cast and validate a value against a given Schema.
+  """
+  def cast_value(value, schema = %schema_mod{}) when schema_mod in [Schema, Reference] do
+    OpenApiSpex.Cast.cast(schema, value)
+  end
+
+  @doc """
+  Cast and validate a value against a given Schema belonging to a given OpenApi spec.
+  """
+  def cast_value(value, schema = %schema_mod{}, spec = %OpenApi{})
+      when schema_mod in [Schema, Reference] do
+    OpenApiSpex.Cast.cast(schema, value, spec.components.schemas)
+  end
+
   def cast_and_validate(
         spec = %OpenApi{},
         operation = %Operation{},
@@ -51,6 +66,7 @@ defmodule OpenApiSpex do
   See `OpenApiSpex.Schema.cast/3` for additional examples and details.
   """
   @spec cast(OpenApi.t(), Schema.t() | Reference.t(), any) :: {:ok, any} | {:error, String.t()}
+  @deprecated "Use OpenApiSpex.cast_value/3 or cast_value/2 instead"
   def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.cast(schema, params, spec.components.schemas)
   end
@@ -70,6 +86,7 @@ defmodule OpenApiSpex do
   @spec cast(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
           {:ok, Plug.Conn.t()} | {:error, String.t()}
         when content_type: String.t()
+  @deprecated "Use OpenApiSpex.cast_and_validate/3 instead"
   def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
     Operation.cast(operation, conn, content_type, spec.components.schemas)
   end
@@ -80,6 +97,7 @@ defmodule OpenApiSpex do
   See `OpenApiSpex.Schema.validate/3` for examples of error messages.
   """
   @spec validate(OpenApi.t(), Schema.t() | Reference.t(), any) :: :ok | {:error, String.t()}
+  @deprecated "Use OpenApiSpex.cast_value/3 or cast_value/2 instead"
   def validate(spec = %OpenApi{}, schema = %Schema{}, params) do
     Schema.validate(schema, params, spec.components.schemas)
   end
@@ -96,6 +114,7 @@ defmodule OpenApiSpex do
   @spec validate(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
           :ok | {:error, String.t()}
         when content_type: String.t()
+  @deprecated "Use OpenApiSpex.cast_and_validate/4 instead"
   def validate(
         spec = %OpenApi{},
         operation = %Operation{},
@@ -107,6 +126,10 @@ defmodule OpenApiSpex do
 
   def path_to_string(%Error{} = error) do
     Error.path_to_string(error)
+  end
+
+  def error_message(%Error{} = error) do
+    Error.message(error)
   end
 
   @doc """

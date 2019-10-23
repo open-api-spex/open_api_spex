@@ -2,7 +2,7 @@ defmodule OpenApiSpex.CastAllOfTest do
   use ExUnit.Case
   alias OpenApiSpex.{Cast, Schema}
   alias OpenApiSpex.Cast.{Error, AllOf}
-  alias OpenApiSpex.Test.Assertions2
+  alias OpenApiSpex.TestAssertions
 
   defp cast(ctx), do: AllOf.cast(struct(Cast, ctx))
 
@@ -30,7 +30,7 @@ defmodule OpenApiSpex.CastAllOfTest do
 
     test "a more sophisticated example" do
       dog = %{"bark" => "woof", "pet_type" => "Dog"}
-      Assertions2.assert_schema(dog, "Dog", OpenApiSpexTest.ApiSpec.spec())
+      TestAssertions.assert_schema(dog, "Dog", OpenApiSpexTest.ApiSpec.spec())
     end
 
     test "allOf, for inheritance schema" do
