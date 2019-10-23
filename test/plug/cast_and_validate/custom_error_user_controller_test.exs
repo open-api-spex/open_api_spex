@@ -6,7 +6,6 @@ defmodule OpenApiSpex.Plug.CastAndValidate.CustomErrorUserControllerTest do
       conn =
         :get
         |> Plug.Test.conn("/api/custom_error_users?validParam=true")
-        |> Plug.Test.conn("/api/custom_error_users?validParam=true")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200

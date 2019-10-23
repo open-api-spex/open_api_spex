@@ -79,11 +79,11 @@ defmodule OpenApiSpex.Plug.CastTest do
     test "Invalid Param" do
       conn =
         :get
-        |> Plug.Test.conn("/api/custom_error_users?validParam=123&inValidParam=123&inValid2=hi")
+        |> Plug.Test.conn("/api/custom_error_users?validParam=123")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 400
-      assert conn.resp_body == "Unexpected field: inValid2"
+      assert conn.resp_body == "Invalid boolean. Got: string"
     end
   end
 
