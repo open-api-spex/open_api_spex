@@ -15,7 +15,7 @@ defmodule OpenApiSpex.ObjectTest do
     end
 
     test "input map can have atom keys" do
-      schema = %Schema{type: :object}
+      schema = %Schema{type: :object, properties: %{one: %Schema{type: :string}}}
       assert {:ok, map} = cast(value: %{one: "one"}, schema: schema)
       assert map == %{one: "one"}
     end
@@ -41,7 +41,7 @@ defmodule OpenApiSpex.ObjectTest do
     end
 
     test "with empty schema properties, given unknown input property" do
-      schema = %Schema{type: :object, properties: %{}}
+      schema = %Schema{type: :object, properties: %{}, additionalProperties: false}
       assert cast(value: %{}, schema: schema) == {:ok, %{}}
       assert {:error, [error]} = cast(value: %{"unknown" => "hello"}, schema: schema)
       assert %Error{} = error
@@ -63,7 +63,8 @@ defmodule OpenApiSpex.ObjectTest do
     test "unexpected field" do
       schema = %Schema{
         type: :object,
-        properties: %{}
+        properties: %{},
+        additionalProperties: false
       }
 
       assert {:error, [error]} = cast(value: %{foo: "foo"}, schema: schema)
@@ -149,6 +150,26 @@ defmodule OpenApiSpex.ObjectTest do
       assert %Error{} = error
       assert error.reason == :invalid_type
       assert error.path == [:age]
+    end
+
+    test "allow unrecognized fields when additionalProperties is true" do
+      schema = %Schema{
+        type: :object,
+        properties: %{},
+        additionalProperties: true
+      }
+
+      assert cast(value: %{"foo" => "foo"}, schema: schema) == {:ok, %{"foo" => "foo"}}
+    end
+
+    test "allow unrecognized fields when additionalProperties is nil" do
+      schema = %Schema{
+        type: :object,
+        properties: %{},
+        additionalProperties: nil
+      }
+
+      assert cast(value: %{"foo" => "foo"}, schema: schema) == {:ok, %{"foo" => "foo"}}
     end
 
     defmodule User do

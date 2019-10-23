@@ -12,11 +12,13 @@ defmodule OpenApiSpex.Cast.Object do
   end
 
   def cast(%{value: value, schema: schema} = ctx) do
+    original_value = value
     schema_properties = schema.properties || %{}
 
     with :ok <- check_unrecognized_properties(ctx, schema_properties),
          value = cast_atom_keys(value, schema_properties),
          ctx = %{ctx | value: value},
+         ctx = cast_additional_properties(ctx, original_value),
          :ok <- check_required_fields(ctx, schema),
          :ok <- check_max_properties(ctx),
          :ok <- check_min_properties(ctx),
@@ -28,7 +30,8 @@ defmodule OpenApiSpex.Cast.Object do
   end
 
   # When additionalProperties is true, extra properties are allowed in input
-  defp check_unrecognized_properties(%{schema: %{additionalProperties: true}}, _expected_keys) do
+  defp check_unrecognized_properties(%{schema: %{additionalProperties: ap}}, _expected_keys)
+       when ap in [nil, true] do
     :ok
   end
 
@@ -110,6 +113,32 @@ defmodule OpenApiSpex.Cast.Object do
       _, error ->
         error
     end)
+  end
+
+  # Pass additional properties through when `additionalProperties` is true.
+  # Map string keys are not converted to atoms. That would require calling `String.to_atom/1`, which is not safe.
+  defp cast_additional_properties(%{schema: %{additionalProperties: ap}} = ctx, original_value)
+       when ap in [nil, true] do
+    recognized_keys = Map.keys(ctx.schema.properties || %{})
+    # Create MapSet with both atom and string versions of the property keys
+    recognized_keys = MapSet.new(recognized_keys ++ Enum.map(recognized_keys, &to_string/1))
+
+    additional_properties =
+      Enum.reduce(original_value, %{}, fn {key, value}, props ->
+        if MapSet.member?(recognized_keys, key) do
+          props
+        else
+          Map.put(props, key, value)
+        end
+      end)
+
+    updated_value = Map.merge(ctx.value, additional_properties)
+
+    %{ctx | value: updated_value}
+  end
+
+  defp cast_additional_properties(ctx, _original_value) do
+    ctx
   end
 
   defp cast_property(%{key: key, schema: schema_properties} = ctx, output) do
