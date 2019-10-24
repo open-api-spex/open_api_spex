@@ -1,0 +1,485 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "contact": {},
+    "description": "test description",
+    "license": {
+      "name": "test"
+    },
+    "title": "Duffel Technology Ltd.",
+    "version": "1.0.0"
+  },
+  "x-extension": {
+    "value": "haha"
+  },
+  "servers": [
+    {
+      "description": "Development server",
+      "url": "https://development.gigantic-server.com/v1",
+      "variables": {
+        "username": {
+          "default": "demo",
+          "description": "this value is assigned by the service provider, in this example `gigantic-server.com`"
+        }
+      }
+    }
+  ],
+  "components": {
+    "parameters": {
+      "ContentTypeHeader": {
+        "name": "content-type",
+        "in": "header",
+        "schema": {
+          "type": "string",
+          "example": "application/json"
+        },
+        "required": false
+      },
+      "AcceptEncodingHeader": {
+        "in": "header",
+        "allowEmptyValue": true,
+        "name": "accept-encoding",
+        "required": false,
+        "schema": {
+          "example": "gzip",
+          "type": "string"
+        }
+      }
+    },
+    "headers": {
+      "api-version": {
+        "description": "The version of the api to be used",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "beta"
+          ]
+        }
+      }
+    },
+    "callbacks": {
+      "componentCallback": {
+        "http://server-b.com?transactionId={$request.body#/id}": {
+          "post": {
+            "requestBody": {
+              "description": "callback payload",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "maxLength": 10,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": ""
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "api_key",
+        "in": "header"
+      },
+      "petstore_auth": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "http://example.org/api/oauth/dialog",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          },
+          "authorizationCode": {
+            "authorizationUrl": "https://example.com/api/oauth/dialog",
+            "tokenUrl": "https://example.com/api/oauth/token",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://example.com/api/oauth/token",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          },
+          "password": {
+            "tokenUrl": "https://example.com/api/oauth/token",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "User": {
+        "nullable": false,
+        "readOnly": false,
+        "writeOnly": false,
+        "deprecated": false,
+        "externalDocs": {
+          "description": "Find more info here",
+          "url": "https://example.com"
+        },
+        "example": {
+          "first_name": "Jane",
+          "id": 42,
+          "last_name": "Doe",
+          "phone_number": null
+        },
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "xml": {
+              "namespace": "http://example.com/schema/sample",
+              "prefix": "sample"
+            }
+          },
+          "id": {
+            "type": "integer"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "phone_number": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SpecialUser": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "admin": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "Admin": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "$ref": "#/components/schemas/SpecialUser"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "userType"
+        }
+      }
+    },
+    "links": {
+      "address": {
+        "operationId": "test",
+        "parameters": {
+          "ContentTypeHeader": {
+            "$ref": "#/components/parameters/ContentTypeHeader"
+          }
+        },
+        "requestBody": {
+          "description": "link payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "schema": {
+                  "maxLength": 10,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "server": {
+          "description": "Development server",
+          "url": "https://development.gigantic-server.com/v1"
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Entity not found.",
+        "headers": {
+          "X-Rate-Limit-Limit": {
+            "description": "The number of allowed requests in the current period",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "maxLength": 10,
+              "type": "string"
+            }
+          }
+        },
+        "links": {
+          "test": {
+            "operationId": "response-link-test"
+          }
+        }
+      }
+    },
+    "examples": {
+      "foo": {
+        "summary": "A foo example",
+        "value": "{\"foo\": \"bar\"}"
+      }
+    },
+    "requestBodies": {
+      "test": {
+        "description": "user to add to the system",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/User"
+            },
+            "examples": {
+              "user": {
+                "summary": "User Example",
+                "externalValue": "http://foo.bar/examples/user-example.json"
+              }
+            },
+            "encoding": {
+              "historyMetadata": {
+                "contentType": "application/xml; charset=utf-8",
+                "allowReserved": false,
+                "explode": false,
+                "style": "form",
+                "headers": {
+                  "X-Rate-Limit-Limit": {
+                    "description": "The number of allowed requests in the current period",
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": false
+      }
+    }
+  },
+  "paths": {
+    "/example": {
+      "summary": "/example summary",
+      "description": "/example description",
+      "post": {
+        "operationId": "example-post-test",
+        "callbacks": {
+          "operationCallback": {
+            "http://server-a.com?transactionId={$request.body#/id}": {
+              "post": {
+                "requestBody": {
+                  "description": "callback payload",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "maxLength": 10,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "test description"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContentTypeHeader"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptEncodingHeader"
+          },
+          {
+            "allowEmptyValue": false,
+            "deprecated": false,
+            "description": "My very own parameter",
+            "in": "query",
+            "name": "myParam",
+            "required": true,
+            "schema": {
+              "maxLength": 10,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "user": {
+                  "externalValue": "http://foo.bar/examples/user-example.json",
+                  "summary": "User Example"
+                }
+              },
+              "schema": {
+                "properties": {
+                  "data": {
+                    "properties": {
+                      "first_name": {
+                        "maxLength": 10,
+                        "type": "string"
+                      },
+                      "given_name": {
+                        "maxLength": 32,
+                        "type": "string"
+                      },
+                      "passengers": {
+                        "description": "The passengers who want to travel",
+                        "items": {
+                          "properties": {
+                            "id": {
+                              "description": "A custom identifier for the passenger, unique within this Offer Request. If not specified, Duffel will generate its own ID.",
+                              "example": "passenger_0",
+                              "type": "string"
+                            },
+                            "type": {
+                              "description": "The type of the passenger",
+                              "enum": [
+                                "adult",
+                                "child"
+                              ],
+                              "example": "adult",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "phone_number": {
+                        "$ref": "#/components/schemas/User/properties/phone_number"
+                      },
+                      "some_number": {
+                        "allOf": [
+                          {
+                            "maxLength": 10,
+                            "type": "string"
+                          },
+                          {
+                            "minLength": 2,
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "first_name",
+                      "given_name"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "data"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "first_name": "John",
+                  "id": 678,
+                  "last_name": "Doe",
+                  "phone_number": null
+                }
+              }
+            },
+            "description": "An example"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets"
+            ]
+          }
+        ],
+        "tags": [
+          "test"
+        ],
+        "summary": "/example post summary",
+        "description": "/example post description",
+        "externalDocs": {
+          "description": "Find more info here",
+          "url": "https://example.com"
+        }
+      },
+      "servers": [
+        {
+          "description": "Development server",
+          "url": "https://development.gigantic-server.com/v1",
+          "variables": {
+            "username": {
+              "default": "demo",
+              "description": "this value is assigned by the service provider, in this example `gigantic-server.com`"
+            }
+          }
+        }
+      ],
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ContentTypeHeader"
+        }
+      ]
+    }
+  },
+  "security": [
+    {
+      "petstore_auth": [
+        "write:pets",
+        "read:pets"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "pet",
+      "description": "Pets operations",
+      "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://example.com"
+      }
+    }
+  ],
+  "externalDocs": {
+    "description": "Find more info here",
+    "url": "https://example.com"
+  }
+}

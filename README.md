@@ -273,6 +273,36 @@ All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than
   end
 ```
 
+## Importing an existing schema file
+
+> :warning: This functionality currently converts Strings into Atoms, which makes it potentially [vulnerable to DoS attacks](https://til.hashrocket.com/posts/gkwwfy9xvw-converting-strings-to-atoms-safely). We recommend that you load Open API Schemas from *known files* during application startup and *not dynamically from external sources at runtime*.
+
+OpenApiSpex has functionality to import an existing schema, casting it into an %OpenApi{} struct. This means you can load a schema that is JSON or YAML encoded. See the example below:
+
+```elixir
+# Importing an existing JSON encoded schema
+open_api_spec_from_json = "encoded_schema.json"
+  |> File.read!()
+  |> Jason.decode!()
+  |> OpenApiSpex.OpenApi.Decode.decode()
+
+# Importing an existing YAML encoded schema
+open_api_spec_from_yaml = "encoded_schema.yaml"
+  |> YamlElixir.read_all_from_file!()
+  |> OpenApiSpex.OpenApi.Decode.decode()
+```
+
+You can then use the loaded spec to with `OpenApiSpex.cast_and_validate/4`, like:
+
+```elixir
+{:ok, _} = OpenApiSpex.cast_and_validate(
+  open_api_spec_from_json, # or open_api_spec_from_yaml
+  spec.paths["/some_path"].post,
+  test_conn,
+  "application/json"
+)
+```
+
 ## Validating and Casting Params
 
 OpenApiSpex can automatically validate requests before they reach the controller action function. Or if you prefer,

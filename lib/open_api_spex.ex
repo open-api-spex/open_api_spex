@@ -195,6 +195,25 @@ defmodule OpenApiSpex do
   end
 
   @doc """
+  Creates an `%OpenApi{}` struct from a map.
+
+  This is useful when importing existing JSON or YAML encoded schemas.
+
+  ## Example
+      # Importing an existing JSON encoded schema
+      open_api_spec_from_json = "encoded_schema.json"
+        |> File.read!()
+        |> Jason.decode!()
+        |> OpenApiSpex.OpenApi.Decode.decode()
+
+      # Importing an existing YAML encoded schema
+      open_api_spec_from_yaml = "encoded_schema.yaml"
+        |> YamlElixir.read_all_from_file!()
+        |> OpenApiSpex.OpenApi.Decode.decode()
+  """
+  def schema_from_map(map), do: OpenApiSpex.OpenApi.from_map(map)
+
+  @doc """
   Validate the compiled schema's properties to ensure the schema is not improperly
   defined. Only errors which would cause a given schema to _always_ fail should be
   raised here.
