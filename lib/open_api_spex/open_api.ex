@@ -146,4 +146,8 @@ defmodule OpenApiSpex.OpenApi do
       end
     end
   end
+
+  def from_map(map) do
+    OpenApi.Decode.decode(map)
+  end
 end
