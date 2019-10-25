@@ -29,7 +29,9 @@ defmodule OpenApiSpexTest.ApiSpec do
                 Schemas.Cat,
                 Schemas.Dog,
                 Schemas.CatOrDog,
-                Schemas.Size
+                Schemas.Size,
+                Schemas.Array,
+                Schemas.Primitive
               ],
               into: %{} do
             schema = schemaMod.schema()
