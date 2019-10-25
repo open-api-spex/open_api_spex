@@ -225,7 +225,7 @@ defmodule OpenApiSpex do
   end
 
   def validate_compiled_schema({_, %Schema{} = schema}, _parent) do
-    validate_compiled_schema(schema)
+    validate_compiled_schema(Map.from_struct(schema))
   end
 
   @doc """

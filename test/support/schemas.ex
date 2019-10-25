@@ -284,4 +284,15 @@ defmodule OpenApiSpexTest.Schemas do
       oneOf: [Cat, Dog]
     })
   end
+
+  defmodule PrimitiveArray do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "PrimitiveArray",
+      type: :array,
+      items: %Schema{type: "string"},
+      example: ["Foo"]
+    })
+  end
 end
