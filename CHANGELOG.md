@@ -1,3 +1,118 @@
+# 3.5.0
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+* [surik](https://github.com/surik)
+* [fmcgeough](https://github.com/fmcgeough)
+* [zero778](https://github.com/zero778)
+* [vovayartsev](https://github.com/vovayartsev)
+* [superhawk610](https://github.com/superhawk610)
+* [jung-hunsoo](https://github.com/jung-hunsoo)
+* [supermaciz](https://github.com/supermaciz)
+* [Geekfish](https://github.com/Geekfish)
+* [mrmstn](https://github.com/mrmstn)
+* [waltfy](https://github.com/waltfy)
+* [ggpasqualino](https://github.com/ggpasqualino)
+* [hauleth](https://github.com/hauleth)
+
+- Feature: Ability to import Open API documents instead of defining them in Elixir (#152)
+- Feature: Add `display_operation_id` option to SwaggerUI (#138)
+- Feature: Schema validation: schema type required when `properties` is present (#146)
+- Feature: Improve reporting of test assertion failures (#150)
+- Feature: Support for `min_properties` validation for Object properties (#131)
+- Feature: Support property defaults in new Cast & Validate API (#145)
+- Feature: Support for casting file uploads (#133)
+- Feature: Support "$ref" in operation's parameters (#137)
+- Feature: Experimental ExDoc-based endpoint API specifications (#162)
+- Deprecation: Deprecate old cast and validation API (#153)
+- Deprecation: Set minimum supported Elixir version to 1.7, maximum 1.9 (#130)
+- Fix: Prevent example properties with nil values from being stripped out during JSON encoding (#142)
+- Fix: casting/validating of oneOf, anyOf (#148)
+- Fix: Pass additional properties through when allowed via `additionalProperties` (#155)
+- Fix: for `allOf` definitions for multi-typed `allOf` array and complex structs with inheritance (#156)
+- Fix: Allow a root-level property of compiled schema to be a schema (#158)
+- Docs: Fix bugs and improve wording in README (#126)
+- Docs: update phoenix guide and samples (#129)
+- Docs: README instructions for separating API operation from controller (#140)
+
+The original cast & validation API has been deprecated and replaced with an API that was introduced in 3.2.0.
+Using the old API will now result in compiler and runtime warnings.
+
+Old API:
+```elixir
+defmodule PhoenixAppWeb.UserController do
+  use PhoenixAppWeb, :controller
+  plug OpenApiSpex.Plug.Cast
+  plug OpenApiSpex.Plug.Validate
+end
+```
+
+Will result in:
+```
+warning: OpenApiSpex.Plug.Cast.call/2 is deprecated. Use OpenApiSpex.Plug.CastAndValidate instead
+  test/support/user_controller.ex:1
+
+warning: OpenApiSpex.Plug.Validate.call/2 is deprecated. Use OpenApiSpex.Plug.CastAndValidate.call/2 instead
+  test/support/user_controller.ex:1
+```
+
+New API
+```elixir
+defmodule PhoenixAppWeb.UserController do
+  use PhoenixAppWeb, :controller
+  plug OpenApiSpex.Plug.CastAndValidate
+end
+```
+
+Note that this changes the default error response. Before, it was a single, plain-text error message.
+Now, it's a list of error maps, containing more error information.
+
+Old API:
+```elixir
+defmodule MyAppWeb.MyControllerTest do
+  use MyApp.ConnCase
+  # Old module
+  import OpenApiSpex.Test.Assertions
+
+  ## The test themselves don't need to change
+
+  test "UserController produces a UsersResponse", %{conn: conn} do
+    api_spec = MyApp.ApiSpec.spec()
+    json =
+      conn
+      |> get(user_path(conn, :index))
+      |> json_response(200)
+
+    assert_schema(json, "UsersResponse", api_spec)
+  end
+
+  test "something" do
+    api_spec = MyApp.ApiSpec.spec()
+    schema = MyApp.Schemas.UsersResponse.schema()
+    assert_schema(schema.example, "UsersResponse", api_spec)
+  end
+end
+```
+
+Will produce:
+```
+warning: OpenApiSpex.Test.Assertions.assert_schema/3 is deprecated. Use OpenApiSpex.TestAssertions.assert_schema/3 instead
+  test/my_controller_test.exs:21
+```
+
+New API:
+```elixir
+defmodule MyAppWeb.MyControllerTest do
+  use MyApp.ConnCase
+  # New module
+  import OpenApiSpex.TestAssertions
+
+  # The test themselves don't need to change,
+  # but the new assertion is more discerning,
+  # so it may find problems that the old API didn't.
+end
+```
+
 # 3.4.0
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
