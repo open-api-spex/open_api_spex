@@ -44,13 +44,12 @@ defmodule OpenApiSpex.Cast.Discriminator do
       {"", _} ->
         error(:no_value_for_discriminator, ctx)
 
-      {discriminator_value, castable_value} ->
+      {discriminator_value, _castable_value} ->
         # The cast specified by the composite key (allOf, anyOf, oneOf) MUST succeed
         # or return an error according to the Open API Spec.
         composite_ctx = %{
           ctx
-          | value: castable_value,
-            schema: %{schema | discriminator: nil},
+          | schema: %{schema | discriminator: nil},
             path: ["#{discriminator_property}" | ctx.path]
         }
 

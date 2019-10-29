@@ -31,25 +31,30 @@ defmodule OpenApiSpex.Cast.AllOf do
   end
 
   defp cast_all_of(%{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx, acc) do
-    schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
-    relaxed_schema = %{schema | additionalProperties: true}
+    relaxed_schema = %{schema | additionalProperties: true, "x-struct": nil}
     new_ctx = put_in(ctx.schema.allOf, remaining)
 
     case Cast.cast(%{ctx | schema: relaxed_schema}) do
       {:ok, value} when is_map(value) ->
-        cast_all_of(new_ctx, Map.merge(acc || %{}, value))
+        # Complex allOf Schema
 
-      {:ok, value} when acc == nil ->
-        # primitive value with no previous (valid) casts -> return
-        {:ok, value}
+        # reject all "additionalProperties"
+        acc =
+          value
+          |> Enum.reject(fn {k, _} -> is_binary(k) end)
+          |> Enum.concat(acc || %{})
+          |> Map.new()
 
-      {:error, _} when remaining == [] ->
-        # Since no schema is left to parse the remaining values, we return a error
-        Cast.error(ctx, {:all_of, to_string(relaxed_schema.title || relaxed_schema.type)})
+        cast_all_of(new_ctx, acc)
+
+      {:ok, value} ->
+        # allOf definitions with primitives are a little bit strange..., we just return the cast for the first Schema,
+        # but validate the values against every other schema as well, since the value must be compatible with all Schemas
+        cast_all_of(new_ctx, acc || value)
 
       {:error, _} ->
-        # in case the cast results in a error, we just skip this schema
-        cast_all_of(new_ctx, acc)
+        # Since in a allOf Schema, every
+        Cast.error(ctx, {:all_of, to_string(relaxed_schema.title || relaxed_schema.type)})
     end
   end
 
@@ -61,6 +66,9 @@ defmodule OpenApiSpex.Cast.AllOf do
   defp cast_all_of(%{schema: schema} = ctx, nil) do
     Cast.error(ctx, {:all_of, to_string(schema.title || schema.type)})
   end
+
+  defp cast_all_of(%{schema: %{allOf: [], "x-struct": module}}, acc) when not is_nil(module),
+    do: struct(module, acc)
 
   defp cast_all_of(%{schema: %{allOf: []}}, acc) do
     # All values have been casted against the allOf schemas - return accumulator

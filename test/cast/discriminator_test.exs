@@ -48,18 +48,21 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
   setup do
     dog_schema =
       build_schema("Dog", %{
+        animal_type: %Schema{type: :string},
         breed: %Schema{type: :string},
         age: %Schema{type: :integer}
       })
 
     wolf_schema =
       build_schema("Wolf", %{
+        animal_type: %Schema{type: :string},
         breed: %Schema{type: :string, minLength: 5},
         age: %Schema{type: :integer}
       })
 
     cat_schema =
       build_schema("Cat", %{
+        animal_type: %Schema{type: :string},
         breed: %Schema{type: :string},
         lives: %Schema{type: :integer}
       })
@@ -77,7 +80,7 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
         build_discriminator_schema([dog, wolf], :anyOf, String.to_atom(@discriminator), nil)
 
       # Note: We're expecting to getting atoms back, not strings
-      expected = {:ok, %{age: 1, breed: "Pug"}}
+      expected = {:ok, %{age: 1, breed: "Pug", animal_type: "Dog"}}
 
       assert cast(value: input_value, schema: discriminator_schema) == expected
     end
@@ -91,7 +94,7 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
         build_discriminator_schema([dog, wolf], :allOf, String.to_atom(@discriminator), nil)
 
       # Note: We're expecting to getting atoms back, not strings
-      expected = {:ok, %{age: 1, breed: "Corgi"}}
+      expected = {:ok, %{age: 1, breed: "Corgi", animal_type: "Dog"}}
 
       assert cast(value: input_value, schema: discriminator_schema) == expected
     end
@@ -105,7 +108,7 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
         build_discriminator_schema([dog, wolf], :oneOf, String.to_atom(@discriminator), nil)
 
       # Note: We're expecting to getting atoms back, not strings
-      expected = {:ok, %{age: 1, breed: "Pug"}}
+      expected = {:ok, %{age: 1, breed: "Pug", animal_type: "Dog"}}
 
       assert cast(value: input_value, schema: discriminator_schema) == expected
     end
@@ -122,7 +125,7 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
         build_discriminator_schema([dog, cat], :anyOf, String.to_atom(@discriminator), mapping)
 
       # Note: We're expecting to getting atoms back, not strings
-      expected = {:ok, %{age: 1, breed: "Corgi"}}
+      expected = {:ok, %{age: 1, breed: "Corgi", animal_type: "dag"}}
 
       assert cast(value: input_value, schema: discriminator_schema) == expected
     end
@@ -188,7 +191,7 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
       }
 
       # Note: We're expecting to getting atoms back, not strings
-      expected = {:ok, %{data: %{age: 1, breed: "Corgi"}}}
+      expected = {:ok, %{data: %{age: 1, breed: "Corgi", animal_type: "Dog"}}}
 
       assert expected == cast_cast(value: input_value, schema: discriminator_schema)
     end

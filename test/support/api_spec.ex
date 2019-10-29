@@ -26,6 +26,7 @@ defmodule OpenApiSpexTest.ApiSpec do
         schemas:
           for schemaMod <- [
                 Schemas.Pet,
+                Schemas.PetType,
                 Schemas.Cat,
                 Schemas.Dog,
                 Schemas.CatOrDog,

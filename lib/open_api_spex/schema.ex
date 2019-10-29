@@ -366,7 +366,7 @@ defmodule OpenApiSpex.Schema do
            cast(%Schema{type: :object, properties: schema.properties}, value, schemas),
          {:ok, derived_schema} <- Discriminator.resolve(discriminator, value, schemas),
          {:ok, result} <- cast(derived_schema, partial_cast, schemas),
-         {:ok, struct} <- make_struct(result, schema) do
+         {:ok, struct} <- make_struct(result, derived_schema) do
       {:ok, struct}
     else
       {:error, :already_cast} -> {:ok, value}
@@ -374,28 +374,17 @@ defmodule OpenApiSpex.Schema do
     end
   end
 
-  def cast(schema = %Schema{type: :object, allOf: [first | rest]}, value = %{}, schemas) do
-    with {:ok, cast_first} <- cast(first, value, schemas),
-         {:ok, result} <- cast(%{schema | allOf: rest}, cast_first, schemas) do
-      {:ok, result}
-    else
-      {:error, reason} -> {:error, reason}
-    end
-  end
+  def cast(schema = %Schema{type: :object, allOf: all_of}, value = %{}, schemas)
+      when is_list(all_of),
+      do: OpenApiSpex.Cast.cast(schema, value, schemas)
 
   def cast(schema = %Schema{type: :object, allOf: []}, value = %{}, schemas) do
     cast(%{schema | allOf: nil}, value, schemas)
   end
 
-  def cast(schema = %Schema{oneOf: [first | rest]}, value, schemas) do
-    case cast(first, value, schemas) do
-      {:ok, result} ->
-        {:ok, result}
-
-      {:error, _reason} ->
-        cast(%{schema | oneOf: rest}, value, schemas)
-    end
-  end
+  def cast(schema = %Schema{oneOf: one_of}, value, schemas)
+                                                 when is_list(one_of),
+    do: OpenApiSpex.Cast.cast(schema, value, schemas)
 
   def cast(%Schema{oneOf: []}, _value, _schemas) do
     {:error, "Failed to cast to any schema in oneOf"}

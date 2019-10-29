@@ -156,4 +156,68 @@ defmodule OpenApiSpex.Plug.CastTest do
                }
     end
   end
+
+  describe "oneOf body params" do
+    @tag :mr_wip3
+    test "Valid Request" do
+      request_body = %{
+        "pet" => %{
+          "pet_type" => "Dog",
+          "bark" => "woof"
+        }
+      }
+
+      conn =
+        :post
+        |> Plug.Test.conn("/api/pets", Jason.encode!(request_body))
+        |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.body_params == %OpenApiSpexTest.Schemas.PetRequest{
+               pet: %OpenApiSpexTest.Schemas.Dog{
+                 pet_type: "Dog",
+                 bark: "woof"
+               }
+             }
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "data" => %{
+                 "pet_type" => "Dog",
+                 "bark" => "woof"
+               }
+             }
+    end
+
+    @tag :capture_log
+    test "Invalid Request" do
+      request_body = %{
+        "pet" => %{
+          "pet_type" => "Human",
+          "says" => "yes"
+        }
+      }
+
+      conn =
+        :post
+        |> Plug.Test.conn("/api/pets", Jason.encode!(request_body))
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+
+      conn = OpenApiSpexTest.Router.call(conn, [])
+      assert conn.status == 422
+
+      resp_body = Jason.decode!(conn.resp_body)
+
+      assert resp_body == %{
+               "errors" => [
+                 %{
+                   "source" => %{
+                     "pointer" => "/pet"
+                   },
+                   "title" => "Invalid value",
+                   "message" => "Failed to cast value to one of: [] (no schemas provided)"
+                 }
+               ]
+             }
+    end
+  end
 end
