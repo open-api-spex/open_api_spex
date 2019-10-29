@@ -382,3 +382,48 @@ test "UserController produces a UsersResponse", %{conn: conn} do
   assert_schema(json, "UsersResponse", api_spec)
 end
 ```
+
+## Experimental ExDoc-Based API Specifications
+
+Starting with version 3.5.0, a new, experimental API is available to specify endpoints from the controller,
+using ExDoc tags. See the example below.
+
+Because this feature is experimental, it is likely to change in the future, until it becomes stable. Use
+at your own risk.
+
+```elixir
+defmodule MyAppWeb.UserController do
+  use MyAppWeb, :controller
+
+  @doc """
+  List users
+  """
+  @doc responses: [
+    ok: {
+       {"Users", "application/json", MyAppWeb.Schema.Users}
+    }
+  ]
+  def index(conn, _params) do
+    {:ok, users} = MyApp.Users.all()
+
+    json(conn, users)
+  end
+
+  @doc """
+  Update user
+  """
+  @doc parameters: [
+    id: [in: :query, type: :string, required: true, description: "User ID"]
+  ]
+  @doc responses: [
+    ok: {
+      {"User", "application/json", MyAppWeb.Schema.User}
+    }
+  ]
+  def update(conn, %{id: id}) do
+    with {:ok, user} <- MyApp.Users.update(conn.body_params) do
+      json(conn, user)
+    end
+  end
+end
+```
