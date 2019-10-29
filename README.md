@@ -424,15 +424,14 @@ at your own risk.
 ```elixir
 defmodule MyAppWeb.UserController do
   use MyAppWeb, :controller
+  use OpenApiSpex.Controller
 
   @doc """
   List users
   """
-  @doc responses: [
-    ok: {
-       {"Users", "application/json", MyAppWeb.Schema.Users}
-    }
-  ]
+  @doc responses: %{
+    200 => {"Users", "application/json", MyAppWeb.Schema.Users}
+  }
   def index(conn, _params) do
     {:ok, users} = MyApp.Users.all()
 
@@ -445,11 +444,9 @@ defmodule MyAppWeb.UserController do
   @doc parameters: [
     id: [in: :query, type: :string, required: true, description: "User ID"]
   ]
-  @doc responses: [
-    ok: {
-      {"User", "application/json", MyAppWeb.Schema.User}
-    }
-  ]
+  @doc responses: %{
+    200 => {"User", "application/json", MyAppWeb.Schema.User}
+  }
   def update(conn, %{id: id}) do
     with {:ok, user} <- MyApp.Users.update(conn.body_params) do
       json(conn, user)
