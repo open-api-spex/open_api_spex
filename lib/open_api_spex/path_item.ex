@@ -4,6 +4,7 @@ defmodule OpenApiSpex.PathItem do
   """
 
   alias OpenApiSpex.{Operation, Server, Parameter, PathItem, Reference}
+
   defstruct [
     :"$ref",
     :summary,
@@ -29,28 +30,28 @@ defmodule OpenApiSpex.PathItem do
   but they will not know which operations and parameters are available.
   """
   @type t :: %__MODULE__{
-    "$ref": String.t | nil,
-    summary: String.t | nil,
-    description: String.t | nil,
-    get: Operation.t | nil,
-    put: Operation.t | nil,
-    post: Operation.t | nil,
-    delete: Operation.t | nil,
-    options: Operation.t | nil,
-    head: Operation.t | nil,
-    patch: Operation.t | nil,
-    trace: Operation.t | nil,
-    servers: [Server.t] | nil,
-    parameters: [Parameter.t | Reference.t] | nil
-  }
+          "$ref": String.t() | nil,
+          summary: String.t() | nil,
+          description: String.t() | nil,
+          get: Operation.t() | nil,
+          put: Operation.t() | nil,
+          post: Operation.t() | nil,
+          delete: Operation.t() | nil,
+          options: Operation.t() | nil,
+          head: Operation.t() | nil,
+          patch: Operation.t() | nil,
+          trace: Operation.t() | nil,
+          servers: [Server.t()] | nil,
+          parameters: [Parameter.t() | Reference.t()] | nil
+        }
 
   @typedoc """
   Represents a route from in a Plug/Phoenix application.
   Eg from the generated `__routes__` function in a Phoenix.Router module.
   """
   @type route ::
-    %{verb: atom, plug: atom, opts: any} |
-    %{verb: atom, plug: atom, plug_opts: any}
+          %{verb: atom, plug: atom, opts: any}
+          | %{verb: atom, plug: atom, plug_opts: any}
 
   @doc """
   Builds a PathItem struct from a list of routes that share a path.
@@ -68,7 +69,18 @@ defmodule OpenApiSpex.PathItem do
 
   @spec from_valid_routes([route]) :: nil | t
   defp from_valid_routes([]), do: nil
+
   defp from_valid_routes(routes) do
-    struct(PathItem, Enum.map(routes, &{&1.verb, Operation.from_route(&1)}))
+    attrs =
+      routes
+      |> Enum.map(fn route ->
+        case Operation.from_route(route) do
+          nil -> nil
+          op -> {route.verb, op}
+        end
+      end)
+      |> Enum.filter(& &1)
+
+    struct(PathItem, attrs)
   end
 end
