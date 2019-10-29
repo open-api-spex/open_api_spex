@@ -3,9 +3,9 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
 
 
-Leverage Open Api Specification 3 (swagger) to document, test, validate and explore your Plug and Phoenix APIs.
+Leverage Open API Specification 3 (formerly Swagger) to document, test, validate and explore your Plug and Phoenix APIs.
 
- - Generate and serve a JSON Open Api Spec document from your code
+ - Generate and serve a JSON Open API Spec document from your code
  - Use the spec to cast request params to well defined schema structs
  - Validate params against schemas, eliminate bad requests before they hit your controllers
  - Validate responses against schemas in tests, ensuring your docs are accurate and reliable
@@ -20,7 +20,7 @@ The package can be installed by adding `open_api_spex` to your list of dependenc
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.4"}
+    {:open_api_spex, "~> 3.5"}
   ]
 end
 ```
