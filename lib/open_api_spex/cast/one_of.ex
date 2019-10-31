@@ -19,6 +19,7 @@ defmodule OpenApiSpex.Cast.OneOf do
       end)
 
     case castable_schemas do
+      {[{:ok, %_{} = value, _}], 1} -> {:ok, value}
       {[{:ok, value, %Schema{"x-struct": nil}}], 1} -> {:ok, value}
       {[{:ok, value, %Schema{"x-struct": module}}], 1} -> {:ok, struct(module, value)}
       {failed_schemas, _count} -> error(ctx, failed_schemas)

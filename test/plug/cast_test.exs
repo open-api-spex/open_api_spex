@@ -158,7 +158,6 @@ defmodule OpenApiSpex.Plug.CastTest do
   end
 
   describe "oneOf body params" do
-    @tag :mr_wip3
     test "Valid Request" do
       request_body = %{
         "pet" => %{
