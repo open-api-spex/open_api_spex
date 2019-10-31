@@ -46,8 +46,8 @@ defmodule OpenApiSpex.Controller do
 
   Controlled by `:requestBody` parameter and is defined as a tuple in form
   `{description, mime, schema}` or `{description, mime, schema, opts} that
-  match the arguments of `OpenApiSpex.Operation.request_body/3` or
-  `OpenApiSpex.Operation.request_body/4`.
+  matches the arguments of `OpenApiSpex.Operation.request_body/3` or
+  `OpenApiSpex.Operation.request_body/4`, respectively.
 
   ```
   @doc requestBody: {
