@@ -10,6 +10,9 @@ defmodule OpenApiSpex.CastAllOfTest do
     test "allOf" do
       schema = %Schema{allOf: [%Schema{type: :integer}, %Schema{type: :string}]}
       assert {:ok, 1} = cast(value: "1", schema: schema)
+      assert {:error, [error]} = cast(value: "one", schema: schema)
+      assert Error.message(error) ==
+               "Failed to cast value as integer. Value must be castable using `allOf` schemas listed."
     end
 
     test "allOf, uncastable schema" do
@@ -17,7 +20,7 @@ defmodule OpenApiSpex.CastAllOfTest do
       assert {:error, [error]} = cast(value: [:whoops], schema: schema)
 
       assert Error.message(error) ==
-               "Failed to cast value as string. Value must be castable using `allOf` schemas listed."
+               "Failed to cast value as integer. Value must be castable using `allOf` schemas listed."
 
       schema_with_title = %Schema{allOf: [%Schema{title: "Age", type: :integer}]}
 

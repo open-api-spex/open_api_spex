@@ -25,8 +25,7 @@ defmodule OpenApiSpex.Plug.JsonRenderError do
   end
 
   defp render_error(error) do
-    path = error.path |> Enum.map(&to_string/1) |> Path.join()
-    pointer = "/" <> path
+    pointer = OpenApiSpex.path_to_string(error)
 
     %{
       title: "Invalid value",

@@ -117,9 +117,12 @@ defmodule OpenApiSpex.SchemaTest do
         ]
       }
 
+      # The following object is valid against both schemas, so it will result in an error
+      # – it should be valid against only one of the schemas, since we are using the oneOf keyword.
+      # @see https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#oneof
       result = Schema.cast(schema, "123", %{})
 
-      assert {:ok, 123.0} = result
+      assert {:error, _} = result
     end
 
     test "Cast integer to float" do

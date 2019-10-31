@@ -1,6 +1,33 @@
 defmodule OpenApiSpexTest.Schemas do
   require OpenApiSpex
+  alias OpenApiSpex.Reference
   alias OpenApiSpex.Schema
+
+  defmodule Helper do
+    def prepare_struct([%Reference{"$ref": "#/components/schemas/" <> name} | tail]) do
+      schema =
+        apply(String.to_existing_atom("Elixir.OpenApiSpexTest.Schemas." <> name), :schema, [])
+
+      prepare_struct([schema | tail])
+    end
+
+    def prepare_struct([%Schema{properties: props} | tail]) when is_map(props) do
+      keys = Map.keys(props)
+      keys ++ prepare_struct(tail)
+    end
+
+    def prepare_struct([%Schema{allOf: allOf} | tail]) when is_list(allOf) do
+      prepare_struct(allOf ++ tail)
+    end
+
+    def prepare_struct([module_name | tail]) when is_atom(module_name) do
+      prepare_struct([module_name.schema() | tail])
+    end
+
+    def prepare_struct([]) do
+      []
+    end
+  end
 
   defmodule Size do
     OpenApiSpex.schema(%{
@@ -199,51 +226,31 @@ defmodule OpenApiSpexTest.Schemas do
     })
   end
 
-  defmodule Pet do
+  defmodule PetType do
     require OpenApiSpex
 
-    alias OpenApiSpex.{Schema, Discriminator}
-
-    pet_schemas = [
-      %Schema{
-        title: "Dog",
-        type: :object,
-        properties: %{
-          bark: %Schema{type: :string}
-        }
-      },
-      %Schema{
-        title: "Cat",
-        properties: %{
-          meow: %Schema{type: :string}
-        }
-      }
-    ]
-
     OpenApiSpex.schema(%{
-      title: "Pet",
+      title: "PetType",
       type: :object,
-      properties: %{
-        pet_type: %Schema{type: :string}
-      },
       required: [:pet_type],
-      anyOf: pet_schemas,
-      discriminator: %Discriminator{
-        propertyName: "pet_type"
+      properties: %{
+        pet_type: %Schema{
+          type: :string
+        }
       }
     })
   end
 
   defmodule Cat do
-    require OpenApiSpex
-
     alias OpenApiSpex.Schema
 
-    OpenApiSpex.schema(%{
+    @behaviour OpenApiSpex.Schema
+    @derive [Jason.Encoder]
+    @schema %Schema{
       title: "Cat",
       type: :object,
       allOf: [
-        Pet,
+        PetType,
         %Schema{
           type: :object,
           properties: %{
@@ -251,20 +258,24 @@ defmodule OpenApiSpexTest.Schemas do
           },
           required: [:meow]
         }
-      ]
-    })
+      ],
+      "x-struct": __MODULE__
+    }
+
+    def schema, do: @schema
+    defstruct OpenApiSpexTest.Schemas.Helper.prepare_struct(@schema.allOf)
   end
 
   defmodule Dog do
-    require OpenApiSpex
-
     alias OpenApiSpex.Schema
 
-    OpenApiSpex.schema(%{
+    @behaviour OpenApiSpex.Schema
+    @derive [Jason.Encoder]
+    @schema %Schema{
       title: "Dog",
       type: :object,
       allOf: [
-        Pet,
+        PetType,
         %Schema{
           type: :object,
           properties: %{
@@ -272,8 +283,12 @@ defmodule OpenApiSpexTest.Schemas do
           },
           required: [:bark]
         }
-      ]
-    })
+      ],
+      "x-struct": __MODULE__
+    }
+
+    def schema, do: @schema
+    defstruct OpenApiSpexTest.Schemas.Helper.prepare_struct(@schema.allOf)
   end
 
   defmodule CatOrDog do
@@ -293,6 +308,81 @@ defmodule OpenApiSpexTest.Schemas do
       type: :array,
       items: %Schema{type: "string"},
       example: ["Foo"]
+    })
+  end
+
+  defmodule PetResponse do
+    OpenApiSpex.schema(%{
+      title: "PetResponse",
+      description: "Response schema for single pet",
+      type: :object,
+      properties: %{
+        data: OpenApiSpexTest.Schemas.CatOrDog
+      },
+      example: %{
+        "data" => %{
+          "pet_type" => "Dog",
+          "bark" => "woof"
+        }
+      }
+    })
+  end
+
+  defmodule Pet do
+    require OpenApiSpex
+    alias OpenApiSpex.{Schema, Discriminator}
+
+    OpenApiSpex.schema(%{
+      title: "Pet",
+      type: :object,
+      oneOf: [Cat, Dog],
+      discriminator: %Discriminator{
+        propertyName: "pet_type"
+      }
+    })
+  end
+
+  defmodule PetsResponse do
+    OpenApiSpex.schema(%{
+      title: "PetsResponse",
+      description: "Response schema for multiple pets",
+      type: :object,
+      properties: %{
+        data: %Schema{
+          description: "The pets details",
+          type: :array,
+          items: OpenApiSpexTest.Schemas.CatOrDog
+        }
+      },
+      example: %{
+        "data" => [
+          %{
+            "pet_type" => "Dog",
+            "bark" => "woof"
+          },
+          %{
+            "pet_type" => "Cat",
+            "meow" => "meow"
+          }
+        ]
+      }
+    })
+  end
+
+  defmodule PetRequest do
+    OpenApiSpex.schema(%{
+      title: "PetRequest",
+      description: "POST body for creating a pet",
+      type: :object,
+      properties: %{
+        pet: CatOrDog
+      },
+      example: %{
+        "pet" => %{
+          "pet_type" => "Dog",
+          "bark" => "woof"
+        }
+      }
     })
   end
 end
