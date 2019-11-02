@@ -29,9 +29,32 @@ defmodule OpenApiSpex.CastOneOfTest do
       assert Error.message(error) == "Failed to cast value to one of: [] (no schemas provided)"
     end
 
-    test "a more sophisticated case" do
+    test "objects, using discriminator" do
       dog = %{"bark" => "woof", "pet_type" => "Dog"}
       TestAssertions.assert_schema(dog, "CatOrDog", OpenApiSpexTest.ApiSpec.spec())
+    end
+  end
+
+  describe "oneOf multiple objects" do
+    alias OpenApiSpexTest.{OneOfSchemas, OneOfSchemas.Dog}
+    @api_spec OneOfSchemas.spec()
+    @cat_or_dog_schema @api_spec.components.schemas["CatOrDog"]
+
+    test "matches perfectly with one schema" do
+      input = %{"bark" => true, "breed" => "Dingo"}
+
+      assert {:ok, %Dog{bark: true, breed: "Dingo"}} =
+               OpenApiSpex.cast_value(input, @cat_or_dog_schema, @api_spec)
+    end
+
+    test "should be invalid (not valid against both schemas)" do
+      input = %{"bark" => true, "meow" => true}
+      assert {:error, _} = OpenApiSpex.cast_value(input, @cat_or_dog_schema, @api_spec)
+    end
+
+    test "should be invalid (valid against both)" do
+      input = %{"bark" => true, "meow" => true, "breed" => "Husky", "age" => 3}
+      assert {:error, _} = OpenApiSpex.cast_value(input, @cat_or_dog_schema, @api_spec)
     end
   end
 end

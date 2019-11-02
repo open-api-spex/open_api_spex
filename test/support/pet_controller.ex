@@ -29,7 +29,7 @@ defmodule OpenApiSpexTest.PetController do
     }
   end
 
-  def show(conn, %{id: id}) do
+  def show(conn, %{id: _id}) do
     json(conn, %Schemas.PetResponse{
       data: %Schemas.Dog{
         pet_type: "Dog",
