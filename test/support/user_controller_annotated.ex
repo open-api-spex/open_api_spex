@@ -1,19 +1,20 @@
 defmodule OpenApiSpexTest.UserControllerAnnotated do
   use OpenApiSpex.Controller
+  alias OpenApiSpexTest.Schemas.User
 
-  @moduledoc tags: ["Foo"]
+  @moduledoc tags: ["User"]
 
   @doc """
-  Endpoint summary
+  Update a user
 
-  More docs
+  Full description for this endpoint...
   """
   @doc parameters: [
-    id: [in: :path, type: :string, required: true]
-  ]
+         id: [in: :path, type: :string, required: true]
+       ]
+  @doc request_body: {"Request body to update a User", "application/json", User, required: true}
   @doc responses: [
-    ok: {"Foo document", "application/json", FooSchema}
-  ]
-  def show, do: :ok
+         ok: {"User response", "application/json", User}
+       ]
+  def update(_conn, _params), do: :ok
 end
-
