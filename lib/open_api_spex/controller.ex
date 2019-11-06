@@ -42,7 +42,7 @@ defmodule OpenApiSpex.Controller do
 
   Where atoms are the same as `Plug.Conn.Status.code/1` values.
 
-  ### `request_body`
+  ### `requestBody`
 
   Controlled by `:request_body` parameter and is defined as a tuple in form
   `{description, mime, schema}` or `{description, mime, schema, opts} that
