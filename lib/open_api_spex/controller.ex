@@ -42,15 +42,15 @@ defmodule OpenApiSpex.Controller do
 
   Where atoms are the same as `Plug.Conn.Status.code/1` values.
 
-  ### `requestBody`
+  ### `request_body`
 
-  Controlled by `:requestBody` parameter and is defined as a tuple in form
+  Controlled by `:request_body` parameter and is defined as a tuple in form
   `{description, mime, schema}` or `{description, mime, schema, opts} that
   matches the arguments of `OpenApiSpex.Operation.request_body/3` or
   `OpenApiSpex.Operation.request_body/4`, respectively.
 
   ```
-  @doc requestBody: {
+  @doc request_body: {
     "CartUpdateRequest",
     "application/vnd.api+json",
     CartUpdateRequest,
@@ -80,7 +80,7 @@ defmodule OpenApiSpex.Controller do
     @doc parameters: [
            id: [in: :path, type: :string, required: true]
          ],
-         requestBody: {"Request body to update Foo", "application/json", FooUpdateBody, required: true},
+         request_body: {"Request body to update Foo", "application/json", FooUpdateBody, required: true},
          responses: [
            ok: {"Foo document", "application/json", FooSchema}
          ]
@@ -164,15 +164,15 @@ defmodule OpenApiSpex.Controller do
   defp build_responses(_), do: []
 
   defp build_request_body(%{body: {name, mime, schema}}) do
-    IO.warn("Using :body key for requestBody is deprecated. Please use :requestBody instead.")
+    IO.warn("Using :body key for requestBody is deprecated. Please use :request_body instead.")
     Operation.request_body(name, mime, schema)
   end
 
-  defp build_request_body(%{requestBody: {name, mime, schema}}) do
+  defp build_request_body(%{request_body: {name, mime, schema}}) do
     Operation.request_body(name, mime, schema)
   end
 
-  defp build_request_body(%{requestBody: {name, mime, schema, opts}}) do
+  defp build_request_body(%{request_body: {name, mime, schema, opts}}) do
     Operation.request_body(name, mime, schema, opts)
   end
 

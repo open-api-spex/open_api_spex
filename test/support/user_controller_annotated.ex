@@ -12,7 +12,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
   @doc parameters: [
          id: [in: :path, type: :string, required: true]
        ]
-  @doc requestBody: {"Request body to update a User", "application/json", User, required: true}
+  @doc request_body: {"Request body to update a User", "application/json", User, required: true}
   @doc responses: [
          ok: {"User response", "application/json", User}
        ]
