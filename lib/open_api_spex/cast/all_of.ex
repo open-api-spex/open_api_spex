@@ -68,7 +68,7 @@ defmodule OpenApiSpex.Cast.AllOf do
   end
 
   defp cast_all_of(%{schema: %{allOf: [], "x-struct": module}}, acc) when not is_nil(module),
-    do: struct(module, acc)
+    do: {:ok, struct(module, acc)}
 
   defp cast_all_of(%{schema: %{allOf: []}}, acc) do
     # All values have been casted against the allOf schemas - return accumulator

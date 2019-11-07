@@ -11,6 +11,7 @@ defmodule OpenApiSpex.CastAllOfTest do
       schema = %Schema{allOf: [%Schema{type: :integer}, %Schema{type: :string}]}
       assert {:ok, 1} = cast(value: "1", schema: schema)
       assert {:error, [error]} = cast(value: "one", schema: schema)
+
       assert Error.message(error) ==
                "Failed to cast value as integer. Value must be castable using `allOf` schemas listed."
     end
@@ -41,7 +42,6 @@ defmodule OpenApiSpex.CastAllOfTest do
         allOf: [
           %Schema{
             type: :object,
-            additionalProperties: true,
             properties: %{
               id: %Schema{
                 type: :string
@@ -50,7 +50,6 @@ defmodule OpenApiSpex.CastAllOfTest do
           },
           %Schema{
             type: :object,
-            additionalProperties: true,
             properties: %{
               bar: %Schema{
                 type: :string
@@ -78,5 +77,32 @@ defmodule OpenApiSpex.CastAllOfTest do
 
     value = ["Test #1", "2", "3", "4", "true", "Five!"]
     assert {:ok, [2, 3, 4, true, "Test #1", "Five!"]} = cast(value: value, schema: schema)
+  end
+
+  defmodule CatSchema do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Cat",
+      allOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            fur: %Schema{type: :boolean}
+          }
+        },
+        %Schema{
+          type: :object,
+          properties: %{
+            meow: %Schema{type: :boolean}
+          }
+        }
+      ]
+    })
+  end
+
+  test "with schema having x-type" do
+    value = %{fur: true, meow: true}
+    assert {:ok, _} = cast(value: value, schema: CatSchema.schema())
   end
 end
