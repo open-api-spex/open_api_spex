@@ -226,6 +226,34 @@ defmodule OpenApiSpex.Operation2Test do
       assert error.reason == :minimum
     end
 
+    test "validate not supported additional properties" do
+      conn = create_conn(:get, "/api/users?unsupported_key=value")
+      operation = OperationFixtures.user_index()
+
+      expected_response =
+        {:error,
+          [
+            %OpenApiSpex.Cast.Error{
+              format: nil,
+              length: 0,
+              meta: %{},
+              name: "unsupported_key",
+              path: ["unsupported_key"],
+              reason: :unexpected_field,
+              type: nil,
+              value: %{"unsupported_key" => "value"}
+            }
+          ]}
+
+      assert expected_response ==
+               Operation2.cast(
+                 operation,
+                 conn,
+                 "text/html",
+                 SpecModule.spec().components
+               )
+    end
+
     defp do_index_cast(query_params, opts \\ []) do
       conn =
         :get
@@ -245,12 +273,16 @@ defmodule OpenApiSpex.Operation2Test do
     end
 
     defp create_conn(body_params) do
-      :post
-      |> Plug.Test.conn("/api/users")
-      |> Plug.Conn.put_req_header("content-type", "application/json")
-      |> Plug.Conn.fetch_query_params()
+      create_conn(:post, "/api/users")
       |> Map.put(:body_params, body_params)
       |> build_params()
+    end
+
+    def create_conn(method, url) do
+      method
+      |> Plug.Test.conn(url)
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> Plug.Conn.fetch_query_params()
     end
 
     defp build_params(conn) do
