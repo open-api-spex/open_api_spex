@@ -300,6 +300,27 @@ defmodule OpenApiSpexTest.Schemas do
     })
   end
 
+  defmodule Array do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Array",
+      type: :array,
+      items: Dog,
+      example: [%{pet_type: "Dog", bark: "A lot"}]
+    })
+  end
+
+  defmodule Primitive do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Primitive",
+      type: :integer,
+      example: 1
+    })
+  end
+
   defmodule PrimitiveArray do
     require OpenApiSpex
 

@@ -20,6 +20,16 @@ defmodule OpenApiSpex.SchemaTest do
       assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec)
       assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec)
     end
+
+    test "Array Schema example matches schema" do
+      api_spec = ApiSpec.spec()
+      assert_schema(Schemas.Array.schema().example, "Array", api_spec)
+    end
+
+    test "Primitive Schema example matches schema" do
+      api_spec = ApiSpec.spec()
+      assert_schema(Schemas.Primitive.schema().example, "Primitive", api_spec)
+    end
   end
 
   describe "cast/3" do

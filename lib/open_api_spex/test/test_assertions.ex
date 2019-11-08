@@ -11,8 +11,8 @@ defmodule OpenApiSpex.TestAssertions do
   @doc """
   Asserts that `value` conforms to the schema with title `schema_title` in `api_spec`.
   """
-  @spec assert_schema(map, String.t(), OpenApi.t()) :: map | no_return
-  def assert_schema(value = %{}, schema_title, api_spec = %OpenApi{}) do
+  @spec assert_schema(term, String.t(), OpenApi.t()) :: term | no_return
+  def assert_schema(value, schema_title, api_spec = %OpenApi{}) do
     schemas = api_spec.components.schemas
     schema = schemas[schema_title]
 
