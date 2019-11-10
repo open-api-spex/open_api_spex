@@ -30,7 +30,8 @@ defmodule OpenApiSpex.CastParameters do
     object_schema = %Schema{
       type: :object,
       properties: properties,
-      required: required
+      required: required,
+      additionalProperties: false
     }
 
     params = Map.merge(conn.path_params, conn.query_params)
