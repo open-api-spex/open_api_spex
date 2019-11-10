@@ -1,3 +1,13 @@
+# 3.5.1
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+* [mrmstn](https://github.com/mrmstn)
+
+- Fix: Issues with complex types for phoenix endpoints (#161)
+- Fix: In ExDoc-based operation spec (experimental), change key name used to define `requestBody` (#164)
+- Fix: `oneOf` schema having object schemas (#167)
+
 # 3.5.0
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
