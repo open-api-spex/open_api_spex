@@ -32,7 +32,7 @@ To ship a release to Hex.pm, complete the following checklist:
 - Confirm the docs build successfully and do not contain obvious formatting errors `mix docs; open doc/index.html`
 - Review the `CHANGELOG.md` file, adding a line for each pr / issue and a larger description for significant changes.
 - Update the `@version` attribute in `mix.exs`
-- Update the `Installation` section of the `README.md` file with the new version
+- Update the `Installation` section of the `README.md` file with the new version (for minor and major releases)
 - Commit and tag the `master` branch with the version and a leading `v`, eg: `v3.14.15`
 - Push master branch to `open_api_spex` repo
 - Push package to Hex: `mix hex.publish`

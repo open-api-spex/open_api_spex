@@ -1,3 +1,13 @@
+# 3.5.2
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+* [jung-hunsoo](https://github.com/jung-hunsoo)
+* [linnal](https://github.com/linnal)
+
+- Fix: Update README for Info from `Application.spec/2` (#174)
+- Fix: Casting for unsupported params (#170)
+
 # 3.5.1
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
