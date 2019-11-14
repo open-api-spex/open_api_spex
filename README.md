@@ -54,6 +54,15 @@ defmodule MyAppWeb.ApiSpec do
 end
 ```
 
+Or you can use application's spec value in `info:` key.
+
+```elixir
+info: %Info{
+  description: Application.spec(:my_app, :description)
+  version: Application.spec(:my_app, :vsn)
+}
+```
+
 For each plug (controller) that will handle api requests, add an `open_api_operation` callback.
 It will be passed the plug opts that were declared in the router, this will be the action for a phoenix controller. The callback populates an `OpenApiSpex.Operation` struct describing the plug/action.
 
