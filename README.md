@@ -452,7 +452,7 @@ defmodule MyAppWeb.UserController do
   """
   @doc parameters: [
     id: [in: :query, type: :string, required: true, description: "User ID"]
-  ],
+  ]
   @doc request_body: {"Request body to update a User", "application/json", User, required: true}
   @doc responses: %{
     200 => {"User", "application/json", MyAppWeb.Schema.User}
