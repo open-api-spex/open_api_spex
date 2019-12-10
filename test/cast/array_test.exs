@@ -36,6 +36,11 @@ defmodule OpenApiSpec.Cast.ArrayTest do
       assert %Error{} = error
       assert error.reason == :min_items
       assert error.value == [1]
+
+      # Test for #179, "minLength validation ignores empty array"
+      assert {:error, [%Error{reason: :min_items, value: []}]} = cast(value: [], schema: schema)
+      # Negative test, check that minItems: 0 allows an empty array
+      assert cast(value: [], schema: %Schema{type: :array, minItems: 0}) == {:ok, []}
     end
 
     test "with uniqueItems" do

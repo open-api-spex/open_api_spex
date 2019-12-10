@@ -2,7 +2,9 @@ defmodule OpenApiSpex.Cast.Array do
   @moduledoc false
   alias OpenApiSpex.Cast
 
-  def cast(%{value: []}), do: {:ok, []}
+  def cast(%{value: [], schema: %{minItems: nil}}) do
+    {:ok, []}
+  end
 
   def cast(%{value: items} = ctx) when is_list(items) do
     case cast_array(ctx) do
