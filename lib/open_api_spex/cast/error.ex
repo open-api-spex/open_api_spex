@@ -279,12 +279,12 @@ defmodule OpenApiSpex.Cast.Error do
     "Array items must be unique"
   end
 
-  def message(%{reason: :min_items, length: min, value: count}) do
-    "Array length #{count} is smaller than minItems: #{min}"
+  def message(%{reason: :min_items, length: min, value: array}) do
+    "Array length #{length(array)} is smaller than minItems: #{min}"
   end
 
-  def message(%{reason: :max_items, length: max, value: count}) do
-    "Array length #{count} is larger than maxItems: #{max}"
+  def message(%{reason: :max_items, length: max, value: array}) do
+    "Array length #{length(array)} is larger than maxItems: #{max}"
   end
 
   def message(%{reason: :multiple_of, length: multiple, value: count}) do
