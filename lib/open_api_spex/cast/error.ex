@@ -12,11 +12,11 @@ defmodule OpenApiSpex.Cast.Error do
   @type max_items_error :: {:max_items, non_neg_integer(), non_neg_integer()}
   @type max_length_error :: {:max_length, non_neg_integer()}
   @type max_properties_error :: {:max_properties, non_neg_integer(), non_neg_integer()}
-  @type maximum_error :: {:maximum, integer(), integer()}
+  @type maximum_error :: {:maximum, integer() | float(), integer() | float()}
   @type min_items_error :: {:min_items, non_neg_integer(), non_neg_integer()}
   @type min_length_error :: {:min_length, non_neg_integer()}
   @type min_properties_error :: {:min_properties, non_neg_integer(), non_neg_integer()}
-  @type minimum_error :: {:minimum, integer(), integer()}
+  @type minimum_error :: {:minimum, integer() | float(), integer() | float()}
   @type missing_field_error :: {:missing_field, String.t() | atom()}
   @type missing_header_error :: {:missing_header, String.t() | atom()}
   @type invalid_header_error :: {:invalid_header, String.t() | atom()}
