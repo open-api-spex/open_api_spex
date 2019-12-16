@@ -9,6 +9,7 @@ defmodule OpenApiSpex.Cast do
     Discriminator,
     Error,
     Integer,
+    Number,
     Object,
     OneOf,
     Primitive,
@@ -152,7 +153,7 @@ defmodule OpenApiSpex.Cast do
     do: Integer.cast(ctx)
 
   def cast(%__MODULE__{schema: %{type: :number}} = ctx),
-    do: Primitive.cast_number(ctx)
+    do: Number.cast(ctx)
 
   def cast(%__MODULE__{schema: %{type: :string}} = ctx),
     do: String.cast(ctx)
