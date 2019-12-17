@@ -218,5 +218,21 @@ defmodule OpenApiSpex.Plug.CastTest do
                ]
              }
     end
+
+    test "Custom Header params" do
+      conn =
+        :post
+        |> Plug.Test.conn("/api/pets/1/adopt")
+        |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
+        |> Plug.Conn.put_req_header("x-user-id", "123456")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "data" => %{
+                 "pet_type" => "Dog",
+                 "bark" => "woof"
+               }
+             }
+    end
   end
 end
