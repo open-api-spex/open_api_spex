@@ -41,7 +41,7 @@ defmodule OpenApiSpex.CastParameters do
     full_cast_result =
       Enum.reduce_while(casted_params, {:ok, %{}}, fn
         {:ok, entry}, {:ok, acc} -> {:cont, {:ok, Map.merge(acc, entry)}}
-        cast_error, acc -> {:halt, cast_error}
+        cast_error, _ -> {:halt, cast_error}
       end)
 
     case full_cast_result do
@@ -64,7 +64,7 @@ defmodule OpenApiSpex.CastParameters do
 
   defp get_params_by_location(conn, :header, expected_names) do
     conn.req_headers
-    |> Enum.filter(fn {key, value} ->
+    |> Enum.filter(fn {key, _value} ->
       Enum.member?(expected_names, String.downcase(key))
     end)
     |> Map.new()
@@ -92,6 +92,6 @@ defmodule OpenApiSpex.CastParameters do
 
     properties = Map.put(location_schema.properties, parameter.name, Parameter.schema(parameter))
 
-    location_schema = %{location_schema | properties: properties, required: required}
+    %{location_schema | properties: properties, required: required}
   end
 end
