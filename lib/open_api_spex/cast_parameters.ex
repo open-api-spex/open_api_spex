@@ -92,6 +92,19 @@ defmodule OpenApiSpex.CastParameters do
 
     properties = Map.put(location_schema.properties, parameter.name, Parameter.schema(parameter))
 
+    location_schema =
+      maybe_add_additional_properties(location_schema, parameter.schema)
+
     %{location_schema | properties: properties, required: required}
   end
+
+  defp maybe_add_additional_properties(
+         %Schema{additionalProperties: false} = location_schema,
+         %Schema{type: :object, additionalProperties: ap}
+       )
+       when ap != false and not is_nil(ap) do
+    %{location_schema | additionalProperties: ap}
+  end
+
+  defp maybe_add_additional_properties(location_schema, _param_schema), do: location_schema
 end

@@ -250,5 +250,19 @@ defmodule OpenApiSpex.Plug.CastTest do
                }
              }
     end
+
+    test "freeForm params" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/utility/echo/any?one=this&two=cam&three=be&anything=true")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "one" => "this",
+               "two" => "cam",
+               "three" => "be",
+               "anything" => "true"
+             }
+    end
   end
 end
