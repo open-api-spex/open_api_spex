@@ -51,7 +51,7 @@ defmodule OpenApiSpex.CastParameters do
   end
 
   defp get_params_by_location(conn, :query, _) do
-    conn.query_params
+    Plug.Conn.fetch_query_params(conn).query_params
   end
 
   defp get_params_by_location(conn, :path, _) do
@@ -59,7 +59,7 @@ defmodule OpenApiSpex.CastParameters do
   end
 
   defp get_params_by_location(conn, :cookie, _) do
-    conn.req_cookies
+    Plug.Conn.fetch_cookies(conn).req_cookies
   end
 
   defp get_params_by_location(conn, :header, expected_names) do
