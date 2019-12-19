@@ -7,15 +7,16 @@ defmodule OpenApiSpex.CastParameters do
   @spec cast(Plug.Conn.t(), Operation.t(), Components.t()) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
   def cast(conn, operation, components) do
-    full_cast_result =
-      schemas_by_location(operation, components)
-      |> Enum.map(fn {location, schema} -> cast_location(location, schema, components, conn) end)
-      |> reduce_cast_results()
-
-    case full_cast_result do
-      {:ok, params} -> {:ok, %{conn | params: params}}
-      err -> err
+    with {:ok, params} <- cast_to_params(conn, operation, components) do
+      {:ok, %{conn | params: params}}
     end
+  end
+
+  defp cast_to_params(conn, operation, components) do
+    operation
+    |> schemas_by_location(components)
+    |> Enum.map(fn {location, schema} -> cast_location(location, schema, components, conn) end)
+    |> reduce_cast_results()
   end
 
   defp get_params_by_location(conn, :query, _) do
@@ -39,12 +40,10 @@ defmodule OpenApiSpex.CastParameters do
   end
 
   defp create_location_schema(parameters) do
-    properties = Map.new(parameters, fn p -> {p.name, Parameter.schema(p)} end)
-
     %Schema{
       type: :object,
       additionalProperties: false,
-      properties: properties,
+      properties: parameters |> Map.new(fn p -> {p.name, Parameter.schema(p)} end),
       required: parameters |> Enum.filter(& &1.required) |> Enum.map(& &1.name)
     }
     |> maybe_add_additional_properties()
