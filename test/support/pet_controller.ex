@@ -87,4 +87,42 @@ defmodule OpenApiSpexTest.PetController do
       data: pet
     })
   end
+
+  def adopt_operation() do
+    import Operation
+
+    %Operation{
+      tags: ["pets"],
+      summary: "Adopt pet",
+      description: "Adopt a pet",
+      operationId: "PetController.adopt",
+      parameters: [
+        parameter("x-user-id", :header, :string, "User that performs this action", required: true),
+        parameter(:id, :path, :integer, "Pet ID", example: 123, minimum: 1),
+        parameter(:status, :query, :string, "New status"),
+        parameter(:debug, :cookie, %OpenApiSpex.Schema{type: :integer, enum: [0, 1], default: 0}, "Debug"),
+      ],
+      responses: %{
+        200 => response("Pet", "application/json", Schemas.PetRequest)
+      }
+    }
+  end
+
+  def adopt(conn, %{"x-user-id" => _user_id, :id => _id, :debug => 0}) do
+    json(conn, %Schemas.PetResponse{
+      data: %Schemas.Dog{
+        pet_type: "Dog",
+        bark: "woof"
+      }
+    })
+  end
+
+  def adopt(conn, %{"x-user-id" => _user_id, :id => _id, :debug => 1}) do
+    json(conn, %Schemas.PetResponse{
+      data: %Schemas.Dog{
+        pet_type: "Debug-Dog",
+        bark: "woof"
+      }
+    })
+  end
 end

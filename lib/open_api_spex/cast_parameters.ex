@@ -7,39 +7,76 @@ defmodule OpenApiSpex.CastParameters do
   @spec cast(Plug.Conn.t(), Operation.t(), Components.t()) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
   def cast(conn, operation, components) do
-    # Taken together as a set, operation parameters are similar to an object schema type.
-    # Convert parameters to an object schema, then delegate to `Cast.Object.cast/1`
+    full_cast_result =
+      schemas_by_location(operation, components)
+      |> Enum.map(fn {location, schema} -> cast_location(location, schema, components, conn) end)
+      |> reduce_cast_results()
 
-    # Operation's parameters list may include references - resolving here
-    resolved_parameters =
-      Enum.map(operation.parameters, fn
-        ref = %Reference{} -> Reference.resolve_parameter(ref, components.parameters)
-        param = %Parameter{} -> param
-      end)
+    case full_cast_result do
+      {:ok, params} -> {:ok, %{conn | params: params}}
+      err -> err
+    end
+  end
 
-    properties =
-      resolved_parameters
-      |> Enum.map(fn parameter -> {parameter.name, Parameter.schema(parameter)} end)
-      |> Map.new()
+  defp get_params_by_location(conn, :query, _) do
+    Plug.Conn.fetch_query_params(conn).query_params
+  end
 
-    required =
-      resolved_parameters
-      |> Enum.filter(& &1.required)
-      |> Enum.map(& &1.name)
+  defp get_params_by_location(conn, :path, _) do
+    conn.path_params
+  end
 
-    object_schema = %Schema{
+  defp get_params_by_location(conn, :cookie, _) do
+    Plug.Conn.fetch_cookies(conn).req_cookies
+  end
+
+  defp get_params_by_location(conn, :header, expected_names) do
+    conn.req_headers
+    |> Enum.filter(fn {key, _value} ->
+      Enum.member?(expected_names, String.downcase(key))
+    end)
+    |> Map.new()
+  end
+
+  defp create_location_schema(parameters) do
+    %Schema{
       type: :object,
-      properties: properties,
-      required: required,
-      additionalProperties: false
+      additionalProperties: false,
+      properties: Map.new(parameters, fn p -> {p.name, Parameter.schema(p)} end),
+      required: parameters |> Enum.filter(& &1.required) |> Enum.map(& &1.name)
+    }
+  end
+
+  defp schemas_by_location(operation, components) do
+    param_specs_by_location =
+      operation.parameters
+      |> Enum.map(fn
+        %Reference{} = ref -> Reference.resolve_parameter(ref, components.parameters)
+        %Parameter{} = param -> param
+      end)
+      |> Enum.group_by(& &1.in)
+
+    Map.new(param_specs_by_location, fn {location, parameters} ->
+      {location, create_location_schema(parameters)}
+    end)
+  end
+
+  defp cast_location(location, schema, components, conn) do
+    params = get_params_by_location(conn, location, Map.keys(schema.properties))
+
+    ctx = %Cast{
+      value: params,
+      schema: schema,
+      schemas: components.schemas
     }
 
-    params = Map.merge(conn.path_params, conn.query_params)
+    Object.cast(ctx)
+  end
 
-    ctx = %Cast{value: params, schema: object_schema, schemas: components.schemas}
-
-    with {:ok, params} <- Object.cast(ctx) do
-      {:ok, %{conn | params: params}}
-    end
+  defp reduce_cast_results(results) do
+    Enum.reduce_while(results, {:ok, %{}}, fn
+      {:ok, params}, {:ok, all_params} -> {:cont, {:ok, Map.merge(all_params, params)}}
+      cast_error, _ -> {:halt, cast_error}
+    end)
   end
 end
