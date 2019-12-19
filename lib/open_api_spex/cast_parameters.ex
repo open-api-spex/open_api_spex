@@ -94,7 +94,7 @@ defmodule OpenApiSpex.CastParameters do
 
     case ap_schema do
       [{_, %{additionalProperties: ap}}] -> %{schema | additionalProperties: ap}
-      nil -> schema
+      _ -> schema
     end
   end
 end
