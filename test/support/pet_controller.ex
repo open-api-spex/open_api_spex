@@ -97,7 +97,7 @@ defmodule OpenApiSpexTest.PetController do
       description: "Adopt a pet",
       operationId: "PetController.adopt",
       parameters: [
-        parameter("x-user-id", :header, :string, "User that performs this action", required: true),
+        parameter(:"x-user-id", :header, :string, "User that performs this action", required: true),
         parameter(:id, :path, :integer, "Pet ID", example: 123, minimum: 1),
         parameter(:status, :query, :string, "New status"),
         parameter(:debug, :cookie, %OpenApiSpex.Schema{type: :integer, enum: [0, 1], default: 0}, "Debug"),
