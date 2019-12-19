@@ -108,7 +108,7 @@ defmodule OpenApiSpexTest.PetController do
     }
   end
 
-  def adopt(conn, %{"x-user-id" => _user_id, :id => _id, :debug => 0}) do
+  def adopt(conn, %{:"x-user-id" => _user_id, :id => _id, :debug => 0}) do
     json(conn, %Schemas.PetResponse{
       data: %Schemas.Dog{
         pet_type: "Dog",
@@ -117,7 +117,7 @@ defmodule OpenApiSpexTest.PetController do
     })
   end
 
-  def adopt(conn, %{"x-user-id" => _user_id, :id => _id, :debug => 1}) do
+  def adopt(conn, %{:"x-user-id" => _user_id, :id => _id, :debug => 1}) do
     json(conn, %Schemas.PetResponse{
       data: %Schemas.Dog{
         pet_type: "Debug-Dog",

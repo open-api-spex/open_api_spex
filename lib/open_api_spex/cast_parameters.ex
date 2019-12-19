@@ -65,7 +65,12 @@ defmodule OpenApiSpex.CastParameters do
   end
 
   defp cast_location(location, schema, components, conn) do
-    params = get_params_by_location(conn, location, Map.keys(schema.properties))
+    params =
+      get_params_by_location(
+        conn,
+        location,
+        schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
+      )
 
     ctx = %Cast{
       value: params,
