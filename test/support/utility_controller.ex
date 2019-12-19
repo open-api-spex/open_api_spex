@@ -1,7 +1,6 @@
 defmodule OpenApiSpexTest.UtilityController do
   use Phoenix.Controller
   alias OpenApiSpex.Operation
-  alias OpenApiSpexTest.Schemas
   alias OpenApiSpex.Schema
 
   plug OpenApiSpex.Plug.CastAndValidate

@@ -7,45 +7,13 @@ defmodule OpenApiSpex.CastParameters do
   @spec cast(Plug.Conn.t(), Operation.t(), Components.t()) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
   def cast(conn, operation, components) do
-    # Convert parameters to an object schema for the set location
-    casted_params =
-      operation.parameters
-      |> Enum.reduce(%{}, fn param, acc ->
-        # Operation's parameters list may include references - resolving here
-        parameter =
-          case param do
-            %Reference{} -> Reference.resolve_parameter(param, components.parameters)
-            %Parameter{} -> param
-          end
-
-        location_schema =
-          acc
-          |> Map.get(parameter.in)
-          |> add_to_location_schema(parameter)
-
-        Map.put(acc, parameter.in, location_schema)
-      end)
-      # then delegate to `Cast.Object.cast/1`
-      |> Enum.map(fn {location, location_schema} ->
-        params = get_params_by_location(conn, location, Map.keys(location_schema.properties))
-
-        ctx = %Cast{
-          value: params,
-          schema: location_schema,
-          schemas: components.schemas
-        }
-
-        Object.cast(ctx)
-      end)
-
     full_cast_result =
-      Enum.reduce_while(casted_params, {:ok, %{}}, fn
-        {:ok, entry}, {:ok, acc} -> {:cont, {:ok, Map.merge(acc, entry)}}
-        cast_error, _ -> {:halt, cast_error}
-      end)
+      schemas_by_location(operation, components)
+      |> Enum.map(fn {location, schema} -> cast_location(location, schema, components, conn) end)
+      |> reduce_cast_results()
 
     case full_cast_result do
-      {:ok, result} -> {:ok, %{conn | params: result}}
+      {:ok, params} -> {:ok, %{conn | params: params}}
       err -> err
     end
   end
@@ -70,41 +38,63 @@ defmodule OpenApiSpex.CastParameters do
     |> Map.new()
   end
 
-  defp add_to_location_schema(nil, parameter) do
-    # Since there is no Schema on the "parameter" level, we create one here
-    template_schema = %Schema{
+  defp create_location_schema(parameters) do
+    properties = Map.new(parameters, fn p -> {p.name, Parameter.schema(p)} end)
+
+    %Schema{
       type: :object,
       additionalProperties: false,
-      properties: %{},
-      required: []
+      properties: properties,
+      required: parameters |> Enum.filter(& &1.required) |> Enum.map(& &1.name)
+    }
+    |> maybe_add_additional_properties()
+  end
+
+  defp schemas_by_location(operation, components) do
+    param_specs_by_location =
+      operation.parameters
+      |> Enum.map(fn
+        %Reference{} = ref -> Reference.resolve_parameter(ref, components.parameters)
+        %Parameter{} = param -> param
+      end)
+      |> Enum.group_by(& &1.in)
+
+    Map.new(param_specs_by_location, fn {location, parameters} ->
+      {location, create_location_schema(parameters)}
+    end)
+  end
+
+  defp cast_location(location, schema, components, conn) do
+    params = get_params_by_location(conn, location, Map.keys(schema.properties))
+
+    ctx = %Cast{
+      value: params,
+      schema: schema,
+      schemas: components.schemas
     }
 
-    add_to_location_schema(template_schema, parameter)
+    Object.cast(ctx)
   end
 
-  defp add_to_location_schema(location_schema, parameter) do
-    # Put the operation parameter to the proper location schema for validation
-    required =
-      case parameter.required do
-        true -> [parameter.name | location_schema.required]
-        _ -> location_schema.required
-      end
-
-    properties = Map.put(location_schema.properties, parameter.name, Parameter.schema(parameter))
-
-    location_schema =
-      maybe_add_additional_properties(location_schema, parameter.schema)
-
-    %{location_schema | properties: properties, required: required}
+  defp reduce_cast_results(results) do
+    Enum.reduce_while(results, {:ok, %{}}, fn
+      {:ok, params}, {:ok, all_params} -> {:cont, {:ok, Map.merge(all_params, params)}}
+      cast_error, _ -> {:halt, cast_error}
+    end)
   end
 
-  defp maybe_add_additional_properties(
-         %Schema{additionalProperties: false} = location_schema,
-         %Schema{type: :object, additionalProperties: ap}
-       )
-       when ap != false and not is_nil(ap) do
-    %{location_schema | additionalProperties: ap}
-  end
+  defp maybe_add_additional_properties(schema) do
+    ap_schema =
+      Enum.reject(
+        schema.properties,
+        fn {_name, %{additionalProperties: ap}} ->
+          is_nil(ap) or ap == false
+        end
+      )
 
-  defp maybe_add_additional_properties(location_schema, _param_schema), do: location_schema
+    case ap_schema do
+      [{_, %{additionalProperties: ap}}] -> %{schema | additionalProperties: ap}
+      nil -> schema
+    end
+  end
 end
