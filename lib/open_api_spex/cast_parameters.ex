@@ -7,15 +7,16 @@ defmodule OpenApiSpex.CastParameters do
   @spec cast(Plug.Conn.t(), Operation.t(), Components.t()) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
   def cast(conn, operation, components) do
-    full_cast_result =
-      schemas_by_location(operation, components)
-      |> Enum.map(fn {location, schema} -> cast_location(location, schema, components, conn) end)
-      |> reduce_cast_results()
-
-    case full_cast_result do
-      {:ok, params} -> {:ok, %{conn | params: params}}
-      err -> err
+    with {:ok, params} <- cast_to_params(conn, operation, components) do
+      {:ok, %{conn | params: params}}
     end
+  end
+
+  defp cast_to_params(conn, operation, components) do
+    operation
+    |> schemas_by_location(components)
+    |> Enum.map(fn {location, schema} -> cast_location(location, schema, components, conn) end)
+    |> reduce_cast_results()
   end
 
   defp get_params_by_location(conn, :query, _) do
@@ -42,9 +43,10 @@ defmodule OpenApiSpex.CastParameters do
     %Schema{
       type: :object,
       additionalProperties: false,
-      properties: Map.new(parameters, fn p -> {p.name, Parameter.schema(p)} end),
+      properties: parameters |> Map.new(fn p -> {p.name, Parameter.schema(p)} end),
       required: parameters |> Enum.filter(& &1.required) |> Enum.map(& &1.name)
     }
+    |> maybe_add_additional_properties()
   end
 
   defp schemas_by_location(operation, components) do
@@ -62,7 +64,12 @@ defmodule OpenApiSpex.CastParameters do
   end
 
   defp cast_location(location, schema, components, conn) do
-    params = get_params_by_location(conn, location, Map.keys(schema.properties))
+    params =
+      get_params_by_location(
+        conn,
+        location,
+        schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
+      )
 
     ctx = %Cast{
       value: params,
@@ -78,5 +85,20 @@ defmodule OpenApiSpex.CastParameters do
       {:ok, params}, {:ok, all_params} -> {:cont, {:ok, Map.merge(all_params, params)}}
       cast_error, _ -> {:halt, cast_error}
     end)
+  end
+
+  defp maybe_add_additional_properties(schema) do
+    ap_schema =
+      Enum.reject(
+        schema.properties,
+        fn {_name, %{additionalProperties: ap}} ->
+          is_nil(ap) or ap == false
+        end
+      )
+
+    case ap_schema do
+      [{_, %{additionalProperties: ap}}] -> %{schema | additionalProperties: ap}
+      _ -> schema
+    end
   end
 end
