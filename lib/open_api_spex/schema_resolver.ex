@@ -33,9 +33,11 @@ defmodule OpenApiSpex.SchemaResolver do
   def resolve_schema_modules(spec = %OpenApi{}) do
     components = spec.components || %Components{}
     schemas = components.schemas || %{}
+    responses = components.responses || %{}
     {paths, schemas} = resolve_schema_modules_from_paths(spec.paths, schemas)
     schemas = resolve_schema_modules_from_schemas(schemas)
-    %{spec | paths: paths, components: %{components | schemas: schemas}}
+    {responses, _} = resolve_schema_modules_from_responses(responses, schemas)
+    %{spec | paths: paths, components: %{components| schemas: schemas, responses: responses}}
   end
 
   defp resolve_schema_modules_from_paths(paths = %{}, schemas = %{}) do
@@ -156,6 +158,10 @@ defmodule OpenApiSpex.SchemaResolver do
     {content, schemas} = resolve_schema_modules_from_content(response.content, schemas)
     new_response = %{response | content: content}
     {new_response, schemas}
+  end
+
+  defp resolve_schema_modules_from_response(response = %Reference{}, schemas = %{}) do
+    {response, schemas}
   end
 
   defp resolve_schema_modules_from_schemas(schemas = %{}) do
