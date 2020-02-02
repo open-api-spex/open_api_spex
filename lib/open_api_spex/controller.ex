@@ -92,7 +92,7 @@ defmodule OpenApiSpex.Controller do
   ```
   '''
 
-  alias OpenApiSpex.Operation
+  alias OpenApiSpex.{Operation, Response}
 
   defmacro __using__(_opts) do
     quote do
@@ -156,9 +156,13 @@ defmodule OpenApiSpex.Controller do
   defp build_parameters(_), do: []
 
   defp build_responses(%{responses: responses}) do
-    for {status, {description, mime, schema}} <- responses, into: %{} do
-      {Plug.Conn.Status.code(status), Operation.response(description, mime, schema)}
-    end
+    Map.new(responses, fn
+      {status, {description, mime, schema}} ->
+        {Plug.Conn.Status.code(status), Operation.response(description, mime, schema)}
+
+      {status, %Response{} = response} ->
+        {Plug.Conn.Status.code(status), response}
+    end)
   end
 
   defp build_responses(_), do: []

@@ -29,6 +29,79 @@ defmodule OpenApiSpexTest.Schemas do
     end
   end
 
+  defmodule Unauthorized do
+    @moduledoc """
+    401 - Unauthorized
+    """
+    require OpenApiSpex
+    alias OpenApiSpex.Operation
+
+    # OpenApiSpex.schema/1 macro can be optionally used to reduce boilerplate code
+    OpenApiSpex.schema(%{
+      title: "Unauthorized",
+      type: :object,
+      properties: %{
+        errors: %Schema{
+          type: :array,
+          items: %Schema{
+            type: :object,
+            properties: %{
+              detail: %Schema{
+                type: :string,
+                example: "Authentication credentials were not provided, or they were malformed."
+              },
+              title: %Schema{type: :string, example: "Authorization Required"}
+            }
+          }
+        }
+      }
+    })
+
+    @doc """
+    Unauthorized object, as a whole response.
+    """
+    def response do
+      Operation.response(
+        "Authorization Required",
+        "application/json",
+        __MODULE__
+      )
+    end
+  end
+
+  defmodule NotFound do
+    @moduledoc """
+    404 - Not Found
+    """
+    require OpenApiSpex
+    alias OpenApiSpex.Operation
+
+    OpenApiSpex.schema(%{
+      title: "NotFound",
+      type: :object,
+      properties: %{
+        errors: %Schema{
+          type: :array,
+          items: %Schema{
+            type: :object,
+            properties: %{
+              detail: %Schema{type: :string, example: "The requested resource cannot be found."},
+              title: %Schema{type: :string, example: "Not Found"}
+            }
+          }
+        }
+      }
+    })
+
+    def response do
+      Operation.response(
+        "Not Found",
+        "application/json",
+        __MODULE__
+      )
+    end
+  end
+
   defmodule Size do
     OpenApiSpex.schema(%{
       title: "Size",
