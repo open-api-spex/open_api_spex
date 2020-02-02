@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.SchemaTest do
   use ExUnit.Case
-  alias OpenApiSpex.Schema
+  alias OpenApiSpex.{Reference, Schema}
   alias OpenApiSpexTest.{ApiSpec, Schemas}
   import OpenApiSpex.TestAssertions
 
@@ -29,6 +29,20 @@ defmodule OpenApiSpex.SchemaTest do
     test "Primitive Schema example matches schema" do
       api_spec = ApiSpec.spec()
       assert_schema(Schemas.Primitive.schema().example, "Primitive", api_spec)
+    end
+
+    test "object property can be a Reference" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          address: %Reference{"$ref": "#/components/schemas/Address"}
+        }
+      }
+
+      # `Schema.properties/1` is called by `schema/1`
+      struct_props = Schema.properties(schema)
+
+      assert [address: nil] = struct_props
     end
   end
 

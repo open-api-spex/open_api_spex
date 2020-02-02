@@ -383,8 +383,8 @@ defmodule OpenApiSpex.Schema do
   end
 
   def cast(schema = %Schema{oneOf: one_of}, value, schemas)
-                                                 when is_list(one_of),
-    do: OpenApiSpex.Cast.cast(schema, value, schemas)
+      when is_list(one_of),
+      do: OpenApiSpex.Cast.cast(schema, value, schemas)
 
   def cast(%Schema{oneOf: []}, _value, _schemas) do
     {:error, "Failed to cast to any schema in oneOf"}
@@ -858,5 +858,6 @@ defmodule OpenApiSpex.Schema do
   def properties(_), do: []
 
   defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
+  defp default(%Reference{}), do: nil
   defp default(%{default: default}), do: default
 end
