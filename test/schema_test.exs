@@ -32,6 +32,33 @@ defmodule OpenApiSpex.SchemaTest do
     end
   end
 
+  describe "schema/1 auto-populates title" do
+    defmodule Name do
+      require OpenApiSpex
+
+      OpenApiSpex.schema(%{
+        type: :string
+      })
+    end
+
+    defmodule Age do
+      require OpenApiSpex
+
+      OpenApiSpex.schema(%{
+        title: "CustomAge",
+        type: :integer
+      })
+    end
+
+    test "autopopulated title" do
+      assert Name.schema().title == "Name"
+    end
+
+    test "custome title" do
+      assert Age.schema().title == "CustomAge"
+    end
+  end
+
   describe "cast/3" do
     test "cast request schema" do
       api_spec = ApiSpec.spec()

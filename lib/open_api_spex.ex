@@ -176,7 +176,12 @@ defmodule OpenApiSpex do
       @behaviour OpenApiSpex.Schema
       @schema struct(
                 OpenApiSpex.Schema,
-                Map.put(Map.delete(unquote(body), :__struct__), :"x-struct", __MODULE__)
+                unquote(body)
+                |> Map.delete(:__struct__)
+                |> Map.put(:"x-struct", __MODULE__)
+                |> update_in([:title], fn title ->
+                  title || __MODULE__ |> Module.split() |> List.last()
+                end)
               )
 
       def schema, do: @schema
