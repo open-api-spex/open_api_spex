@@ -111,7 +111,7 @@ defmodule OpenApiSpex.Controller do
     with {:ok, {mod_meta, summary, docs, meta}} <- get_docs(mod, name) do
       %Operation{
         description: docs,
-        operationId: "#{inspect(mod)}.#{name}",
+        operationId: build_operation_id(meta, mod, name),
         parameters: build_parameters(meta),
         requestBody: build_request_body(meta),
         responses: build_responses(meta),
@@ -141,6 +141,10 @@ defmodule OpenApiSpex.Controller do
 
       {:ok, {mod_meta, summary, docs, meta}}
     end
+  end
+
+  defp build_operation_id(meta, mod, name) do
+    Map.get(meta, :operation_id, "#{inspect(mod)}.#{name}")
   end
 
   defp build_parameters(%{parameters: params}) do
