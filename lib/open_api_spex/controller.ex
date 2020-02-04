@@ -4,15 +4,15 @@ defmodule OpenApiSpex.Controller do
 
   ## Supported OpenAPI fields
 
-  Attribute `operationId` is automatically provided by the implementation
-  and cannot be changed in any way. It is constructed as `Module.Name.function_name`
-  in the same way as function references in backtraces.
-
   ### `description` and `summary`
 
   Description of endpoint will be filled with documentation string in the same
   manner as ExDocs, so first line will be used as a `summary` and whole
   documentation will be used as `description` field.
+
+  ### `operation_id`
+  The action's `operation_id` can be set explicitly using a `@doc` tag.
+  If no `operation_id` is specified, it will default to the action's module path: `Module.Name.function_name`
 
   ### `parameters`
 
