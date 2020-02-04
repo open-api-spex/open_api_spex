@@ -40,5 +40,10 @@ defmodule OpenApiSpex.ControllerTest do
       assert %OpenApiSpex.MediaType{schema: schema} = op.requestBody.content["application/json"]
       assert schema == OpenApiSpexTest.Schemas.User
     end
+
+    test "sets the operation_id" do
+      op = @controller.open_api_operation(:show)
+      assert op.operationId == "show_user"
+    end
   end
 end
