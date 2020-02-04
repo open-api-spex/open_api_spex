@@ -17,4 +17,18 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
          ok: {"User response", "application/json", User}
        ]
   def update(_conn, _params), do: :ok
+
+  @doc """
+  Show a user
+
+  Fuller description for this endpoint...
+  """
+  @doc operation_id: "show_user"
+  @doc parameters: [
+         id: [in: :path, type: :string, required: true]
+       ]
+  @doc responses: [
+         ok: {"User response", "application/json", User}
+       ]
+  def show(_conn, _params), do: :ok
 end
