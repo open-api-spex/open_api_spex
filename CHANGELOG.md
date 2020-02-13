@@ -1,3 +1,21 @@
+# 3.6.0
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+* [Zakjholt](https://github.com/Zakjholt)
+* [supermaciz](https://github.com/supermaciz)
+* [mrmstn](https://github.com/mrmstn)
+* [aisrael](https://github.com/aisrael)
+
+- Feature: Improved inspect output of `%Schema{}` (#193)
+- Feature: Auto-populate schema title from module name (#192)
+- Feature: Derive Operation ID from meta in ExDoc specs (#195)
+- Fix: Validation of array minItems ignores empty array (#179)
+- Fix: Add minimum/maximum validation for number properties (#181)
+- Fix: Properly validate header params (#184)
+- Fix: Support free-form query parameters (#171)
+- Fix: Resolve schema modules from Response in Components (#186)
+
 # 3.5.2
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
