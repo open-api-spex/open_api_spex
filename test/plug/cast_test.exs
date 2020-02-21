@@ -1,6 +1,5 @@
 defmodule OpenApiSpex.Plug.CastTest do
   use ExUnit.Case
-  @moduletag :stuff
 
   describe "query params - basics" do
     test "Valid Param" do
@@ -159,7 +158,6 @@ defmodule OpenApiSpex.Plug.CastTest do
   end
 
   describe "oneOf body params" do
-    @tag :stuff2
     test "Valid Request" do
       request_body = %{
         "pet" => %{
@@ -270,7 +268,6 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
-    @tag :stuff1
     test "Discriminator with mapping" do
       body =
         Jason.encode!(%{

@@ -81,7 +81,7 @@ defmodule OpenApiSpex.Cast.Discriminator do
        do: {schemas |> _locate_schemas(ctx.schemas), Cast.cast(ctx)}
 
   defp find_discriminator_schema(discriminator, mappings = %{}, schemas) do
-    with {:ok, "#/components/schemas/" <> name} <- Map.fetch(mappings, discriminator) |> IO.inspect(label: "the fetching got us this") do
+    with {:ok, "#/components/schemas/" <> name} <- Map.fetch(mappings, discriminator) do
       find_discriminator_schema(name, nil, schemas)
     else
       {:ok, name} -> find_discriminator_schema(name, nil, schemas)

@@ -133,7 +133,7 @@ defmodule OpenApiSpexTest.PetController do
       tags: ["pets"],
       summary: "Create pet",
       description: "Create a pet",
-      operationId: "PetController.create",
+      operationId: "PetController.appointment",
       parameters: [],
       requestBody: request_body("The pet attributes", "application/json", Schemas.PetAppointmentRequest),
       responses: %{
@@ -142,8 +142,7 @@ defmodule OpenApiSpexTest.PetController do
     }
   end
 
-  def appointment(conn = %{body_params: bp}, _) do
-    bp |> IO.inspect(label: "the body params I actually got..")
+  def appointment(conn, _) do
     json(conn, %Schemas.PetResponse{
           data: [%{pet_type: "Dog", bark: "bow wow"}]
 })

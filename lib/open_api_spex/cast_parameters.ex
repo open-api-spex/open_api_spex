@@ -53,6 +53,9 @@ defmodule OpenApiSpex.CastParameters do
     param_specs_by_location =
       operation.parameters
       |> Enum.map(fn
+        %Reference{} = ref ->
+          Reference.resolve_parameter(ref, components.parameters)
+
         %Parameter{schema: %Reference{"$ref": "#/components/parameters/" <> _}} = param ->
           schema = Reference.resolve_parameter(param.schema, components.parameter)
           param |> Map.put(:schema, schema)
