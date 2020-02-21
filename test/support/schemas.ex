@@ -406,4 +406,93 @@ defmodule OpenApiSpexTest.Schemas do
       }
     })
   end
+
+  defmodule PetStatus do
+    OpenApiSpex.schema(%{
+      title: "PetStatus",
+      description: "The current status of a pet",
+      type: :string,
+      enum: ["adopted", "unadopted"]
+    })
+  end
+
+  defmodule AppointmentType do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "AppointmentType",
+      type: :object,
+      properties: %{
+        appointment_type: %Schema{
+          type: :string
+        }
+      },
+      required: [:appointment_type]
+    })
+  end
+
+  defmodule TrainingAppointment do
+    OpenApiSpex.schema(%{
+      title: "TrainingAppointment",
+      description: "Request for a training appointment",
+      type: :object,
+      allOf: [
+        AppointmentType,
+        %Schema{
+          type: :object,
+          properties: %{
+            level: %Schema{
+              description: "The level of training",
+              type: :integer
+            }
+          },
+          required: [:level]
+        }
+      ]
+    })
+  end
+
+  defmodule GroomingAppointment do
+    OpenApiSpex.schema(%{
+      title: "GroomingAppointment",
+      description: "Request for a training appointment",
+      type: :object,
+      allOf: [
+        AppointmentType,
+        %Schema{
+          type: :object,
+          properties: %{
+            hair_trim: %Schema{
+              description: "Whether or not to include a hair trim",
+              type: :boolean
+            },
+            nail_clip: %Schema{
+              description: "Whether or not to include nail clip",
+              type: :boolean
+            }
+          },
+          required: [:hair_trim, :nail_clip]
+        }
+      ]
+    })
+  end
+
+  defmodule PetAppointmentRequest do
+    OpenApiSpex.schema(%{
+      title: "PetAppointmentRequest",
+      description: "POST body for making a pet appointment",
+      type: :object,
+      oneOf: [
+        TrainingAppointment,
+        GroomingAppointment
+      ],
+      discriminator: %OpenApiSpex.Discriminator{
+        propertyName: "appointment_type",
+        mapping: %{
+          "training" => "TrainingAppointment",
+          "grooming" => "GroomingAppointment"
+        }
+      }
+    })
+  end
 end

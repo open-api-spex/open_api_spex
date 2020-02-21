@@ -99,7 +99,7 @@ defmodule OpenApiSpexTest.PetController do
       parameters: [
         parameter(:"x-user-id", :header, :string, "User that performs this action", required: true),
         parameter(:id, :path, :integer, "Pet ID", example: 123, minimum: 1),
-        parameter(:status, :query, :string, "New status"),
+        parameter(:status, :query, Schemas.PetStatus, "New status"),
         parameter(:debug, :cookie, %OpenApiSpex.Schema{type: :integer, enum: [0, 1], default: 0}, "Debug"),
       ],
       responses: %{
@@ -124,5 +124,28 @@ defmodule OpenApiSpexTest.PetController do
         bark: "woof"
       }
     })
+  end
+
+  def appointment_operation() do
+    import Operation
+
+    %Operation{
+      tags: ["pets"],
+      summary: "Create pet",
+      description: "Create a pet",
+      operationId: "PetController.create",
+      parameters: [],
+      requestBody: request_body("The pet attributes", "application/json", Schemas.PetAppointmentRequest),
+      responses: %{
+        201 => response("Pet", "application/json", Schemas.PetResponse)
+      }
+    }
+  end
+
+  def appointment(conn = %{body_params: bp}, _) do
+    bp |> IO.inspect(label: "the body params I actually got..")
+    json(conn, %Schemas.PetResponse{
+          data: [%{pet_type: "Dog", bark: "bow wow"}]
+})
   end
 end
