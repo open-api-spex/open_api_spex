@@ -3,7 +3,7 @@ defmodule OpenApiSpex.Cast.Discriminator do
   Defines the `OpenApiSpex.Discriminator.t` type.
   """
 
-  alias OpenApiSpex.Cast
+  alias OpenApiSpex.{Cast, Reference, Schema}
 
   @enforce_keys :propertyName
   defstruct [
@@ -70,20 +70,21 @@ defmodule OpenApiSpex.Cast.Discriminator do
 
   defp cast_composition(%_{schema: %{anyOf: schemas, discriminator: nil}} = ctx)
        when is_list(schemas),
-       do: {schemas, Cast.cast(ctx)}
+       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
 
   defp cast_composition(%_{schema: %{allOf: schemas, discriminator: nil}} = ctx)
        when is_list(schemas),
-       do: {schemas, Cast.cast(ctx)}
+       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
 
   defp cast_composition(%_{schema: %{oneOf: schemas, discriminator: nil}} = ctx)
        when is_list(schemas),
-       do: {schemas, Cast.cast(ctx)}
+       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
 
   defp find_discriminator_schema(discriminator, mappings = %{}, schemas) do
     with {:ok, "#/components/schemas/" <> name} <- Map.fetch(mappings, discriminator) do
       find_discriminator_schema(name, nil, schemas)
     else
+      {:ok, name} -> find_discriminator_schema(name, nil, schemas)
       :error -> find_discriminator_schema(discriminator, nil, schemas)
     end
   end
@@ -97,5 +98,15 @@ defmodule OpenApiSpex.Cast.Discriminator do
 
   defp error(message, %{schema: %{discriminator: %{propertyName: property}}} = ctx) do
     Cast.error(ctx, {message, property})
+  end
+
+  defp locate_schemas(schemas, ctx_schemas) do
+    schemas
+    |> Enum.map(fn
+      %Schema{} = schema ->
+        schema
+      %Reference{} = schema ->
+        Reference.resolve_schema(schema, ctx_schemas)
+    end)
   end
 end

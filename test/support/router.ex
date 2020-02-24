@@ -23,6 +23,7 @@ defmodule OpenApiSpexTest.Router do
 
     resources "/pets", PetController, only: [:create, :index, :show]
     post "/pets/:id/adopt", PetController, :adopt
+    post "/pets/appointment", PetController, :appointment
 
     get "/utility/echo/any", UtilityController, :echo_any
   end

@@ -234,6 +234,23 @@ defmodule OpenApiSpex.Plug.CastTest do
                }
              }
     end
+
+    test "Optional param" do
+      conn =
+        :post
+        |> Plug.Test.conn("/api/pets/1/adopt?status=adopted")
+        |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
+        |> Plug.Conn.put_req_header("x-user-id", "123456")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert Jason.decode!(conn.resp_body) == %{
+        "data" => %{
+          "pet_type" => "Dog",
+          "bark" => "woof"
+        }
+      }
+    end
+
     test "Cookie params" do
       conn =
         :post
@@ -249,6 +266,23 @@ defmodule OpenApiSpex.Plug.CastTest do
                  "bark" => "woof"
                }
              }
+    end
+
+    test "Discriminator with mapping" do
+      body =
+        Jason.encode!(%{
+          appointment_type: "grooming",
+          hair_trim: true,
+          nail_clip: false
+        })
+
+      conn =
+        :post
+        |> Plug.Test.conn("/api/pets/appointment", body)
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert Jason.decode!(conn.resp_body) == %{"data" => [%{"pet_type" => "Dog", "bark" => "bow wow"}]}
     end
 
     test "freeForm params" do
