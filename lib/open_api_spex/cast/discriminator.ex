@@ -70,15 +70,15 @@ defmodule OpenApiSpex.Cast.Discriminator do
 
   defp cast_composition(%_{schema: %{anyOf: schemas, discriminator: nil}} = ctx)
        when is_list(schemas),
-       do: {schemas |> _locate_schemas(ctx.schemas), Cast.cast(ctx)}
+       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
 
   defp cast_composition(%_{schema: %{allOf: schemas, discriminator: nil}} = ctx)
        when is_list(schemas),
-       do: {schemas |> _locate_schemas(ctx.schemas), Cast.cast(ctx)}
+       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
 
   defp cast_composition(%_{schema: %{oneOf: schemas, discriminator: nil}} = ctx)
        when is_list(schemas),
-       do: {schemas |> _locate_schemas(ctx.schemas), Cast.cast(ctx)}
+       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
 
   defp find_discriminator_schema(discriminator, mappings = %{}, schemas) do
     with {:ok, "#/components/schemas/" <> name} <- Map.fetch(mappings, discriminator) do
@@ -100,7 +100,7 @@ defmodule OpenApiSpex.Cast.Discriminator do
     Cast.error(ctx, {message, property})
   end
 
-  defp _locate_schemas(schemas, ctx_schemas) do
+  defp locate_schemas(schemas, ctx_schemas) do
     schemas
     |> Enum.map(fn
       %Schema{} = schema ->

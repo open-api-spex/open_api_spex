@@ -240,14 +240,14 @@ defmodule OpenApiSpex.Plug.CastTest do
         :post
         |> Plug.Test.conn("/api/pets/1/adopt?status=adopted")
         |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
-      |> Plug.Conn.put_req_header("x-user-id", "123456")
-      |> OpenApiSpexTest.Router.call([])
+        |> Plug.Conn.put_req_header("x-user-id", "123456")
+        |> OpenApiSpexTest.Router.call([])
 
       assert Jason.decode!(conn.resp_body) == %{
         "data" => %{
-      "pet_type" => "Dog",
-      "bark" => "woof"
-    }
+          "pet_type" => "Dog",
+          "bark" => "woof"
+        }
       }
     end
 
