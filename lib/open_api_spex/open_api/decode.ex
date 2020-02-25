@@ -203,7 +203,7 @@ defmodule OpenApiSpex.OpenApi.Decode do
 
   defp to_struct(%{"type" => "object"} = map, Schema) do
     map
-    |> Map.update!("properties", fn v ->
+    |> Map.update("properties", %{}, fn v ->
       v
       |> Map.new(fn {k, v} ->
         {String.to_atom(k), v}
