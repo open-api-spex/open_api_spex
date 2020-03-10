@@ -1,6 +1,6 @@
 defmodule OpenApiSpexTest.UserControllerAnnotated do
   use OpenApiSpex.Controller
-  alias OpenApiSpexTest.Schemas.User
+  alias OpenApiSpexTest.Schemas.{NotFound, Unauthorized, User}
 
   @moduledoc tags: ["User"]
 
@@ -14,7 +14,9 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
        ]
   @doc request_body: {"Request body to update a User", "application/json", User, required: true}
   @doc responses: [
-         ok: {"User response", "application/json", User}
+         ok: {"User response", "application/json", User},
+         unauthorized: Unauthorized.response(),
+         not_found: NotFound.response()
        ]
   def update(_conn, _params), do: :ok
 

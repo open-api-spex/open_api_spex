@@ -26,6 +26,14 @@ defmodule OpenApiSpex.ControllerTest do
       assert %{responses: %{200 => _}} = @controller.open_api_operation(:update)
     end
 
+    test "has response for HTTP 401" do
+      assert %{responses: %{401 => _}} = @controller.open_api_operation(:update)
+    end
+
+    test "has response for HTTP 404" do
+      assert %{responses: %{404 => _}} = @controller.open_api_operation(:update)
+    end
+
     test "has parameter `:id`" do
       assert %{parameters: [param]} = @controller.open_api_operation(:update)
       assert param.name == :id
