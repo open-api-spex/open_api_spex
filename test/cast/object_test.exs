@@ -172,6 +172,41 @@ defmodule OpenApiSpex.ObjectTest do
       assert cast(value: %{"foo" => "foo"}, schema: schema) == {:ok, %{"foo" => "foo"}}
     end
 
+    test "casts additional properties according to the additionalProperty schema" do
+      schema = %Schema{
+        type: :object,
+        properties: %{},
+        additionalProperties: %Schema{
+          type: :object,
+          properties: %{
+            age: %Schema{type: :integer}
+          }
+        }
+      }
+
+      input = %{"alex" => %{"age" => 42}, "brian" => %{"age" => 43}}
+
+      assert cast(value: input, schema: schema) ==
+               {:ok, %{"alex" => %{age: 42}, "brian" => %{age: 43}}}
+    end
+
+    test "when additionalProperty schema does not work out" do
+      schema = %Schema{
+        type: :object,
+        properties: %{},
+        additionalProperties: %Schema{
+          type: :object,
+          properties: %{},
+          additionalProperties: %Schema{type: :integer}
+        }
+      }
+
+      input = %{"alex" => %{"age" => 5, "size" => 5}, "brian" => %{"age" => 6, "size" => "tall"}}
+
+      assert {:error, [%{path: ["brian", "size"], reason: :invalid_type}]} =
+               cast(value: input, schema: schema)
+    end
+
     defmodule User do
       defstruct [:name]
     end
