@@ -18,7 +18,7 @@ defmodule OpenApiSpex.Cast.Object do
     with :ok <- check_unrecognized_properties(ctx, schema_properties),
          value = cast_atom_keys(value, schema_properties),
          ctx = %{ctx | value: value},
-         ctx = cast_additional_properties(ctx, original_value),
+         {:ok, ctx} <- cast_additional_properties(ctx, original_value),
          :ok <- check_required_fields(ctx, schema),
          :ok <- check_max_properties(ctx),
          :ok <- check_min_properties(ctx),
@@ -29,9 +29,9 @@ defmodule OpenApiSpex.Cast.Object do
     end
   end
 
-  # When additionalProperties is true, extra properties are allowed in input
+  # When additionalProperties is not false, extra properties are allowed in input
   defp check_unrecognized_properties(%{schema: %{additionalProperties: ap}}, _expected_keys)
-       when ap in [nil, true] do
+       when ap != false do
     :ok
   end
 
@@ -115,30 +115,40 @@ defmodule OpenApiSpex.Cast.Object do
     end)
   end
 
-  # Pass additional properties through when `additionalProperties` is true.
-  # Map string keys are not converted to atoms. That would require calling `String.to_atom/1`, which is not safe.
-  defp cast_additional_properties(%{schema: %{additionalProperties: ap}} = ctx, original_value)
-       when ap in [nil, true] do
-    recognized_keys = Map.keys(ctx.schema.properties || %{})
-    # Create MapSet with both atom and string versions of the property keys
-    recognized_keys = MapSet.new(recognized_keys ++ Enum.map(recognized_keys, &to_string/1))
+  defp cast_additional_properties(%{schema: %{additionalProperties: ap}} = ctx, original_value) do
+    original_value
+    |> get_additional_properties(ctx)
+    |> Enum.reduce({:ok, ctx}, fn
+      {key, value}, {:ok, ctx} ->
+        ap_cast_context = %{ctx | key: key, value: value, path: [key | ctx.path], schema: ap}
+        cast_additional_property(ap_cast_context, ctx)
 
-    additional_properties =
-      Enum.reduce(original_value, %{}, fn {key, value}, props ->
-        if MapSet.member?(recognized_keys, key) do
-          props
-        else
-          Map.put(props, key, value)
-        end
-      end)
-
-    updated_value = Map.merge(ctx.value, additional_properties)
-
-    %{ctx | value: updated_value}
+      _, error ->
+        error
+    end)
   end
 
-  defp cast_additional_properties(ctx, _original_value) do
-    ctx
+  defp get_additional_properties(original_value, ctx) do
+    recognized_keys =
+      (ctx.schema.properties || %{})
+      |> Map.keys()
+      |> Enum.flat_map(&[&1, to_string(&1)])
+      |> MapSet.new()
+
+    for {key, _value} = prop <- original_value,
+        not MapSet.member?(recognized_keys, key) do
+      prop
+    end
+  end
+
+  defp cast_additional_property(%{schema: ap} = ctx, output_ctx) when is_map(ap) do
+    with {:ok, value} <- Cast.cast(ctx) do
+      {:ok, %{output_ctx | value: Map.put(output_ctx.value, ctx.key, value)}}
+    end
+  end
+
+  defp cast_additional_property(%{schema: ap} = ctx, output_ctx) when ap in [nil, true] do
+    {:ok, %{output_ctx | value: Map.put(output_ctx.value, ctx.key, ctx.value)}}
   end
 
   defp cast_property(%{key: key, schema: schema_properties} = ctx, output) do
