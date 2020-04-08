@@ -39,7 +39,7 @@ defmodule OpenApiSpex.Schema do
           def schema() do
             %OpenApiSpex.Schema{
               type: :object,
-              additionalProperties: %{
+              additionalProperties: %OpenApiSpex.Schema{
                 type: :string
               }
             }
