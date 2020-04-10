@@ -216,7 +216,7 @@ defmodule OpenApiSpex.Schema do
           maxProperties: integer | nil,
           minProperties: integer | nil,
           required: [atom] | nil,
-          enum: [String.t()] | nil,
+          enum: [any] | nil,
           type: data_type | nil,
           allOf: [Schema.t() | Reference.t() | module] | nil,
           oneOf: [Schema.t() | Reference.t() | module] | nil,
@@ -383,8 +383,8 @@ defmodule OpenApiSpex.Schema do
   end
 
   def cast(schema = %Schema{oneOf: one_of}, value, schemas)
-                                                 when is_list(one_of),
-    do: OpenApiSpex.Cast.cast(schema, value, schemas)
+      when is_list(one_of),
+      do: OpenApiSpex.Cast.cast(schema, value, schemas)
 
   def cast(%Schema{oneOf: []}, _value, _schemas) do
     {:error, "Failed to cast to any schema in oneOf"}
