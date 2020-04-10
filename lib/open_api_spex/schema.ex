@@ -46,16 +46,13 @@ defmodule OpenApiSpex.Schema do
           end
         end
 
-        defmodule Pet do
+        defmodule PetCommon do
           require OpenApiSpex
           alias OpenApiSpex.{Schema, Discriminator}
-
           OpenApiSpex.schema(%{
-            title: "Pet",
+            title: "PetCommon",
+            description: "Properties common to all Pets"
             type: :object,
-            discriminator: %Discriminator{
-              propertyName: "petType"
-            },
             properties: %{
               name: %Schema{type: :string},
               petType: %Schema{type: :string}
@@ -67,13 +64,12 @@ defmodule OpenApiSpex.Schema do
         defmodule Cat do
           require OpenApiSpex
           alias OpenApiSpex.Schema
-
           OpenApiSpex.schema(%{
             title: "Cat",
             type: :object,
             description: "A representation of a cat. Note that `Cat` will be used as the discriminator value.",
             allOf: [
-              Pet,
+              PetCommon,
               %Schema{
                 type: :object,
                 properties: %{
@@ -93,13 +89,12 @@ defmodule OpenApiSpex.Schema do
         defmodule Dog do
           require OpenApiSpex
           alias OpenApiSpex.Schema
-
           OpenApiSpex.schema(%{
             type: :object,
             title: "Dog",
             description: "A representation of a dog. Note that `Dog` will be used as the discriminator value.",
             allOf: [
-              Pet,
+              PetCommon,
               %Schema {
                 type: :object,
                 properties: %{
@@ -118,7 +113,22 @@ defmodule OpenApiSpex.Schema do
             ]
           })
         end
-      end
+
+        defmodule Pet do
+          require OpenApiSpex
+          alias OpenApiSpex.{Schema, Discriminator}
+          OpenApiSpex.schema(%{
+            title: "Pet",
+            type: :object,
+            discriminator: %Discriminator{
+              propertyName: "petType"
+            },
+            oneOf: [
+              Cat,
+              Dog
+            ]
+          })
+        end
   """
 
   alias OpenApiSpex.{
