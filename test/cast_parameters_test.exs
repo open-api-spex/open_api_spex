@@ -27,6 +27,21 @@ defmodule OpenApiSpex.CastParametersTest do
 
       assert expected_response == cast_result
     end
+
+    test "default parameter values are supplied" do
+      conn = create_conn()
+      operation = create_operation()
+      components = create_empty_components()
+      {:ok, conn} = CastParameters.cast(conn, operation, components)
+      assert %{params: %{includeInactive: false}} = conn
+    end
+  end
+
+  defp create_conn() do
+    :get
+    |> Plug.Test.conn("/api/users/")
+    |> Plug.Conn.put_req_header("content-type", "application/json")
+    |> Plug.Conn.fetch_query_params()
   end
 
   defp create_conn_with_unexpected_path_param() do
@@ -39,11 +54,12 @@ defmodule OpenApiSpex.CastParametersTest do
   defp create_operation() do
     %Operation{
       parameters: [
+        Operation.parameter(:id, :query, :string, "User ID", example: "1"),
         Operation.parameter(
-          :id,
+          :includeInactive,
           :query,
-          :string,
-          example: "1"
+          %Schema{type: :boolean, default: false},
+          "Include inactive users"
         )
       ],
       responses: %{
