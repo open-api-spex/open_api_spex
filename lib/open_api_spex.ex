@@ -7,7 +7,6 @@ defmodule OpenApiSpex do
     Components,
     OpenApi,
     Operation,
-    Operation2,
     Reference,
     Schema,
     SchemaException,
@@ -57,71 +56,7 @@ defmodule OpenApiSpex do
         conn = %Plug.Conn{},
         content_type \\ nil
       ) do
-    Operation2.cast(operation, conn, content_type, spec.components)
-  end
-
-  @doc """
-  Cast params to conform to a `OpenApiSpex.Schema`.
-
-  See `OpenApiSpex.Schema.cast/3` for additional examples and details.
-  """
-  @spec cast(OpenApi.t(), Schema.t() | Reference.t(), any) :: {:ok, any} | {:error, String.t()}
-  @deprecated "Use OpenApiSpex.cast_value/3 or cast_value/2 instead"
-  def cast(spec = %OpenApi{}, schema = %Schema{}, params) do
-    Schema.cast(schema, params, spec.components.schemas)
-  end
-
-  def cast(spec = %OpenApi{}, schema = %Reference{}, params) do
-    Schema.cast(schema, params, spec.components.schemas)
-  end
-
-  @doc """
-  Cast all params in `Plug.Conn` to conform to the schemas for `OpenApiSpex.Operation`.
-
-  Returns `{:ok, Plug.Conn.t}` with `params` and `body_params` fields updated if successful,
-  or `{:error, reason}` if casting fails.
-
-  `content_type` may optionally be supplied to select the `requestBody` schema.
-  """
-  @spec cast(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
-          {:ok, Plug.Conn.t()} | {:error, String.t()}
-        when content_type: String.t()
-  @deprecated "Use OpenApiSpex.cast_and_validate/3 instead"
-  def cast(spec = %OpenApi{}, operation = %Operation{}, conn = %Plug.Conn{}, content_type \\ nil) do
-    Operation.cast(operation, conn, content_type, spec.components.schemas)
-  end
-
-  @doc """
-  Validate params against `OpenApiSpex.Schema`.
-
-  See `OpenApiSpex.Schema.validate/3` for examples of error messages.
-  """
-  @spec validate(OpenApi.t(), Schema.t() | Reference.t(), any) :: :ok | {:error, String.t()}
-  @deprecated "Use OpenApiSpex.cast_value/3 or cast_value/2 instead"
-  def validate(spec = %OpenApi{}, schema = %Schema{}, params) do
-    Schema.validate(schema, params, spec.components.schemas)
-  end
-
-  def validate(spec = %OpenApi{}, schema = %Reference{}, params) do
-    Schema.validate(schema, params, spec.components.schemas)
-  end
-
-  @doc """
-  Validate all params in `Plug.Conn` against `OpenApiSpex.Operation` `parameter` and `requestBody` schemas.
-
-  `content_type` may be optionally supplied to select the `requestBody` schema.
-  """
-  @spec validate(OpenApi.t(), Operation.t(), Plug.Conn.t(), content_type | nil) ::
-          :ok | {:error, String.t()}
-        when content_type: String.t()
-  @deprecated "Use OpenApiSpex.cast_and_validate/4 instead"
-  def validate(
-        spec = %OpenApi{},
-        operation = %Operation{},
-        conn = %Plug.Conn{},
-        content_type \\ nil
-      ) do
-    Operation.validate(operation, conn, content_type, spec.components.schemas)
+    Operation.cast(operation, conn, content_type, spec.components)
   end
 
   def path_to_string(%Error{} = error) do
