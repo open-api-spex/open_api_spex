@@ -14,7 +14,7 @@ defmodule OpenApiSpex.Operation do
     Responses,
     Schema,
     SecurityRequirement,
-    Server,
+    Server
   }
 
   @enforce_keys :responses
@@ -80,16 +80,27 @@ defmodule OpenApiSpex.Operation do
   end
 
   @doc """
-  Shorthand for constructing a Parameter name, location, type, description and optional examples
+  Shorthand for constructing an `OpenApiSpex.Parameter` given name, location, type, description and optional examples
   """
-  @spec parameter(atom, Parameter.location, Reference.t | Schema.t | atom, String.t, keyword) :: Parameter.t
-  def parameter(name, location, type, description, opts \\ []) do
+  @spec parameter(
+          name :: atom,
+          location :: Parameter.location(),
+          type :: Reference.t() | Schema.t() | atom,
+          description :: String.t(),
+          opts :: keyword
+        ) :: Parameter.t()
+  def parameter(name, location, type, description, opts \\ [])
+      when is_atom(name) and
+             is_atom(location) and
+             (is_map(type) or is_atom(type)) and
+             is_binary(description) and
+             is_list(opts) do
     params =
       [name: name, in: location, description: description, required: location == :path]
       |> Keyword.merge(opts)
 
     Parameter
-    |> struct(params)
+    |> struct!(params)
     |> Parameter.put_schema(type)
   end
 
