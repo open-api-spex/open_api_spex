@@ -1,6 +1,6 @@
 defmodule OpenApiSpexTest.PetController do
   use Phoenix.Controller
-  alias OpenApiSpex.Operation
+  alias OpenApiSpex.{Operation, Schema}
   alias OpenApiSpexTest.Schemas
 
   plug OpenApiSpex.Plug.CastAndValidate
@@ -21,7 +21,7 @@ defmodule OpenApiSpexTest.PetController do
       description: "Show a pet by ID",
       operationId: "PetController.show",
       parameters: [
-        parameter(:id, :path, :integer, "Pet ID", example: 123, minimum: 1)
+        parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "Pet ID", example: 123)
       ],
       responses: %{
         200 => response("Pet", "application/json", Schemas.PetResponse)
@@ -98,9 +98,14 @@ defmodule OpenApiSpexTest.PetController do
       operationId: "PetController.adopt",
       parameters: [
         parameter(:"x-user-id", :header, :string, "User that performs this action", required: true),
-        parameter(:id, :path, :integer, "Pet ID", example: 123, minimum: 1),
+        parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "Pet ID", example: 123),
         parameter(:status, :query, Schemas.PetStatus, "New status"),
-        parameter(:debug, :cookie, %OpenApiSpex.Schema{type: :integer, enum: [0, 1], default: 0}, "Debug"),
+        parameter(
+          :debug,
+          :cookie,
+          %Schema{type: :integer, enum: [0, 1], default: 0},
+          "Debug"
+        )
       ],
       responses: %{
         200 => response("Pet", "application/json", Schemas.PetRequest)
@@ -135,7 +140,8 @@ defmodule OpenApiSpexTest.PetController do
       description: "Create a pet",
       operationId: "PetController.appointment",
       parameters: [],
-      requestBody: request_body("The pet attributes", "application/json", Schemas.PetAppointmentRequest),
+      requestBody:
+        request_body("The pet attributes", "application/json", Schemas.PetAppointmentRequest),
       responses: %{
         201 => response("Pet", "application/json", Schemas.PetResponse)
       }
@@ -144,7 +150,7 @@ defmodule OpenApiSpexTest.PetController do
 
   def appointment(conn, _) do
     json(conn, %Schemas.PetResponse{
-          data: [%{pet_type: "Dog", bark: "bow wow"}]
-})
+      data: [%{pet_type: "Dog", bark: "bow wow"}]
+    })
   end
 end
