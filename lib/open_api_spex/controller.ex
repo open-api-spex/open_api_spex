@@ -151,7 +151,7 @@ defmodule OpenApiSpex.Controller do
     for {name, options} <- params do
       {location, options} = Keyword.pop(options, :in, :query)
       {type, options} = Keyword.pop(options, :type, :string)
-      {description, options} = Keyword.pop(options, :description, :string)
+      {description, options} = Keyword.pop(options, :description, "")
 
       Operation.parameter(name, location, type, description, options)
     end

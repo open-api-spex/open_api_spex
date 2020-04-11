@@ -1,6 +1,6 @@
 defmodule OpenApiSpexTest.UserController do
   use Phoenix.Controller
-  alias OpenApiSpex.Operation
+  alias OpenApiSpex.{Operation, Schema}
   alias OpenApiSpexTest.Schemas
 
   plug OpenApiSpex.Plug.CastAndValidate
@@ -21,7 +21,7 @@ defmodule OpenApiSpexTest.UserController do
       description: "Show a user by ID",
       operationId: "UserController.show",
       parameters: [
-        parameter(:id, :path, :integer, "User ID", example: 123, minimum: 1)
+        parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "User ID", example: 123)
       ],
       responses: %{
         200 => response("User", "application/json", Schemas.UserResponse)
@@ -125,7 +125,7 @@ defmodule OpenApiSpexTest.UserController do
       description: "Shows a users payment details",
       operationId: "UserController.payment_details",
       parameters: [
-        parameter(:id, :path, :integer, "User ID", example: 123, minimum: 1)
+        parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "User ID", example: 123)
       ],
       responses: %{
         200 => response("Payment Details", "application/json", Schemas.PaymentDetails)
