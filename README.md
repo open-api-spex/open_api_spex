@@ -27,11 +27,13 @@ end
 
 ## Generate Spec
 
+### Main Spec
+
 Start by adding an `ApiSpec` module to your application to populate an `OpenApiSpex.OpenApi` struct.
 
 ```elixir
 defmodule MyAppWeb.ApiSpec do
-  alias OpenApiSpex.{OpenApi, Server, Info, Paths}
+  alias OpenApiSpex.{Components, Info, OpenApi, Paths, Server}
   alias MyAppWeb.{Endpoint, Router}
   @behaviour OpenApi
 
@@ -46,10 +48,10 @@ defmodule MyAppWeb.ApiSpec do
         title: "My App",
         version: "1.0"
       },
-      # populate the paths from a phoenix router
+      # Populate the paths from a phoenix router
       paths: Paths.from_router(Router)
     }
-    |> OpenApiSpex.resolve_schema_modules() # discover request/response schemas from path specs
+    |> OpenApiSpex.resolve_schema_modules() # Discover request/response schemas from path specs
   end
 end
 ```
@@ -62,6 +64,28 @@ info: %Info{
   version: Application.spec(:my_app, :vsn)
 }
 ```
+
+### Authorization
+
+In case your API requires authorization you can add security schemes as part of the components in the main spec.
+
+```elixir
+components: %Components{
+  securitySchemes: %{authorization: %SecurityScheme{type: "http", scheme: "bearer"}}
+}
+```
+
+Once the security scheme is defined you can declare it. Please note that the key below matches the one defined in the security scheme, in the our example, `authorization`.
+
+```elixir
+security: [%{authorization: []}]
+```
+
+If you require authorization for all endpoints you can declare the `security` in the main spec. In case you need authorization only for specific endpoints, or if you are using more than one security scheme, you can declare it as part of each operation.
+
+To learn more about the different security schemes please the check the [official documentation](https://swagger.io/docs/specification/authentication/).
+
+### Operations
 
 For each plug (controller) that will handle api requests, add an `open_api_operation` callback.
 It will be passed the plug opts that were declared in the router, this will be the action for a phoenix controller. The callback populates an `OpenApiSpex.Operation` struct describing the plug/action.
@@ -146,6 +170,8 @@ end
 
 For examples of other action operations, see the
 [example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex).
+
+### Schemas
 
 Next, declare JSON schema modules for the request and response bodies.
 In each schema module, call `OpenApiSpex.schema/1`, passing the schema definition. The schema must
