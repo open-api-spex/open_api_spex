@@ -90,11 +90,18 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
           request.headers["x-csrf-token"] = "<%= csrf_token %>";
           return request;
         }
-        <%= for {k, v} <- Map.drop(config, [:path]) do %>
+        <%= for {k, v} <- Map.drop(config, [:path, :oauth]) do %>
         , <%= camelize(k) %>: <%= OpenApiSpex.OpenApi.json_encoder().encode!(v) %>
         <% end %>
       })
       // End Swagger UI call region
+      <%= if config[:oauth] do %>
+        ui.initOAuth({
+          <%= for {k, v} <- config[:oauth] do %>
+          , <%= camelize(k) %>: <%= OpenApiSpex.OpenApi.json_encoder().encode!(v) %>
+          <% end %>
+        })
+      <% end %>
       window.ui = ui
     }
     </script>
@@ -108,6 +115,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   ## Options
 
    * `:path` - Required. The URL path to the API definition.
+   * `:oauth` - Optional. Config to pass to the `SwaggerUIBundle.initOAuth()` function.
    * all other opts - forwarded to the `SwaggerUIBundle` constructor
 
   ## Example
