@@ -1,5 +1,5 @@
 defmodule PhoenixAppWeb.ApiSpec do
-  alias OpenApiSpex.{Info, OpenApi, Paths}
+  alias OpenApiSpex.{Components, Info, OpenApi, OAuthFlow, OAuthFlows, Paths, SecurityScheme}
   @behaviour OpenApi
 
   @impl OpenApi
@@ -10,7 +10,27 @@ defmodule PhoenixAppWeb.ApiSpec do
         version: "1.0"
       },
       servers: [OpenApiSpex.Server.from_endpoint(PhoenixAppWeb.Endpoint)],
-      paths: Paths.from_router(PhoenixAppWeb.Router)
+      paths: Paths.from_router(PhoenixAppWeb.Router),
+      components: %Components{
+        securitySchemes: %{
+          "oauth" => %SecurityScheme{
+            type: "oauth2",
+            description: "Authenticate with Github OAuth 2",
+            flows: %OAuthFlows{
+              authorizationCode: %OAuthFlow{
+                authorizationUrl: "https://github.com/login/oauth/authorize",
+                tokenUrl: "https://github.com/login/oauth/access_token",
+                scopes: %{"user:email" => "Read your email address."}
+              }
+            }
+          }
+        }
+      },
+      security: [
+        %{
+          "oauth" => []
+        }
+      ]
     }
     |> OpenApiSpex.resolve_schema_modules()
   end

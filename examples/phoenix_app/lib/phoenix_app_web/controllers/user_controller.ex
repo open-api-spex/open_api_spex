@@ -55,9 +55,7 @@ defmodule PhoenixAppWeb.UserController do
   end
 
   @doc """
-  Show user.
-
-  Show a user by ID.
+  API Spec for :show action
   """
   @doc parameters: [
          id: [
