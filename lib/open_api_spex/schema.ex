@@ -869,4 +869,5 @@ defmodule OpenApiSpex.Schema do
 
   defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
   defp default(%{default: default}), do: default
+  defp default(%Reference{}), do: nil
 end
