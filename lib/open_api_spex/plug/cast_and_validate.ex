@@ -58,10 +58,15 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
     operation = private_data.operation_lookup[operation_id]
 
     content_type =
-      Conn.get_req_header(conn, "content-type")
-      |> Enum.at(0, "")
-      |> String.split(";")
-      |> Enum.at(0)
+      case Conn.get_req_header(conn, "content-type") do
+        [header_value | _] ->
+          header_value
+          |> String.split(";")
+          |> Enum.at(0)
+
+        _ ->
+          nil
+      end
 
     private_data = Map.put(private_data, :operation_id, operation_id)
     conn = Conn.put_private(conn, :open_api_spex, private_data)
