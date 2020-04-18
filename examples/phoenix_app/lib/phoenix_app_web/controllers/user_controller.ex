@@ -68,7 +68,7 @@ defmodule PhoenixAppWeb.UserController do
       description: "Show a user by ID",
       operationId: "UserController.show",
       parameters: [
-        parameter(:id, :path, :integer, "User ID", example: 123, minimum: 1, required: true)
+        parameter(:id, :path, :integer, "User ID", example: 123, required: true)
       ],
       responses: %{
         200 => response("User", "application/json", Schemas.UserResponse)
