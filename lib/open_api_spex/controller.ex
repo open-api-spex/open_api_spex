@@ -126,21 +126,18 @@ defmodule OpenApiSpex.Controller do
   defp get_docs(module, name) do
     {:docs_v1, _anno, _lang, _format, _module_doc, mod_meta, mod_docs} = Code.fetch_docs(module)
 
-    {_, _, _, docs, meta} =
+    doc_for_function =
       Enum.find(mod_docs, fn
         {{:function, ^name, _}, _, _, _, _} -> true
         _ -> false
       end)
 
-    if docs == :none do
-      :error
-    else
-      docs = Map.get(docs, "en", "")
+    doc_for_function || raise "No docs found for function #{module}.#{name}/2"
+    {_, _, _, docs, meta} = doc_for_function
+    docs = Map.get(docs, "en", "")
+    [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
 
-      [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
-
-      {:ok, {mod_meta, summary, docs, meta}}
-    end
+    {:ok, {mod_meta, summary, docs, meta}}
   end
 
   defp build_operation_id(meta, mod, name) do
