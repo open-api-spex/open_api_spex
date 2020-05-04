@@ -66,11 +66,11 @@ defmodule OpenApiSpex.Controller do
   ## Example
 
   ```
-  defmodule FooController do
+  defmodule UserController do
+    @moduledoc tags: ["Users"]
+
     use MyAppWeb, :controller
     use #{inspect(__MODULE__)}
-
-    @moduledoc tags: ["Foos"]
 
     @doc """
     Endpoint summary
@@ -80,12 +80,13 @@ defmodule OpenApiSpex.Controller do
     @doc parameters: [
            id: [in: :path, type: :string, required: true]
          ],
-         request_body: {"Request body to update Foo", "application/json", FooUpdateBody, required: true},
+         request_body: {"Request body to update User", "application/json", UserUpdateBody, required: true},
          responses: [
-           ok: {"Foo document", "application/json", FooSchema}
+           ok: {"User document", "application/json", UserSchema},
+           {302, "Redirect", "text/html", EmptyResponse, headers: %{"Location" => %Header{description: "Redirect Location"}}}
          ]
     def update(conn, %{id: id}) do
-      foo_params = conn.body_params
+      user_params = conn.body_params
       # …
     end
   end
@@ -160,6 +161,9 @@ defmodule OpenApiSpex.Controller do
     Map.new(responses, fn
       {status, {description, mime, schema}} ->
         {Plug.Conn.Status.code(status), Operation.response(description, mime, schema)}
+
+      {status, {description, mime, schema, opts}} ->
+        {Plug.Conn.Status.code(status), Operation.response(description, mime, schema, opts)}
 
       {status, %Response{} = response} ->
         {Plug.Conn.Status.code(status), response}
