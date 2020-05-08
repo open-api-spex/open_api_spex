@@ -1,15 +1,15 @@
 # Open API Spex
+
 [![Build Status](https://travis-ci.com/open-api-spex/open_api_spex.svg?branch=master)](https://travis-ci.com/open-api-spex/open_api_spex)
 [![Hex.pm](https://img.shields.io/hexpm/v/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
 
-
 Leverage Open API Specification 3 (formerly Swagger) to document, test, validate and explore your Plug and Phoenix APIs.
 
- - Generate and serve a JSON Open API Spec document from your code
- - Use the spec to cast request params to well defined schema structs
- - Validate params against schemas, eliminate bad requests before they hit your controllers
- - Validate responses against schemas in tests, ensuring your docs are accurate and reliable
- - Explore the API interactively with with [SwaggerUI](https://swagger.io/swagger-ui/)
+- Generate and serve a JSON Open API Spec document from your code
+- Use the spec to cast request params to well defined schema structs
+- Validate params against schemas, eliminate bad requests before they hit your controllers
+- Validate responses against schemas in tests, ensuring your docs are accurate and reliable
+- Explore the API interactively with with [SwaggerUI](https://swagger.io/swagger-ui/)
 
 Full documentation available on [hexdocs](https://hexdocs.pm/open_api_spex/)
 
@@ -87,86 +87,61 @@ To learn more about the different security schemes please the check the [officia
 
 ### Operations
 
-For each plug (controller) that will handle api requests, add an `open_api_operation` callback.
-It will be passed the plug opts that were declared in the router, this will be the action for a phoenix controller. The callback populates an `OpenApiSpex.Operation` struct describing the plug/action.
+For each plug (controller) that will handle API requests, operations need
+to be defined that the plug/controller will handle. The operations can
+be defined using moduledoc attributes that are supported in Elixir 1.7 and higher.
 
 ```elixir
 defmodule MyAppWeb.UserController do
-  alias OpenApiSpex.Operation
-  alias MyAppWeb.Schemas.UserResponse
+  use MyAppWeb, :controller
+  use OpenApiSpex.Controller
 
-  @spec open_api_operation(atom) :: Operation.t()
-  def open_api_operation(action) do
-    operation = String.to_existing_atom("#{action}_operation")
-    apply(__MODULE__, operation, [])
+  @doc """
+  List users
+  """
+  @doc responses: %{
+    200 => {"Users", "application/json", MyAppWeb.Schema.Users}
+  }
+  def index(conn, _params) do
+    {:ok, users} = MyApp.Users.all()
+
+    json(conn, users)
   end
 
-  @spec show_operation() :: Operation.t()
-  def show_operation() do
-    %Operation{
-      tags: ["users"],
-      summary: "Show user",
-      description: "Show a user by ID",
-      operationId: "UserController.show",
-      parameters: [
-        Operation.parameter(:id, :path, :integer, "User ID", example: 123, required: true)
-      ],
-      responses: %{
-        200 => Operation.response("User", "application/json", UserResponse)
-      }
-    }
+  @doc """
+  Update user
+  """
+  @doc parameters: [
+    id: [in: :query, type: :string, required: true, description: "User ID"]
+  ]
+  @doc request_body: {"Request body to update a User", "application/json", User, required: true}
+  @doc responses: %{
+    200 => {"User", "application/json", MyAppWeb.Schema.User}
+  }
+  def update(conn, %{id: id}) do
+    with {:ok, user} <- MyApp.Users.update(conn.body_params) do
+      json(conn, user)
+    end
   end
-
-  # Controller's `show` action
-  def show(conn, %{id: id}) do
-    {:ok, user} = MyApp.Users.find_by_id(id)
-    json(conn, 200, user)
-  end
-
 end
 ```
 
-Alternatively, you can create an operation file separately using `defdelegate`.
+Alternatively, the responses can be defined using keyword list syntax,
+and the HTTP status codes can be replaced with their text equivalents:
 
 ```elixir
-# Phoenix's controller
-defmodule MyAppWeb.UserController do
-  defdelegate open_api_operation(action), to: MyAppWeb.UserApiOperation
-
-  def show(conn, %{id: id}) do
-    {:ok, user} = MyApp.Users.find_by_id(id)
-    json(conn, 200, user)
-  end
-end
-
-# Open API Spex operations
-defmodule MyAppWeb.UserApiOperation do
-  alias OpenApiSpex.Operation
-  alias MyAppWeb.Schemas.UserResponse
-
-  @spec open_api_operation(atom) :: Operation.t()
-  def open_api_operation(action) do
-    operation = String.to_existing_atom("#{action}_operation")
-    apply(__MODULE__, operation, [])
-  end
-
-  @spec show_operation() :: Operation.t()
-  def show_operation() do
-    %Operation{
-      tags: ["users"],
-      summary: "Show user",
-      description: "Show a user by ID",
-      operationId: "UserController.show",
-      parameters: [
-        Operation.parameter(:id, :path, :integer, "User ID", example: 123, required: true)
-      ],
-      responses: %{
-        200 => Operation.response("User", "application/json", UserResponse)
-      }
-    }
-  end
-end
+  @doc responses: [
+    ok: {"User", "application/json", MyAppWeb.Schema.User}
+    unprocessible_entity: {"Bad request parameters", "application/json", MyAppWeb.Schema.BadRequestParameters},
+    not_found: {"Not found", "application/json", MyAppWeb.Schema.NotFound}
+  ]
 ```
+
+Each definition in a controller action or plug operation is converted
+to an `%OpenApiSpex.Operation{}` struct. The definitions are read
+by your application's `ApiSpec` module, which in turn is
+called from the `OpenApiSpex.Plug.PutApiSpex` plug on each request.
+The definitions data is cached, so it does actually extract the definitions on each request.
 
 For examples of other action operations, see the
 [example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex).
@@ -288,7 +263,7 @@ Generate the file with: `mix my_app.openapispec spec.json`
 ## Serve Swagger UI
 
 Once your API spec is available through a route (see "Serve the Spec"), the `OpenApiSpex.Plug.SwaggerUI` plug can be used to
-serve a SwaggerUI interface.  The `path:` plug option must be supplied to give the path to the API spec.
+serve a SwaggerUI interface. The `path:` plug option must be supplied to give the path to the API spec.
 
 All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
 
@@ -310,7 +285,7 @@ All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than
 
 ## Importing an existing schema file
 
-> :warning: This functionality currently converts Strings into Atoms, which makes it potentially [vulnerable to DoS attacks](https://til.hashrocket.com/posts/gkwwfy9xvw-converting-strings-to-atoms-safely). We recommend that you load Open API Schemas from *known files* during application startup and *not dynamically from external sources at runtime*.
+> :warning: This functionality currently converts Strings into Atoms, which makes it potentially [vulnerable to DoS attacks](https://til.hashrocket.com/posts/gkwwfy9xvw-converting-strings-to-atoms-safely). We recommend that you load Open API Schemas from _known files_ during application startup and _not dynamically from external sources at runtime_.
 
 OpenApiSpex has functionality to import an existing schema, casting it into an %OpenApi{} struct. This means you can load a schema that is JSON or YAML encoded. See the example below:
 
@@ -438,23 +413,17 @@ use MyAppWeb.ConnCase
 import OpenApiSpex.TestAssertions
 
 test "UserController produces a UsersResponse", %{conn: conn} do
-  api_spec = MyAppWeb.ApiSpec.spec()
   json =
     conn
     |> get(user_path(conn, :index))
     |> json_response(200)
 
+  api_spec = MyAppWeb.ApiSpec.spec()
   assert_schema(json, "UsersResponse", api_spec)
 end
 ```
 
-## Experimental ExDoc-Based API Specifications
-
-Starting with version 3.5.0, a new, experimental API is available to specify endpoints from the controller,
-using ExDoc tags. See the example below.
-
-Because this feature is experimental, it is likely to change in the future, until it becomes stable. Use
-at your own risk.
+## ExDoc-Based API Specifications
 
 ```elixir
 defmodule MyAppWeb.UserController do
