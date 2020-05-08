@@ -133,12 +133,16 @@ defmodule OpenApiSpex.Controller do
         _ -> false
       end)
 
-    doc_for_function || raise "No docs found for function #{module}.#{name}/2"
-    {_, _, _, docs, meta} = doc_for_function
-    docs = Map.get(docs, "en", "")
-    [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
+    if doc_for_function do
+      {_, _, _, docs, meta} = doc_for_function
+      docs = Map.get(docs, "en", "")
+      [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
 
-    {:ok, {mod_meta, summary, docs, meta}}
+      {:ok, {mod_meta, summary, docs, meta}}
+    else
+      IO.warn("No docs found for function #{module}.#{name}/2")
+      nil
+    end
   end
 
   defp build_operation_id(meta, mod, name) do
