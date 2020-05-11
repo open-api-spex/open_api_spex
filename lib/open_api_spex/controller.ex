@@ -66,11 +66,11 @@ defmodule OpenApiSpex.Controller do
   ## Example
 
   ```
-  defmodule FooController do
+  defmodule UserController do
+    @moduledoc tags: ["Users"]
+
     use MyAppWeb, :controller
     use #{inspect(__MODULE__)}
-
-    @moduledoc tags: ["Foos"]
 
     @doc """
     Endpoint summary
@@ -80,12 +80,13 @@ defmodule OpenApiSpex.Controller do
     @doc parameters: [
            id: [in: :path, type: :string, required: true]
          ],
-         request_body: {"Request body to update Foo", "application/json", FooUpdateBody, required: true},
+         request_body: {"Request body to update User", "application/json", UserUpdateBody, required: true},
          responses: [
-           ok: {"Foo document", "application/json", FooSchema}
+           ok: {"User document", "application/json", UserSchema},
+           {302, "Redirect", "text/html", EmptyResponse, headers: %{"Location" => %Header{description: "Redirect Location"}}}
          ]
     def update(conn, %{id: id}) do
-      foo_params = conn.body_params
+      user_params = conn.body_params
       # …
     end
   end
@@ -126,20 +127,21 @@ defmodule OpenApiSpex.Controller do
   defp get_docs(module, name) do
     {:docs_v1, _anno, _lang, _format, _module_doc, mod_meta, mod_docs} = Code.fetch_docs(module)
 
-    {_, _, _, docs, meta} =
+    doc_for_function =
       Enum.find(mod_docs, fn
         {{:function, ^name, _}, _, _, _, _} -> true
         _ -> false
       end)
 
-    if docs == :none do
-      :error
-    else
+    if doc_for_function do
+      {_, _, _, docs, meta} = doc_for_function
       docs = Map.get(docs, "en", "")
-
       [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
 
       {:ok, {mod_meta, summary, docs, meta}}
+    else
+      IO.warn("No docs found for function #{module}.#{name}/2")
+      nil
     end
   end
 
@@ -163,6 +165,9 @@ defmodule OpenApiSpex.Controller do
     Map.new(responses, fn
       {status, {description, mime, schema}} ->
         {Plug.Conn.Status.code(status), Operation.response(description, mime, schema)}
+
+      {status, {description, mime, schema, opts}} ->
+        {Plug.Conn.Status.code(status), Operation.response(description, mime, schema, opts)}
 
       {status, %Response{} = response} ->
         {Plug.Conn.Status.code(status), response}

@@ -1,8 +1,9 @@
 defmodule OpenApiSpexTest.UserControllerAnnotated do
-  use OpenApiSpex.Controller
-  alias OpenApiSpexTest.Schemas.{NotFound, Unauthorized, User}
-
   @moduledoc tags: ["User"]
+
+  use OpenApiSpex.Controller
+  alias OpenApiSpex.Header
+  alias OpenApiSpexTest.Schemas.{NotFound, Unauthorized, User}
 
   @doc """
   Update a user
@@ -14,7 +15,12 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
        ]
   @doc request_body: {"Request body to update a User", "application/json", User, required: true}
   @doc responses: [
-         ok: {"User response", "application/json", User},
+         ok: {
+           "User response",
+           "application/json",
+           User,
+           headers: %{"token" => %Header{description: "Access token"}}
+         },
          unauthorized: Unauthorized.response(),
          not_found: NotFound.response()
        ]
