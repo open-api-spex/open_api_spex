@@ -12,7 +12,7 @@ defmodule OpenApiSpex.Cast.OneOf do
       Enum.reduce(schemas, {[], 0}, fn schema, {results, count} ->
         schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
 
-        case Cast.cast(%{ctx | schema: %{schema | anyOf: nil, additionalProperties: false}}) do
+        case Cast.cast(%{ctx | schema: schema}) do
           {:ok, value} -> {[{:ok, value, schema} | results], count + 1}
           _ -> {results, count}
         end
