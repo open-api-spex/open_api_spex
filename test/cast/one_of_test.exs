@@ -47,7 +47,14 @@ defmodule OpenApiSpex.CastOneOfTest do
                OpenApiSpex.cast_value(input, @cat_or_dog_schema, @api_spec)
     end
 
-    test "should be invalid (not valid against both schemas)" do
+    test "ignores additional properties" do
+      input = %{"bark" => true, "breed" => "Dingo", "age" => 12}
+
+      assert {:ok, %Dog{bark: true, breed: "Dingo"}} =
+               OpenApiSpex.cast_value(input, @cat_or_dog_schema, @api_spec)
+    end
+
+    test "should be invalid (not valid against any)" do
       input = %{"bark" => true, "meow" => true}
       assert {:error, _} = OpenApiSpex.cast_value(input, @cat_or_dog_schema, @api_spec)
     end

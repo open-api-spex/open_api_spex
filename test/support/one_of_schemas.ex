@@ -9,7 +9,8 @@ defmodule OpenApiSpexTest.OneOfSchemas do
       properties: %{
         meow: %Schema{type: :boolean},
         age: %Schema{type: :integer}
-      }
+      },
+      required: [:meow]
     })
   end
 
@@ -20,7 +21,8 @@ defmodule OpenApiSpexTest.OneOfSchemas do
       properties: %{
         bark: %Schema{type: :boolean},
         breed: %Schema{type: :string, enum: ["Dingo", "Husky", "Retriever", "Shepherd"]}
-      }
+      },
+      required: [:bark]
     })
   end
 
