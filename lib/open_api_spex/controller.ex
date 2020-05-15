@@ -11,6 +11,7 @@ defmodule OpenApiSpex.Controller do
   documentation will be used as `description` field.
 
   ### `operation_id`
+
   The action's `operation_id` can be set explicitly using a `@doc` tag.
   If no `operation_id` is specified, it will default to the action's module path: `Module.Name.function_name`
 
@@ -28,6 +29,14 @@ defmodule OpenApiSpex.Controller do
   Where `definition` is `OpenApiSpex.Parameter.t()` structure or map or keyword
   list that accepts the same arguments.
 
+  Example:
+
+  ```elixir
+  @doc parameters: [
+    group_id: [in: :path, type: :integer, description: "Group ID", example: 1]
+  ]
+  ```
+
   ### `responses`
 
   Responses are controlled by `:responses` tag. Responses must be defined as
@@ -40,7 +49,17 @@ defmodule OpenApiSpex.Controller do
   }
   ```
 
-  Where atoms are the same as `Plug.Conn.Status.code/1` values.
+  Or:
+  ```
+  [
+    ok: {"Response name", "application/json", schema},
+    not_found: {"Response name", "application/json", schema}
+  ]
+  ```
+
+  For each key in the key-value list of map, either an HTTP status code can be used or its atom equivalent.
+
+  The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
 
   ### `requestBody`
 
