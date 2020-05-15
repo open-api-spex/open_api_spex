@@ -112,12 +112,12 @@ defmodule MyAppWeb.UserController do
   Update user
   """
   @doc parameters: [
-    id: [in: :query, type: :string, required: true, description: "User ID"]
-  ]
-  @doc request_body: {"Request body to update a User", "application/json", User, required: true}
-  @doc responses: %{
-    200 => {"User", "application/json", MyAppWeb.Schema.User}
-  }
+      id: [in: :query, type: :string, required: true, description: "User ID"]
+    ],
+    request_body: {"Request body to update a User", "application/json", User, required: true},
+    responses: %{
+      200 => {"User", "application/json", MyAppWeb.Schema.User}
+    }
   def update(conn, %{id: id}) do
     with {:ok, user} <- MyApp.Users.update(conn.body_params) do
       json(conn, user)
@@ -142,6 +142,10 @@ to an `%OpenApiSpex.Operation{}` struct. The definitions are read
 by your application's `ApiSpec` module, which in turn is
 called from the `OpenApiSpex.Plug.PutApiSpex` plug on each request.
 The definitions data is cached, so it does actually extract the definitions on each request.
+
+If the ExDoc-based operation specs don't provide the flexibiliy you need, the `%Operation{}` struct
+and related structs can be used instead. See the
+[example user controller that uses `%Operation{}` structs]([example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller_with_struct_specs.ex).)
 
 For examples of other action operations, see the
 [example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex).
@@ -340,27 +344,18 @@ defmodule MyAppWeb.UserController do
 
   plug OpenApiSpex.Plug.CastAndValidate
 
-  def open_api_operation(action) do
-    apply(__MODULE__, :"#{action}_operation", [])
-  end
+  @doc """
+  Create user.
 
-  def create_operation do
-    import Operation
-    %Operation{
-      tags: ["users"],
-      summary: "Create user",
-      description: "Create a user",
-      operationId: "UserController.create",
-      parameters: [
-        parameter(:id, :query, :integer, "user ID")
-      ],
-      requestBody: request_body("The user attributes", "application/json", UserRequest),
-      responses: %{
-        201 => response("User", "application/json", UserResponse)
-      }
-    }
-  end
-
+  Create a user.
+  """
+  @doc parameters: [
+        id: [in: :query, type: :integer, description: "user ID"]
+       ],
+       request_body: {"The user attributes", "application/json", UserRequest},
+       responses: %{
+         201 => {"User", "application/json", UserResponse}
+       }
   def create(conn = %{body_params: %UserRequest{user: %User{name: name, email: email, birthday: birthday = %Date{}}}}, %{id: id}) do
     # conn.body_params cast to UserRequest struct
     # conn.params.id cast to integer
@@ -420,42 +415,5 @@ test "UserController produces a UsersResponse", %{conn: conn} do
 
   api_spec = MyAppWeb.ApiSpec.spec()
   assert_schema(json, "UsersResponse", api_spec)
-end
-```
-
-## ExDoc-Based API Specifications
-
-```elixir
-defmodule MyAppWeb.UserController do
-  use MyAppWeb, :controller
-  use OpenApiSpex.Controller
-
-  @doc """
-  List users
-  """
-  @doc responses: %{
-    200 => {"Users", "application/json", MyAppWeb.Schema.Users}
-  }
-  def index(conn, _params) do
-    {:ok, users} = MyApp.Users.all()
-
-    json(conn, users)
-  end
-
-  @doc """
-  Update user
-  """
-  @doc parameters: [
-    id: [in: :query, type: :string, required: true, description: "User ID"]
-  ]
-  @doc request_body: {"Request body to update a User", "application/json", User, required: true}
-  @doc responses: %{
-    200 => {"User", "application/json", MyAppWeb.Schema.User}
-  }
-  def update(conn, %{id: id}) do
-    with {:ok, user} <- MyApp.Users.update(conn.body_params) do
-      json(conn, user)
-    end
-  end
 end
 ```
