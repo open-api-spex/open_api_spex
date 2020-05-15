@@ -1,34 +1,29 @@
 defmodule OpenApiSpexTest.PetController do
+  @moduledoc ["pets"]
+
   use Phoenix.Controller
+  use OpenApiSpex.Controller
   alias OpenApiSpex.{Operation, Schema}
   alias OpenApiSpexTest.Schemas
 
   plug OpenApiSpex.Plug.CastAndValidate
 
-  def open_api_operation(action) do
-    apply(__MODULE__, :"#{action}_operation", [])
-  end
-
   @doc """
-  API Spec for :show action
+  Show pet.
+
+  Show a pet by ID.
   """
-  def show_operation() do
-    import Operation
-
-    %Operation{
-      tags: ["pets"],
-      summary: "Show pet",
-      description: "Show a pet by ID",
-      operationId: "PetController.show",
-      parameters: [
-        parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "Pet ID", example: 123)
-      ],
-      responses: %{
-        200 => response("Pet", "application/json", Schemas.PetResponse)
-      }
-    }
-  end
-
+  @def parameters: [
+         id: [
+           in: :path,
+           type: %Schema{type: :integer, minimum: 1},
+           description: "Pet ID",
+           example: 123
+         ]
+       ],
+       responses: [
+         ok: {"Pet", "application/json", Schemas.PetResponse}
+       ]
   def show(conn, %{id: _id}) do
     json(conn, %Schemas.PetResponse{
       data: %Schemas.Dog{
@@ -36,23 +31,6 @@ defmodule OpenApiSpexTest.PetController do
         bark: "woof"
       }
     })
-  end
-
-  def index_operation() do
-    import Operation
-
-    %Operation{
-      tags: ["pets"],
-      summary: "List pets",
-      description: "List all petes",
-      operationId: "PetController.index",
-      parameters: [
-        parameter(:validParam, :query, :boolean, "Valid Param", example: true)
-      ],
-      responses: %{
-        200 => response("Pet List Response", "application/json", Schemas.PetsResponse)
-      }
-    }
   end
 
   def index(conn, _params) do
@@ -66,53 +44,51 @@ defmodule OpenApiSpexTest.PetController do
     })
   end
 
-  def create_operation() do
-    import Operation
+  @doc """
+  Create pet.
 
-    %Operation{
-      tags: ["pets"],
-      summary: "Create pet",
-      description: "Create a pet",
-      operationId: "PetController.create",
-      parameters: [],
-      requestBody: request_body("The pet attributes", "application/json", Schemas.PetRequest),
-      responses: %{
-        201 => response("Pet", "application/json", Schemas.PetRequest)
-      }
-    }
-  end
+  Create a pet.
+  """
+  @doc request_body:
+         {"The pet attributes", "application/json", Schemas.PetRequest, required: true},
+       responses: [
+         created: {"Pet", "application/json", Schemas.PetRequest}
+       ]
+  def create(conn, _) do
+    %Schemas.PetRequest{pet: pet} = Map.get(conn, :body_params)
 
-  def create(conn = %{body_params: %Schemas.PetRequest{pet: pet}}, _) do
     json(conn, %Schemas.PetResponse{
       data: pet
     })
   end
 
-  def adopt_operation() do
-    import Operation
+  @doc """
+  Adopt pet.
 
-    %Operation{
-      tags: ["pets"],
-      summary: "Adopt pet",
-      description: "Adopt a pet",
-      operationId: "PetController.adopt",
-      parameters: [
-        parameter(:"x-user-id", :header, :string, "User that performs this action", required: true),
-        parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "Pet ID", example: 123),
-        parameter(:status, :query, Schemas.PetStatus, "New status"),
-        parameter(
-          :debug,
-          :cookie,
-          %Schema{type: :integer, enum: [0, 1], default: 0},
-          "Debug"
-        )
-      ],
-      responses: %{
-        200 => response("Pet", "application/json", Schemas.PetRequest)
-      }
-    }
-  end
-
+  Adopt a pet.
+  """
+  @doc parameters: [
+         {:"x-user-id",
+          in: :header,
+          type: :string,
+          description: "User that performs this action",
+          required: true},
+         id: [
+           in: :path,
+           type: %Schema{type: :integer, minimum: 1},
+           description: "Pet ID",
+           example: 123
+         ],
+         status: [in: :query, type: Schemas.PetStatus, description: "New status"],
+         debug: [
+           in: :cookie,
+           type: %Schema{type: :integer, enum: [0, 1], default: 0},
+           description: "Debug"
+         ]
+       ],
+       responses: [
+         ok: {"Pet", "application/json", Schemas.PetResponse}
+       ]
   def adopt(conn, %{:"x-user-id" => _user_id, :id => _id, :debug => 0}) do
     json(conn, %Schemas.PetResponse{
       data: %Schemas.Dog{
@@ -131,23 +107,16 @@ defmodule OpenApiSpexTest.PetController do
     })
   end
 
-  def appointment_operation() do
-    import Operation
+  @doc """
+  Create pet.
 
-    %Operation{
-      tags: ["pets"],
-      summary: "Create pet",
-      description: "Create a pet",
-      operationId: "PetController.appointment",
-      parameters: [],
-      requestBody:
-        request_body("The pet attributes", "application/json", Schemas.PetAppointmentRequest),
-      responses: %{
-        201 => response("Pet", "application/json", Schemas.PetResponse)
-      }
-    }
-  end
-
+  Create a pet.
+  """
+  @doc request_body:
+         {"The pet attributes", "application/json", Schemas.PetAppointmentRequest, required: true},
+       responses: [
+         created: {"Pet", "application/json", Schemas.PetResponse}
+       ]
   def appointment(conn, _) do
     json(conn, %Schemas.PetResponse{
       data: [%{pet_type: "Dog", bark: "bow wow"}]
