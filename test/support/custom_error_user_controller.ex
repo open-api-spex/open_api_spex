@@ -1,6 +1,7 @@
 defmodule OpenApiSpexTest.CustomErrorUserController do
   use Phoenix.Controller
-  alias OpenApiSpex.Operation
+  use OpenApiSpex.Controller
+
   alias OpenApiSpexTest.Schemas
   alias Plug.Conn
 
@@ -21,27 +22,17 @@ defmodule OpenApiSpexTest.CustomErrorUserController do
 
   plug OpenApiSpex.Plug.CastAndValidate, render_error: CustomRenderErrorPlug
 
-  def open_api_operation(action) do
-    apply(__MODULE__, :"#{action}_operation", [])
-  end
+  @doc """
+  List users
 
-  def index_operation() do
-    import Operation
-
-    %Operation{
-      tags: ["users"],
-      summary: "List users",
-      description: "List all useres",
-      operationId: "UserController.index",
-      parameters: [
-        parameter(:validParam, :query, :boolean, "Valid Param", example: true)
-      ],
-      responses: %{
-        200 => response("User List Response", "application/json", Schemas.UsersResponse)
-      }
-    }
-  end
-
+  List all users
+  """
+  @doc parameters: [
+         validParam: [in: :query, type: :boolean, description: "Valid Param", example: true]
+       ],
+       responses: [
+         ok: {"User List Response", "application/json", Schemas.UsersResponse}
+       ]
   def index(conn, _params) do
     json(conn, %Schemas.UsersResponse{
       data: [

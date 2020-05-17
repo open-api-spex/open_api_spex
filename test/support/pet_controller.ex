@@ -1,9 +1,9 @@
 defmodule OpenApiSpexTest.PetController do
-  @moduledoc ["pets"]
+  @moduledoc tags: ["pets"]
 
   use Phoenix.Controller
   use OpenApiSpex.Controller
-  alias OpenApiSpex.{Operation, Schema}
+  alias OpenApiSpex.Schema
   alias OpenApiSpexTest.Schemas
 
   plug OpenApiSpex.Plug.CastAndValidate
@@ -13,7 +13,7 @@ defmodule OpenApiSpexTest.PetController do
 
   Show a pet by ID.
   """
-  @def parameters: [
+  @doc parameters: [
          id: [
            in: :path,
            type: %Schema{type: :integer, minimum: 1},
@@ -33,6 +33,9 @@ defmodule OpenApiSpexTest.PetController do
     })
   end
 
+  @doc """
+  Get a list of pets.
+  """
   def index(conn, _params) do
     json(conn, %Schemas.PetsResponse{
       data: [

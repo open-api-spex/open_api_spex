@@ -1,34 +1,30 @@
 defmodule OpenApiSpexTest.UserController do
+  @moduledoc tags: ["users"]
+
   use Phoenix.Controller
-  alias OpenApiSpex.{Operation, Schema}
+  use OpenApiSpex.Controller
+
+  alias OpenApiSpex.Schema
   alias OpenApiSpexTest.Schemas
 
   plug OpenApiSpex.Plug.CastAndValidate
 
-  def open_api_operation(action) do
-    apply(__MODULE__, :"#{action}_operation", [])
-  end
-
   @doc """
-  API Spec for :show action
+  Show user
+
+  Show a user by ID
   """
-  def show_operation() do
-    import Operation
-
-    %Operation{
-      tags: ["users"],
-      summary: "Show user",
-      description: "Show a user by ID",
-      operationId: "UserController.show",
-      parameters: [
-        parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "User ID", example: 123)
-      ],
-      responses: %{
-        200 => response("User", "application/json", Schemas.UserResponse)
-      }
-    }
-  end
-
+  @doc parameters: [
+         id: [
+           in: :path,
+           type: %Schema{type: :integer, minimum: 1},
+           description: "User ID",
+           example: 123
+         ]
+       ],
+       responses: [
+         ok: {"User", "application/json", Schemas.UserResponse}
+       ]
   def show(conn, %{id: id}) do
     json(conn, %Schemas.UserResponse{
       data: %Schemas.User{
@@ -39,23 +35,17 @@ defmodule OpenApiSpexTest.UserController do
     })
   end
 
-  def index_operation() do
-    import Operation
+  @doc """
+  List users
 
-    %Operation{
-      tags: ["users"],
-      summary: "List users",
-      description: "List all useres",
-      operationId: "UserController.index",
-      parameters: [
-        parameter(:validParam, :query, :boolean, "Valid Param", example: true)
-      ],
-      responses: %{
-        200 => response("User List Response", "application/json", Schemas.UsersResponse)
-      }
-    }
-  end
-
+  List all users
+  """
+  @doc parameters: [
+         validParam: [in: :query, type: :boolean, description: "Valid Param", example: true]
+       ],
+       responses: [
+         ok: {"User List Response", "application/json", Schemas.UsersResponse}
+       ]
   def index(conn, _params) do
     json(conn, %Schemas.UsersResponse{
       data: [
@@ -68,71 +58,56 @@ defmodule OpenApiSpexTest.UserController do
     })
   end
 
-  def create_operation() do
-    import Operation
+  @doc """
+  Create user.
 
-    %Operation{
-      tags: ["users"],
-      summary: "Create user",
-      description: "Create a user",
-      operationId: "UserController.create",
-      parameters: [],
-      requestBody: request_body("The user attributes", "application/json", Schemas.UserRequest),
-      responses: %{
-        201 => response("User", "application/json", Schemas.UserResponse)
-      }
-    }
-  end
-
+  Create a user.
+  """
+  @doc request_body: {"The user attributes", "application/json", Schemas.UserRequest},
+       responses: [
+         created: {"User", "application/json", Schemas.UserResponse}
+       ]
   def create(conn = %{body_params: %Schemas.UserRequest{user: user = %Schemas.User{}}}, _) do
     json(conn, %Schemas.UserResponse{
       data: %{user | id: 1234}
     })
   end
 
-  def contact_info_operation() do
-    import Operation
+  @doc """
+  Update contact info
 
-    %Operation{
-      tags: ["users"],
-      summary: "Update contact info",
-      description: "Update contact info",
-      operationId: "UserController.contact_info",
-      parameters: [
-        parameter(:id, :path, :integer, "user ID")
-      ],
-      requestBody: request_body("Contact info", "application/json", Schemas.ContactInfo),
-      responses: %{
-        200 => %OpenApiSpex.Response{
-          description: "OK"
-        }
-      }
-    }
-  end
-
+  Update contact info
+  """
+  @doc parameters: [
+         id: [in: :path, type: :integer, description: "user ID"]
+       ],
+       request_body: {"Contact info", "application/json", Schemas.ContactInfo},
+       responses: [
+         # TODO allow specifyng no respond body
+         no_content: {"OK", nil, nil}
+       ]
   def contact_info(conn = %{body_params: %Schemas.ContactInfo{}}, %{id: id}) do
     conn
     |> put_status(200)
     |> json(%{id: id})
   end
 
-  def payment_details_operation() do
-    import Operation
+  @doc """
+  Show user payment details.
 
-    %Operation{
-      tags: ["users"],
-      summary: "Show user payment details",
-      description: "Shows a users payment details",
-      operationId: "UserController.payment_details",
-      parameters: [
-        parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "User ID", example: 123)
-      ],
-      responses: %{
-        200 => response("Payment Details", "application/json", Schemas.PaymentDetails)
-      }
-    }
-  end
-
+  Shows a users payment details.
+  """
+  @doc parameters: [
+         id: [
+           in: :path,
+           type: %Schema{type: :integer, minimum: 1},
+           description: "User ID",
+           example: 123
+         ]
+       ],
+       responses: [
+         ok: {"Payment Details", "application/json", Schemas.PaymentDetails}
+       ]
   def payment_details(conn, %{"id" => id}) do
     response =
       case rem(id, 2) do
@@ -154,22 +129,16 @@ defmodule OpenApiSpexTest.UserController do
     json(conn, response)
   end
 
-  def create_entity_operation() do
-    import Operation
+  @doc """
+  Create an EntityWithDict
 
-    %Operation{
-      tags: ["EntityWithDict"],
-      summary: "Create an EntityWithDict",
-      description: "Create an EntityWithDict",
-      operationId: "UserController.create_entity",
-      parameters: [],
-      requestBody: request_body("Entity attributes", "application/json", Schemas.EntityWithDict),
-      responses: %{
-        201 => response("EntityWithDict", "application/json", Schemas.EntityWithDict)
-      }
-    }
-  end
-
+  Create an EntityWithDict
+  """
+  @doc tags: ["EntityWithDict"],
+       request_body: {"Entity attributes", "application/json", Schemas.EntityWithDict},
+       responses: [
+         created: {"EntityWithDict", "application/json", Schemas.EntityWithDict}
+       ]
   def create_entity(conn, %Schemas.EntityWithDict{} = entity) do
     json(conn, Map.put(entity, :id, 123))
   end

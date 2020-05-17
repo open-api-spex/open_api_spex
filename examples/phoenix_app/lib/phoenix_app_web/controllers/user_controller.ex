@@ -6,7 +6,7 @@ defmodule PhoenixAppWeb.UserController do
   At the module level, define a `@moduledoc` to define the tags for the controller's operations.
   """
 
-  @moduledoc ["users"]
+  @moduledoc tags: ["users"]
 
   use PhoenixAppWeb, :controller
   alias OpenApiSpex.{Operation, Schema}
