@@ -57,6 +57,14 @@ defmodule OpenApiSpex.Controller do
   ]
   ```
 
+  If a response has no body, the definition may be simplified further:
+
+  ```
+  [
+    no_content: "Empty response"
+  ]
+  ```
+
   For each key in the key-value list of map, either an HTTP status code can be used or its atom equivalent.
 
   The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
@@ -191,6 +199,9 @@ defmodule OpenApiSpex.Controller do
 
       {status, %Response{} = response} ->
         {Plug.Conn.Status.code(status), response}
+
+      {status, description} when is_binary(description) ->
+        {Plug.Conn.Status.code(status), %Response{description: description}}
     end)
   end
 

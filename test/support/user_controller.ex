@@ -84,7 +84,7 @@ defmodule OpenApiSpexTest.UserController do
        request_body: {"Contact info", "application/json", Schemas.ContactInfo},
        responses: [
          # TODO allow specifyng no respond body
-         no_content: {"OK", nil, nil}
+         no_content: "OK"
        ]
   def contact_info(conn = %{body_params: %Schemas.ContactInfo{}}, %{id: id}) do
     conn
