@@ -152,15 +152,16 @@ defmodule OpenApiSpex.Controller do
         _ -> false
       end)
 
-    if doc_for_function do
-      {_, _, _, docs, meta} = doc_for_function
-      docs = Map.get(docs, "en", "")
-      [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
+    case doc_for_function do
+      {_, _, _, docs, meta} when is_map(docs) ->
+        docs = Map.get(docs, "en", "")
+        [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
 
-      {:ok, {mod_meta, summary, docs, meta}}
-    else
-      IO.warn("No docs found for function #{module}.#{name}/2")
-      nil
+        {:ok, {mod_meta, summary, docs, meta}}
+
+      _ ->
+        IO.warn("No docs found for function #{module}.#{name}/2")
+        nil
     end
   end
 
