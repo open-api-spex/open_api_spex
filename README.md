@@ -93,6 +93,8 @@ be defined using moduledoc attributes that are supported in Elixir 1.7 and highe
 
 ```elixir
 defmodule MyAppWeb.UserController do
+  @moduledoc tags: ["users"]
+
   use MyAppWeb, :controller
   use OpenApiSpex.Controller
 
