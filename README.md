@@ -128,7 +128,7 @@ defmodule MyAppWeb.UserController do
 end
 ```
 
-Alternatively, the responses can be defined using keyword list syntax,
+The responses can also be defined using keyword list syntax,
 and the HTTP status codes can be replaced with their text equivalents:
 
 ```elixir
@@ -138,6 +138,8 @@ and the HTTP status codes can be replaced with their text equivalents:
     not_found: {"Not found", "application/json", MyAppWeb.Schema.NotFound}
   ]
 ```
+
+The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
 
 Each definition in a controller action or plug operation is converted
 to an `%OpenApiSpex.Operation{}` struct. The definitions are read
