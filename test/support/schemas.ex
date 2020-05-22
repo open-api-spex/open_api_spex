@@ -568,4 +568,15 @@ defmodule OpenApiSpexTest.Schemas do
       }
     })
   end
+
+  defmodule EchoBodyParamsRequest do
+    OpenApiSpex.schema(%{
+      title: "EchoBodyParamsRequest",
+      description: "Echo body params request",
+      type: :array,
+      items: %Schema{
+        type: :object,
+      }
+    })
+  end
 end
