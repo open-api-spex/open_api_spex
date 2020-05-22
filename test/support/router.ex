@@ -26,5 +26,6 @@ defmodule OpenApiSpexTest.Router do
     post "/pets/appointment", PetController, :appointment
 
     get "/utility/echo/any", UtilityController, :echo_any
+    post "/utility/echo/body_params", UtilityController, :echo_body_params
   end
 end

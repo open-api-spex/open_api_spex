@@ -298,5 +298,19 @@ defmodule OpenApiSpex.Plug.CastTest do
                "anything" => "true"
              }
     end
+
+    test "send request body as json array is validated correctly" do
+      request_body = [%{"one" => "this"}]
+
+      conn =
+        :post
+        |> Plug.Test.conn("api/utility/echo/body_params", Jason.encode!(request_body))
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      # Phoenix parses json body params that start with array as structs starting with _json key
+      # https://github.com/phoenixframework/phoenix/blob/3f8d0d058069b1f0a2af089a6c4c2d9efed73796/test/phoenix/test/conn_test.exs#L117
+      assert Jason.decode!(conn.resp_body) == %{"_json" => [%{"one" => "this"}]}
+    end
   end
 end

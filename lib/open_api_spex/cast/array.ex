@@ -14,6 +14,14 @@ defmodule OpenApiSpex.Cast.Array do
     end
   end
 
+  def cast(%{value: %{"_json" => items}} = ctx) when is_list(items) do
+    case cast_array(%{ctx | value: items}) do
+      {:cast, ctx} -> cast(ctx)
+      {items, []} -> Cast.ok(%{ctx | value: %{"_json" => items}})
+      {_, errors} -> {:error, errors}
+    end
+  end
+
   def cast(ctx),
     do: Cast.error(ctx, {:invalid_type, :array})
 
