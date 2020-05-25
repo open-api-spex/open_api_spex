@@ -37,6 +37,21 @@ defmodule OpenApiSpex.Operation2 do
     {:error, [Error.new(%{path: [], value: nil}, {:missing_header, "content-type"})]}
   end
 
+  # Special case to handle strings or arrays in request body that come inside _json
+  # https://hexdocs.pm/plug/Plug.Parsers.JSON.html
+  defp cast_request_body(%RequestBody{content: content}, body=%{"_json" => params}, content_type, components = %Components{}) do
+    case content do
+      %{^content_type => media_type} ->
+        case Cast.cast(media_type.schema, params, components.schemas) do
+          {:ok, _} -> {:ok, body}
+          error -> error
+        end
+
+      _ ->
+        {:error, [Error.new(%{path: [], value: content_type}, {:invalid_header, "content-type"})]}
+    end
+  end
+
   defp cast_request_body(%RequestBody{content: content}, params, content_type, components = %Components{}) do
     case content do
       %{^content_type => media_type} ->

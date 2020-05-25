@@ -72,6 +72,22 @@ defmodule OpenApiSpex.Operation2Test do
     }
 
     def create_user, do: @create_user
+
+    @create_users %Operation{
+      operationId: "UserController.create",
+      parameters: [
+        Operation.parameter(:name, :query, :string, "Filter by user name")
+      ],
+      requestBody:
+      Operation.request_body("request body", "application/json", SchemaFixtures.user_list(),
+        required: true
+      ),
+      responses: %{
+        200 => Operation.response("User list", "application/json", SchemaFixtures.user_list())
+      }
+    }
+
+    def create_users, do: @create_users
   end
 
   defmodule SpecModule do
@@ -117,6 +133,20 @@ defmodule OpenApiSpex.Operation2Test do
                  "application/json",
                  SpecModule.spec().components
                )
+
+      assert %Plug.Conn{} = conn
+    end
+
+    test "cast array request body" do
+      conn = create_conn([%{"user" => %{"email" => "foo@bar.com"}}])
+
+      assert {:ok, conn} =
+        Operation2.cast(
+          OperationFixtures.create_users(),
+          conn,
+          "application/json",
+          SpecModule.spec().components
+        )
 
       assert %Plug.Conn{} = conn
     end
@@ -283,6 +313,10 @@ defmodule OpenApiSpex.Operation2Test do
       |> Plug.Test.conn(url)
       |> Plug.Conn.put_req_header("content-type", "application/json")
       |> Plug.Conn.fetch_query_params()
+    end
+
+    defp build_params(conn = %{body_params: params}) when is_list(params) do
+      build_params %{conn | body_params: %{"_json" => params}}
     end
 
     defp build_params(conn) do
