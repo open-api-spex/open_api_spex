@@ -309,7 +309,7 @@ defmodule OpenApiSpex.Plug.CastTest do
         |> OpenApiSpexTest.Router.call([])
 
       # Phoenix parses json body params that start with array as structs starting with _json key
-      # https://github.com/phoenixframework/phoenix/blob/3f8d0d058069b1f0a2af089a6c4c2d9efed73796/test/phoenix/test/conn_test.exs#L117
+      # https://hexdocs.pm/plug/Plug.Parsers.JSON.html
       assert Jason.decode!(conn.resp_body) == %{"_json" => [%{"one" => "this"}]}
     end
   end
