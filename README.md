@@ -145,7 +145,10 @@ Each definition in a controller action or plug operation is converted
 to an `%OpenApiSpex.Operation{}` struct. The definitions are read
 by your application's `ApiSpec` module, which in turn is
 called from the `OpenApiSpex.Plug.PutApiSpex` plug on each request.
-The definitions data is cached, so it does actually extract the definitions on each request.
+The definitions data is cached, so it does not actually extract the definitions on each request.
+
+Note that in the ExDoc-based definitions, the names of the OpenAPI fields follow `snake_case` naming convention instead of
+OpenAPI's (and JSON Schema's) `camelCase` convention.
 
 If the ExDoc-based operation specs don't provide the flexibiliy you need, the `%Operation{}` struct
 and related structs can be used instead. See the
