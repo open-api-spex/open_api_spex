@@ -1,52 +1,46 @@
 defmodule PhoenixAppWeb.UserController do
+  @moduledoc """
+  Demonstration of defining OpenApi operations from the controller module
+  using the ExDoc-based operation specs.
+
+  At the module level, define a `@moduledoc` to define the tags for the controller's operations.
+  """
+
+  @moduledoc tags: ["users"]
+
   use PhoenixAppWeb, :controller
-  import OpenApiSpex.Operation, only: [parameter: 5, request_body: 4, response: 3]
-  alias OpenApiSpex.Operation
+  alias OpenApiSpex.{Operation, Schema}
   alias PhoenixApp.{Accounts, Accounts.User}
   alias PhoenixAppWeb.Schemas
 
   plug OpenApiSpex.Plug.CastAndValidate
 
-  def open_api_operation(action) do
-    apply(__MODULE__, :"#{action}_operation", [])
-  end
+  @doc """
+  List users
 
-  def index_operation() do
-    %Operation{
-      tags: ["users"],
-      summary: "List users",
-      description: "List all useres",
-      operationId: "UserController.index",
-      responses: %{
-        200 => response("User List Response", "application/json", Schemas.UsersResponse)
-      }
-    }
-  end
-
+  List all users
+  """
+  @doc responses: [
+         ok: {"User List Response", "application/json", Schemas.UserResponse}
+       ]
   def index(conn, _params) do
     users = Accounts.list_users()
     render(conn, "index.json", users: users)
   end
 
-  def create_operation() do
-    %Operation{
-      tags: ["users"],
-      summary: "Create user",
-      description: "Create a user",
-      operationId: "UserController.create",
-      parameters: [
-        Operation.parameter(:group_id, :path, :integer, "Group ID", example: 1)
-      ],
-      requestBody:
-        request_body("The user attributes", "application/json", Schemas.UserRequest,
-          required: true
-        ),
-      responses: %{
-        201 => response("User", "application/json", Schemas.UserResponse)
-      }
-    }
-  end
+  @doc """
+  Create user (this line becomes the operation's `summary`)
 
+  Create a user (this block of text becomes the operation's `description`)
+  """
+  @doc parameters: [
+         group_id: [in: :path, type: :integer, description: "Group ID", example: 1]
+       ],
+       request_body:
+         {"The user attributes", "application/json", Schemas.UserRequest, required: true},
+       responses: [
+         created: {"User", "application/json", Schemas.UserResponse}
+       ]
   def create(conn = %{body_params: %Schemas.UserRequest{user: user_params}}, %{
         group_id: _group_id
       }) do
@@ -59,23 +53,23 @@ defmodule PhoenixAppWeb.UserController do
   end
 
   @doc """
-  API Spec for :show action
-  """
-  def show_operation() do
-    %Operation{
-      tags: ["users"],
-      summary: "Show user",
-      description: "Show a user by ID",
-      operationId: "UserController.show",
-      parameters: [
-        parameter(:id, :path, :integer, "User ID", example: 123, required: true)
-      ],
-      responses: %{
-        200 => response("User", "application/json", Schemas.UserResponse)
-      }
-    }
-  end
+  Show user.
 
+  Show a user by ID.
+  """
+  @doc parameters: [
+         id: [
+           in: :path,
+           # `:type` can be an atom, %Schema{}, or %Reference{}
+           type: %Schema{type: :integer, minimum: 1},
+           description: "User ID",
+           example: 123,
+           required: true
+         ]
+       ],
+       responses: [
+         ok: {"User", "application/json", Schemas.UserResponse}
+       ]
   def show(conn, %{id: id}) do
     user = Accounts.get_user!(id)
     render(conn, "show.json", user: user)
