@@ -39,4 +39,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
          ok: {"User response", "application/json", User}
        ]
   def show(_conn, _params), do: :ok
+
+  @doc responses: [ok: "Empty"]
+  def minimal_docs(_conn, _params), do: :ok
 end
