@@ -9,7 +9,7 @@ defmodule PlugApp.Application do
     # List all child processes to be supervised
     children = [
       PlugApp.Repo,
-      Plug.Adapters.Cowboy.child_spec(:http, PlugApp.Router, [], [port: 4000])
+      {Plug.Cowboy, scheme: :http, plug: PlugApp.Router, options: [port: 4000]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -1,5 +1,5 @@
 defmodule PlugApp.UserHandler do
-  alias OpenApiSpex.Operation
+  alias OpenApiSpex.{Operation, Schema}
   alias PlugApp.{Accounts, Accounts.User}
   alias PlugApp.Schemas
   import OpenApiSpex.Operation, only: [parameter: 5, request_body: 4, response: 3]
@@ -7,8 +7,7 @@ defmodule PlugApp.UserHandler do
   defmodule Index do
     use Plug.Builder
 
-    plug OpenApiSpex.Plug.Cast, operation_id: "UserHandler.Index"
-    plug OpenApiSpex.Plug.Validate
+    plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserHandler.Index"
     plug :index
 
     def open_api_operation(_) do
@@ -25,6 +24,7 @@ defmodule PlugApp.UserHandler do
 
     def index(conn, _opts) do
       users = Accounts.list_users()
+
       conn
       |> Plug.Conn.put_resp_header("Content-Type", "application/json")
       |> Plug.Conn.send_resp(200, render(users))
@@ -41,8 +41,7 @@ defmodule PlugApp.UserHandler do
   defmodule Show do
     use Plug.Builder
 
-    plug OpenApiSpex.Plug.Cast, operation_id: "UserHandler.Show"
-    plug OpenApiSpex.Plug.Validate
+    plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserHandler.Show"
     plug :load
     plug :show
 
@@ -53,7 +52,7 @@ defmodule PlugApp.UserHandler do
         description: "Show a user by ID",
         operationId: "UserHandler.Show",
         parameters: [
-          parameter(:id, :path, :integer, "User ID", example: 123, minimum: 1)
+          parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "User ID", example: 123)
         ],
         responses: %{
           200 => response("User", "application/json", Schemas.UserResponse)
@@ -69,7 +68,8 @@ defmodule PlugApp.UserHandler do
           |> send_resp(404, ~s({"error": "User not found"}))
           |> halt()
 
-        user -> assign(conn, :user, user)
+        user ->
+          assign(conn, :user, user)
       end
     end
 
@@ -90,8 +90,7 @@ defmodule PlugApp.UserHandler do
   defmodule Create do
     use Plug.Builder
 
-    plug OpenApiSpex.Plug.Cast, operation_id: "UserHandler.Create"
-    plug OpenApiSpex.Plug.Validate
+    plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserHandler.Create"
     plug :create
 
     def open_api_operation(_) do
@@ -100,7 +99,13 @@ defmodule PlugApp.UserHandler do
         summary: "Create user",
         description: "Create a user",
         operationId: "UserHandler.Create",
-        requestBody: request_body("The user attributes", "application/json", Schemas.UserRequest, required: true),
+        requestBody:
+          request_body(
+            "The user attributes",
+            "application/json",
+            Schemas.UserRequest,
+            required: true
+          ),
         responses: %{
           201 => response("User", "application/json", Schemas.UserResponse)
         }
