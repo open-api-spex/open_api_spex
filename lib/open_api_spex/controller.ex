@@ -136,14 +136,14 @@ defmodule OpenApiSpex.Controller do
   @doc false
   @spec __api_operation__(module(), atom()) :: Operation.t() | nil
   def __api_operation__(mod, name) do
-    with {:ok, {mod_meta, summary, docs, meta}} <- get_docs(mod, name) do
+    with {:ok, {mod_meta, summary, description, meta}} <- get_docs(mod, name) do
       %Operation{
-        description: docs,
+        summary: summary,
+        description: description,
         operationId: build_operation_id(meta, mod, name),
         parameters: build_parameters(meta),
         requestBody: build_request_body(meta),
         responses: build_responses(meta),
-        summary: summary,
         tags: Map.get(mod_meta, :tags, []) ++ Map.get(meta, :tags, [])
       }
     else
@@ -162,10 +162,15 @@ defmodule OpenApiSpex.Controller do
 
     case doc_for_function do
       {_, _, _, docs, meta} when is_map(docs) ->
-        docs = Map.get(docs, "en", "")
-        [summary | _] = String.split(docs, ~r/\n\s*\n/, parts: 2)
+        description = Map.get(docs, "en", "")
+        [summary | _] = String.split(description, ~r/\n\s*\n/, parts: 2)
 
-        {:ok, {mod_meta, summary, docs, meta}}
+        {:ok, {mod_meta, summary, description, meta}}
+
+      {_, _, _, :none, meta} ->
+        summary = ""
+        description = ""
+        {:ok, {mod_meta, summary, description, meta}}
 
       _ ->
         IO.warn("No docs found for function #{module}.#{name}/2")

@@ -53,5 +53,12 @@ defmodule OpenApiSpex.ControllerTest do
       op = @controller.open_api_operation(:show)
       assert op.operationId == "show_user"
     end
+
+    test "handles missing description docs" do
+      op = @controller.open_api_operation(:minimal_docs)
+      assert op.description == ""
+      assert op.summary == ""
+      assert %{200 => %{description: "Empty"}} = op.responses
+    end
   end
 end

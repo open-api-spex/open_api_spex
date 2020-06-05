@@ -9,7 +9,9 @@ defmodule PhoenixAppWeb.UserController do
   @moduledoc tags: ["users"]
 
   use PhoenixAppWeb, :controller
-  alias OpenApiSpex.{Operation, Schema}
+  use OpenApiSpex.Controller
+
+  alias OpenApiSpex.Schema
   alias PhoenixApp.{Accounts, Accounts.User}
   alias PhoenixAppWeb.Schemas
 
