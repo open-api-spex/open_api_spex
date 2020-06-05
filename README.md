@@ -20,7 +20,7 @@ The package can be installed by adding `open_api_spex` to your list of dependenc
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.6"}
+    {:open_api_spex, "~> 3.7"}
   ]
 end
 ```
@@ -310,6 +310,7 @@ open_api_spec_from_json = "encoded_schema.json"
 # Importing an existing YAML encoded schema
 open_api_spec_from_yaml = "encoded_schema.yaml"
   |> YamlElixir.read_all_from_file!()
+  |> List.first()
   |> OpenApiSpex.OpenApi.Decode.decode()
 ```
 
@@ -338,7 +339,7 @@ Add the `OpenApiSpex.Plug.CastAndValidate` plug to a controller to validate requ
 # Phoenix
 plug OpenApiSpex.Plug.CastAndValidate
 # Plug
-plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserController.create
+plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserController.create"
 ```
 
 For Phoenix apps, the `operation_id` can be inferred from the contents of `conn.private`.
@@ -357,13 +358,20 @@ defmodule MyAppWeb.UserController do
   Create a user.
   """
   @doc parameters: [
-        id: [in: :query, type: :integer, description: "user ID"]
+         id: [in: :query, type: :integer, description: "user ID"]
        ],
        request_body: {"The user attributes", "application/json", UserRequest},
        responses: %{
          201 => {"User", "application/json", UserResponse}
        }
-  def create(conn = %{body_params: %UserRequest{user: %User{name: name, email: email, birthday: birthday = %Date{}}}}, %{id: id}) do
+  def create(
+        conn = %{
+          body_params: %UserRequest{
+            user: %User{name: name, email: email, birthday: birthday = %Date{}}
+          }
+        },
+        %{id: id}
+      ) do
     # conn.body_params cast to UserRequest struct
     # conn.params.id cast to integer
   end
