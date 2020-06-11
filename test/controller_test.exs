@@ -74,6 +74,26 @@ defmodule OpenApiSpex.ControllerTest do
         refute @controller.open_api_operation(:no_doc_specified)
       end) =~ ~r/warning:/
     end
+  end
+
+  describe "spec parameters" do
+    test "pass when only schema specified" do
+      op = @controller.open_api_operation(:only_schema_parameter_present_docs)
+      assert [parameter] = op.parameters
+      assert %OpenApiSpex.Schema{type: :string} = parameter.schema
+      assert op.description == ""
+      assert op.summary == ""
+      assert %{200 => %{description: "Empty"}} = op.responses
+    end
+
+    test "pass when only type shortcut specified" do
+      op = @controller.open_api_operation(:only_type_parameter_present_docs)
+      assert [parameter] = op.parameters
+      assert %OpenApiSpex.Schema{type: :string} = parameter.schema
+      assert op.description == ""
+      assert op.summary == ""
+      assert %{200 => %{description: "Empty"}} = op.responses
+    end
 
     test "fails on both type and schema specified" do
       assert_raise ArgumentError, ~r/Both :type and :schema options were specified/,  fn ->
