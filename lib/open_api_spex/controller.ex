@@ -184,6 +184,20 @@ defmodule OpenApiSpex.Controller do
     end
   end
 
+  defp ensure_type_and_schema_exclusive!(name, type, schema) do
+    if type != nil && schema != nil do
+      raise ArgumentError,
+        message: """
+        Both :type and :schema options were specified for #{inspect name}. Please specify only one.
+        :type is a shortcut for base data types https://swagger.io/docs/specification/data-models/data-types/
+        which at the end imports as `%Schema{type: type}`. For more control over schemas please
+        use @doc parameters: [
+          id: [in: :path, schema: MyCustomSchema]
+        ]
+        """
+    end
+  end
+
   defp build_operation_id(meta, mod, name) do
     Map.get(meta, :operation_id, "#{inspect(mod)}.#{name}")
   end
@@ -192,9 +206,12 @@ defmodule OpenApiSpex.Controller do
     for {name, options} <- params do
       {location, options} = Keyword.pop(options, :in, :query)
       {type, options} = Keyword.pop(options, :type, :string)
+      {schema, options} = Keyword.pop(options, :schema, nil)
       {description, options} = Keyword.pop(options, :description, "")
 
-      Operation.parameter(name, location, type, description, options)
+      ensure_type_and_schema_exclusive!(name, type, schema)
+
+      Operation.parameter(name, location, type || schema, description, options)
     end
   end
 
