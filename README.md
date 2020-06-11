@@ -128,7 +128,7 @@ defmodule MyAppWeb.UserController do
 end
 ```
 
-There is a convinient shortcut `:type` for base data types supported by open api
+There is a convenient shortcut `:type` for base data types supported by open api
 ```elixir
 @doc parameters: [
   id: [in: :query, type: :string, required: true, description: "User ID"]
