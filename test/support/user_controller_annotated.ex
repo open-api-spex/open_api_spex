@@ -49,6 +49,18 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
   def no_doc_specified(_conn, _params), do: :ok
 
   @doc parameters: [
+         id: [in: :path, type: :string, required: true]
+       ],
+       responses: [ok: "Empty"]
+  def only_schema_parameter_present_docs(_conn, _params), do: :ok
+
+  @doc parameters: [
+         id: [in: :path, type: :string, required: true]
+       ],
+       responses: [ok: "Empty"]
+  def only_type_parameter_present_docs(_conn, _params), do: :ok
+
+  @doc parameters: [
          id: [
            in: :path,
            type: :string,
