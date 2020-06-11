@@ -3,6 +3,8 @@ defmodule OpenApiSpex.ControllerTest do
 
   alias OpenApiSpex.Controller, as: Subject
 
+  import ExUnit.CaptureIO
+
   doctest Subject
 
   @controller OpenApiSpexTest.UserControllerAnnotated
@@ -59,6 +61,18 @@ defmodule OpenApiSpex.ControllerTest do
       assert op.description == ""
       assert op.summary == ""
       assert %{200 => %{description: "Empty"}} = op.responses
+    end
+
+    test "has no docs when false" do
+      assert capture_io(:stderr, fn ->
+        refute @controller.open_api_operation(:skip_this_doc)
+      end) == ""
+    end
+
+    test "prints warn when no @doc specified" do
+      assert capture_io(:stderr, fn ->
+        refute @controller.open_api_operation(:no_doc_specified)
+      end) =~ ~r/warning:/
     end
   end
 end
