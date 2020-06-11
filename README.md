@@ -114,7 +114,7 @@ defmodule MyAppWeb.UserController do
   Update user
   """
   @doc parameters: [
-      id: [in: :query, type: :string, required: true, description: "User ID"]
+      id: [in: :query, schema: %OpenApiSpex.Schema{type: :string}, required: true, description: "User ID"]
     ],
     request_body: {"Request body to update a User", "application/json", User, required: true},
     responses: %{
@@ -126,6 +126,13 @@ defmodule MyAppWeb.UserController do
     end
   end
 end
+```
+
+There is a convenient shortcut `:type` for base data types supported by open api
+```elixir
+@doc parameters: [
+  id: [in: :query, type: :string, required: true, description: "User ID"]
+]
 ```
 
 The responses can also be defined using keyword list syntax,

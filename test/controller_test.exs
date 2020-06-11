@@ -74,5 +74,11 @@ defmodule OpenApiSpex.ControllerTest do
         refute @controller.open_api_operation(:no_doc_specified)
       end) =~ ~r/warning:/
     end
+
+    test "fails on both type and schema specified" do
+      assert_raise ArgumentError, ~r/Both :type and :schema options were specified/,  fn ->
+        @controller.open_api_operation(:non_exlusive_paramter_type_schema_docs)
+      end
+    end
   end
 end

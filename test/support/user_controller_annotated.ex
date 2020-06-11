@@ -47,4 +47,15 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
   def skip_this_doc(_conn, _params), do: :ok
 
   def no_doc_specified(_conn, _params), do: :ok
+
+  @doc parameters: [
+         id: [
+           in: :path,
+           type: :string,
+           schema: %OpenApiSpex.Schema{type: :string, format: :date},
+           required: true
+         ]
+       ],
+       responses: [ok: "Empty"]
+  def non_exlusive_paramter_type_schema_docs(_conn, _params), do: :ok
 end
