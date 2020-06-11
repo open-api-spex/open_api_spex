@@ -167,13 +167,19 @@ defmodule OpenApiSpex.Controller do
 
         {:ok, {mod_meta, summary, description, meta}}
 
-      {_, _, _, :none, meta} ->
+      {_, _, _, :none, %{responses: _responses} = meta} ->
         summary = ""
         description = ""
         {:ok, {mod_meta, summary, description, meta}}
 
-      _ ->
+      {_, _, _, :none, %{}} ->
         IO.warn("No docs found for function #{module}.#{name}/2")
+
+      {_, _, _, :hidden, %{}} ->
+        nil
+
+      _ ->
+        IO.warn("Invalid docs declaration found for function #{module}.#{name}/2")
         nil
     end
   end

@@ -42,4 +42,9 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
 
   @doc responses: [ok: "Empty"]
   def minimal_docs(_conn, _params), do: :ok
+
+  @doc false
+  def skip_this_doc(_conn, _params), do: :ok
+
+  def no_doc_specified(_conn, _params), do: :ok
 end

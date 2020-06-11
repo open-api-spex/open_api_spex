@@ -139,6 +139,11 @@ and the HTTP status codes can be replaced with their text equivalents:
   ]
 ```
 
+If you need to omit the spec for some action then pass false to the generator:
+```elixir
+@doc false
+````
+
 The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
 
 Each definition in a controller action or plug operation is converted
