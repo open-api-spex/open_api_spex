@@ -27,5 +27,8 @@ defmodule OpenApiSpexTest.Router do
 
     get "/utility/echo/any", UtilityController, :echo_any
     post "/utility/echo/body_params", UtilityController, :echo_body_params
+
+    get "/jsonapi/carts", JsonApiController, :index
+    get "/jsonapi/carts/:id", JsonApiController, :show
   end
 end

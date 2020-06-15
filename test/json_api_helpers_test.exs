@@ -5,6 +5,16 @@ defmodule OpenApiSpex.JsonApiHelpersTest do
   alias OpenApiSpex.{JsonApiHelpers, Schema}
   alias OpenApiSpex.JsonApiHelpers.JsonApiResource
 
+  describe "from operation specs" do
+    test "index action" do
+      spec = OpenApiSpexTest.ApiSpec.spec()
+      keys = Map.keys(spec.components.schemas)
+      IO.inspect(keys, label: "keys")
+      assert %Schema{} = schema = spec.components.schemas["CartIndexDocument"]
+      IO.inspect(schema, label: "schema")
+    end
+  end
+
   describe "generate_resource_document/1" do
     test "generate schema/0" do
       assert %Schema{} = schema = CartDocument.schema()
