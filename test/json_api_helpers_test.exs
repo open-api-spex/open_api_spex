@@ -34,7 +34,7 @@ defmodule OpenApiSpex.JsonApiHelpersTest do
     test "attributes" do
       resource = CartResource.resource()
       schema = JsonApiHelpers.resource_schema(resource)
-      assert schema.properties.attributes == JsonApiHelpers.attributes_schema(resource)
+      assert schema.properties.attributes == JsonApiResource.attributes_schema(resource)
       assert %Schema{} = schema.properties.id
       assert %Schema{} = schema.properties.type
     end
@@ -49,13 +49,13 @@ defmodule OpenApiSpex.JsonApiHelpersTest do
   describe "attributes_schema/1" do
     test "generates schema with same properties" do
       resource = CartResource.resource()
-      schema = JsonApiHelpers.attributes_schema(resource)
+      schema = JsonApiResource.attributes_schema(resource)
       assert schema.properties == resource.properties
     end
 
     test "generates title" do
       resource = CartResource.resource()
-      schema = JsonApiHelpers.attributes_schema(resource)
+      schema = JsonApiResource.attributes_schema(resource)
       assert schema.title == "CartAttributes"
     end
 
@@ -67,7 +67,7 @@ defmodule OpenApiSpex.JsonApiHelpersTest do
         RuntimeError,
         "%JsonApiResource{} :title is required and must be a string",
         fn ->
-          JsonApiHelpers.attributes_schema(resource)
+          JsonApiResource.attributes_schema(resource)
         end
       )
     end
