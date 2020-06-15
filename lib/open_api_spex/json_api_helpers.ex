@@ -1,19 +1,35 @@
 defmodule OpenApiSpex.JsonApiHelpers do
-  alias OpenApiSpex.JsonApiHelpers.JsonApiResource
+  alias OpenApiSpex.JsonApiHelpers.{JsonApiDocument, JsonApiResource}
   alias OpenApiSpex.Schema
 
-  def document_schema(%JsonApiResource{} = resource) do
-    if not is_binary(resource.title) do
-      raise "%JsonApiResource{} :title is required and must be a string"
+  def document_schema(%JsonApiDocument{} = document) do
+    if not is_binary(document.title) do
+      raise "%JsonApiDocument{} :title is required and must be a string"
     end
+
+    resource = %{
+      document.resource
+      | title: document.resource.title || document.title <> "Resource"
+    }
+
+    resource_schema = %Schema{
+      type: :object,
+      properties: %{
+        id: %Schema{type: :string},
+        type: %Schema{type: :string},
+        attributes: attributes_schema(resource)
+      },
+      required: [:id, :type, :attributes],
+      title: resource.title
+    }
 
     %Schema{
       type: :object,
       properties: %{
-        data: resource_schema(resource)
+        data: resource_schema
       },
       required: [:data],
-      title: resource.title <> "Document"
+      title: document.title <> "Document"
     }
   end
 
@@ -50,10 +66,10 @@ defmodule OpenApiSpex.JsonApiHelpers do
     quote do
       require OpenApiSpex
 
-      @resource struct!(OpenApiSpex.JsonApiHelpers.JsonApiResource, unquote(attrs))
-      def resource, do: @resource
+      @document struct!(OpenApiSpex.JsonApiHelpers.JsonApiDocument, unquote(attrs))
+      def document, do: @document
 
-      @document_schema OpenApiSpex.JsonApiHelpers.document_schema(@resource)
+      @document_schema OpenApiSpex.JsonApiHelpers.document_schema(@document)
       def document_schema, do: @document_schema
 
       OpenApiSpex.schema(@document_schema)
