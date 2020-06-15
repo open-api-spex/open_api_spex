@@ -1,7 +1,7 @@
 defmodule OpenApiSpex.JsonApiHelpersTest do
   use ExUnit.Case, async: true
 
-  alias OpenApiSpexTest.{CartDocument, CartResource}
+  alias OpenApiSpexTest.{CartDocument, CartIndexDocument, CartResource}
   alias OpenApiSpex.{JsonApiHelpers, Schema}
   alias OpenApiSpex.JsonApiHelpers.JsonApiResource
 
@@ -11,6 +11,14 @@ defmodule OpenApiSpex.JsonApiHelpersTest do
       assert schema.title == "CartDocument"
       assert %{data: _} = schema.properties
       assert schema.properties.data.title == CartResource.schema().title
+    end
+
+    test "generate schema for index document" do
+      assert %Schema{} = schema = CartIndexDocument.schema()
+      assert schema.title == "CartIndexDocument"
+      assert %{data: _} = schema.properties
+      assert schema.properties.data.type == :array
+      assert schema.properties.data.items.title == "CartResource"
     end
   end
 

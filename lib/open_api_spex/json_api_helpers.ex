@@ -7,21 +7,15 @@ defmodule OpenApiSpex.JsonApiHelpers do
       raise "%JsonApiDocument{} :title is required and must be a string"
     end
 
-    resource = %{
-      document.resource
-      | title: document.resource.title || document.title <> "Resource"
-    }
+    resource = document.resource
+    resource_item_schema = resource_schema(resource)
 
-    resource_schema = %Schema{
-      type: :object,
-      properties: %{
-        id: %Schema{type: :string},
-        type: %Schema{type: :string},
-        attributes: attributes_schema(resource)
-      },
-      required: [:id, :type, :attributes],
-      title: resource.title
-    }
+    resource_schema =
+      if document.multiple do
+        %Schema{type: :array, items: resource_item_schema, title: resource.title <> "List"}
+      else
+        resource_item_schema
+      end
 
     %Schema{
       type: :object,
@@ -73,16 +67,6 @@ defmodule OpenApiSpex.JsonApiHelpers do
       def document_schema, do: @document_schema
 
       OpenApiSpex.schema(@document_schema)
-    end
-  end
-
-  defmacro document(attrs) do
-    quote do
-      @resource struct!(OpenApiSpex.JsonApiHelpers.JsonApiResource, unquote(attrs))
-      def resource, do: @resource
-
-      @resource_schema OpenApiSpex.JsonApiHelpers.resource_schema(@resource)
-      def resource_schema, do: @resource_schema
     end
   end
 
