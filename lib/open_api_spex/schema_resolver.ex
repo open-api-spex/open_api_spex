@@ -37,7 +37,7 @@ defmodule OpenApiSpex.SchemaResolver do
     {paths, schemas} = resolve_schema_modules_from_paths(spec.paths, schemas)
     schemas = resolve_schema_modules_from_schemas(schemas)
     {responses, _} = resolve_schema_modules_from_responses(responses, schemas)
-    %{spec | paths: paths, components: %{components| schemas: schemas, responses: responses}}
+    %{spec | paths: paths, components: %{components | schemas: schemas, responses: responses}}
   end
 
   defp resolve_schema_modules_from_paths(paths = %{}, schemas = %{}) do
@@ -216,6 +216,13 @@ defmodule OpenApiSpex.SchemaResolver do
         additionalProperties: additional,
         properties: properties
     }
+
+    schemas =
+      if schema."x-struct" do
+        Map.put(schemas, schema.title, schema)
+      else
+        schemas
+      end
 
     {schema, schemas}
   end

@@ -7,11 +7,8 @@ defmodule OpenApiSpex.JsonApiHelpersTest do
 
   describe "from operation specs" do
     test "index action" do
-      spec = OpenApiSpexTest.ApiSpec.spec()
-      keys = Map.keys(spec.components.schemas)
-      IO.inspect(keys, label: "keys")
-      assert %Schema{} = schema = spec.components.schemas["CartIndexDocument"]
-      IO.inspect(schema, label: "schema")
+      spec = OpenApiSpexTest.ApiSpec2.spec()
+      assert %Schema{} = _schema = spec.components.schemas["CartIndexResponse"]
     end
   end
 
@@ -28,7 +25,7 @@ defmodule OpenApiSpex.JsonApiHelpersTest do
       assert schema.title == "CartIndexDocument"
       assert %{data: _} = schema.properties
       assert schema.properties.data.type == :array
-      assert schema.properties.data.items.title == "CartResource"
+      assert schema.properties.data.items == OpenApiSpexTest.CartResource
     end
   end
 
