@@ -6,6 +6,10 @@ defmodule OpenApiSpex.JsonApiHelpers.JsonApiResource do
             required: [],
             title: nil
 
+  def schema(resource) when is_atom(resource) and not is_nil(resource) do
+    resource.schema()."x-struct"
+  end
+
   def schema(%__MODULE__{} = resource) do
     if not is_binary(resource.title) do
       raise "%JsonApiResource{} :title is required and must be a string"

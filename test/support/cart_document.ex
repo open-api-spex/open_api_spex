@@ -5,7 +5,7 @@ defmodule OpenApiSpexTest.CartDocument do
   require OpenApiSpex.JsonApiHelpers
 
   JsonApiHelpers.generate_document_schema(
-    title: "Cart",
+    title: "CartDocument",
     resource: CartResource.resource()
   )
 end

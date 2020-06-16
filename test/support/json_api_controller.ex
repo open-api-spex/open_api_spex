@@ -5,6 +5,8 @@ defmodule OpenApiSpexTest.JsonApiController do
   alias OpenApiSpex.JsonApiHelpers
   alias OpenApiSpexTest.CartResource
 
+  require OpenApiSpex.JsonApiHelpers
+
   @doc """
   Get a list of carts.
   """
@@ -12,12 +14,12 @@ defmodule OpenApiSpexTest.JsonApiController do
          ok: {
            "Carts",
            "application/json",
-           OpenApiSpexTest.CartIndexDocument
-           #  JsonApiHelpers.document_schema(
-           #    title: "Carts",
-           #    resource: CartResource.resource(),
-           #    multiple: true
-           #  )
+           JsonApiHelpers.document_schema(
+             title: "CartIndexResponse",
+             resource: CartResource,
+             multiple: true,
+             "x-struct": "CartIndexResponse"
+           )
          }
        ]
   def index(conn, _params) do
