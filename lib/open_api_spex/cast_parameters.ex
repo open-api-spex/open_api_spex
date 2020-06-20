@@ -1,7 +1,7 @@
 defmodule OpenApiSpex.CastParameters do
   @moduledoc false
   alias OpenApiSpex.{Cast, Operation, Parameter, Schema, Reference, Components}
-  alias OpenApiSpex.Cast.{Error, Object}
+  alias OpenApiSpex.Cast.Error
   alias Plug.Conn
 
   @spec cast(Plug.Conn.t(), Operation.t(), Components.t()) ::
@@ -82,13 +82,7 @@ defmodule OpenApiSpex.CastParameters do
         schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
       )
 
-    ctx = %Cast{
-      value: params,
-      schema: schema,
-      schemas: components.schemas
-    }
-
-    Object.cast(ctx)
+    Cast.cast(schema, params, components.schemas)
   end
 
   defp reduce_cast_results(results) do

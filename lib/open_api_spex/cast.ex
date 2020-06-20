@@ -97,6 +97,10 @@ defmodule OpenApiSpex.Cast do
 
   @spec cast(t()) :: {:ok, term()} | {:error, [Error.t()]}
 
+  # Custom validator
+  def cast(%__MODULE__{schema: %{"x-validate": module}} = ctx) when module != nil,
+    do: module.cast(ctx)
+
   # nil schema
   def cast(%__MODULE__{value: value, schema: nil}),
     do: {:ok, value}
