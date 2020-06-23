@@ -129,6 +129,7 @@ end
 ```
 
 There is a convenient shortcut `:type` for base data types supported by open api
+
 ```elixir
 @doc parameters: [
   id: [in: :query, type: :string, required: true, description: "User ID"]
@@ -149,9 +150,10 @@ and the HTTP status codes can be replaced with their text equivalents:
 The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
 
 If you need to omit the spec for some action then pass false to the generator:
+
 ```elixir
 @doc false
-````
+```
 
 Each definition in a controller action or plug operation is converted
 to an `%OpenApiSpex.Operation{}` struct. The definitions are read
@@ -187,6 +189,8 @@ defmodule MyAppWeb.Schemas do
     require OpenApiSpex
 
     OpenApiSpex.schema(%{
+      # The title is optional. It defaults to the last section of the module name.
+      # So the derived title for MyApp.User is "User".
       title: "User",
       description: "A user of the app",
       type: :object,
@@ -340,8 +344,10 @@ You can then use the loaded spec to with `OpenApiSpex.cast_and_validate/4`, like
 ## Validating and Casting Params
 
 OpenApiSpex can automatically validate requests before they reach the controller action function. Or if you prefer,
-you can explicitly call on OpenApiSpex to cast and validate the params within the controller action. This section
-describes the former.
+you can explicitly call on OpenApiSpex to cast and validate the params within the controller action.
+See `OpenApiSpex.cast_value/3` for the latter.
+
+The rest of this section describes implicit casting and validating the request before it reaches your controller action.
 
 First, the `plug OpenApiSpex.Plug.PutApiSpec` needs to be called in the Router, as described above.
 
@@ -398,7 +404,7 @@ The response body will include the validation error message:
 {
   "errors": [
     {
-      "message": "Invalid format. Expected :date",
+      "detail": "Invalid format. Expected :date",
       "source": {
         "pointer": "/data/birthday"
       },
@@ -408,7 +414,37 @@ The response body will include the validation error message:
 }
 ```
 
-See also `OpenApiSpex.cast_value/3` for casting and validating outside of a `plug` pipeline.
+If you would like a different response JSON shape, create a plug module to shape the response,
+and pass it to `CastAndValidate`:
+
+```elixir
+plug OpenApiSpex.Plug.CastAndValidate, render_error: MyErrorRendererPlug
+```
+
+```elixir
+defmodule MyErrorRendererPlug do
+  @behaviour Plug
+
+  alias Plug.Conn
+  alias OpenApiSpex.OpenApi
+
+  @impl Plug
+  def init(opts), do: opts
+
+  @impl Plug
+  def call(conn, errors) when is_list(errors) do
+    response = %{
+      errors: Enum.map(errors, &to_string/1)
+    }
+
+    json = OpenApi.json_encoder().encode!(response)
+
+    conn
+    |> Conn.put_resp_content_type("application/json")
+    |> Conn.send_resp(422, json)
+  end
+end
+```
 
 ## Validate Examples
 

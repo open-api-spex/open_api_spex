@@ -1,4 +1,7 @@
 defmodule OpenApiSpex.Plug.JsonRenderError do
+  @doc """
+  Renders errors using a json:api-compliant data shape.
+  """
   @behaviour Plug
 
   alias Plug.Conn
@@ -32,6 +35,8 @@ defmodule OpenApiSpex.Plug.JsonRenderError do
       source: %{
         pointer: pointer
       },
+      detail: to_string(error),
+      # message is deprecated because it isn't part of the json:api spec.
       message: to_string(error)
     }
   end
