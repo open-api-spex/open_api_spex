@@ -127,10 +127,7 @@ defmodule OpenApiSpex.Cast.Error do
   end
 
   def new(ctx, {:one_of, meta}) do
-    %__MODULE__{
-      reason: :one_of,
-      meta: meta
-    }
+    %__MODULE__{reason: :one_of, meta: meta}
     |> add_context_fields(ctx)
   end
 

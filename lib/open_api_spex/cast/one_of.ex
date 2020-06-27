@@ -35,7 +35,7 @@ defmodule OpenApiSpex.Cast.OneOf do
       case {valid_schemas, failed_schemas} do
         {[], []} -> "no schemas given"
         {[], _} -> "no schemas validate"
-        {_, []} -> "more than one schema validate"
+        {_, []} -> "more than one schemas validate"
       end
 
     Cast.error(

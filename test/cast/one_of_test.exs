@@ -18,7 +18,7 @@ defmodule OpenApiSpex.CastOneOfTest do
       assert error.reason == :one_of
 
       assert Error.message(error) ==
-               "Failed to cast value to one of: more than one schema validate"
+               "Failed to cast value to one of: more than one schemas validate"
     end
 
     test "oneOf, no castable schema" do
@@ -64,7 +64,7 @@ defmodule OpenApiSpex.CastOneOfTest do
                length: 0,
                meta: %{
                  failed_schemas: [],
-                 message: "more than one schema validate",
+                 message: "more than one schemas validate",
                  valid_schemas: [
                    "Schema(title: \"Dog\", type: :object)",
                    "Schema(title: \"Cat\", type: :object)"
@@ -77,7 +77,7 @@ defmodule OpenApiSpex.CastOneOfTest do
                value: %{"bark" => true, "meow" => true}
              }
 
-      assert to_string(error) == "Failed to cast value to one of: more than one schema validate"
+      assert to_string(error) == "Failed to cast value to one of: more than one schemas validate"
     end
 
     test "invalid when valid against more than one child schema" do
@@ -93,7 +93,7 @@ defmodule OpenApiSpex.CastOneOfTest do
                    "Schema(title: \"Dog\", type: :object)",
                    "Schema(title: \"Cat\", type: :object)"
                  ],
-                 message: "more than one schema validate"
+                 message: "more than one schemas validate"
                },
                name: nil,
                path: [],
@@ -102,7 +102,7 @@ defmodule OpenApiSpex.CastOneOfTest do
                value: %{"age" => 3, "bark" => true, "breed" => "Husky", "meow" => true}
              }
 
-      assert to_string(error) == "Failed to cast value to one of: more than one schema validate"
+      assert to_string(error) == "Failed to cast value to one of: more than one schemas validate"
     end
   end
 end
