@@ -4,38 +4,32 @@ defmodule OpenApiSpex.Cast.OneOf do
   alias OpenApiSpex.Schema
 
   def cast(%_{schema: %{type: _, oneOf: []}} = ctx) do
-    error(ctx, [])
+    error(ctx, [], [])
   end
 
   def cast(%{schema: %{type: _, oneOf: schemas}} = ctx) do
     castable_schemas =
-      Enum.reduce(schemas, {[], [], 0}, fn schema, {results, error_schemas, count} ->
+      Enum.reduce(schemas, {[], []}, fn schema, {results, error_schemas} ->
         schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
 
         case Cast.cast(%{ctx | schema: schema}) do
-          {:ok, value} -> {[{:ok, value, schema} | results], error_schemas, count + 1}
-          _error -> {results, [schema | error_schemas], count}
+          {:ok, value} -> {[{:ok, value, schema} | results], error_schemas}
+          _error -> {results, [schema | error_schemas]}
         end
       end)
 
     case castable_schemas do
-      {[{:ok, %_{} = value, _}], _, 1} -> {:ok, value}
-      {[{:ok, value, %Schema{"x-struct": nil}}], _, 1} -> {:ok, value}
-      {[{:ok, value, %Schema{"x-struct": module}}], _, 1} -> {:ok, struct(module, value)}
-      {success_schemas, _failed_schemas, count} when count > 1 -> error(ctx, success_schemas)
-      {[], failed_schemas, _count} -> error(ctx, failed_schemas)
+      {[{:ok, %_{} = value, _}], _} -> {:ok, value}
+      {[{:ok, value, %Schema{"x-struct": nil}}], _} -> {:ok, value}
+      {[{:ok, value, %Schema{"x-struct": module}}], _} -> {:ok, struct(module, value)}
+      {success_results, failed_schemas} -> error(ctx, success_results, failed_schemas)
     end
   end
 
   ## Private functions
 
-  defp error(ctx, results) do
-    valid_schemas =
-      results
-      |> Enum.filter(&match?({:ok, _, _}, &1))
-      |> Enum.map(&elem(&1, 2))
-
-    failed_schemas = Enum.filter(results, &match?(%Schema{}, &1))
+  defp error(ctx, success_results, failed_schemas) do
+    valid_schemas = Enum.map(success_results, &elem(&1, 2))
 
     message =
       case {valid_schemas, failed_schemas} do
