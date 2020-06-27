@@ -1,6 +1,7 @@
 defmodule OpenApiSpex.Plug.JsonRenderErrorTest do
   use ExUnit.Case, async: true
 
+  @tag :capture_log
   test "render error" do
     conn =
       :get
@@ -14,7 +15,6 @@ defmodule OpenApiSpex.Plug.JsonRenderErrorTest do
              "errors" => [
                %{
                  "detail" => "Invalid boolean. Got: string",
-                 "message" => "Invalid boolean. Got: string",
                  "source" => %{"pointer" => "/validParam"},
                  "title" => "Invalid value"
                }

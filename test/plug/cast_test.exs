@@ -11,6 +11,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 200
     end
 
+    @tag :capture_log
     test "Invalid value" do
       conn =
         :get
@@ -20,6 +21,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 422
     end
 
+    @tag :capture_log
     test "Invalid Param" do
       conn =
         :get
@@ -30,11 +32,11 @@ defmodule OpenApiSpex.Plug.CastTest do
       error_resp = Jason.decode!(conn.resp_body)
       assert %{"errors" => [error]} = error_resp
 
-      assert %{
+      assert error == %{
                "detail" => "Invalid boolean. Got: string",
                "source" => %{"pointer" => "/validParam"},
                "title" => "Invalid value"
-             } = error
+             }
     end
 
     test "with requestBody" do
@@ -64,6 +66,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 200
     end
 
+    @tag :capture_log
     test "Invalid value" do
       conn =
         :get
@@ -73,6 +76,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 400
     end
 
+    @tag :capture_log
     test "Invalid Param" do
       conn =
         :get
@@ -121,6 +125,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
+    @tag :capture_log
     test "Invalid Request" do
       request_body = %{
         "user" => %{
@@ -142,11 +147,11 @@ defmodule OpenApiSpex.Plug.CastTest do
       resp_data = Jason.decode!(conn.resp_body)
       assert %{"errors" => [error]} = resp_data
 
-      assert %{
+      assert error == %{
                "detail" => "Invalid format. Expected ~r/[a-zA-Z][a-zA-Z0-9_]+/",
                "source" => %{"pointer" => "/user/name"},
                "title" => "Invalid value"
-             } = error
+             }
     end
   end
 
@@ -200,13 +205,13 @@ defmodule OpenApiSpex.Plug.CastTest do
       resp_body = Jason.decode!(conn.resp_body)
       assert %{"errors" => [error]} = resp_body
 
-      assert %{
+      assert error == %{
                "source" => %{
                  "pointer" => "/pet"
                },
                "title" => "Invalid value",
                "detail" => "Failed to cast value to one of: [] (no schemas provided)"
-             } = error
+             }
     end
 
     test "Header params" do

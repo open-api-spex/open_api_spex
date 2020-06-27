@@ -3,7 +3,7 @@ defmodule OpenApiSpexTest.JsonRenderErrorController do
   use OpenApiSpex.Controller
   alias OpenApiSpexTest.Schemas
 
-  plug OpenApiSpex.Plug.CastAndValidate
+  plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
 
   @doc """
   List users
@@ -14,17 +14,9 @@ defmodule OpenApiSpexTest.JsonRenderErrorController do
          validParam: [in: :query, type: :boolean, description: "Valid Param", example: true]
        ],
        responses: [
-         ok: {"User List Response", "application/json", Schemas.UsersResponse}
+         no_content: Schemas.NoContent.response()
        ]
   def index(conn, _params) do
-    json(conn, %Schemas.UsersResponse{
-      data: [
-        %Schemas.User{
-          id: 123,
-          name: "joe user",
-          email: "joe@gmail.com"
-        }
-      ]
-    })
+    json(conn, %{})
   end
 end

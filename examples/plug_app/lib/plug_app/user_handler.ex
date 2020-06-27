@@ -7,7 +7,10 @@ defmodule PlugApp.UserHandler do
   defmodule Index do
     use Plug.Builder
 
-    plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserHandler.Index"
+    plug OpenApiSpex.Plug.CastAndValidate,
+      json_render_error_v2: true,
+      operation_id: "UserHandler.Index"
+
     plug :index
 
     def open_api_operation(_) do
@@ -41,7 +44,10 @@ defmodule PlugApp.UserHandler do
   defmodule Show do
     use Plug.Builder
 
-    plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserHandler.Show"
+    plug OpenApiSpex.Plug.CastAndValidate,
+      json_render_error_v2: true,
+      operation_id: "UserHandler.Show"
+
     plug :load
     plug :show
 
@@ -90,7 +96,10 @@ defmodule PlugApp.UserHandler do
   defmodule Create do
     use Plug.Builder
 
-    plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserHandler.Create"
+    plug OpenApiSpex.Plug.CastAndValidate,
+      json_render_error_v2: true,
+      operation_id: "UserHandler.Create"
+
     plug :create
 
     def open_api_operation(_) do
