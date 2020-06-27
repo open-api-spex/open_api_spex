@@ -27,5 +27,7 @@ defmodule OpenApiSpexTest.Router do
 
     get "/utility/echo/any", UtilityController, :echo_any
     post "/utility/echo/body_params", UtilityController, :echo_body_params
+
+    get "/json_render_error", JsonRenderErrorController, :index
   end
 end
