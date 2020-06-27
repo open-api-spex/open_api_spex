@@ -4,7 +4,9 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
   The operation_id can be given at compile time as an argument to `init`:
 
-      plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true , operation_id: "MyApp.ShowUser"
+      plug OpenApiSpex.Plug.CastAndValidate,
+        json_render_error_v2: true,
+        operation_id: "MyApp.ShowUser"
 
   For phoenix applications, the operation_id can be obtained at runtime automatically.
 
@@ -47,11 +49,9 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
     opts = Map.new(opts)
 
     error_renderer =
-      if opts[:json_render_error_v2] do
-        OpenApiSpex.Plug.JsonRenderErrorV2
-      else
-        OpenApiSpex.Plug.JsonRenderError
-      end
+      if opts[:json_render_error_v2],
+        do: OpenApiSpex.Plug.JsonRenderErrorV2,
+        else: OpenApiSpex.Plug.JsonRenderError
 
     Map.put_new(opts, :render_error, error_renderer)
   end
