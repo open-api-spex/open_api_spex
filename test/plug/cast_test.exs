@@ -213,7 +213,7 @@ defmodule OpenApiSpex.Plug.CastTest do
                      "pointer" => "/pet"
                    },
                    "title" => "Invalid value",
-                   "message" => "Failed to cast value to one of: [] (no schemas provided)"
+                   "message" => "Failed to cast value to one of: no schemas validate"
                  }
                ]
              }
@@ -244,11 +244,11 @@ defmodule OpenApiSpex.Plug.CastTest do
         |> OpenApiSpexTest.Router.call([])
 
       assert Jason.decode!(conn.resp_body) == %{
-        "data" => %{
-          "pet_type" => "Dog",
-          "bark" => "woof"
-        }
-      }
+               "data" => %{
+                 "pet_type" => "Dog",
+                 "bark" => "woof"
+               }
+             }
     end
 
     test "Cookie params" do
@@ -282,7 +282,9 @@ defmodule OpenApiSpex.Plug.CastTest do
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
-      assert Jason.decode!(conn.resp_body) == %{"data" => [%{"pet_type" => "Dog", "bark" => "bow wow"}]}
+      assert Jason.decode!(conn.resp_body) == %{
+               "data" => [%{"pet_type" => "Dog", "bark" => "bow wow"}]
+             }
     end
 
     test "freeForm params" do
