@@ -126,8 +126,8 @@ defmodule OpenApiSpex.Cast.Error do
     |> add_context_fields(ctx)
   end
 
-  def new(ctx, {:one_of, schema_names}) do
-    %__MODULE__{reason: :one_of, meta: %{failed_schemas: schema_names}}
+  def new(ctx, {:one_of, meta}) do
+    %__MODULE__{reason: :one_of, meta: meta}
     |> add_context_fields(ctx)
   end
 
@@ -263,8 +263,8 @@ defmodule OpenApiSpex.Cast.Error do
     "Failed to cast value using any of: #{failed_schemas}"
   end
 
-  def message(%{reason: :one_of, meta: %{failed_schemas: failed_schemas}}) do
-    "Failed to cast value to one of: #{failed_schemas}"
+  def message(%{reason: :one_of, meta: %{message: message}}) do
+    "Failed to cast value to one of: #{message}"
   end
 
   def message(%{reason: :min_length, length: length}) do
