@@ -129,6 +129,7 @@ end
 ```
 
 There is a convenient shortcut `:type` for base data types supported by open api
+
 ```elixir
 @doc parameters: [
   id: [in: :query, type: :string, required: true, description: "User ID"]
@@ -149,9 +150,10 @@ and the HTTP status codes can be replaced with their text equivalents:
 The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
 
 If you need to omit the spec for some action then pass false to the generator:
+
 ```elixir
 @doc false
-````
+```
 
 Each definition in a controller action or plug operation is converted
 to an `%OpenApiSpex.Operation{}` struct. The definitions are read
@@ -187,6 +189,8 @@ defmodule MyAppWeb.Schemas do
     require OpenApiSpex
 
     OpenApiSpex.schema(%{
+      # The title is optional. It defaults to the last section of the module name.
+      # So the derived title for MyApp.User is "User".
       title: "User",
       description: "A user of the app",
       type: :object,
@@ -340,8 +344,10 @@ You can then use the loaded spec to with `OpenApiSpex.cast_and_validate/4`, like
 ## Validating and Casting Params
 
 OpenApiSpex can automatically validate requests before they reach the controller action function. Or if you prefer,
-you can explicitly call on OpenApiSpex to cast and validate the params within the controller action. This section
-describes the former.
+you can explicitly call on OpenApiSpex to cast and validate the params within the controller action.
+See `OpenApiSpex.cast_value/3` for the latter.
+
+The rest of this section describes implicit casting and validating the request before it reaches your controller action.
 
 First, the `plug OpenApiSpex.Plug.PutApiSpec` needs to be called in the Router, as described above.
 
@@ -349,12 +355,21 @@ Add the `OpenApiSpex.Plug.CastAndValidate` plug to a controller to validate requ
 
 ```elixir
 # Phoenix
-plug OpenApiSpex.Plug.CastAndValidate
+plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
 # Plug
-plug OpenApiSpex.Plug.CastAndValidate, operation_id: "UserController.create"
+plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true, operation_id: "UserController.create"
 ```
 
+The `json_render_error_v2: true` is a work-around for a bug in the format of the default error renderer.
+It will be not needed in version 4.0.
+
 For Phoenix apps, the `operation_id` can be inferred from the contents of `conn.private`.
+
+The data shape of the default error renderer follows the JSON:API spec for error responses. For
+convenience, the `OpenApiSpex.JsonErrorResponse` schema module is available that specifies
+the shape, and it can be used in your API specs.
+
+Example usage of `CastAndValidate` in a Phoenix controller:
 
 ```elixir
 defmodule MyAppWeb.UserController do
@@ -362,7 +377,7 @@ defmodule MyAppWeb.UserController do
   alias OpenApiSpex.Operation
   alias MyAppWeb.Schemas.{User, UserRequest, UserResponse}
 
-  plug OpenApiSpex.Plug.CastAndValidate
+  plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
 
   @doc """
   Create user.
@@ -375,6 +390,7 @@ defmodule MyAppWeb.UserController do
        request_body: {"The user attributes", "application/json", UserRequest},
        responses: %{
          201 => {"User", "application/json", UserResponse}
+         422 => OpenApiSpex.JsonErrorResponse.response()
        }
   def create(
         conn = %{
@@ -398,7 +414,7 @@ The response body will include the validation error message:
 {
   "errors": [
     {
-      "message": "Invalid format. Expected :date",
+      "detail": "Invalid format. Expected :date",
       "source": {
         "pointer": "/data/birthday"
       },
@@ -408,7 +424,37 @@ The response body will include the validation error message:
 }
 ```
 
-See also `OpenApiSpex.cast_value/3` for casting and validating outside of a `plug` pipeline.
+If you would like a different response JSON shape, create a plug module to shape the response,
+and pass it to `CastAndValidate`:
+
+```elixir
+plug OpenApiSpex.Plug.CastAndValidate, render_error: MyErrorRendererPlug
+```
+
+```elixir
+defmodule MyErrorRendererPlug do
+  @behaviour Plug
+
+  alias Plug.Conn
+  alias OpenApiSpex.OpenApi
+
+  @impl Plug
+  def init(errors), do: errors
+
+  @impl Plug
+  def call(conn, errors) when is_list(errors) do
+    response = %{
+      errors: Enum.map(errors, &to_string/1)
+    }
+
+    json = OpenApi.json_encoder().encode!(response)
+
+    conn
+    |> Conn.put_resp_content_type("application/json")
+    |> Conn.send_resp(422, json)
+  end
+end
+```
 
 ## Validate Examples
 

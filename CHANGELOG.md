@@ -124,7 +124,7 @@ New API
 ```elixir
 defmodule PhoenixAppWeb.UserController do
   use PhoenixAppWeb, :controller
-  plug OpenApiSpex.Plug.CastAndValidate
+  plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
 end
 ```
 

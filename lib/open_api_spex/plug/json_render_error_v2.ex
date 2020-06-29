@@ -1,9 +1,12 @@
-defmodule OpenApiSpex.Plug.JsonRenderError do
-  @moduledoc false
+defmodule OpenApiSpex.Plug.JsonRenderErrorV2 do
+  @moduledoc """
+  Renders errors using a quasi-json:api-compliant data shape.
 
-  # Renders errors using a quasi-json:api-compliant data shape.
-  # This module will change in a backwards-incompatible way in version 4.0.
+  WARNING: Do not use this module directly. It will be renamed in version 4.0
+  To use this module in a backwards-compatible way, call CastAndValidate like this:
 
+      plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
+  """
   @behaviour Plug
 
   alias Plug.Conn
@@ -37,7 +40,7 @@ defmodule OpenApiSpex.Plug.JsonRenderError do
       source: %{
         pointer: pointer
       },
-      message: to_string(error)
+      detail: to_string(error)
     }
   end
 end

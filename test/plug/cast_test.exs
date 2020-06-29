@@ -11,6 +11,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 200
     end
 
+    @tag :capture_log
     test "Invalid value" do
       conn =
         :get
@@ -20,6 +21,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 422
     end
 
+    @tag :capture_log
     test "Invalid Param" do
       conn =
         :get
@@ -28,15 +30,12 @@ defmodule OpenApiSpex.Plug.CastTest do
 
       assert conn.status == 422
       error_resp = Jason.decode!(conn.resp_body)
+      assert %{"errors" => [error]} = error_resp
 
-      assert error_resp == %{
-               "errors" => [
-                 %{
-                   "message" => "Invalid boolean. Got: string",
-                   "source" => %{"pointer" => "/validParam"},
-                   "title" => "Invalid value"
-                 }
-               ]
+      assert error == %{
+               "detail" => "Invalid boolean. Got: string",
+               "source" => %{"pointer" => "/validParam"},
+               "title" => "Invalid value"
              }
     end
 
@@ -67,6 +66,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 200
     end
 
+    @tag :capture_log
     test "Invalid value" do
       conn =
         :get
@@ -76,6 +76,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 400
     end
 
+    @tag :capture_log
     test "Invalid Param" do
       conn =
         :get
@@ -124,6 +125,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
+    @tag :capture_log
     test "Invalid Request" do
       request_body = %{
         "user" => %{
@@ -143,17 +145,13 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 422
 
       resp_data = Jason.decode!(conn.resp_body)
+      assert %{"errors" => [error]} = resp_data
 
-      assert resp_data ==
-               %{
-                 "errors" => [
-                   %{
-                     "message" => "Invalid format. Expected ~r/[a-zA-Z][a-zA-Z0-9_]+/",
-                     "source" => %{"pointer" => "/user/name"},
-                     "title" => "Invalid value"
-                   }
-                 ]
-               }
+      assert error == %{
+               "detail" => "Invalid format. Expected ~r/[a-zA-Z][a-zA-Z0-9_]+/",
+               "source" => %{"pointer" => "/user/name"},
+               "title" => "Invalid value"
+             }
     end
   end
 
@@ -205,17 +203,12 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 422
 
       resp_body = Jason.decode!(conn.resp_body)
+      assert %{"errors" => [error]} = resp_body
 
-      assert resp_body == %{
-               "errors" => [
-                 %{
-                   "source" => %{
-                     "pointer" => "/pet"
-                   },
-                   "title" => "Invalid value",
-                   "message" => "Failed to cast value to one of: no schemas validate"
-                 }
-               ]
+      assert error == %{
+               "detail" => "Failed to cast value to one of: no schemas validate",
+               "source" => %{"pointer" => "/pet"},
+               "title" => "Invalid value"
              }
     end
 

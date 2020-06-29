@@ -102,6 +102,21 @@ defmodule OpenApiSpexTest.Schemas do
     end
   end
 
+  defmodule NoContent do
+    require OpenApiSpex
+    alias OpenApiSpex.Operation
+
+    OpenApiSpex.schema(%{type: :object, properties: %{}, additionalProperties: false})
+
+    def response do
+      Operation.response(
+        "No Content",
+        "application/json",
+        __MODULE__
+      )
+    end
+  end
+
   defmodule Size do
     OpenApiSpex.schema(%{
       title: "Size",
@@ -575,7 +590,7 @@ defmodule OpenApiSpexTest.Schemas do
       description: "Echo body params request",
       type: :array,
       items: %Schema{
-        type: :object,
+        type: :object
       }
     })
   end
