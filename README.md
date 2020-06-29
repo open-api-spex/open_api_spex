@@ -365,6 +365,12 @@ It will be not needed in version 4.0.
 
 For Phoenix apps, the `operation_id` can be inferred from the contents of `conn.private`.
 
+The data shape of the default error renderer follows the JSON:API spec for error responses. For
+convenience, the `OpenApiSpex.JsonErrorResponse` schema module is available that specifies
+the shape, and it can be used in your API specs.
+
+Example usage of `CastAndValidate` in a Phoenix controller:
+
 ```elixir
 defmodule MyAppWeb.UserController do
   use MyAppWeb, :controller
@@ -384,6 +390,7 @@ defmodule MyAppWeb.UserController do
        request_body: {"The user attributes", "application/json", UserRequest},
        responses: %{
          201 => {"User", "application/json", UserResponse}
+         422 => OpenApiSpex.JsonErrorResponse.response()
        }
   def create(
         conn = %{
