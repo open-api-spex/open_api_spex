@@ -71,14 +71,14 @@ In case your API requires authorization you can add security schemes as part of 
 
 ```elixir
 components: %Components{
-  securitySchemes: %{authorization: %SecurityScheme{type: "http", scheme: "bearer"}}
+  securitySchemes: %{"authorization" => %SecurityScheme{type: "http", scheme: "bearer"}}
 }
 ```
 
-Once the security scheme is defined you can declare it. Please note that the key below matches the one defined in the security scheme, in the our example, `authorization`.
+Once the security scheme is defined you can declare it. Please note that the key below matches the one defined in the security scheme, in the our example, `"authorization"`.
 
 ```elixir
-security: [%{authorization: []}]
+security: [%{"authorization" => []}]
 ```
 
 If you require authorization for all endpoints you can declare the `security` in the main spec. In case you need authorization only for specific endpoints, or if you are using more than one security scheme, you can declare it as part of each operation.
