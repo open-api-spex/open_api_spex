@@ -439,7 +439,7 @@ defmodule MyErrorRendererPlug do
   alias OpenApiSpex.OpenApi
 
   @impl Plug
-  def init(opts), do: opts
+  def init(errors), do: errors
 
   @impl Plug
   def call(conn, errors) when is_list(errors) do
