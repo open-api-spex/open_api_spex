@@ -206,11 +206,9 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert %{"errors" => [error]} = resp_body
 
       assert error == %{
-               "source" => %{
-                 "pointer" => "/pet"
-               },
-               "title" => "Invalid value",
-               "detail" => "Failed to cast value to one of: [] (no schemas provided)"
+               "detail" => "Failed to cast value to one of: no schemas validate",
+               "source" => %{"pointer" => "/pet"},
+               "title" => "Invalid value"
              }
     end
 
