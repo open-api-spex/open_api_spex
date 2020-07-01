@@ -70,8 +70,7 @@ defmodule OpenApiSpex.SchemaTest do
           "id" => 123,
           "name" => "asdf",
           "email" => "foo@bar.com",
-          "updated_at" => "2017-09-12T14:44:55Z",
-          "age" => 35
+          "updated_at" => "2017-09-12T14:44:55Z"
         }
       }
 
@@ -82,8 +81,7 @@ defmodule OpenApiSpex.SchemaTest do
                  id: 123,
                  name: "asdf",
                  email: "foo@bar.com",
-                 updated_at: DateTime.from_naive!(~N[2017-09-12T14:44:55], "Etc/UTC"),
-                 age: 35
+                 updated_at: DateTime.from_naive!(~N[2017-09-12T14:44:55], "Etc/UTC")
                }
              }
     end
@@ -107,21 +105,23 @@ defmodule OpenApiSpex.SchemaTest do
     end
 
     test "cast request schema error with custom validator" do
-      api_spec = ApiSpec.spec()
-      schemas = api_spec.components.schemas
-      user_request_schema = schemas["UserRequest"]
-
-      input = %{
-        "user" => %{
-          "id" => 123,
-          "name" => "asdf",
-          "email" => "foo@bar.com",
-          "updated_at" => "2017-09-12T14:44:55Z",
-          "age" => "83"
-        }
+      user_request_schema = %Schema{
+        type: :object,
+        properties: %{age: OpenApiSpexTest.Schemas.StrictInt.schema()}
       }
 
-      assert {:error, _} = Schema.cast(user_request_schema, input, schemas)
+      input = %{"age" => "83"}
+
+      assert {:error,
+              [
+                %OpenApiSpex.Cast.Error{
+                  reason: :invalid_type,
+                  type: :strict_integer,
+                  value: "83"
+                } = error
+              ]} = Schema.cast(user_request_schema, input, %{})
+
+      assert "Invalid strict_integer. Got: string" = to_string(error)
     end
 
     test "Cast Cat from Pet schema" do

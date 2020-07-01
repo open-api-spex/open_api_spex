@@ -120,8 +120,7 @@ defmodule OpenApiSpex.Plug.CastTest do
                  "id" => 1234,
                  "inserted_at" => nil,
                  "name" => "asdf",
-                 "updated_at" => "2017-09-12T14:44:55Z",
-                 "age" => nil
+                 "updated_at" => "2017-09-12T14:44:55Z"
                }
              }
     end

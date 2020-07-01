@@ -142,7 +142,7 @@ defmodule OpenApiSpexTest.Schemas do
     def cast(context = %OpenApiSpex.Cast{value: value}) when is_integer(value),
       do: Cast.ok(context)
     def cast(context),
-      do: Cast.error(context, {:invalid_type, :integer})
+      do: Cast.error(context, {:invalid_type, :strict_integer})
   end
 
   defmodule User do
@@ -159,8 +159,7 @@ defmodule OpenApiSpexTest.Schemas do
           description: "Creation timestamp",
           format: :"date-time"
         },
-        updated_at: %Schema{type: :string, description: "Update timestamp", format: :"date-time"},
-        age: StrictInt.schema()
+        updated_at: %Schema{type: :string, description: "Update timestamp", format: :"date-time"}
       },
       required: [:name, :email],
       additionalProperties: false,
@@ -169,8 +168,7 @@ defmodule OpenApiSpexTest.Schemas do
         "name" => "Joe User",
         "email" => "joe@gmail.com",
         "inserted_at" => "2017-09-12T12:34:55Z",
-        "updated_at" => "2017-09-13T10:11:12Z",
-        "age" => 85
+        "updated_at" => "2017-09-13T10:11:12Z"
       }
     })
   end
