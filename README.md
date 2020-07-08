@@ -142,7 +142,7 @@ and the HTTP status codes can be replaced with their text equivalents:
 ```elixir
   @doc responses: [
     ok: {"User", "application/json", MyAppWeb.Schema.User}
-    unprocessible_entity: {"Bad request parameters", "application/json", MyAppWeb.Schema.BadRequestParameters},
+    unprocessable_entity: {"Bad request parameters", "application/json", MyAppWeb.Schema.BadRequestParameters},
     not_found: {"Not found", "application/json", MyAppWeb.Schema.NotFound}
   ]
 ```
