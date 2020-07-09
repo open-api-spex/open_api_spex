@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   def run(argv) do
     opts = parse_options(argv)
 
-    with :ok <- start_endpoint(opts),
+    with :ok <- maybe_start_endpoint(opts),
          {:ok, content} <- generate_spec(opts) do
       write_spec(content, opts.filename)
     else
@@ -25,13 +25,21 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
     end
   end
 
-  def start_endpoint(options) do
-    case options.endpoint.start_link() do
-      {:ok, _} ->
-        :ok
+  def maybe_start_endpoint(%{endpoint: nil}) do
+    :ok
+  end
 
-      _ ->
-        {:error, "Couldn't start endpoint"}
+  def maybe_start_endpoint(options) do
+    if function_exported?(options.endpoint, :start_link, 0) do
+      case options.endpoint.start_link() do
+        {:ok, _} ->
+          :ok
+
+        _ ->
+          {:error, "Couldn't start endpoint"}
+      end
+    else
+      {:error, "Unvalid Enpoint module provided"}
     end
   end
 
@@ -50,23 +58,24 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   end
 
   defp parse_options(argv) do
-    parse_options = [strict: [spec: :string, json_codec: :string, pretty: :boolean]]
+    parse_options = [
+      strict: [spec: :string, endpoint: :string, json_codec: :string, pretty: :boolean]
+    ]
+
     {opts, args, _} = OptionParser.parse(argv, parse_options)
 
     %Options{
       filename: args |> List.first() || @default_filename,
       spec: find_spec(opts),
-      endpoint: endpoint_as_atom(opts),
+      endpoint: maybe_endpoint_as_atom(opts),
       json_codec: json_codec_as_atom(opts),
       pretty: Keyword.get(opts, :pretty, false)
     }
   end
 
-  defp endpoint_as_atom(opts) do
+  defp maybe_endpoint_as_atom(opts) do
     if endpoint = Keyword.get(opts, :endpoint) do
-      Module.safe_concat([endpoint])
-    else
-      raise "No --endpoint endpoint"
+      Module.concat([endpoint])
     end
   end
 
@@ -80,7 +89,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
 
   defp find_spec(opts) do
     if spec = Keyword.get(opts, :spec) do
-      Module.safe_concat([spec])
+      Module.concat([spec])
     else
       raise "No --spec given"
     end
