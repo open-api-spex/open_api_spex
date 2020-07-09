@@ -269,7 +269,8 @@ The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
 
 ## Generating the Spec
 
-Optionally, you can write the swagger file to disk via the Mix task:
+You can write the swagger file to disk using the following Mix task and optionally, for your
+convenience, create a direct alias:
 
 ```shell
 mix openapi.spec.json --endpoint MyAppWeb.Endpoint --spec MyAppWeb.ApiSpec
