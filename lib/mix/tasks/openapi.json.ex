@@ -10,7 +10,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   defmodule Options do
     @moduledoc false
 
-    defstruct filename: nil, spec: nil, json_codec: nil, endpoint: nil, pretty: false
+    defstruct filename: nil, spec: nil, endpoint: nil, pretty: false
   end
 
   @impl true
@@ -39,36 +39,28 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
           {:error, "Couldn't start endpoint"}
       end
     else
-      {:error, "Unvalid Enpoint module provided"}
+      {:error, "Module #{options.endpoint} is not a valid Phoenix Enpoint"}
     end
   end
 
   def generate_spec(options) do
-    case Code.ensure_loaded(options.spec) do
-      {:module, spec} ->
-        if function_exported?(spec, :spec, 0) do
-          {:ok, spec.spec() |> options.json_codec.encode!(pretty: options.pretty)}
-        else
-          {:error, "Spec do not export spec callback"}
-        end
-
-      {:error, :nofile} ->
-        {:error, "Not a valid spec"}
+    if function_exported?(options.spec, :spec, 0) do
+      json_encoder = OpenApiSpex.OpenApi.json_encoder()
+      spec = options.spec.spec()
+      {:ok, spec |> json_encoder.encode!(pretty: options.pretty)}
+    else
+      {:error, "Module #{options.spec} is not a valid OpenApi spec"}
     end
   end
 
   defp parse_options(argv) do
-    parse_options = [
-      strict: [spec: :string, endpoint: :string, json_codec: :string, pretty: :boolean]
-    ]
-
+    parse_options = [strict: [spec: :string, endpoint: :string, pretty: :boolean]]
     {opts, args, _} = OptionParser.parse(argv, parse_options)
 
     %Options{
       filename: args |> List.first() || @default_filename,
       spec: find_spec(opts),
       endpoint: maybe_endpoint_as_atom(opts),
-      json_codec: json_codec_as_atom(opts),
       pretty: Keyword.get(opts, :pretty, false)
     }
   end
@@ -76,14 +68,6 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   defp maybe_endpoint_as_atom(opts) do
     if endpoint = Keyword.get(opts, :endpoint) do
       Module.concat([endpoint])
-    end
-  end
-
-  defp json_codec_as_atom(opts) do
-    if codec = Keyword.get(opts, :json_codec) do
-      Module.safe_concat([codec])
-    else
-      Jason
     end
   end
 
