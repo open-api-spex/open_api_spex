@@ -30,6 +30,8 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   end
 
   def maybe_start_endpoint(options) do
+    Code.ensure_loaded(options.endpoint)
+
     if function_exported?(options.endpoint, :start_link, 0) do
       case options.endpoint.start_link() do
         {:ok, _} ->
@@ -44,10 +46,12 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   end
 
   def generate_spec(options) do
+    Code.ensure_loaded(options.spec)
+
     if function_exported?(options.spec, :spec, 0) do
       json_encoder = OpenApiSpex.OpenApi.json_encoder()
       spec = options.spec.spec()
-      {:ok, spec |> json_encoder.encode!(pretty: options.pretty)}
+      {:ok, json_encoder.encode!(spec, pretty: options.pretty)}
     else
       {:error, "Module #{options.spec} is not a valid OpenApi spec"}
     end
