@@ -30,9 +30,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   end
 
   def maybe_start_endpoint(options) do
-    Code.ensure_loaded(options.endpoint)
-
-    if function_exported?(options.endpoint, :start_link, 0) do
+    if Code.ensure_loaded?(options.endpoint) do
       case options.endpoint.start_link() do
         {:ok, _} ->
           :ok
@@ -46,9 +44,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   end
 
   def generate_spec(options) do
-    Code.ensure_loaded(options.spec)
-
-    if function_exported?(options.spec, :spec, 0) do
+    if Code.ensure_loaded?(options.spec) do
       json_encoder = OpenApiSpex.OpenApi.json_encoder()
       spec = options.spec.spec()
       {:ok, json_encoder.encode!(spec, pretty: options.pretty)}
