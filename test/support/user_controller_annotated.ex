@@ -24,6 +24,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
          unauthorized: Unauthorized.response(),
          not_found: NotFound.response()
        ]
+  @doc security: [%{"authorization" => []}]
   def update(_conn, _params), do: :ok
 
   @doc """
