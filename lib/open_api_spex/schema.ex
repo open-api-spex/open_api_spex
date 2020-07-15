@@ -292,9 +292,6 @@ defmodule OpenApiSpex.Schema do
 
     - Cast the value using each schema listed in `anyOf`, stopping as soon as a succesful cast is made.
   """
-  def cast(%Schema{"x-validate": module} = schema, value, schemas) when module != nil,
-    do: OpenApiSpex.Cast.cast(schema, value, schemas)
-
   def cast(%Schema{type: :boolean}, value, _schemas) when is_boolean(value), do: {:ok, value}
 
   def cast(%Schema{type: :boolean}, value, _schemas) when is_binary(value) do
