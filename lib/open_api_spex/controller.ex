@@ -85,6 +85,11 @@ defmodule OpenApiSpex.Controller do
   }
   ```
 
+  ### `security`
+
+  Allows specifying the security scheme(s) required for this operation.  See
+  `OpenApiSpex.Operation` and `OpenApiSpex.SecurityRequirement`.
+
   ### `tags`
 
   Tags are controlled by `:tags` attribute. In contrast to other attributes, this
@@ -144,6 +149,7 @@ defmodule OpenApiSpex.Controller do
         parameters: build_parameters(meta),
         requestBody: build_request_body(meta),
         responses: build_responses(meta),
+        security: build_security(meta),
         tags: Map.get(mod_meta, :tags, []) ++ Map.get(meta, :tags, [])
       }
     else
@@ -251,4 +257,10 @@ defmodule OpenApiSpex.Controller do
   end
 
   defp build_request_body(_), do: nil
+
+  defp build_security(%{security: security}) do
+    security
+  end
+
+  defp build_security(_), do: nil
 end

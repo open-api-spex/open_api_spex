@@ -24,6 +24,11 @@ defmodule OpenApiSpex.ControllerTest do
       assert op.description == "Update a user\n\nFull description for this endpoint...\n"
     end
 
+    test "security matches 'foo'" do
+      op = @controller.open_api_operation(:update)
+      assert op.security == [%{"authorization" => []}]
+    end
+
     test "has response for HTTP 200" do
       assert %{responses: %{200 => _}} = @controller.open_api_operation(:update)
     end
