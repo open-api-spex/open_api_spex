@@ -130,21 +130,6 @@ defmodule OpenApiSpexTest.Schemas do
     })
   end
 
-  defmodule StrictInt do
-    alias OpenApiSpex.Cast
-
-    OpenApiSpex.schema(%{
-      description: "Strictly an integer",
-      type: :integer,
-      "x-validate": __MODULE__
-    })
-
-    def cast(context = %OpenApiSpex.Cast{value: value}) when is_integer(value),
-      do: Cast.ok(context)
-    def cast(context),
-      do: Cast.error(context, {:invalid_type, :strict_integer})
-  end
-
   defmodule User do
     OpenApiSpex.schema(%{
       title: "User",

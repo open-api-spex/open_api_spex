@@ -191,6 +191,38 @@ defmodule OpenApiSpec.CastTest do
 
       assert Error.message_with_path(error2) == "#/3: Invalid integer. Got: string"
     end
+
+    test "cast schema error with custom validator" do
+      defmodule StrictInt do
+        require OpenApiSpex
+
+        alias OpenApiSpex.Cast
+
+        OpenApiSpex.schema(%{
+          description: "Strictly an integer",
+          type: :integer,
+          "x-validate": __MODULE__
+        })
+
+        def cast(context = %Cast{value: value}) when is_integer(value),
+          do: Cast.ok(context)
+
+        def cast(context),
+          do: Cast.error(context, {:invalid_type, :strict_integer})
+      end
+
+      schema = %Schema{
+        type: :object,
+        properties: %{age: StrictInt.schema()}
+      }
+
+      assert {:error, errors} = cast(value: %{"age" => "83"}, schema: schema)
+      assert [error] = errors
+      assert %Error{} = error
+      assert error.reason == :invalid_type
+      assert error.path == [:age]
+      assert Error.message_with_path(error) == "#/age: Invalid strict_integer. Got: string"
+    end
   end
 
   describe "ok/1" do
