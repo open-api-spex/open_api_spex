@@ -16,13 +16,9 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   @impl true
   def run(argv) do
     opts = parse_options(argv)
-
-    with :ok <- maybe_start_endpoint(opts),
-         {:ok, content} <- generate_spec(opts) do
-      write_spec(content, opts.filename)
-    else
-      {:error, error} -> raise error
-    end
+    maybe_start_endpoint(opts)
+    content = generate_spec(opts)
+    write_spec(content, opts.filename)
   end
 
   def maybe_start_endpoint(%{endpoint: nil}) do
@@ -30,26 +26,60 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   end
 
   def maybe_start_endpoint(%{endpoint: endpoint}) do
-    if Code.ensure_loaded?(endpoint) do
-      case endpoint.start_link() do
-        {:ok, _} ->
-          :ok
+    case Code.ensure_compiled(endpoint) do
+      {:module, _} ->
+        if function_exported?(endpoint, :start_link, 0) do
+          case endpoint.start_link() do
+            {:ok, _} ->
+              :ok
 
-        _ ->
-          {:error, "Couldn't start endpoint"}
-      end
-    else
-      {:error, "Module #{endpoint} is not a valid Phoenix Enpoint"}
+            :ignore ->
+              :ok
+
+            {:error, error} ->
+              Mix.raise("could not start #{inspect(endpoint)}, error: #{inspect(error)}.")
+          end
+        else
+          Mix.raise(
+            "module #{inspect(endpoint)} is not a Phoenix.Endpoint. " <>
+              "Please pass a endpoint with the --endpoint option."
+          )
+        end
+
+      {:error, error} ->
+        Mix.raise(
+          "could not load #{inspect(endpoint)}, error: #{inspect(error)}. " <>
+            "Please pass a endpoint with the --endpoint option."
+        )
     end
   end
 
-  def generate_spec(options) do
-    if Code.ensure_loaded?(options.spec) do
-      json_encoder = OpenApiSpex.OpenApi.json_encoder()
-      spec = options.spec.spec()
-      {:ok, json_encoder.encode!(spec, pretty: options.pretty)}
-    else
-      {:error, "Module #{options.spec} is not a valid OpenApi spec"}
+  def generate_spec(%{spec: spec, pretty: pretty}) do
+    case Code.ensure_compiled(spec) do
+      {:module, _} ->
+        if function_exported?(spec, :spec, 0) do
+          json_encoder = OpenApiSpex.OpenApi.json_encoder()
+          spec = spec.spec()
+
+          case json_encoder.encode(spec, pretty: pretty) do
+            {:ok, json} ->
+              json
+
+            {:error, error} ->
+              Mix.raise("could not encode #{inspect(spec)}, error: #{inspect(error)}.")
+          end
+        else
+          Mix.raise(
+            "module #{inspect(spec)} is not a OpenApiSpex.Spec. " <>
+              "Please pass a spec with the --spec option."
+          )
+        end
+
+      {:error, error} ->
+        Mix.raise(
+          "could not load #{inspect(spec)}, error: #{inspect(error)}. " <>
+            "Please pass a spec with the --spec option."
+        )
     end
   end
 
@@ -75,7 +105,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
     if spec = Keyword.get(opts, :spec) do
       Module.concat([spec])
     else
-      raise "No --spec given"
+      Mix.raise("No spec available. Please pass a spec with the --spec option")
     end
   end
 
