@@ -29,9 +29,9 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
     :ok
   end
 
-  def maybe_start_endpoint(options) do
-    if Code.ensure_loaded?(options.endpoint) do
-      case options.endpoint.start_link() do
+  def maybe_start_endpoint(%{endpoint: endpoint}) do
+    if Code.ensure_loaded?(endpoint) do
+      case endpoint.start_link() do
         {:ok, _} ->
           :ok
 
@@ -39,7 +39,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
           {:error, "Couldn't start endpoint"}
       end
     else
-      {:error, "Module #{options.endpoint} is not a valid Phoenix Enpoint"}
+      {:error, "Module #{endpoint} is not a valid Phoenix Enpoint"}
     end
   end
 
