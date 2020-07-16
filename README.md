@@ -273,7 +273,7 @@ You can write the swagger file to disk using the following Mix task and optional
 convenience, create a direct alias:
 
 ```shell
-mix openapi.spec.json --endpoint MyAppWeb.Endpoint --spec MyAppWeb.ApiSpec
+mix openapi.spec.json --spec MyAppWeb.ApiSpec
 ```
 
 ## Serve Swagger UI

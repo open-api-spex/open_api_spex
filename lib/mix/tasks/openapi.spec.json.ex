@@ -10,48 +10,15 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   defmodule Options do
     @moduledoc false
 
-    defstruct filename: nil, spec: nil, endpoint: nil, pretty: false
+    defstruct filename: nil, spec: nil, pretty: false
   end
 
   @impl true
   def run(argv) do
+    Mix.Task.run("app.start")
     opts = parse_options(argv)
-    maybe_start_endpoint(opts)
     content = generate_spec(opts)
     write_spec(content, opts.filename)
-  end
-
-  def maybe_start_endpoint(%{endpoint: nil}) do
-    :ok
-  end
-
-  def maybe_start_endpoint(%{endpoint: endpoint}) do
-    case Code.ensure_compiled(endpoint) do
-      {:module, _} ->
-        if function_exported?(endpoint, :start_link, 0) do
-          case endpoint.start_link() do
-            {:ok, _} ->
-              :ok
-
-            :ignore ->
-              :ok
-
-            {:error, error} ->
-              Mix.raise("could not start #{inspect(endpoint)}, error: #{inspect(error)}.")
-          end
-        else
-          Mix.raise(
-            "module #{inspect(endpoint)} is not a Phoenix.Endpoint. " <>
-              "Please pass a endpoint with the --endpoint option."
-          )
-        end
-
-      {:error, error} ->
-        Mix.raise(
-          "could not load #{inspect(endpoint)}, error: #{inspect(error)}. " <>
-            "Please pass a endpoint with the --endpoint option."
-        )
-    end
   end
 
   def generate_spec(%{spec: spec, pretty: pretty}) do
@@ -90,15 +57,8 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
     %Options{
       filename: args |> List.first() || @default_filename,
       spec: find_spec(opts),
-      endpoint: maybe_endpoint_as_atom(opts),
       pretty: Keyword.get(opts, :pretty, false)
     }
-  end
-
-  defp maybe_endpoint_as_atom(opts) do
-    if endpoint = Keyword.get(opts, :endpoint) do
-      Module.concat([endpoint])
-    end
   end
 
   defp find_spec(opts) do

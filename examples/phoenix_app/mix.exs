@@ -29,7 +29,10 @@ defmodule PhoenixApp.Mixfile do
   defp elixirc_paths(_), do: ["lib"]
 
   defp aliases() do
-    [test: ["ecto.create --quiet", "ecto.migrate", "test"]]
+    [
+      test: ["ecto.create --quiet", "ecto.migrate", "test"],
+      spec: ["openapi.spec.json  --spec PhoenixAppWeb.ApiSpec \"priv/static/swagger.json\""]
+    ]
   end
 
   # Specifies your project dependencies.
