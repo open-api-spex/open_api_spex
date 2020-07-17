@@ -181,7 +181,8 @@ defmodule OpenApiSpex.Schema do
     :externalDocs,
     :example,
     :deprecated,
-    :"x-struct"
+    :"x-struct",
+    :"x-validate"
   ]
 
   @typedoc """
