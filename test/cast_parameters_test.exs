@@ -35,26 +35,39 @@ defmodule OpenApiSpex.CastParametersTest do
       {:ok, conn} = CastParameters.cast(conn, operation, components)
       assert %{params: %{includeInactive: false}} = conn
     end
+
+    # test "params are validated" do
+    #   conn = create_conn(query_string: "/invalid")
+    #   operation = create_operation()
+    #   components = create_empty_components()
+    #   {:error, error} = CastParameters.cast(conn, operation, components)
+    #   assert error == :error
+    # end
+
+    test "path params are validated" do
+    end
   end
 
-  defp create_conn() do
+  defp create_conn(opts \\ []) do
+    opts = Map.new(opts)
+    query_string = opts[:query_string]
+
     :get
-    |> Plug.Test.conn("/api/users/")
+    |> Plug.Test.conn("/api/users#{query_string}")
     |> Plug.Conn.put_req_header("content-type", "application/json")
     |> Plug.Conn.fetch_query_params()
   end
 
   defp create_conn_with_unexpected_path_param() do
-    :get
-    |> Plug.Test.conn("/api/users?invalid_key=value")
-    |> Plug.Conn.put_req_header("content-type", "application/json")
-    |> Plug.Conn.fetch_query_params()
+    create_conn(query_string: "?invalid_key=value")
   end
 
   defp create_operation() do
     %Operation{
       parameters: [
-        Operation.parameter(:id, :query, :string, "User ID", example: "1"),
+        Operation.parameter(:id, :path, %Schema{type: :string, pattern: ~r/^\d+$/}, "User ID",
+          example: "1"
+        ),
         Operation.parameter(
           :includeInactive,
           :query,

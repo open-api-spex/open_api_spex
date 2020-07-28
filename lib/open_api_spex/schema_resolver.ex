@@ -217,12 +217,16 @@ defmodule OpenApiSpex.SchemaResolver do
         properties: properties
     }
 
-    schemas =
-      if schema."x-struct" do
-        Map.put(schemas, schema.title, schema)
-      else
-        schemas
-      end
+    IO.inspect(schema, label: "schema")
+
+    # title = schema.title
+
+    # schemas =
+    #   case {title, schemas} do
+    #     {nil, _} -> schemas
+    #     {_, %{^title => _}} -> schemas
+    #     _ -> Map.put(schemas, title, schema)
+    #   end
 
     {schema, schemas}
   end
