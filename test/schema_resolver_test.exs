@@ -1,11 +1,12 @@
 defmodule OpenApiSpex.SchemaResolverTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias OpenApiSpex.{
     Info,
     MediaType,
     OpenApi,
     Operation,
+    Parameter,
     PathItem,
     Reference,
     RequestBody,
@@ -13,7 +14,17 @@ defmodule OpenApiSpex.SchemaResolverTest do
     Schema
   }
 
-  test "Resolves schemas in OpenApi spec" do
+  defmodule UserId do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      type: :string,
+      description: "User ID",
+      example: "user-123"
+    })
+  end
+
+  test "schemas in requestBody are registered" do
     spec = %OpenApi{
       info: %Info{
         title: "Test",
@@ -21,18 +32,6 @@ defmodule OpenApiSpex.SchemaResolverTest do
       },
       paths: %{
         "/api/users" => %PathItem{
-          get: %Operation{
-            responses: %{
-              200 => %Response{
-                description: "Success",
-                content: %{
-                  "application/json" => %MediaType{
-                    schema: OpenApiSpexTest.Schemas.UsersResponse
-                  }
-                }
-              }
-            }
-          },
           post: %Operation{
             description: "Create a user",
             operationId: "UserController.create",
@@ -43,18 +42,98 @@ defmodule OpenApiSpex.SchemaResolverTest do
                 }
               }
             },
+            responses: %{}
+          }
+        }
+      }
+    }
+
+    resolved = OpenApiSpex.resolve_schema_modules(spec)
+
+    assert %Schema{} = resolved.components.schemas["UserRequest"]
+    assert %Schema{} = resolved.components.schemas["User"]
+
+    assert resolved.paths["/api/users"].post.requestBody.content["application/json"].schema ==
+             %Reference{"$ref": "#/components/schemas/UserRequest"}
+  end
+
+  test "schemas in responses are registered" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
+        "/api/users" => %PathItem{
+          get: %Operation{
+            description: "Create a user",
+            operationId: "UserController.create",
             responses: %{
-              201 => %Response{
-                description: "Created",
+              200 => %Response{
+                description: "Success",
                 content: %{
                   "application/json" => %MediaType{
-                    schema: OpenApiSpexTest.Schemas.UserResponse
+                    schema: OpenApiSpexTest.Schemas.UsersResponse
                   }
                 }
               }
             }
           }
-        },
+        }
+      }
+    }
+
+    resolved = OpenApiSpex.resolve_schema_modules(spec)
+
+    assert %Schema{} = resolved.components.schemas["UsersResponse"]
+    assert %Schema{} = resolved.components.schemas["User"]
+
+    assert resolved.paths["/api/users"].get.responses[200].content["application/json"].schema ==
+             %Reference{"$ref": "#/components/schemas/UsersResponse"}
+  end
+
+  test "schemas in parameters are registered" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
+        "/api/users" => %PathItem{
+          get: %Operation{
+            description: "Create a user",
+            operationId: "UserController.create",
+            parameters: [
+              %Parameter{
+                name: :id,
+                in: :path,
+                schema: UserId
+              }
+            ],
+            responses: %{}
+          }
+        }
+      }
+    }
+
+    resolved = OpenApiSpex.resolve_schema_modules(spec)
+
+    titles = Map.keys(resolved.components.schemas)
+    assert titles == ["UserId"]
+    assert %Schema{} = resolved.components.schemas["UserId"]
+
+    assert %Parameter{} = parameter = List.first(resolved.paths["/api/users"].get.parameters)
+    assert parameter.name == :id
+    assert parameter.schema == %Reference{"$ref": "#/components/schemas/UserId"}
+  end
+
+  test "paths with placeholders are not a problem" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
         "/api/users/{id}/payment_details" => %PathItem{
           get: %Operation{
             responses: %{
@@ -68,16 +147,27 @@ defmodule OpenApiSpex.SchemaResolverTest do
               }
             }
           }
-        },
-        "/api/users/{id}/friends" => %PathItem{
+        }
+      }
+    }
+
+    resolved = OpenApiSpex.resolve_schema_modules(spec)
+
+    assert resolved.paths["/api/users/{id}/payment_details"].get.responses[200].content[
+             "application/json"
+           ].schema ==
+             %Reference{"$ref": "#/components/schemas/PaymentDetails"}
+  end
+
+  test "response schemas do not need to be a module-based schema" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
+        "/api/users" => %PathItem{
           get: %Operation{
-            parameters: [
-              %OpenApiSpex.Parameter{
-                name: :id,
-                in: :path,
-                schema: %Schema{type: :integer}
-              }
-            ],
             responses: %{
               200 => %Response{
                 description: "Success",
@@ -98,26 +188,11 @@ defmodule OpenApiSpex.SchemaResolverTest do
 
     resolved = OpenApiSpex.resolve_schema_modules(spec)
 
-    assert %Reference{"$ref": "#/components/schemas/UsersResponse"} =
+    assert %Schema{} =
+             schema =
              resolved.paths["/api/users"].get.responses[200].content["application/json"].schema
 
-    assert %Reference{"$ref": "#/components/schemas/UserResponse"} =
-             resolved.paths["/api/users"].post.responses[201].content["application/json"].schema
-
-    assert %Reference{"$ref": "#/components/schemas/UserRequest"} =
-             resolved.paths["/api/users"].post.requestBody.content["application/json"].schema
-
-    assert %{
-             "UserRequest" => %Schema{},
-             "UserResponse" => %Schema{},
-             "User" => %Schema{},
-             "PaymentDetails" => %Schema{},
-             "CreditCardPaymentDetails" => %Schema{},
-             "DirectDebitPaymentDetails" => %Schema{}
-           } = resolved.components.schemas
-
-    get_friends = resolved.paths["/api/users/{id}/friends"].get
-    assert %Reference{"$ref": "#/components/schemas/User"} =
-             get_friends.responses[200].content["application/json"].schema.items
+    assert schema.type == :array
+    assert %Reference{"$ref": "#/components/schemas/User"} = schema.items
   end
 end
