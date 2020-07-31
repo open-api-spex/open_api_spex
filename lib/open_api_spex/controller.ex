@@ -214,6 +214,9 @@ defmodule OpenApiSpex.Controller do
       ref = %Reference{}, acc ->
         [ref | acc]
 
+      {:"$ref", ref = "#/components/parameters/" <> _name}, acc ->
+        [%Reference{"$ref": ref} | acc]
+
       {name, options}, acc ->
         {location, options} = Keyword.pop(options, :in, :query)
         {type, options} = Keyword.pop(options, :type, nil)
