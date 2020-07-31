@@ -54,6 +54,16 @@ defmodule OpenApiSpex.Plug.CastTest do
 
       assert conn.status == 200
     end
+
+    test "reference params" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users/12/payment_details")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+    end
   end
 
   describe "query params - param with custom error handling" do

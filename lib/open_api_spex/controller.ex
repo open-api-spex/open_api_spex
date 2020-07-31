@@ -125,7 +125,7 @@ defmodule OpenApiSpex.Controller do
   ```
   '''
 
-  alias OpenApiSpex.{Operation, Response}
+  alias OpenApiSpex.{Operation, Response, Reference}
 
   defmacro __using__(_opts) do
     quote do
@@ -209,18 +209,29 @@ defmodule OpenApiSpex.Controller do
   end
 
   defp build_parameters(%{parameters: params}) do
-    for {name, options} <- params do
-      {location, options} = Keyword.pop(options, :in, :query)
-      {type, options} = Keyword.pop(options, :type, nil)
-      {schema, options} = Keyword.pop(options, :schema, nil)
-      {description, options} = Keyword.pop(options, :description, "")
+    params
+    |> Enum.reduce([], fn
+      ref = %Reference{}, acc ->
+        [ref | acc]
 
-      ensure_type_and_schema_exclusive!(name, type, schema)
+      {name, options}, acc ->
+        {location, options} = Keyword.pop(options, :in, :query)
+        {type, options} = Keyword.pop(options, :type, nil)
+        {schema, options} = Keyword.pop(options, :schema, nil)
+        {description, options} = Keyword.pop(options, :description, "")
 
-      schema = type || schema || :string
+        ensure_type_and_schema_exclusive!(name, type, schema)
 
-      Operation.parameter(name, location, schema, description, options)
-    end
+        schema = type || schema || :string
+
+        [Operation.parameter(name, location, schema, description, options) | acc]
+
+      unsupported, acc ->
+        IO.warn("Invalid parameters declaration found: " <> inspect(unsupported))
+
+        acc
+    end)
+    |> Enum.reverse()
   end
 
   defp build_parameters(_), do: []

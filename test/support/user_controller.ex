@@ -4,7 +4,7 @@ defmodule OpenApiSpexTest.UserController do
   use Phoenix.Controller
   use OpenApiSpex.Controller
 
-  alias OpenApiSpex.Schema
+  alias OpenApiSpex.{Schema, Reference}
   alias OpenApiSpexTest.Schemas
 
   plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
@@ -98,17 +98,12 @@ defmodule OpenApiSpexTest.UserController do
   Shows a users payment details.
   """
   @doc parameters: [
-         id: [
-           in: :path,
-           type: %Schema{type: :integer, minimum: 1},
-           description: "User ID",
-           example: 123
-         ]
+         %Reference{"$ref": "#/components/parameters/id"}
        ],
        responses: [
          ok: {"Payment Details", "application/json", Schemas.PaymentDetails}
        ]
-  def payment_details(conn, %{"id" => id}) do
+  def payment_details(conn, %{id: id}) do
     response =
       case rem(id, 2) do
         0 ->

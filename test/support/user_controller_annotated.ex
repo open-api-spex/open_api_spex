@@ -2,7 +2,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
   @moduledoc tags: ["User"]
 
   use OpenApiSpex.Controller
-  alias OpenApiSpex.Header
+  alias OpenApiSpex.{Header, Reference}
   alias OpenApiSpexTest.Schemas.{NotFound, Unauthorized, User}
 
   @doc """
@@ -34,7 +34,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
   """
   @doc operation_id: "show_user"
   @doc parameters: [
-         id: [in: :path, type: :string, required: true]
+         %Reference{"$ref": "#/components/parameters/id"}
        ]
   @doc responses: [
          ok: {"User response", "application/json", User}
