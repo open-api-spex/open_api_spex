@@ -125,7 +125,7 @@ defmodule OpenApiSpex.Controller do
   ```
   '''
 
-  alias OpenApiSpex.{Operation, Response, Reference}
+  alias OpenApiSpex.{Operation, Parameter, Response, Reference}
 
   defmacro __using__(_opts) do
     quote do
@@ -211,6 +211,9 @@ defmodule OpenApiSpex.Controller do
   defp build_parameters(%{parameters: params}) do
     params
     |> Enum.reduce([], fn
+      parameter = %Parameter{}, acc ->
+        [parameter | acc]
+
       ref = %Reference{}, acc ->
         [ref | acc]
 
