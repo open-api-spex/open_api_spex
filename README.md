@@ -269,23 +269,12 @@ The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
 
 ## Generating the Spec
 
-Optionally, you can create a mix task to write the swagger file to disk:
+You can write the swagger file to disk using the following Mix task and optionally, for your
+convenience, create a direct alias:
 
-```elixir
-defmodule Mix.Tasks.MyApp.OpenApiSpec do
-  def run([output_file]) do
-    MyAppWeb.Endpoint.start_link() # Required if using for OpenApiSpex.Server.from_endpoint/1
-
-    json =
-      MyAppWeb.ApiSpec.spec()
-      |> Jason.encode!(pretty: true)
-
-    :ok = File.write!(output_file, json)
-  end
-end
+```shell
+mix openapi.spec.json --spec MyAppWeb.ApiSpec
 ```
-
-Generate the file with: `mix my_app.openapispec spec.json`
 
 ## Serve Swagger UI
 
