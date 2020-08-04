@@ -271,6 +271,8 @@ defmodule OpenApiSpex.OpenApi.Decode do
     |> prop_to_struct(:servers, Server)
   end
 
+  defp to_struct(%{"$ref" => _} = map, RequestBody), do: struct_from_map(Reference, map)
+
   defp to_struct(map, RequestBody) do
     RequestBody
     |> struct_from_map(map)
