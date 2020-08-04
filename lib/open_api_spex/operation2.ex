@@ -7,7 +7,8 @@ defmodule OpenApiSpex.Operation2 do
     CastParameters,
     Operation,
     RequestBody,
-    Components
+    Components,
+    Reference
   }
 
   alias OpenApiSpex.Cast.Error
@@ -29,6 +30,12 @@ defmodule OpenApiSpex.Operation2 do
     CastParameters.cast(conn, operation, components)
   end
 
+  defp cast_request_body(ref = %Reference{}, body_params, content_type, components) do
+    request_body = Reference.resolve_request_body(ref, components.requestBodies)
+
+    cast_request_body(request_body, body_params, content_type, components)
+  end
+
   defp cast_request_body(nil, _, _, _), do: {:ok, %{}}
 
   defp cast_request_body(%{required: false}, _, nil, _), do: {:ok, %{}}
@@ -39,7 +46,12 @@ defmodule OpenApiSpex.Operation2 do
 
   # Special case to handle strings or arrays in request body that come inside _json
   # https://hexdocs.pm/plug/Plug.Parsers.JSON.html
-  defp cast_request_body(%RequestBody{content: content}, body=%{"_json" => params}, content_type, components = %Components{}) do
+  defp cast_request_body(
+         %RequestBody{content: content},
+         body = %{"_json" => params},
+         content_type,
+         components = %Components{}
+       ) do
     case content do
       %{^content_type => media_type} ->
         case Cast.cast(media_type.schema, params, components.schemas) do
@@ -52,7 +64,12 @@ defmodule OpenApiSpex.Operation2 do
     end
   end
 
-  defp cast_request_body(%RequestBody{content: content}, params, content_type, components = %Components{}) do
+  defp cast_request_body(
+         %RequestBody{content: content},
+         params,
+         content_type,
+         components = %Components{}
+       ) do
     case content do
       %{^content_type => media_type} ->
         Cast.cast(media_type.schema, params, components.schemas)

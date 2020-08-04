@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.Operation2Test do
   use ExUnit.Case
-  alias OpenApiSpex.{Operation, Operation2, Schema, Components, Reference}
+  alias OpenApiSpex.{Operation, Operation2, Schema, Components, Reference, RequestBody, MediaType}
   alias OpenApiSpex.Cast.Error
 
   defmodule SchemaFixtures do
@@ -79,15 +79,28 @@ defmodule OpenApiSpex.Operation2Test do
         Operation.parameter(:name, :query, :string, "Filter by user name")
       ],
       requestBody:
-      Operation.request_body("request body", "application/json", SchemaFixtures.user_list(),
-        required: true
-      ),
+        Operation.request_body("request body", "application/json", SchemaFixtures.user_list(),
+          required: true
+        ),
       responses: %{
         200 => Operation.response("User list", "application/json", SchemaFixtures.user_list())
       }
     }
 
     def create_users, do: @create_users
+
+    @update_user %Operation{
+      operationId: "UserController.update",
+      parameters: [
+        Operation.parameter(:name, :query, :string, "Filter by user name")
+      ],
+      requestBody: %Reference{"$ref": "#/components/requestBodies/updateUser"},
+      responses: %{
+        200 => Operation.response("User list", "application/json", SchemaFixtures.user_list())
+      }
+    }
+
+    def update_user, do: @update_user
   end
 
   defmodule SpecModule do
@@ -97,7 +110,8 @@ defmodule OpenApiSpex.Operation2Test do
     def spec do
       paths = %{
         "/users" => %{
-          "post" => OperationFixtures.create_user()
+          "post" => OperationFixtures.create_user(),
+          "put" => OperationFixtures.update_user()
         }
       }
 
@@ -106,7 +120,18 @@ defmodule OpenApiSpex.Operation2Test do
         paths: paths,
         components: %Components{
           schemas: SchemaFixtures.schemas(),
-          parameters: ParameterFixtures.parameters()
+          parameters: ParameterFixtures.parameters(),
+          requestBodies: %{
+            "updateUser" => %RequestBody{
+              description: "update user request body",
+              content: %{
+                "application/json" => %MediaType{
+                  schema: SchemaFixtures.user()
+                }
+              },
+              required: true
+            }
+          }
         }
       }
     end
@@ -137,16 +162,30 @@ defmodule OpenApiSpex.Operation2Test do
       assert %Plug.Conn{} = conn
     end
 
+    test "cast request body reference" do
+      conn = put_conn(%{"user" => %{"email" => "foo@bar.com"}})
+
+      assert {:ok, conn} =
+               Operation2.cast(
+                 OperationFixtures.update_user(),
+                 conn,
+                 "application/json",
+                 SpecModule.spec().components
+               )
+
+      assert %Plug.Conn{} = conn
+    end
+
     test "cast array request body" do
       conn = create_conn([%{"user" => %{"email" => "foo@bar.com"}}])
 
       assert {:ok, conn} =
-        Operation2.cast(
-          OperationFixtures.create_users(),
-          conn,
-          "application/json",
-          SpecModule.spec().components
-        )
+               Operation2.cast(
+                 OperationFixtures.create_users(),
+                 conn,
+                 "application/json",
+                 SpecModule.spec().components
+               )
 
       assert %Plug.Conn{} = conn
     end
@@ -157,6 +196,22 @@ defmodule OpenApiSpex.Operation2Test do
       assert {:error, errors} =
                Operation2.cast(
                  OperationFixtures.create_user(),
+                 conn,
+                 "application/json",
+                 SpecModule.spec().components
+               )
+
+      assert [error] = errors
+      assert %Error{} = error
+      assert error.reason == :invalid_type
+    end
+
+    test "cast request body reference - invalid data type" do
+      conn = put_conn(%{"user" => %{"email" => 123}})
+
+      assert {:error, errors} =
+               Operation2.cast(
+                 OperationFixtures.update_user(),
                  conn,
                  "application/json",
                  SpecModule.spec().components
@@ -235,6 +290,22 @@ defmodule OpenApiSpex.Operation2Test do
                )
     end
 
+    test "validate invalid content-type header for required requestBody reference" do
+      conn =
+        put_conn(%{})
+        |> Plug.Conn.put_req_header("content-type", "text/html")
+
+      operation = OperationFixtures.update_user()
+
+      assert {:error, [%Error{reason: :invalid_header, name: "content-type"}]} =
+               Operation2.cast(
+                 operation,
+                 conn,
+                 "text/html",
+                 SpecModule.spec().components
+               )
+    end
+
     test "validate invalid value for integer range" do
       parameter =
         Operation.parameter(
@@ -262,18 +333,18 @@ defmodule OpenApiSpex.Operation2Test do
 
       expected_response =
         {:error,
-          [
-            %OpenApiSpex.Cast.Error{
-              format: nil,
-              length: 0,
-              meta: %{},
-              name: "unsupported_key",
-              path: ["unsupported_key"],
-              reason: :unexpected_field,
-              type: nil,
-              value: %{"unsupported_key" => "value"}
-            }
-          ]}
+         [
+           %OpenApiSpex.Cast.Error{
+             format: nil,
+             length: 0,
+             meta: %{},
+             name: "unsupported_key",
+             path: ["unsupported_key"],
+             reason: :unexpected_field,
+             type: nil,
+             value: %{"unsupported_key" => "value"}
+           }
+         ]}
 
       assert expected_response ==
                Operation2.cast(
@@ -315,8 +386,14 @@ defmodule OpenApiSpex.Operation2Test do
       |> Plug.Conn.fetch_query_params()
     end
 
+    defp put_conn(body_params) do
+      create_conn(:put, "/api/users")
+      |> Map.put(:body_params, body_params)
+      |> build_params()
+    end
+
     defp build_params(conn = %{body_params: params}) when is_list(params) do
-      build_params %{conn | body_params: %{"_json" => params}}
+      build_params(%{conn | body_params: %{"_json" => params}})
     end
 
     defp build_params(conn) do
