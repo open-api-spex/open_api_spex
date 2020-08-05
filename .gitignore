@@ -22,3 +22,5 @@ erl_crash.dump
 # IDE / plugin files
 .elixir_ls/
 .vscode/
+.idea
+*.iml

@@ -1,6 +1,7 @@
 defmodule OpenApiSpex.ControllerTest do
   use ExUnit.Case, async: true
 
+  alias OpenApiSpex.Reference
   alias OpenApiSpex.Controller, as: Subject
 
   import ExUnit.CaptureIO
@@ -45,6 +46,10 @@ defmodule OpenApiSpex.ControllerTest do
       assert %{parameters: [param]} = @controller.open_api_operation(:update)
       assert param.name == :id
       assert param.required
+    end
+
+    test "has parameter `%Reference{}`" do
+      assert %{parameters: [%Reference{}]} = @controller.open_api_operation(:show)
     end
 
     test "has a requestBody" do

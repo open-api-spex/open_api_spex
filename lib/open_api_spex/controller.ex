@@ -26,14 +26,39 @@ defmodule OpenApiSpex.Controller do
   ]
   ```
 
-  Where `definition` is `OpenApiSpex.Parameter.t()` structure or map or keyword
-  list that accepts the same arguments.
+  Where `definition` is `OpenApiSpex.Parameter.t()` structure or `OpenApiSpex.Reference.t()` structure
+  or map or keyword list that accepts the same arguments.
 
   Example:
 
   ```elixir
   @doc parameters: [
     group_id: [in: :path, type: :integer, description: "Group ID", example: 1]
+  ]
+  ```
+
+  or
+
+  ```elixir
+  @doc parameters: [
+    %OpenApiSpex.Parameter{
+      in: :path,
+      name: :group_id,
+      description: "Group ID",
+      schema: %Schema{type: :integer},
+      required: true,
+      example: 1
+    }
+  ]
+  ```
+
+  or
+
+  ```elixir
+  @doc parameters: [
+    "$ref": "#/components/parameters/group_id"
+    # or
+    %OpenApiSpex.Reference{"$ref": "#/components/parameters/group_id"}
   ]
   ```
 
@@ -125,7 +150,7 @@ defmodule OpenApiSpex.Controller do
   ```
   '''
 
-  alias OpenApiSpex.{Operation, Response}
+  alias OpenApiSpex.{Operation, Parameter, Response, Reference}
 
   defmacro __using__(_opts) do
     quote do
@@ -209,18 +234,35 @@ defmodule OpenApiSpex.Controller do
   end
 
   defp build_parameters(%{parameters: params}) do
-    for {name, options} <- params do
-      {location, options} = Keyword.pop(options, :in, :query)
-      {type, options} = Keyword.pop(options, :type, nil)
-      {schema, options} = Keyword.pop(options, :schema, nil)
-      {description, options} = Keyword.pop(options, :description, "")
+    params
+    |> Enum.reduce([], fn
+      parameter = %Parameter{}, acc ->
+        [parameter | acc]
 
-      ensure_type_and_schema_exclusive!(name, type, schema)
+      ref = %Reference{}, acc ->
+        [ref | acc]
 
-      schema = type || schema || :string
+      {:"$ref", ref = "#/components/parameters/" <> _name}, acc ->
+        [%Reference{"$ref": ref} | acc]
 
-      Operation.parameter(name, location, schema, description, options)
-    end
+      {name, options}, acc ->
+        {location, options} = Keyword.pop(options, :in, :query)
+        {type, options} = Keyword.pop(options, :type, nil)
+        {schema, options} = Keyword.pop(options, :schema, nil)
+        {description, options} = Keyword.pop(options, :description, "")
+
+        ensure_type_and_schema_exclusive!(name, type, schema)
+
+        schema = type || schema || :string
+
+        [Operation.parameter(name, location, schema, description, options) | acc]
+
+      unsupported, acc ->
+        IO.warn("Invalid parameters declaration found: " <> inspect(unsupported))
+
+        acc
+    end)
+    |> Enum.reverse()
   end
 
   defp build_parameters(_), do: []

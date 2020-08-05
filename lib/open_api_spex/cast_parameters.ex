@@ -56,13 +56,13 @@ defmodule OpenApiSpex.CastParameters do
         %Reference{} = ref ->
           Reference.resolve_parameter(ref, components.parameters)
 
-        %Parameter{schema: %Reference{"$ref": "#/components/parameters/" <> _}} = param ->
-          schema = Reference.resolve_parameter(param.schema, components.parameters)
-          param |> Map.put(:schema, schema)
+        %Parameter{schema: ref = %Reference{"$ref": "#/components/parameters/" <> _}} = param ->
+          schema = Reference.resolve_parameter(ref, components.parameters)
+          %{param | schema: schema}
 
-        %Parameter{schema: %Reference{"$ref": "#/components/schemas/" <> _}} = param ->
-          schema = Reference.resolve_schema(param.schema, components.schemas)
-          param |> Map.put(:schema, schema)
+        %Parameter{schema: ref = %Reference{"$ref": "#/components/schemas/" <> _}} = param ->
+          schema = Reference.resolve_schema(ref, components.schemas)
+          %{param | schema: schema}
 
         %Parameter{} = param ->
           param

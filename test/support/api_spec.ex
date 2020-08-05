@@ -1,5 +1,16 @@
 defmodule OpenApiSpexTest.ApiSpec do
-  alias OpenApiSpex.{OpenApi, Contact, License, Paths, Server, Info, Components}
+  alias OpenApiSpex.{
+    OpenApi,
+    Contact,
+    License,
+    Paths,
+    Server,
+    Info,
+    Components,
+    Parameter,
+    Schema
+  }
+
   alias OpenApiSpexTest.{Router, Schemas}
   @behaviour OpenApi
 
@@ -37,7 +48,17 @@ defmodule OpenApiSpexTest.ApiSpec do
               into: %{} do
             schema = schemaMod.schema()
             {schema.title, schema}
-          end
+          end,
+        parameters: %{
+          "id" => %Parameter{
+            in: :path,
+            name: :id,
+            description: "ID",
+            schema: %Schema{type: :integer, minimum: 1},
+            required: true,
+            example: 12
+          }
+        }
       },
       paths: Paths.from_router(Router)
     }

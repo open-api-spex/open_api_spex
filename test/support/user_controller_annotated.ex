@@ -34,7 +34,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
   """
   @doc operation_id: "show_user"
   @doc parameters: [
-         id: [in: :path, type: :string, required: true]
+         "$ref": "#/components/parameters/id"
        ]
   @doc responses: [
          ok: {"User response", "application/json", User}
