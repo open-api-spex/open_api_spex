@@ -26,14 +26,39 @@ defmodule OpenApiSpex.Controller do
   ]
   ```
 
-  Where `definition` is `OpenApiSpex.Parameter.t()` structure or map or keyword
-  list that accepts the same arguments.
+  Where `definition` is `OpenApiSpex.Parameter.t()` structure or `OpenApiSpex.Reference.t()` structure
+  or map or keyword list that accepts the same arguments.
 
   Example:
 
   ```elixir
   @doc parameters: [
     group_id: [in: :path, type: :integer, description: "Group ID", example: 1]
+  ]
+  ```
+
+  or
+
+  ```elixir
+  @doc parameters: [
+    %OpenApiSpex.Parameter{
+      in: :path,
+      name: :group_id,
+      description: "Group ID",
+      schema: %Schema{type: :integer},
+      required: true,
+      example: 1
+    }
+  ]
+  ```
+
+  or
+
+  ```elixir
+  @doc parameters: [
+    "$ref": "#/components/parameters/group_id"
+    # or
+    %OpenApiSpex.Reference{"$ref": "#/components/parameters/group_id"}
   ]
   ```
 
