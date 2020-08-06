@@ -5,7 +5,7 @@ defmodule OpenApiSpex.Plug.Cache do
   Settings:
 
   ```elixir
-  config :open_api_spex, :cache_adapter Module
+  config :open_api_spex, :cache_adapter, Module
   ```
 
   There are already had three cache adapter:
@@ -17,7 +17,7 @@ defmodule OpenApiSpex.Plug.Cache do
   like this in `dev.exs`:
 
   ```elixir
-  config :open_api_spex, :cache_adapter OpenApiSpex.Plug.NoneCache
+  config :open_api_spex, :cache_adapter, OpenApiSpex.Plug.NoneCache
   ```
   """
 
