@@ -247,7 +247,8 @@ defmodule OpenApiSpex.Schema do
           externalDocs: ExternalDocumentation.t() | nil,
           example: any,
           deprecated: boolean | nil,
-          "x-struct": module | nil
+          "x-struct": module | nil,
+          "x-validate": module | nil
         }
 
   @typedoc """
