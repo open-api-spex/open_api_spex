@@ -5,7 +5,7 @@ defmodule OpenApiSpexTest.DslController do
 
   alias OpenApiSpexTest.Schemas
 
-  operation(:index, summary: "User index")
+  operation(:index, summary: "User index", responses: [])
 
   def index(conn, _params) do
     json(conn, %Schemas.UserResponse{
@@ -19,7 +19,7 @@ defmodule OpenApiSpexTest.DslController do
     })
   end
 
-  operation(:show, summary: "Show user")
+  operation(:show, summary: "Show user", responses: [])
 
   def show(conn, %{id: id}) do
     json(conn, %Schemas.UserResponse{

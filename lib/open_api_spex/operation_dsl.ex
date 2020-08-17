@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.OperationDsl do
-  defmacro operation(action, spec1) do
-    operation_def(action, spec1)
+  defmacro operation(action, spec) do
+    operation_def(action, spec)
   end
 
   defmacro before_compile(_env) do
@@ -9,7 +9,7 @@ defmodule OpenApiSpex.OperationDsl do
     end
   end
 
-  def operation_def(action, spec1) do
+  def operation_def(action, spec) do
     quote do
       if !Module.get_attribute(__MODULE__, :operation_defined) do
         Module.register_attribute(__MODULE__, :spec_attributes, accumulate: true)
@@ -19,7 +19,11 @@ defmodule OpenApiSpex.OperationDsl do
         @operation_defined true
       end
 
-      @spec_attributes {unquote(action), unquote(spec1)}
+      @spec_attributes {unquote(action), operation_spec(unquote(spec))}
     end
+  end
+
+  def operation_spec(spec) do
+    struct!(OpenApiSpex.Operation, spec)
   end
 end
