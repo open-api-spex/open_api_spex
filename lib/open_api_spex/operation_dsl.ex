@@ -3,19 +3,23 @@ defmodule OpenApiSpex.OperationDsl do
     operation_def(action, spec1)
   end
 
+  defmacro before_compile(_env) do
+    quote do
+      def spec_attributes, do: @spec_attributes
+    end
+  end
+
   def operation_def(action, spec1) do
     quote do
       if !Module.get_attribute(__MODULE__, :operation_defined) do
         Module.register_attribute(__MODULE__, :spec_attributes, accumulate: true)
 
-        @operation_defined true
+        @before_compile {OpenApiSpex.OperationDsl, :before_compile}
 
-        def spec_attributes do
-          @spec_attributes
-        end
+        @operation_defined true
       end
 
-      Module.put_attribute(__MODULE__, :spec_attributes, {unquote(action), unquote(spec1)})
+      @spec_attributes {unquote(action), unquote(spec1)}
     end
   end
 end
