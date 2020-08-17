@@ -8,13 +8,16 @@ defmodule OpenApiSpex.OperationDslTest do
              show: %OpenApiSpex.Operation{
                responses: [],
                summary: "Show user",
-               parameters: show_parameters
+               parameters: show_parameters,
+               tags: show_tags
              },
              index: %OpenApiSpex.Operation{
                responses: [],
                summary: "User index"
              }
            ] = DslController.spec_attributes()
+
+    assert show_tags == ["users"]
 
     assert [
              %OpenApiSpex.Parameter{

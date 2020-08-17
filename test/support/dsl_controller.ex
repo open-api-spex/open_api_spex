@@ -6,6 +6,8 @@ defmodule OpenApiSpexTest.DslController do
   alias OpenApiSpex.Schema
   alias OpenApiSpexTest.Schemas
 
+  tags(["users"])
+
   operation(:index, summary: "User index", responses: [])
 
   def index(conn, _params) do

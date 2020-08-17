@@ -3,9 +3,17 @@ defmodule OpenApiSpex.OperationDsl do
     operation_def(action, spec)
   end
 
+  defmacro tags(tags) do
+    tags_def(tags)
+  end
+
   defmacro before_compile(_env) do
     quote do
       def spec_attributes, do: @spec_attributes
+
+      def controller_tags do
+        Module.get_attribute(__MODULE__, :controller_tags) || []
+      end
     end
   end
 
@@ -19,11 +27,20 @@ defmodule OpenApiSpex.OperationDsl do
         @operation_defined true
       end
 
-      @spec_attributes {unquote(action), operation_spec(unquote(spec))}
+      @spec_attributes {unquote(action), operation_spec(__MODULE__, unquote(spec))}
     end
   end
 
-  def operation_spec(spec) do
-    struct!(OpenApiSpex.Operation, spec)
+  def tags_def(tags) do
+    quote do
+      @controller_tags unquote(tags)
+    end
+  end
+
+  def operation_spec(module, spec) do
+    tags = spec[:tags] || Module.get_attribute(module, :controller_tags)
+
+    struct!(OpenApiSpex.Operation, tags: tags, responses: [])
+    |> struct!(spec)
   end
 end
