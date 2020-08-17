@@ -3,8 +3,6 @@ defmodule OpenApiSpexTest.DslController do
 
   import OpenApiSpex.OperationDsl
 
-  alias OpenApiSpexTest.Schemas
-
   tags(["users"])
 
   operation(:index,
@@ -15,9 +13,9 @@ defmodule OpenApiSpexTest.DslController do
   )
 
   def index(conn, _params) do
-    json(conn, %Schemas.UserResponse{
+    json(conn, %{
       data: [
-        %Schemas.User{
+        %{
           id: "abc123",
           name: "joe user",
           email: "joe@gmail.com"
@@ -39,8 +37,8 @@ defmodule OpenApiSpexTest.DslController do
   )
 
   def show(conn, %{id: id}) do
-    json(conn, %Schemas.UserResponse{
-      data: %Schemas.User{
+    json(conn, %{
+      data: %{
         id: id,
         name: "joe user",
         email: "joe@gmail.com"
