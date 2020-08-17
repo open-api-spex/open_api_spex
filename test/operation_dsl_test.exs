@@ -13,7 +13,8 @@ defmodule OpenApiSpex.OperationDslTest do
              },
              index: %OpenApiSpex.Operation{
                responses: [],
-               summary: "User index"
+               summary: "User index",
+               parameters: index_parameters
              }
            ] = DslController.spec_attributes()
 
@@ -29,5 +30,15 @@ defmodule OpenApiSpex.OperationDslTest do
                schema: %OpenApiSpex.Schema{type: :integer}
              }
            ] = show_parameters
+
+    assert [
+             %OpenApiSpex.Parameter{
+               description: "Free-form query string",
+               example: "jane",
+               in: :query,
+               name: :query,
+               schema: %OpenApiSpex.Schema{type: :string}
+             }
+           ] = index_parameters
   end
 end

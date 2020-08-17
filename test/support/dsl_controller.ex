@@ -3,12 +3,16 @@ defmodule OpenApiSpexTest.DslController do
 
   import OpenApiSpex.OperationDsl
 
-  alias OpenApiSpex.Schema
   alias OpenApiSpexTest.Schemas
 
   tags(["users"])
 
-  operation(:index, summary: "User index", responses: [])
+  operation(:index,
+    summary: "User index",
+    parameters: [
+      query: [in: :query, type: :string, description: "Free-form query string", example: "jane"]
+    ]
+  )
 
   def index(conn, _params) do
     json(conn, %Schemas.UserResponse{
@@ -25,16 +29,13 @@ defmodule OpenApiSpexTest.DslController do
   operation(:show,
     summary: "Show user",
     parameters: [
-      %OpenApiSpex.Parameter{
+      id: [
         in: :path,
-        name: :id,
         description: "User ID",
-        schema: %Schema{type: :integer},
-        required: true,
+        type: :integer,
         example: 1001
-      }
-    ],
-    responses: []
+      ]
+    ]
   )
 
   def show(conn, %{id: id}) do

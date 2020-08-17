@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.OperationDsl do
+  alias OpenApiSpex.OperationBuilder
+
   defmacro operation(action, spec) do
     operation_def(action, spec)
   end
@@ -38,9 +40,18 @@ defmodule OpenApiSpex.OperationDsl do
   end
 
   def operation_spec(module, spec) do
+    spec = Map.new(spec)
     tags = spec[:tags] || Module.get_attribute(module, :controller_tags)
 
-    struct!(OpenApiSpex.Operation, tags: tags, responses: [])
+    initial_attrs = [
+      tags: tags,
+      responses: [],
+      parameters: OperationBuilder.build_parameters(spec)
+    ]
+
+    spec = Map.delete(spec, :parameters)
+
+    struct!(OpenApiSpex.Operation, initial_attrs)
     |> struct!(spec)
   end
 end
