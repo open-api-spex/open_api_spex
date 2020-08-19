@@ -58,4 +58,68 @@ defmodule OpenApiSpex.SchemaTest do
       assert Age.schema().title == "CustomAge"
     end
   end
+
+  describe "example/1" do
+    test "uses value in `example` property when not nil" do
+      assert Schema.example(%Schema{type: :string, example: "foo"}) == "foo"
+    end
+
+    test "defaults to type-appropriate value for :string" do
+      assert Schema.example(%Schema{type: :string}) == ""
+    end
+
+    test "defaults to type-appropriate value for :integer" do
+      assert Schema.example(%Schema{type: :integer}) == 0
+    end
+
+    test "defaults to type-appropriate value for :number" do
+      assert Schema.example(%Schema{type: :number}) == 0
+    end
+
+    test "defaults to type-appropriate value for :boolean" do
+      assert Schema.example(%Schema{type: :boolean}) == false
+    end
+
+    test "reaches into object properties" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          name: %Schema{type: :string, example: "Sample"}
+        }
+      }
+
+      assert Schema.example(schema) == %{name: "Sample"}
+    end
+
+    test "reaches into nested object properties" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          child: %Schema{
+            type: :object,
+            properties: %{
+              name: %Schema{type: :string, example: "Sample"},
+              other: %Schema{type: :string}
+            }
+          }
+        }
+      }
+
+      assert Schema.example(schema) == %{
+               child: %{
+                 name: "Sample",
+                 other: ""
+               }
+             }
+    end
+
+    test "example for array" do
+      schema = %Schema{
+        type: :array,
+        items: %Schema{type: :string, example: "Sample"}
+      }
+
+      assert Schema.example(schema) == ["Sample"]
+    end
+  end
 end

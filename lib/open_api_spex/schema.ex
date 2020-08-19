@@ -338,6 +338,29 @@ defmodule OpenApiSpex.Schema do
 
   def properties(_), do: []
 
+  def example(%Schema{example: example} = schema) when not is_nil(example) do
+    schema.example
+  end
+
+  def example(%Schema{type: :object} = schema) do
+    Map.new(properties(schema), fn {prop_name, _} ->
+      property = schema.properties[prop_name]
+      example_value = example(property)
+      {prop_name, example_value}
+    end)
+  end
+
+  def example(%Schema{type: :array} = schema) do
+    item_example = example(schema.items)
+    [item_example]
+  end
+
+  def example(%Schema{type: :string}), do: ""
+  def example(%Schema{type: :integer}), do: 0
+  def example(%Schema{type: :number}), do: 0
+  def example(%Schema{type: :boolean}), do: false
+  def example(_schema), do: nil
+
   defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
   defp default(%{default: default}), do: default
   defp default(%Reference{}), do: nil
