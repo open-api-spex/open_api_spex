@@ -338,6 +338,25 @@ defmodule OpenApiSpex.Schema do
 
   def properties(_), do: []
 
+  @doc """
+  Generate example value from a `%Schema{}` struct.
+
+  This is useful as a simple way to generate values for tests.
+
+  Example:
+
+      test "create user", %{conn: conn} do
+        user_request_schema = MyAppWeb.Schemas.UserRequestSchema.schema()
+        req_body = OpenApiSpex.Schema.example(user_request_schema)
+
+        resp_body =
+          conn
+          |> post("/users", req_body)
+          |> json_response(201)
+
+        assert ...
+      end
+  """
   def example(%Schema{example: example} = schema) when not is_nil(example) do
     schema.example
   end
