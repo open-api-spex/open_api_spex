@@ -323,5 +323,22 @@ defmodule OpenApiSpex.Schema do
   Includes all properties directly defined in the schema, and all schemas
   included in the `allOf` list.
   """
-  defdelegate properties(schema), to: DeprecatedCast
+  def properties(schema = %Schema{type: :object, properties: properties = %{}}) do
+    for({name, property} <- properties, do: {name, default(property)}) ++
+      properties(%{schema | properties: nil})
+  end
+
+  def properties(%Schema{allOf: schemas}) when is_list(schemas) do
+    Enum.flat_map(schemas, &properties/1) |> Enum.uniq()
+  end
+
+  def properties(schema_module) when is_atom(schema_module) do
+    properties(schema_module.schema())
+  end
+
+  def properties(_), do: []
+
+  defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
+  defp default(%{default: default}), do: default
+  defp default(%Reference{}), do: nil
 end
