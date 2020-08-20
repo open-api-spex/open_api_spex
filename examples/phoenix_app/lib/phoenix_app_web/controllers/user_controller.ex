@@ -23,7 +23,7 @@ defmodule PhoenixAppWeb.UserController do
   List all users
   """
   @doc responses: [
-         ok: {"User List Response", "application/json", Schemas.UserResponse}
+         ok: {"User List Response", "application/json", Schemas.UsersResponse}
        ]
   def index(conn, _params) do
     users = Accounts.list_users()
