@@ -311,6 +311,20 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                      description: "Find more info here",
                      url: "https://example.com"
                    }
+                 },
+                 patch: %OpenApiSpex.Operation{
+                   parameters: [],
+                   deprecated: false,
+                   operationId: "example-patch-test",
+                   requestBody: %OpenApiSpex.Reference{
+                     "$ref": "#/components/requestBodies/test"
+                   },
+                   callbacks: %{},
+                   responses: operationResponses,
+                   security: operationSecurity,
+                   tags: ["test"],
+                   summary: "/example patch summary",
+                   description: "/example patch description"
                  }
                }
              } = paths

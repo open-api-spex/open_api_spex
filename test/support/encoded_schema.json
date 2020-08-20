@@ -441,6 +441,40 @@
           "url": "https://example.com"
         }
       },
+      "patch": {
+        "operationId": "example-patch-test",
+        "parameters": [],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/test"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "first_name": "John",
+                  "id": 678,
+                  "last_name": "Doe",
+                  "phone_number": null
+                }
+              }
+            },
+            "description": "An example"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets"
+            ]
+          }
+        ],
+        "tags": [
+          "test"
+        ],
+        "summary": "/example patch summary",
+        "description": "/example patch description"
+      },
       "servers": [
         {
           "description": "Development server",
