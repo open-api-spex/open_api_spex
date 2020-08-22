@@ -428,6 +428,9 @@ defmodule OpenApiSpex.Schema do
     end
   end
 
-  # defp example_for(%{format: format}, number) when format in [:float, :double], do: 0.0
+  defp example_for(%{format: format}, type)
+       when type in [:number, :integer] and format in [:float, :double],
+       do: 0.0
+
   defp example_for(_schema, type) when type in [:number, :integer], do: 0
 end
