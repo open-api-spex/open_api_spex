@@ -1,3 +1,33 @@
+# 3.8.0
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+- [feng19](https://github.com/feng19)
+- [gdiasdasilva](https://github.com/gdiasdasilva)
+- [mojidabckuu](https://github.com/mojidabckuu)
+- [noozo](https://github.com/noozo)
+- [Shikanime](https://github.com/Shikanime)
+- [slashdotdash](https://github.com/slashdotdash)
+- [velimir](https://github.com/velimir)
+- [wardes](https://github.com/wardes)
+
+* Feature: Custom validators (#243)
+* Feature: Swagger json generation Mix Task (#249)
+* Feature: Customizable cache adapter (#262)
+* Enhancement: Allow passsing `false` to `@doc` annotation to skip the warning. (#236)
+* Enhancement: Make @doc parameters declaration consistent with open api (#237)
+* Enhancement: Support `security` `@doc` string attribute on operations (#251)
+* Enhancement: Allow a `Reference` to be used for directly in the `parameters` definition (#258)
+* Enhancement: Allow a `Reference` to be used for an Operation's request body (#260)
+* Docs: Fixes README.md responses example typo "unprocessible" (#248)
+* Docs: Fix security example to use correct types for the keys (#239)
+* Fix: Remove default pop value for :type shortcut in `@doc` specs (#238)
+* Fix: Nested parameters when served from file based schema (#241)
+* Fix: Error handling for oneOf (#246)
+* Fix: json:api compatible data shape option for JsonRenderError (#245)
+* Fix: ReferenceError: `components.parameter` missing `s` in CastParamters (#257)
+* Fix: struct def for custom validators (#263)
+
 # 3.7.0
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
