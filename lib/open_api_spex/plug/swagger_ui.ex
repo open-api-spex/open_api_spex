@@ -5,13 +5,23 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   The full path to the API spec must be given as a plug option.
   The API spec should be served at the given path, see `OpenApiSpex.Plug.RenderSpec`
 
+  ## Configuring SwaggerUI
+
+  SwaggerUI can be configured through plug `opts`.
+  All options will be converted from `snake_case` to `camelCase` and forwarded to the `SwaggerUIBundle` constructor.
+  See the [swagger-ui configuration docs](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) for details.
+  Should dynamic configuration be required, the `config_url` option can be set to an API endpoint that will provide additional config.
+
   ## Example
 
       scope "/" do
         pipe_through :browser # Use the default browser stack
 
         get "/", MyAppWeb.PageController, :index
-        get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+        get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+          path: "/api/openapi",
+          default_model_expand_depth: 3,
+          display_operation_id: true
       end
 
       # Other scopes may use custom stacks.
@@ -99,7 +109,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
 
       // Build a system
       const api_spec_url = new URL(window.location);
-      api_spec_url.pathname = "<%= path %>";
+      api_spec_url.pathname = "<%= config.path %>";
       api_spec_url.hash = "";
       const ui = SwaggerUIBundle({
         url: api_spec_url.href,
@@ -116,8 +126,10 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         requestInterceptor: function(request){
           request.headers["x-csrf-token"] = "<%= csrf_token %>";
           return request;
-        },
-        displayOperationId: <%= display_operation_id %>
+        }
+        <%= for {k, v} <- Map.drop(config, [:path]) do %>
+        , <%= camelize(k) %>: <%= OpenApiSpex.OpenApi.json_encoder().encode!(v) %>
+        <% end %>
       })
       window.ui = ui
     }
@@ -130,24 +142,27 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   @doc """
   Initializes the plug.
 
-  Required params: `[:path]`
+  ## Options
+
+   * `:path` - Required. The URL path to the API definition.
+   * all other opts - forwarded to the `SwaggerUIBundle` constructor
 
   ## Example
 
-      use OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
-
+      get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+        path: "/api/openapi",
+        default_model_expand_depth: 3,
+        display_operation_id: true
   """
   @impl Plug
   def init(opts) when is_list(opts) do
-    opts
-    |> Enum.into(%{})
-    |> Map.put_new(:display_operation_id, false)
+    Map.new(opts)
   end
 
   @impl Plug
-  def call(conn, %{path: path, display_operation_id: display_operation_id}) do
+  def call(conn, config) do
     csrf_token = Plug.CSRFProtection.get_csrf_token()
-    html = render(path, csrf_token, display_operation_id)
+    html = render(config, csrf_token)
 
     conn
     |> Plug.Conn.put_resp_content_type("text/html")
@@ -155,5 +170,19 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   end
 
   require EEx
-  EEx.function_from_string(:defp, :render, @html, [:path, :csrf_token, :display_operation_id])
+
+  EEx.function_from_string(:defp, :render, @html, [
+    :config,
+    :csrf_token
+  ])
+
+  defp camelize(identifier) do
+    identifier
+    |> to_string
+    |> String.split("_", parts: 2)
+    |> case do
+      [first] -> first
+      [first, rest] -> first <> Macro.camelize(rest)
+    end
+  end
 end
