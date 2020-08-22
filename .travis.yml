@@ -1,19 +1,29 @@
 language: elixir
 
 elixir:
-    - 1.7
-    - 1.8
-    - 1.9
+  - 1.8
+  - 1.9
+  - 1.10
 
 otp_release:
-    - 20.3
-    - 21.2
-    - 22.0
+  - 20.3
+  - 21.3
+  - 22.3
+  - 23.0
+
+jobs:
+  exclude:
+    - elixir: 1.8
+      otp_release: 23.0
+    - elixir: 1.9
+      otp_release: 23.0
+    - elixir: 1.10
+      otp_release: 20.3
 
 script:
-    - mix compile --warnings-as-errors
-    - mix test
-    - mix dialyzer --halt-exit-status
+  - mix compile --warnings-as-errors
+  - mix test
+  - mix dialyzer --halt-exit-status
 
 cache:
   directories:
