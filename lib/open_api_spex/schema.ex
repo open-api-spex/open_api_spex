@@ -346,7 +346,7 @@ defmodule OpenApiSpex.Schema do
   Example:
 
       test "create user", %{conn: conn} do
-        user_request_schema = MyAppWeb.Schemas.UserRequestSchema.schema()
+        user_request_schema = MyAppWeb.Schemas.UserRequest.schema()
         req_body = OpenApiSpex.Schema.example(user_request_schema)
 
         resp_body =
@@ -359,6 +359,22 @@ defmodule OpenApiSpex.Schema do
   """
   def example(%Schema{example: example} = schema) when not is_nil(example) do
     schema.example
+  end
+
+  def example(%Schema{enum: [example | _]}) do
+    example
+  end
+
+  def example(%Schema{oneOf: [schema | _]}) do
+    example(schema)
+  end
+
+  def example(%Schema{allOf: schemas}) when is_list(schemas) do
+    example_for(schemas, :allOf)
+  end
+
+  def example(%Schema{anyOf: schemas}) when is_list(schemas) do
+    example_for(schemas, :anyOf)
   end
 
   def example(%Schema{type: :object} = schema) do
@@ -374,13 +390,44 @@ defmodule OpenApiSpex.Schema do
     [item_example]
   end
 
+  def example(%Schema{type: :string, format: :date}), do: "2020-04-20"
+  def example(%Schema{type: :string, format: :"date-time"}), do: "2020-04-20T16:20:00Z"
+
   def example(%Schema{type: :string}), do: ""
-  def example(%Schema{type: :integer}), do: 0
-  def example(%Schema{type: :number}), do: 0
+  def example(%Schema{type: :integer} = s), do: example_for(s, :integer)
+  def example(%Schema{type: :number} = s), do: example_for(s, :number)
   def example(%Schema{type: :boolean}), do: false
   def example(_schema), do: nil
 
   defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
   defp default(%{default: default}), do: default
   defp default(%Reference{}), do: nil
+
+  defp example_for(schemas, type) when type in [:anyOf, :allOf] do
+    # Only handles :object schemas for now
+    schemas
+    |> Enum.map(&example/1)
+    |> Enum.reduce(%{}, &Map.merge/2)
+  end
+
+  defp example_for(%{minimum: min} = schema, type)
+       when type in [:number, :integer] and not is_nil(min) do
+    if schema.exclusiveMinimum do
+      min + 1
+    else
+      min
+    end
+  end
+
+  defp example_for(%{maximum: max} = schema, type)
+       when type in [:number, :integer] and not is_nil(max) do
+    if schema.exclusiveMaximum do
+      max - 1
+    else
+      max
+    end
+  end
+
+  # defp example_for(%{format: format}, number) when format in [:float, :double], do: 0.0
+  defp example_for(_schema, type) when type in [:number, :integer], do: 0
 end

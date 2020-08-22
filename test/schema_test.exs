@@ -68,12 +68,34 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(%Schema{type: :string}) == ""
     end
 
-    test "defaults to type-appropriate value for :integer" do
+    test "defaults to type-appropriate value for :integer, :number" do
       assert Schema.example(%Schema{type: :integer}) == 0
+      assert Schema.example(%Schema{type: :number}) == 0
     end
 
-    test "defaults to type-appropriate value for :number" do
-      assert Schema.example(%Schema{type: :number}) == 0
+    test "defaults to type-appropriate value for :number with :float or :double format" do
+      assert Schema.example(%Schema{type: :number, format: :float}) == 0.0
+      assert Schema.example(%Schema{type: :number, format: :double}) == 0.0
+    end
+
+    test "uses :minimum for :integer, :number" do
+      assert Schema.example(%Schema{type: :integer, minimum: 10}) == 10
+      assert Schema.example(%Schema{type: :number, minimum: 10}) == 10
+    end
+
+    test "obeys exclusiveMinimum for :integer, :number" do
+      assert Schema.example(%Schema{type: :integer, minimum: 10, exclusiveMinimum: true}) == 11
+      assert Schema.example(%Schema{type: :number, minimum: 10, exclusiveMinimum: true}) == 11
+    end
+
+    test "uses :maximum for :integer, :number" do
+      assert Schema.example(%Schema{type: :integer, maximum: 10}) == 10
+      assert Schema.example(%Schema{type: :number, maximum: 10}) == 10
+    end
+
+    test "obeys exclusiveMaximum for numbers" do
+      assert Schema.example(%Schema{type: :integer, maximum: 10, exclusiveMaximum: true}) == 9
+      assert Schema.example(%Schema{type: :number, maximum: 10, exclusiveMaximum: true}) == 9
     end
 
     test "defaults to type-appropriate value for :boolean" do
@@ -120,6 +142,43 @@ defmodule OpenApiSpex.SchemaTest do
       }
 
       assert Schema.example(schema) == ["Sample"]
+    end
+
+    test "example of allOf schema" do
+      schema = %Schema{
+        allOf: [
+          %Schema{type: :object, properties: %{name: %Schema{type: :string, example: "OAS"}}},
+          %Schema{type: :object, properties: %{version: %Schema{type: :integer, example: 3}}}
+        ]
+      }
+
+      assert Schema.example(schema) == %{name: "OAS", version: 3}
+    end
+
+    test "example for oneOf schema" do
+      schema = %Schema{
+        oneOf: [
+          %Schema{type: :string, example: "one"},
+          %Schema{type: :string, example: "two"}
+        ]
+      }
+
+      assert Schema.example(schema) == "one"
+    end
+
+    test "example for enum" do
+      schema = %Schema{type: :string, enum: ["one", "two"]}
+      assert Schema.example(schema) == "one"
+    end
+
+    test "string :date format" do
+      schema = %Schema{type: :string, format: :date}
+      assert Schema.example(schema) == "2020-04-20"
+    end
+
+    test "string :date-time format" do
+      schema = %Schema{type: :string, format: :"date-time"}
+      assert Schema.example(schema) == "2020-04-20T16:20:00Z"
     end
   end
 end
