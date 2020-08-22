@@ -1,3 +1,34 @@
+# 3.8.0
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+- [slashdotdash](https://github.com/slashdotdash)
+- [feng19](https://github.com/feng19)
+- [wardes](https://github.com/wardes)
+- [shikanime](https://github.com/shikanime)
+- [gdiasdasilva](https://github.com/gdiasdasilva)
+- [moxley](https://github.com/moxley)
+- [velimir](https://github.com/velimir)
+- [noozo](https://github.com/noozo)
+- [mojidabckuu](https://github.com/mojidabckuu)
+- [mbuhot](https://github.com/mbuhot)
+
+- Feature: Schemas may now use the `x-validate` extension to supply a module to use for validating request data (#243)
+- Feature: Mix task `mix openapi.spec.json` to generate `openapi.json` from API spec (#249)
+- Enhancement: Accept `security` in `@doc` based operation definitions (#251)
+- Enhancement: Allow parameter references in `@doc` based operation definitions (#258)
+- Enhancement: A reference can be given for operation request bodies (#236)
+- Enhancement: Allow `@doc false` to be used to indicate an undocumented API action (#236)
+- Enhancement: Accept `schema:` in `@doc` parameters in preference to `type:` for specifying parameter schemas (#237)
+- Enhancement: JSON error response updated to align with json:api when the `json_render_error_v2: true` flag (#245)
+- Enhancement: Caching strategy for API spec is configurable, allows disabling cache in development (#262)
+- Docs: Use string keys for naming `securitySchemes` and when referencing from `security` (#239)
+- Docs: Responses example for `:unprocessible_entity`(#248)
+- Fix: Struct based schemas can be loaded from file (#241)
+- Fix: Error handling with schemas using `oneOf` (#246)
+- Fix: Resolving schema reference schema from `#/components/parameters` (#257)
+- Fix: typespec for `Schema` struct (#263)
+
 # 3.7.0
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
