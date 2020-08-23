@@ -21,7 +21,7 @@ defmodule OpenApiSpexTest.Router do
     post "/users/create_entity", UserController, :create_entity
     get "/openapi", RenderSpec, []
 
-    resources "/pets", PetController, only: [:create, :index, :show]
+    resources "/pets", PetController, only: [:create, :index, :show, :update]
     post "/pets/:id/adopt", PetController, :adopt
     post "/pets/appointment", PetController, :appointment
 
