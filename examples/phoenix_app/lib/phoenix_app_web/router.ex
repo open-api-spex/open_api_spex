@@ -12,7 +12,12 @@ defmodule PhoenixAppWeb.Router do
 
   scope "/" do
     pipe_through(:browser)
-    get("/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi")
+
+    get("/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+      path: "/api/openapi",
+      default_model_expand_depth: 3,
+      display_operation_id: true
+    )
   end
 
   scope "/api" do
