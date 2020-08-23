@@ -76,4 +76,28 @@ defmodule PhoenixAppWeb.UserController do
     user = Accounts.get_user!(id)
     render(conn, "show.json", user: user)
   end
+
+  @doc """
+  Update user.
+
+  Update a user by ID.
+  """
+  @doc parameters: [
+         id: [
+           in: :path,
+           type: %Schema{type: :integer, minimum: 1},
+           description: "User ID",
+           example: 123,
+           required: true
+         ]
+       ],
+       request_body:
+         {"The user attributes", "application/json", Schemas.UserRequest, required: true},
+       responses: [
+         ok: {"User", "application/json", Schemas.UserResponse}
+       ]
+  def update(conn = %{body_params: %Schemas.UserRequest{user: user}}, %{id: id}) do
+    updated = Accounts.update_user(id, Map.take(user, [:name, :email]))
+    render(conn, "show.json", user: updated)
+  end
 end

@@ -111,16 +111,33 @@ defmodule OpenApiSpexTest.PetController do
   end
 
   @doc """
-  Create pet.
+  Create appointment.
 
-  Create a pet.
+  Create an appointment.
   """
   @doc request_body:
-         {"The pet attributes", "application/json", Schemas.PetAppointmentRequest, required: true},
+         {"The appointment attributes", "application/json", Schemas.PetAppointmentRequest,
+          required: true},
        responses: [
          created: {"Pet", "application/json", Schemas.PetResponse}
        ]
   def appointment(conn, _) do
+    json(conn, %Schemas.PetResponse{
+      data: [%{pet_type: "Dog", bark: "bow wow"}]
+    })
+  end
+
+  @doc """
+  Update pet.
+
+  This action is available as a PUT or a PATCH.
+  """
+  @doc request_body:
+         {"The pet attributes", "application/json", Schemas.PetRequest, required: true},
+       responses: [
+         created: {"Pet", "application/json", Schemas.PetResponse}
+       ]
+  def update(conn, _) do
     json(conn, %Schemas.PetResponse{
       data: [%{pet_type: "Dog", bark: "bow wow"}]
     })
