@@ -1,4 +1,10 @@
 defmodule OpenApiSpex.OperationDsl do
+  @moduledoc """
+  Macros for defining operation specs and operation tags in a Phoenix controller.
+
+  If you use Elixir Formatter, be sure to add `:open_api_spex` to the `:import_deps`
+  list in the `.formatter.exs` file of your project.
+  """
   alias OpenApiSpex.OperationBuilder
 
   @doc """

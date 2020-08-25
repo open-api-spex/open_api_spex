@@ -5,6 +5,14 @@
     transport: 2,
     action_fallback: 1,
     socket: 2,
-    render: 2
+    render: 2,
+    operation: 2,
+    tags: 1
+  ],
+  export: [
+    locals_without_parens: [
+      operation: 2,
+      tags: 1
+    ]
   ]
 ]
