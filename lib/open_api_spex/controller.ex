@@ -18,16 +18,23 @@ defmodule OpenApiSpex.Controller do
   ### `parameters`
 
   Parameters of the endpoint are defined by `:parameters` tag which should be
-  map or keyword list that is formed as:
+  map or list that is formed as:
 
-  ```
+  ```elixir
   [
     param_name: definition
   ]
+
+  # or
+
+  [
+    structure_definition
+  ]
   ```
 
-  Where `definition` is `OpenApiSpex.Parameter.t()` structure or `OpenApiSpex.Reference.t()` structure
-  or map or keyword list that accepts the same arguments.
+  Where `definition` is map or keyword list that accepts the same arguments.
+  Where `structure_definition` is `OpenApiSpex.Parameter.t()` or `OpenApiSpex.Reference.t()` structure
+  that accepts the same arguments.
 
   Example:
 
@@ -233,7 +240,7 @@ defmodule OpenApiSpex.Controller do
     Map.get(meta, :operation_id, "#{inspect(mod)}.#{name}")
   end
 
-  defp build_parameters(%{parameters: params}) do
+  defp build_parameters(%{parameters: params}) when is_list(params) or is_map(params) do
     params
     |> Enum.reduce([], fn
       parameter = %Parameter{}, acc ->
@@ -265,9 +272,20 @@ defmodule OpenApiSpex.Controller do
     |> Enum.reverse()
   end
 
+  defp build_parameters(%{parameters: _params}) do
+    IO.warn("""
+    parameters tag should be map or list, for example:
+    @doc parameters: [
+      id: [in: :path, schema: MyCustomSchema]
+    ]
+    """)
+
+    []
+  end
+
   defp build_parameters(_), do: []
 
-  defp build_responses(%{responses: responses}) do
+  defp build_responses(%{responses: responses}) when is_list(responses) or is_map(responses) do
     Map.new(responses, fn
       {status, {description, mime, schema}} ->
         {Plug.Conn.Status.code(status), Operation.response(description, mime, schema)}
@@ -281,6 +299,18 @@ defmodule OpenApiSpex.Controller do
       {status, description} when is_binary(description) ->
         {Plug.Conn.Status.code(status), %Response{description: description}}
     end)
+  end
+
+  defp build_responses(%{responses: _responses}) do
+    IO.warn("""
+    responses tag should be map or keyword list, for example:
+    @doc responses: %{
+      200 => {"Response name", "application/json", schema},
+      :not_found => {"Response name", "application/json", schema}
+    }
+    """)
+
+    []
   end
 
   defp build_responses(_), do: []
