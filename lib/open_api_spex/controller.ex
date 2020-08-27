@@ -182,7 +182,7 @@ defmodule OpenApiSpex.Controller do
         requestBody: OperationBuilder.build_request_body(meta),
         responses: OperationBuilder.build_responses(meta),
         security: OperationBuilder.build_security(meta),
-        tags: Map.get(mod_meta, :tags, []) ++ Map.get(meta, :tags, [])
+        tags: OperationBuilder.build_tags(meta, mod_meta)
       }
     else
       _ -> nil

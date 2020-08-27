@@ -5,7 +5,7 @@ defmodule OpenApiSpex.OperationDsl do
   If you use Elixir Formatter, be sure to add `:open_api_spex` to the `:import_deps`
   list in the `.formatter.exs` file of your project.
   """
-  alias OpenApiSpex.OperationBuilder
+  alias OpenApiSpex.{Operation, OperationBuilder}
 
   @doc """
   Defines an Operation spec in a controller.
@@ -46,7 +46,8 @@ defmodule OpenApiSpex.OperationDsl do
         @operation_defined true
       end
 
-      @spec_attributes {unquote(action), operation_spec(__MODULE__, unquote(spec))}
+      @spec_attributes {unquote(action),
+                        operation_spec(__MODULE__, unquote(action), unquote(spec))}
 
       def open_api_operation(unquote(action)) do
         @spec_attributes[unquote(action)]
@@ -62,20 +63,19 @@ defmodule OpenApiSpex.OperationDsl do
   end
 
   @doc false
-  def operation_spec(module, spec) do
+  def operation_spec(module, action, spec) do
     spec = Map.new(spec)
-    tags = spec[:tags] || Module.get_attribute(module, :controller_tags)
+    controller_tags = Module.get_attribute(module, :controller_tags) || []
 
-    initial_attrs = [
-      tags: tags,
-      responses: [],
-      parameters: OperationBuilder.build_parameters(spec)
-    ]
-
-    spec = Map.delete(spec, :parameters)
-
-    OpenApiSpex.Operation
-    |> struct!(initial_attrs)
-    |> struct!(spec)
+    %Operation{
+      description: Map.get(spec, :description),
+      operationId: OperationBuilder.build_operation_id(spec, module, action),
+      parameters: OperationBuilder.build_parameters(spec),
+      requestBody: OperationBuilder.build_request_body(spec),
+      responses: OperationBuilder.build_responses(spec),
+      security: OperationBuilder.build_security(spec),
+      summary: Map.get(spec, :summary),
+      tags: OperationBuilder.build_tags(spec, %{tags: controller_tags})
+    }
   end
 end

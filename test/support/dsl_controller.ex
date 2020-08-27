@@ -3,28 +3,37 @@ defmodule OpenApiSpexTest.DslController do
 
   import OpenApiSpex.OperationDsl
 
-  tags ["users"]
+  defmodule UserParams do
+    alias OpenApiSpex.Schema
+    require OpenApiSpex
 
-  operation :index,
-    summary: "User index",
-    parameters: [
-      query: [in: :query, type: :string, description: "Free-form query string", example: "jane"]
-    ]
-
-  def index(conn, _params) do
-    json(conn, %{
-      data: [
-        %{
-          id: "abc123",
-          name: "joe user",
-          email: "joe@gmail.com"
-        }
-      ]
+    OpenApiSpex.schema(%{
+      type: :object,
+      properties: %{
+        email: %Schema{type: :string},
+        name: %Schema{type: :string}
+      }
     })
   end
 
-  operation :show,
-    summary: "Show user",
+  defmodule UserResponse do
+    alias OpenApiSpex.Schema
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      type: :object,
+      properties: %{
+        id: %Schema{type: :string},
+        email: %Schema{type: :string},
+        name: %Schema{type: :string}
+      }
+    })
+  end
+
+  tags ["users"]
+
+  operation :update,
+    summary: "Update user",
     parameters: [
       id: [
         in: :path,
@@ -32,9 +41,13 @@ defmodule OpenApiSpexTest.DslController do
         type: :integer,
         example: 1001
       ]
+    ],
+    request_body: {"User params", "application/json", UserParams},
+    responses: [
+      ok: {"User response", "application/json", UserResponse}
     ]
 
-  def show(conn, %{id: id}) do
+  def update(conn, %{"id" => id}) do
     json(conn, %{
       data: %{
         id: id,
