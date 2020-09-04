@@ -2,8 +2,47 @@ defmodule OpenApiSpex.OperationDsl do
   @moduledoc """
   Macros for defining operation specs and operation tags in a Phoenix controller.
 
-  If you use Elixir Formatter, be sure to add `:open_api_spex` to the `:import_deps`
-  list in the `.formatter.exs` file of your project.
+  If you use Elixir Formatter, `:open_api_spex` can be added to the `:import_deps`
+  list in the `.formatter.exs` file of your project to make parentheses of the
+  macros optional.
+
+  ## Example
+
+      defmodule MyAppWeb.DslController do
+        use Phoenix.Controller
+
+        import OpenApiSpex.OperationDsl
+
+        alias MyAppWeb.Schemas.{UserParams, UserResponse}
+
+        tags ["users"]
+
+        operation :update,
+          summary: "Update user",
+          parameters: [
+            id: [
+              in: :path,
+              description: "User ID",
+              type: :integer,
+              example: 1001
+            ]
+          ],
+          request_body: {"User params", "application/json", UserParams},
+          responses: [
+            ok: {"User response", "application/json", UserResponse}
+          ]
+
+        def update(conn, %{"id" => id}) do
+          json(conn, %{
+            data: %{
+              id: id,
+              name: "joe user",
+              email: "joe@gmail.com"
+            }
+          })
+        end
+      end
+
   """
   alias OpenApiSpex.{Operation, OperationBuilder}
 
@@ -11,32 +50,6 @@ defmodule OpenApiSpex.OperationDsl do
   Defines an Operation spec in a controller.
   """
   defmacro operation(action, spec) do
-    operation_def(action, spec)
-  end
-
-  @doc """
-  Defines a list of tags that all operations in a controller will share.
-  """
-  defmacro tags(tags) do
-    tags_def(tags)
-  end
-
-  @doc false
-  defmacro before_compile(_env) do
-    quote do
-      def open_api_operation(action) do
-        module_name = __MODULE__ |> to_string() |> String.replace_leading("Elixir.", "")
-        IO.warn("No operation spec defined for controller action #{module_name}.#{action}")
-      end
-
-      def controller_tags do
-        Module.get_attribute(__MODULE__, :controller_tags) || []
-      end
-    end
-  end
-
-  @doc false
-  def operation_def(action, spec) do
     quote do
       if !Module.get_attribute(__MODULE__, :operation_defined) do
         Module.register_attribute(__MODULE__, :spec_attributes, accumulate: true)
@@ -55,10 +68,26 @@ defmodule OpenApiSpex.OperationDsl do
     end
   end
 
-  @doc false
-  def tags_def(tags) do
+  @doc """
+  Defines a list of tags that all operations in a controller will share.
+  """
+  defmacro tags(tags) do
     quote do
       @controller_tags unquote(tags)
+    end
+  end
+
+  @doc false
+  defmacro before_compile(_env) do
+    quote do
+      def open_api_operation(action) do
+        module_name = __MODULE__ |> to_string() |> String.replace_leading("Elixir.", "")
+        IO.warn("No operation spec defined for controller action #{module_name}.#{action}")
+      end
+
+      def controller_tags do
+        Module.get_attribute(__MODULE__, :controller_tags) || []
+      end
     end
   end
 
