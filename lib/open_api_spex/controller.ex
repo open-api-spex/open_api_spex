@@ -199,22 +199,31 @@ defmodule OpenApiSpex.Controller do
       end)
 
     case doc_for_function do
-      {_, _, _, docs, meta} when is_map(docs) ->
-        description = Map.get(docs, "en", "")
-        [summary | _] = String.split(description, ~r/\n\s*\n/, parts: 2)
-
-        {:ok, {mod_meta, summary, description, meta}}
-
-      {_, _, _, :none, %{responses: _responses} = meta} ->
-        summary = ""
-        description = ""
-        {:ok, {mod_meta, summary, description, meta}}
-
-      {_, _, _, :none, %{}} ->
-        IO.warn("No docs found for function #{module}.#{name}/2")
-
-      {_, _, _, :hidden, %{}} ->
+      {_, _, _, :hidden, _} ->
         nil
+
+      {_, _, _, docs, meta} when is_map(meta) ->
+        cond do
+          Enum.empty?(meta) ->
+            IO.warn("No docs found for function #{module}.#{name}/2")
+            nil
+
+          not Map.has_key?(meta, :responses) ->
+            IO.warn("No responses declaration found for function #{module}.#{name}/2")
+            nil
+
+          true ->
+            {summary, description} =
+              if is_map(docs) do
+                description = Map.get(docs, "en", "")
+                [summary | _] = String.split(description, ~r/\n\s*\n/, parts: 2)
+                {summary, description}
+              else
+                {"", ""}
+              end
+
+            {:ok, {mod_meta, summary, description, meta}}
+        end
 
       _ ->
         IO.warn("Invalid docs declaration found for function #{module}.#{name}/2")

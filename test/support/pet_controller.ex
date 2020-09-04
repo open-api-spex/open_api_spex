@@ -36,6 +36,7 @@ defmodule OpenApiSpexTest.PetController do
   @doc """
   Get a list of pets.
   """
+  @doc responses: [ok: {"Pet list", "application/json", Schemas.PetsResponse}]
   def index(conn, _params) do
     json(conn, %Schemas.PetsResponse{
       data: [
@@ -55,7 +56,7 @@ defmodule OpenApiSpexTest.PetController do
   @doc request_body:
          {"The pet attributes", "application/json", Schemas.PetRequest, required: true},
        responses: [
-         created: {"Pet", "application/json", Schemas.PetRequest}
+         created: {"Pet", "application/json", Schemas.PetResponse}
        ]
   def create(conn, _) do
     %Schemas.PetRequest{pet: pet} = Map.get(conn, :body_params)
