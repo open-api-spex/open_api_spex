@@ -205,13 +205,12 @@ defmodule OpenApiSpex.Controller do
 
         {:ok, {mod_meta, summary, description, meta}}
 
-      {_, _, _, :none, %{responses: _responses} = meta} ->
-        summary = ""
-        description = ""
-        {:ok, {mod_meta, summary, description, meta}}
-
-      {_, _, _, :none, %{}} ->
-        IO.warn("No docs found for function #{module}.#{name}/2")
+      {_, _, _, :none, meta} when is_map(meta) ->
+        if Enum.empty?(meta) do
+          IO.warn("No docs found for function #{module}.#{name}/2")
+        else
+          {:ok, {mod_meta, _summary = "", _description = "", meta}}
+        end
 
       {_, _, _, :hidden, %{}} ->
         nil
