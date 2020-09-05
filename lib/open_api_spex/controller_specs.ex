@@ -53,6 +53,8 @@ defmodule OpenApiSpex.ControllerSpecs do
       import OpenApiSpex.ControllerSpecs
 
       Module.register_attribute(__MODULE__, :spec_attributes, accumulate: true)
+      Module.register_attribute(__MODULE__, :shared_tags, accumulate: true)
+      Module.register_attribute(__MODULE__, :shared_security, accumulate: true)
 
       @before_compile {OpenApiSpex.ControllerSpecs, :before_compile}
 
@@ -255,8 +257,8 @@ defmodule OpenApiSpex.ControllerSpecs do
   @doc false
   def operation_spec(module, action, spec) do
     spec = Map.new(spec)
-    shared_tags = Module.get_attribute(module, :shared_tags) || []
-    security = Module.get_attribute(module, :shared_security) || []
+    shared_tags = Module.get_attribute(module, :shared_tags, []) |> List.flatten()
+    security = Module.get_attribute(module, :shared_security, []) |> List.flatten()
 
     %Operation{
       description: Map.get(spec, :description),
