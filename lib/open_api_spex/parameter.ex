@@ -3,7 +3,11 @@ defmodule OpenApiSpex.Parameter do
   Defines the `OpenApiSpex.Parameter.t` type.
   """
   alias OpenApiSpex.{
-    Schema, Reference, Example, MediaType, Parameter
+    Schema,
+    Reference,
+    Example,
+    MediaType,
+    Parameter
   }
 
   @enforce_keys [:name, :in]
@@ -20,8 +24,9 @@ defmodule OpenApiSpex.Parameter do
     :schema,
     :example,
     :examples,
-    :content,
+    :content
   ]
+
   @typedoc """
   Valid values for the `in` key in the `OpenApiSpex.Parameter` struct.
   """
@@ -30,7 +35,8 @@ defmodule OpenApiSpex.Parameter do
   @typedoc """
   Valid values for the `style` key in the `OpenApiSpex.Parameter` struct.
   """
-  @type style :: :matrix | :label | :form | :simple | :spaceDelimited | :pipeDelimited | :deepObject
+  @type style ::
+          :matrix | :label | :form | :simple | :spaceDelimited | :pipeDelimited | :deepObject
 
   @typedoc """
   [Parameter Object](https://swagger.io/specification/#parameterObject)
@@ -49,36 +55,40 @@ defmodule OpenApiSpex.Parameter do
     - cookie: Used to pass a specific cookie value to the API.
   """
   @type t :: %__MODULE__{
-    name: atom,
-    in: location,
-    description: String.t | nil,
-    required: boolean | nil,
-    deprecated: boolean | nil,
-    allowEmptyValue: boolean | nil,
-    style: style | nil,
-    explode: boolean | nil,
-    allowReserved: boolean | nil,
-    schema: Schema.t | Reference.t | atom | nil,
-    example: any,
-    examples: %{String.t => Example.t | Reference.t} | nil,
-    content: %{String.t => MediaType.t} | nil
-  }
+          name: atom,
+          in: location,
+          description: String.t() | nil,
+          required: boolean | nil,
+          deprecated: boolean | nil,
+          allowEmptyValue: boolean | nil,
+          style: style | nil,
+          explode: boolean | nil,
+          allowReserved: boolean | nil,
+          schema: Schema.t() | Reference.t() | atom | nil,
+          example: any,
+          examples: %{String.t() => Example.t() | Reference.t()} | nil,
+          content: %{String.t() => MediaType.t()} | nil
+        }
 
-  @type parameters :: %{String.t =>  t | Reference.t} | nil
+  @type parameters :: %{String.t() => t | Reference.t()} | nil
 
   @doc """
   Sets the schema for a parameter from a simple type, reference or Schema
   """
-  @spec put_schema(t, Reference.t | Schema.t | atom) :: t
+  @spec put_schema(t, Reference.t() | Schema.t() | atom) :: t
   def put_schema(parameter = %Parameter{}, type = %Reference{}) do
     %{parameter | schema: type}
   end
+
   def put_schema(parameter = %Parameter{}, type = %Schema{}) do
     %{parameter | schema: type}
   end
-  def put_schema(parameter = %Parameter{}, type) when type in [:boolean, :integer, :number, :string, :array, :object] do
+
+  def put_schema(parameter = %Parameter{}, type)
+      when type in [:boolean, :integer, :number, :string, :array, :object] do
     %{parameter | schema: %Schema{type: type}}
   end
+
   def put_schema(parameter = %Parameter{}, type) when is_atom(type) do
     %{parameter | schema: type}
   end
@@ -86,10 +96,11 @@ defmodule OpenApiSpex.Parameter do
   @doc """
   Gets the schema for a parameter, from the `schema` key or `content` key, which ever is populated.
   """
-  @spec schema(Parameter.t) :: Schema.t | Reference.t | atom
+  @spec schema(Parameter.t()) :: Schema.t() | Reference.t() | atom
   def schema(%Parameter{schema: schema = %{}}) do
     schema
   end
+
   def schema(%Parameter{content: content = %{}}) do
     {_type, %MediaType{schema: schema}} = Enum.at(content, 0)
     schema

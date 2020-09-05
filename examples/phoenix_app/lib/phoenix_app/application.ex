@@ -4,8 +4,9 @@ defmodule PhoenixApp.Application do
   def start(_type, _args) do
     children = [
       PhoenixAppWeb.Endpoint,
-      PhoenixApp.Repo,
+      PhoenixApp.Repo
     ]
+
     Supervisor.start_link(children, strategy: :one_for_one, name: PhoenixApp.Supervisor)
   end
 

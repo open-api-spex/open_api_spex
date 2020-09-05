@@ -32,4 +32,3 @@ defmodule PlugApp.Router do
   match "/api/*_", to: PlugApp.Router.Api
   match "/*_", to: PlugApp.Router.Html
 end
-

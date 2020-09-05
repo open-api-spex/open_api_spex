@@ -105,6 +105,7 @@ defmodule OpenApiSpex.Cast.Discriminator do
     |> Enum.map(fn
       %Schema{} = schema ->
         schema
+
       %Reference{} = schema ->
         Reference.resolve_schema(schema, ctx_schemas)
     end)

@@ -3,6 +3,7 @@ defmodule OpenApiSpex.Link do
   Defines the `OpenApiSpex.Link.t` type.
   """
   alias OpenApiSpex.Server
+
   defstruct [
     :operationRef,
     :operationId,
@@ -28,11 +29,11 @@ defmodule OpenApiSpex.Link do
   using them as parameters while invoking the linked operation.
   """
   @type t :: %__MODULE__{
-    operationRef: String.t | nil,
-    operationId: String.t | nil,
-    parameters: %{String.t => any} | nil,
-    requestBody: any,
-    description: String.t | nil,
-    server: Server.t | nil
-  }
+          operationRef: String.t() | nil,
+          operationId: String.t() | nil,
+          parameters: %{String.t() => any} | nil,
+          requestBody: any,
+          description: String.t() | nil,
+          server: Server.t() | nil
+        }
 end

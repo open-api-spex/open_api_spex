@@ -15,7 +15,7 @@ defmodule OpenApiSpex.ExternalDocumentation do
   Allows referencing an external resource for extended documentation.
   """
   @type t :: %__MODULE__{
-    description: String.t | nil,
-    url: String.t
-  }
+          description: String.t() | nil,
+          url: String.t()
+        }
 end

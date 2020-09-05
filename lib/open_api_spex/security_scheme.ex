@@ -24,13 +24,13 @@ defmodule OpenApiSpex.SecurityScheme do
   OAuth2's common flows (implicit, password, application and access code) as defined in RFC6749, and OpenID Connect Discovery.
   """
   @type t :: %__MODULE__{
-    type: String.t,
-    description: String.t | nil,
-    name: String.t | nil,
-    in: String.t | nil,
-    scheme: String.t | nil,
-    bearerFormat: String.t | nil,
-    flows: OAuthFlows.t | nil,
-    openIdConnectUrl: String.t | nil
-  }
+          type: String.t(),
+          description: String.t() | nil,
+          name: String.t() | nil,
+          in: String.t() | nil,
+          scheme: String.t() | nil,
+          bearerFormat: String.t() | nil,
+          flows: OAuthFlows.t() | nil,
+          openIdConnectUrl: String.t() | nil
+        }
 end

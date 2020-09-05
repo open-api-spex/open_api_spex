@@ -16,8 +16,8 @@ defmodule OpenApiSpex.ServerVariable do
   An object representing a Server Variable for server URL template substitution.
   """
   @type t :: %__MODULE__{
-    enum: [String.t] | nil,
-    default: String.t,
-    description: String.t | nil
-  }
+          enum: [String.t()] | nil,
+          default: String.t(),
+          description: String.t() | nil
+        }
 end

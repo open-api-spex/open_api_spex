@@ -75,14 +75,14 @@ defmodule OpenApiSpex.ControllerTest do
 
     test "has no docs when false" do
       assert capture_io(:stderr, fn ->
-        refute @controller.open_api_operation(:skip_this_doc)
-      end) == ""
+               refute @controller.open_api_operation(:skip_this_doc)
+             end) == ""
     end
 
     test "prints warn when no @doc specified" do
       assert capture_io(:stderr, fn ->
-        refute @controller.open_api_operation(:no_doc_specified)
-      end) =~ ~r/warning:/
+               refute @controller.open_api_operation(:no_doc_specified)
+             end) =~ ~r/warning:/
     end
   end
 
@@ -106,7 +106,7 @@ defmodule OpenApiSpex.ControllerTest do
     end
 
     test "fails on both type and schema specified" do
-      assert_raise ArgumentError, ~r/Both :type and :schema options were specified/,  fn ->
+      assert_raise ArgumentError, ~r/Both :type and :schema options were specified/, fn ->
         @controller.open_api_operation(:non_exlusive_paramter_type_schema_docs)
       end
     end

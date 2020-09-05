@@ -117,6 +117,7 @@ defmodule OpenApiSpex.SchemaResolverTest do
            } = resolved.components.schemas
 
     get_friends = resolved.paths["/api/users/{id}/friends"].get
+
     assert %Reference{"$ref": "#/components/schemas/User"} =
              get_friends.responses[200].content["application/json"].schema.items
   end
