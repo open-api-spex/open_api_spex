@@ -184,7 +184,7 @@ For examples of other action operations, see the
 There is a new, experimental Operation spec API that has the same lightweight syntax
 as the ExDoc-based API, but without the potentially breaking issue described in
 [issue #242](https://github.com/open-api-spex/open_api_spex/issues/242).
-This new API is described in the `OpenApiSpex.OperationDsl` docs.
+This new API is described in the `OpenApiSpex.ControllerSpecs` docs.
 
 ### Schemas
 

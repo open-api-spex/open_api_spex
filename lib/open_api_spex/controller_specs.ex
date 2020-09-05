@@ -1,19 +1,19 @@
-defmodule OpenApiSpex.OperationDsl do
+defmodule OpenApiSpex.ControllerSpecs do
   @moduledoc """
   Macros for defining operation specs and operation tags in a Phoenix controller.
 
   ## Example
 
-  Here is an example Phoenix controller that uses the OperationDsl Operation specs:
+  Here is an example Phoenix controller that uses the ControllerSpecs Operation specs:
 
       defmodule MyAppWeb.DslController do
         use Phoenix.Controller
-        use OpenApiSpex.OperationDsl
+        use OpenApiSpex.ControllerSpecs
 
         alias MyAppWeb.Schemas.{UserParams, UserResponse}
 
         tags ["users"]
-        security [%{}, %{"petstore_auth" => ["write:pets", "read:pets"]}]
+        security [%{}, %{"petstore_auth" => ["write:users", "read:users"]}]
 
         operation :update,
           summary: "Update user",
@@ -49,11 +49,11 @@ defmodule OpenApiSpex.OperationDsl do
 
   defmacro __using__(_opts) do
     quote do
-      import OpenApiSpex.OperationDsl
+      import OpenApiSpex.ControllerSpecs
 
       Module.register_attribute(__MODULE__, :spec_attributes, accumulate: true)
 
-      @before_compile {OpenApiSpex.OperationDsl, :before_compile}
+      @before_compile {OpenApiSpex.ControllerSpecs, :before_compile}
 
       @spec open_api_operation(atom()) :: OpenApiSpex.Operation.t()
     end
@@ -87,7 +87,7 @@ defmodule OpenApiSpex.OperationDsl do
   These options correlate to the
   [Operation fields specified in the Open API spec](https://swagger.io/specification/#operation-object).
   One difference however, is that the fields defined in Open API use `camelCase` naming,
-  while the fields used in `OperationDsl` use `snake_case` to match Elixir's convention.
+  while the fields used in `ControllerSpecs` use `snake_case` to match Elixir's convention.
 
   - `summary` The operation summary
   - `parameters` The endpoint's parameters. The syntax for `parameters` can take multiple forms:
@@ -227,7 +227,6 @@ defmodule OpenApiSpex.OperationDsl do
   @doc """
   Defines security requirements shared by all operations defined in a controller.
 
-  Security requirements are defined in the form `[%{required(String.t()) => [String.t()]}]`.
   See [Security Requirement Object spec](https://swagger.io/specification/#securityRequirementObject)
   and `OpenApiSpex.SecurityRequirement` for more information.
   """

@@ -1,6 +1,6 @@
 defmodule OpenApiSpexTest.DslController do
   use Phoenix.Controller
-  use OpenApiSpex.OperationDsl
+  use OpenApiSpex.ControllerSpecs
 
   defmodule UserParams do
     alias OpenApiSpex.Schema
