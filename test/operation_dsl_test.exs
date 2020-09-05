@@ -78,5 +78,10 @@ defmodule OpenApiSpex.OperationDslTest do
 
       assert security == [%{"api_key" => ["mySecurityScheme"]}, %{"two" => ["another"]}]
     end
+
+    test "second operation is defined" do
+      assert %OpenApiSpex.Operation{operationId: "OpenApiSpexTest.DslController.index"} =
+               DslController.open_api_operation(:index)
+    end
   end
 end

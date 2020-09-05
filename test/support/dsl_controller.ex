@@ -1,7 +1,6 @@
 defmodule OpenApiSpexTest.DslController do
   use Phoenix.Controller
-
-  import OpenApiSpex.OperationDsl
+  use OpenApiSpex.OperationDsl
 
   defmodule UserParams do
     alias OpenApiSpex.Schema
@@ -26,6 +25,23 @@ defmodule OpenApiSpexTest.DslController do
         id: %Schema{type: :string},
         email: %Schema{type: :string},
         name: %Schema{type: :string}
+      }
+    })
+  end
+
+  defmodule UsersIndexResponse do
+    alias OpenApiSpex.Schema
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      type: :array,
+      items: %Schema{
+        type: :object,
+        properties: %{
+          id: %Schema{type: :string},
+          email: %Schema{type: :string},
+          name: %Schema{type: :string}
+        }
       }
     })
   end
@@ -59,5 +75,22 @@ defmodule OpenApiSpexTest.DslController do
         email: "joe@gmail.com"
       }
     })
+  end
+
+  operation :index,
+    summary: "Users index",
+    parameters: [
+      username: [
+        in: :query,
+        description: "Filter by username",
+        type: :string
+      ]
+    ],
+    responses: [
+      ok: {"Users index response", "application/json", UsersIndexResponse}
+    ]
+
+  def index(conn, _) do
+    json(conn, [])
   end
 end

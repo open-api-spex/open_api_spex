@@ -8,8 +8,7 @@ defmodule OpenApiSpex.OperationDsl do
 
       defmodule MyAppWeb.DslController do
         use Phoenix.Controller
-
-        import OpenApiSpex.OperationDsl
+        use OpenApiSpex.OperationDsl
 
         alias MyAppWeb.Schemas.{UserParams, UserResponse}
 
@@ -47,6 +46,18 @@ defmodule OpenApiSpex.OperationDsl do
   macros optional.
   """
   alias OpenApiSpex.{Operation, OperationBuilder}
+
+  defmacro __using__(_opts) do
+    quote do
+      import OpenApiSpex.OperationDsl
+
+      Module.register_attribute(__MODULE__, :spec_attributes, accumulate: true)
+
+      @before_compile {OpenApiSpex.OperationDsl, :before_compile}
+
+      @spec open_api_operation(atom()) :: OpenApiSpex.Operation.t()
+    end
+  end
 
   @doc """
   Defines an Operation spec in a controller.
@@ -186,14 +197,6 @@ defmodule OpenApiSpex.OperationDsl do
   @spec operation(action :: atom, spec :: map) :: any
   defmacro operation(action, spec) do
     quote do
-      if !Module.get_attribute(__MODULE__, :operation_defined) do
-        Module.register_attribute(__MODULE__, :spec_attributes, accumulate: true)
-
-        @before_compile {OpenApiSpex.OperationDsl, :before_compile}
-
-        @operation_defined true
-      end
-
       @spec_attributes {unquote(action),
                         operation_spec(__MODULE__, unquote(action), unquote(spec))}
 
@@ -243,13 +246,9 @@ defmodule OpenApiSpex.OperationDsl do
         IO.warn("No operation spec defined for controller action #{module_name}.#{action}")
       end
 
-      def shared_tags do
-        Module.get_attribute(__MODULE__, :shared_tags) || []
-      end
+      def shared_tags, do: @shared_tags
 
-      def shared_security do
-        Module.get_attribute(__MODULE__, :shared_security) || []
-      end
+      def shared_security, do: @shared_security
     end
   end
 
