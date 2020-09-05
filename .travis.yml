@@ -23,6 +23,7 @@ jobs:
 script:
   - mix compile --warnings-as-errors
   - mix test
+  - mix format --check-formatted
   - mix dialyzer --halt-exit-status
 
 cache:
