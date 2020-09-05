@@ -1,12 +1,13 @@
 defmodule OpenApiSpex.ControllerSpecs do
   @moduledoc """
-  Macros for defining operation specs and operation tags in a Phoenix controller.
+  Macros for defining operation specs, shared operation tags, and shared security specs
+  in a Phoenix controller.
 
   ## Example
 
   Here is an example Phoenix controller that uses the ControllerSpecs Operation specs:
 
-      defmodule MyAppWeb.DslController do
+      defmodule MyAppWeb.UserController do
         use Phoenix.Controller
         use OpenApiSpex.ControllerSpecs
 
@@ -60,7 +61,7 @@ defmodule OpenApiSpex.ControllerSpecs do
   end
 
   @doc """
-  Defines an Operation spec in a controller.
+  Defines an Operation spec for a controller action.
 
   ## Example
 
