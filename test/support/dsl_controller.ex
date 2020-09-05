@@ -32,6 +32,8 @@ defmodule OpenApiSpexTest.DslController do
 
   tags ["users"]
 
+  security [%{"api_key" => ["mySecurityScheme"]}]
+
   operation :update,
     summary: "Update user",
     parameters: [
@@ -45,7 +47,9 @@ defmodule OpenApiSpexTest.DslController do
     request_body: {"User params", "application/json", UserParams},
     responses: [
       ok: {"User response", "application/json", UserResponse}
-    ]
+    ],
+    tags: ["custom"],
+    security: [%{"two" => ["another"]}]
 
   def update(conn, %{"id" => id}) do
     json(conn, %{

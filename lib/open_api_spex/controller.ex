@@ -181,7 +181,7 @@ defmodule OpenApiSpex.Controller do
         parameters: OperationBuilder.build_parameters(meta),
         requestBody: OperationBuilder.build_request_body(meta),
         responses: OperationBuilder.build_responses(meta),
-        security: OperationBuilder.build_security(meta),
+        security: OperationBuilder.build_security(meta, mod_meta),
         tags: OperationBuilder.build_tags(meta, mod_meta)
       }
     else

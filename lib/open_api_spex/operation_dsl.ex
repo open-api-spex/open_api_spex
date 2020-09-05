@@ -14,6 +14,7 @@ defmodule OpenApiSpex.OperationDsl do
         alias MyAppWeb.Schemas.{UserParams, UserResponse}
 
         tags ["users"]
+        security [%{}, %{"petstore_auth" => ["write:pets", "read:pets"]}]
 
         operation :update,
           summary: "Update user",
@@ -54,6 +55,7 @@ defmodule OpenApiSpex.OperationDsl do
 
       operation :update,
         summary: "Update user",
+        description: "Updates a user record from the given ID path paramter and request body parameters.",
         parameters: [
           id: [
             in: :path,
@@ -65,7 +67,9 @@ defmodule OpenApiSpex.OperationDsl do
         request_body: {"User params", "application/json", UserParams},
         responses: [
           ok: {"User response", "application/json", UserResponse}
-        ]
+        ],
+        security: [%{}, %{"petstore_auth" => ["write:pets", "read:pets"]}],
+        tags: ["users"]
 
   ## Options
 
@@ -175,6 +179,9 @@ defmodule OpenApiSpex.OperationDsl do
 
     - A response can also be defined as an `OpenApiSpex.RequestBody` struct. In fact, all
       response body syntaxes resolve to this struct.
+
+  - Additional fields: There are other Operation fields that can be specified that are not
+    described here. See `OpenApiSpex.Operation` for all the fields.
   """
   @spec operation(action :: atom, spec :: map) :: any
   defmacro operation(action, spec) do
@@ -210,7 +217,21 @@ defmodule OpenApiSpex.OperationDsl do
   @spec tags(tags :: [String.t()]) :: any
   defmacro tags(tags) do
     quote do
-      @controller_tags unquote(tags)
+      @shared_tags unquote(tags)
+    end
+  end
+
+  @doc """
+  Defines security requirements shared by all operations defined in a controller.
+
+  Security requirements are defined in the form `[%{required(String.t()) => [String.t()]}]`.
+  See [Security Requirement Object spec](https://swagger.io/specification/#securityRequirementObject)
+  and `OpenApiSpex.SecurityRequirement` for more information.
+  """
+  @spec security([%{required(String.t()) => [String.t()]}]) :: any
+  defmacro security(requirements) do
+    quote do
+      @shared_security unquote(requirements)
     end
   end
 
@@ -222,8 +243,12 @@ defmodule OpenApiSpex.OperationDsl do
         IO.warn("No operation spec defined for controller action #{module_name}.#{action}")
       end
 
-      def controller_tags do
-        Module.get_attribute(__MODULE__, :controller_tags) || []
+      def shared_tags do
+        Module.get_attribute(__MODULE__, :shared_tags) || []
+      end
+
+      def shared_security do
+        Module.get_attribute(__MODULE__, :shared_security) || []
       end
     end
   end
@@ -231,7 +256,8 @@ defmodule OpenApiSpex.OperationDsl do
   @doc false
   def operation_spec(module, action, spec) do
     spec = Map.new(spec)
-    controller_tags = Module.get_attribute(module, :controller_tags) || []
+    shared_tags = Module.get_attribute(module, :shared_tags) || []
+    security = Module.get_attribute(module, :shared_security) || []
 
     %Operation{
       description: Map.get(spec, :description),
@@ -239,9 +265,9 @@ defmodule OpenApiSpex.OperationDsl do
       parameters: OperationBuilder.build_parameters(spec),
       requestBody: OperationBuilder.build_request_body(spec),
       responses: OperationBuilder.build_responses(spec),
-      security: OperationBuilder.build_security(spec),
+      security: OperationBuilder.build_security(spec, %{security: security}),
       summary: Map.get(spec, :summary),
-      tags: OperationBuilder.build_tags(spec, %{tags: controller_tags})
+      tags: OperationBuilder.build_tags(spec, %{tags: shared_tags})
     }
   end
 end

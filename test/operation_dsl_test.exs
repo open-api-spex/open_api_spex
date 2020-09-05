@@ -11,11 +11,8 @@ defmodule OpenApiSpex.OperationDslTest do
       assert %OpenApiSpex.Operation{
                responses: %{},
                summary: "Update user",
-               parameters: update_parameters,
-               tags: update_tags
+               parameters: update_parameters
              } = DslController.open_api_operation(:update)
-
-      assert update_tags == ["users"]
 
       assert [
                %OpenApiSpex.Parameter{
@@ -64,6 +61,22 @@ defmodule OpenApiSpex.OperationDslTest do
 
       assert output =~
                ~r/warning:.*No operation spec defined for controller action OpenApiSpexTest.DslController.undefined/
+    end
+
+    test "merging shared a op-specific tags" do
+      assert %OpenApiSpex.Operation{
+               tags: tags
+             } = DslController.open_api_operation(:update)
+
+      assert tags == ["users", "custom"]
+    end
+
+    test "merging shared a op-specific security" do
+      assert %OpenApiSpex.Operation{
+               security: security
+             } = DslController.open_api_operation(:update)
+
+      assert security == [%{"api_key" => ["mySecurityScheme"]}, %{"two" => ["another"]}]
     end
   end
 end

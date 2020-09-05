@@ -111,11 +111,9 @@ defmodule OpenApiSpex.OperationBuilder do
 
   def build_request_body(_), do: nil
 
-  def build_security(%{security: security}) do
-    security
+  def build_security(operation_spec, module_spec) do
+    Map.get(module_spec, :security, []) ++ Map.get(operation_spec, :security, [])
   end
-
-  def build_security(_), do: nil
 
   def build_tags(operation_spec, module_spec) do
     Map.get(module_spec, :tags, []) ++ Map.get(operation_spec, :tags, [])

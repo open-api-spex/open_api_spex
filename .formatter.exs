@@ -7,12 +7,14 @@
     socket: 2,
     render: 2,
     operation: 2,
-    tags: 1
+    tags: 1,
+    security: 1
   ],
   export: [
     locals_without_parens: [
       operation: 2,
-      tags: 1
+      tags: 1,
+      security: 1
     ]
   ]
 ]
