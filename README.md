@@ -91,6 +91,10 @@ For each plug (controller) that will handle API requests, operations need
 to be defined that the plug/controller will handle. The operations can
 be defined using moduledoc attributes that are supported in Elixir 1.7 and higher.
 
+Note: For projects using Elixir releases, [#242](there is an issue) that
+potentially breaks OpenApiSpex's integration with your application. See the next section
+for work-arounds to this issue.
+
 ```elixir
 defmodule MyAppWeb.UserController do
   @moduledoc tags: ["users"]
@@ -164,12 +168,23 @@ The definitions data is cached, so it does not actually extract the definitions 
 Note that in the ExDoc-based definitions, the names of the OpenAPI fields follow `snake_case` naming convention instead of
 OpenAPI's (and JSON Schema's) `camelCase` convention.
 
+### Alternatives to ExDoc-Based Operation Specs
+
+#### %Operation{}
+
 If the ExDoc-based operation specs don't provide the flexibiliy you need, the `%Operation{}` struct
 and related structs can be used instead. See the
 [example user controller that uses `%Operation{}` structs]([example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller_with_struct_specs.ex).)
 
 For examples of other action operations, see the
 [example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex).
+
+#### Experimental API
+
+There is a new, experimental Operation spec API that has the same lightweight syntax
+as the ExDoc-based API, but without the potentially breaking issue described in
+[issue #242](https://github.com/open-api-spex/open_api_spex/issues/242).
+This new API is described in the `OpenApiSpex.ControllerSpecs` docs.
 
 ### Schemas
 
