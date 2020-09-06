@@ -18,9 +18,9 @@ defmodule OpenApiSpex.Response do
   Describes a single response from an API Operation, including design-time, static links to operations based on the response.
   """
   @type t :: %__MODULE__{
-    description: String.t,
-    headers: %{String.t => Header.t | Reference.t} | nil,
-    content: %{String.t => MediaType.t} | nil,
-    links: %{String.t => Link.t | Reference.t} | nil
-  }
+          description: String.t(),
+          headers: %{String.t() => Header.t() | Reference.t()} | nil,
+          content: %{String.t() => MediaType.t()} | nil,
+          links: %{String.t() => Link.t() | Reference.t()} | nil
+        }
 end

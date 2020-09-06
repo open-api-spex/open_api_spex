@@ -18,10 +18,10 @@ defmodule OpenApiSpex.Xml do
   and the name property SHOULD be used to add that information. See examples for expected behavior.
   """
   @type t :: %__MODULE__{
-    name: String.t | nil,
-    namespace: String.t | nil,
-    prefix: String.t | nil,
-    attribute: boolean | nil,
-    wrapped: boolean | nil
-  }
+          name: String.t() | nil,
+          namespace: String.t() | nil,
+          prefix: String.t() | nil,
+          attribute: boolean | nil,
+          wrapped: boolean | nil
+        }
 end

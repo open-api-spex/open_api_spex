@@ -1,5 +1,5 @@
 [
-  inputs: ["{mix,.formatter}.exs", "{config,lib,rel,test,examples}/**/*.{ex,exs}"],
+  inputs: ["{mix,.formatter}.exs", "{config,lib,rel,test}/**/*.{ex,exs}"],
   import_deps: [:plug, :phoenix],
   locals_without_parens: [
     transport: 2,

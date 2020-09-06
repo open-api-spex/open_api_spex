@@ -9,4 +9,3 @@ config :plug_app, PlugApp.Repo,
   database: "priv/repo/plug_app_#{Mix.env()}.db"
 
 config :logger, level: :debug
-

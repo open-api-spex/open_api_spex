@@ -17,8 +17,8 @@ defmodule OpenApiSpex.RequestBody do
   Describes a single request body.
   """
   @type t :: %__MODULE__{
-    description: String.t | nil,
-    content: %{String.t => MediaType.t},
-    required: boolean
-  }
+          description: String.t() | nil,
+          content: %{String.t() => MediaType.t()},
+          required: boolean
+        }
 end

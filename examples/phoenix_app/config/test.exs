@@ -6,8 +6,7 @@ config :phoenix_app, PhoenixAppWeb.Endpoint,
 
 config :logger, level: :warn
 
-config :phoenix_app, PhoenixApp.Repo,
-  pool: Ecto.Adapters.SQL.Sandbox
+config :phoenix_app, PhoenixApp.Repo, pool: Ecto.Adapters.SQL.Sandbox
 
 config :phoenix_app, PhoenixApp.Repo,
   adapter: Sqlite.Ecto2,

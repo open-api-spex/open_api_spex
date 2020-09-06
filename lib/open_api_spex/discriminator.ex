@@ -20,14 +20,14 @@ defmodule OpenApiSpex.Discriminator do
   specification of an alternative schema based on the value associated with it.
   """
   @type t :: %__MODULE__{
-    propertyName: String.t,
-    mapping: %{String.t => String.t} | nil
-  }
+          propertyName: String.t(),
+          mapping: %{String.t() => String.t()} | nil
+        }
 
   @doc """
   Resolve the schema that should be used to cast/validate a value using a `Discriminator`.
   """
-  @spec resolve(t, map, %{String.t => Schema.t}) :: {:ok, Schema.t} | {:error, String.t}
+  @spec resolve(t, map, %{String.t() => Schema.t()}) :: {:ok, Schema.t()} | {:error, String.t()}
   def resolve(%{propertyName: name, mapping: mapping}, value = %{}, schemas = %{}) do
     with {:ok, val} <- get_property_value(value, name) do
       mapped = map_property_value(mapping, val)
@@ -37,7 +37,7 @@ defmodule OpenApiSpex.Discriminator do
     end
   end
 
-  @spec get_property_value(map, String.t) :: {:ok, any} | {:error, String.t}
+  @spec get_property_value(map, String.t()) :: {:ok, any} | {:error, String.t()}
   defp get_property_value(value = %{}, property_name) do
     case Map.fetch(value, property_name) do
       {:ok, val} -> {:ok, val}
@@ -45,16 +45,19 @@ defmodule OpenApiSpex.Discriminator do
     end
   end
 
-  @spec map_property_value(%{String.t => String.t} | nil, String.t) :: String.t
+  @spec map_property_value(%{String.t() => String.t()} | nil, String.t()) :: String.t()
   defp map_property_value(nil, val), do: val
+
   defp map_property_value(mapping = %{}, val) do
     Map.get(mapping, val, val)
   end
 
-  @spec lookup_schema(%{String.t => Schema.t}, String.t) :: {:ok, Schema.t} | {:error, String.t}
+  @spec lookup_schema(%{String.t() => Schema.t()}, String.t()) ::
+          {:ok, Schema.t()} | {:error, String.t()}
   defp lookup_schema(schemas, "#/components/schemas/" <> name) do
     lookup_schema(schemas, name)
   end
+
   defp lookup_schema(schemas, name) do
     case Map.fetch(schemas, name) do
       {:ok, schema} -> {:ok, schema}

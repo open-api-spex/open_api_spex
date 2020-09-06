@@ -13,5 +13,5 @@ defmodule OpenApiSpex.SecurityRequirement do
   When a list of Security Requirement Objects is defined on the Open API object or Operation Object,
   only one of Security Requirement Objects in the list needs to be satisfied to authorize the request.
   """
-  @type t :: %{String.t => [String.t]}
+  @type t :: %{String.t() => [String.t()]}
 end

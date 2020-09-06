@@ -16,7 +16,7 @@ defmodule OpenApiSpex.Cast.EnumTest do
         type: :object,
         required: [:age],
         properties: %{
-          age: %Schema{type: :integer},
+          age: %Schema{type: :integer}
         },
         enum: [%User{age: 32}, %User{age: 45}],
         "x-struct": __MODULE__
@@ -74,6 +74,7 @@ defmodule OpenApiSpex.Cast.EnumTest do
         type: :object,
         enum: [%{age: 55}, %{age: 66}, %{age: 77}]
       }
+
       {:ok, %{schema: schema}}
     end
 
