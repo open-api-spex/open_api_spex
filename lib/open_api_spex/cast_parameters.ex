@@ -31,12 +31,15 @@ defmodule OpenApiSpex.CastParameters do
     Plug.Conn.fetch_cookies(conn).req_cookies
   end
 
+  # Matching is done using the downcase version of the expected_names but the original
+  # version of the expected_names is kept
   defp get_params_by_location(conn, :header, expected_names) do
-    conn.req_headers
-    |> Enum.filter(fn {key, _value} ->
-      Enum.member?(expected_names, String.downcase(key))
-    end)
-    |> Map.new()
+    name_lookup = Map.new(expected_names, &{String.downcase(&1), &1})
+
+    for {key, value} <- conn.req_headers,
+        property_name = name_lookup[String.downcase(key)],
+        into: %{},
+        do: {property_name, value}
   end
 
   defp create_location_schema(parameters) do
