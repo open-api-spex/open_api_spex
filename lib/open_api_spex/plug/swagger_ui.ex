@@ -96,11 +96,12 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
       })
       // End Swagger UI call region
       <%= if config[:oauth] do %>
-        ui.initOAuth({
-          <%= for {k, v} <- config[:oauth] do %>
-          , <%= camelize(k) %>: <%= OpenApiSpex.OpenApi.json_encoder().encode!(v) %>
-          <% end %>
-        })
+        ui.initOAuth(
+          <%= config.oauth
+              |> Map.new(fn {k, v} -> {camelize(k), v} end)
+              |> OpenApiSpex.OpenApi.json_encoder().encode!()
+          %>
+        )
       <% end %>
       window.ui = ui
     }
