@@ -1,3 +1,19 @@
+# 3.9.0
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+- [feng19](https://github.com/feng19)
+- [jbernardo95](https://github.com/jbernardo95)
+
+- Feature: Generate example from schema (#266)
+- Feature: Allow SwaggerUI to be configured via Plug opts (#271)
+- Feature: Warn on invalid or missing operation specs (#273, #278)
+- Feature: Experimental alternative API for defining Operation specs (#265, #280)
+- Fix: Handle the same operation occurring at different routes (#272)
+- Fix: Casting header names that have upper-case letters in specs (#281)
+- Maint: Upgrade Elixir dependencies in example projects (#269)
+- Maint: Format project with Elixir Formatter (#279)
+
 # 3.8.0
 
 Thanks to the contributions of the community ❤️💙💛💜🧡

@@ -5,10 +5,9 @@
 If you've found a bug or would like to discuss a new feature, start by [opening an issue](https://github.com/open-api-spex/open_api_spex/issues/new).
 Where possible, please refer to the relevant sections of the Open API Specification 3.0 or JSON Schema Specification:
 
-* https://swagger.io/docs/specification/
-* https://github.com/OAI/OpenAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md
-* https://json-schema.org/understanding-json-schema/
-
+- https://swagger.io/docs/specification/
+- https://github.com/OAI/OpenAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md
+- https://json-schema.org/understanding-json-schema/
 
 ## Send a Pull Request
 
@@ -19,9 +18,9 @@ Please be patient as maintainers are generally volunteering their time to suppor
 
 You can ask for help using OpenApiSpex by:
 
-* [Opening an issue](https://github.com/open-api-spex/open_api_spex/issues/new) - you may have run in to a bug or poorly documented feature!
-* Using the [open_api_spex slack channel](https://elixir-lang.slack.com/messages/CPEN5UW1X)
-* Using the [Elixir Forum thread](https://elixirforum.com/t/openapispex-openapi-swagger-3-0-for-plug-apis/15614)
+- [Opening an issue](https://github.com/open-api-spex/open_api_spex/issues/new) - you may have run in to a bug or poorly documented feature!
+- Using the [open_api_spex slack channel](https://elixir-lang.slack.com/messages/CPEN5UW1X)
+- Using the [Elixir Forum thread](https://elixirforum.com/t/openapispex-openapi-swagger-3-0-for-plug-apis/15614)
 
 ## Releasing (Maintainers Only)
 
@@ -37,3 +36,4 @@ To ship a release to Hex.pm, complete the following checklist:
 - Push master branch to `open_api_spex` repo
 - Push package to Hex: `mix hex.publish`
 - Add a release announcement to the [Elixir Forum thread](https://elixirforum.com/t/openapispex-openapi-swagger-3-0-for-plug-apis/15614)
+- Add a release announcement to the #open_api_spex channel in the Elixir Slack workspace.
