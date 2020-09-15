@@ -150,4 +150,16 @@ defmodule OpenApiSpex.OpenApi do
   def from_map(map) do
     OpenApi.Decode.decode(map)
   end
+
+  @spec build_operation_lookup(t()) :: %{
+          String.t() => OpenApiSpex.Operation.t()
+        }
+  def build_operation_lookup(%__MODULE__{} = spec) do
+    spec
+    |> Map.get(:paths)
+    |> Stream.flat_map(fn {_name, item} -> Map.values(item) end)
+    |> Stream.filter(fn x -> match?(%OpenApiSpex.Operation{}, x) end)
+    |> Stream.map(fn operation -> {operation.operationId, operation} end)
+    |> Enum.into(%{})
+  end
 end

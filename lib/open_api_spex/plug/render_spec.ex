@@ -23,7 +23,7 @@ defmodule OpenApiSpex.Plug.RenderSpec do
       end
   """
 
-  alias OpenApiSpex.Plug.Cache
+  alias OpenApiSpex.Plug.PutApiSpec
 
   @behaviour Plug
 
@@ -34,7 +34,7 @@ defmodule OpenApiSpex.Plug.RenderSpec do
 
   @impl Plug
   def call(conn, _opts) do
-    {spec, _} = Cache.get_spec_and_operation_lookup(conn)
+    {spec, _} = PutApiSpec.get_spec_and_operation_lookup(conn)
 
     conn
     |> Plug.Conn.put_resp_content_type("application/json")

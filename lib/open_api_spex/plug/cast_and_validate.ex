@@ -61,7 +61,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
         operation_id: operation_id,
         render_error: render_error
       }) do
-    {spec, operation_lookup} = OpenApiSpex.Plug.Cache.get_spec_and_operation_lookup(conn)
+    {spec, operation_lookup} = OpenApiSpex.Plug.PutApiSpec.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
     content_type =
@@ -97,7 +97,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
         },
         opts
       ) do
-    {_spec, operation_lookup} = OpenApiSpex.Plug.Cache.get_spec_and_operation_lookup(conn)
+    {_spec, operation_lookup} = OpenApiSpex.Plug.PutApiSpec.get_spec_and_operation_lookup(conn)
 
     # This caching is to improve performance of extracting Operation specs
     # at runtime when they're using the @doc-based syntax.
@@ -106,7 +106,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
         nil ->
           operation_id = controller.open_api_operation(action).operationId
 
-          OpenApiSpex.Plug.Cache.get_and_cache_controller_action(
+          OpenApiSpex.Plug.PutApiSpec.get_and_cache_controller_action(
             conn,
             operation_id,
             {controller, action}
