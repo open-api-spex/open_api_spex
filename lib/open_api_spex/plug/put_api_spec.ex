@@ -16,21 +16,23 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
   @cache OpenApiSpex.Plug.Cache.adapter()
 
   @impl Plug
-  def init([module: _spec_module] = opts) do
-    opts[:module]
+  def init(opts) do
+    opts[:module] ||
+      raise "A :module option is required, but none was given to #{__MODULE__}.init/1"
   end
 
   @impl Plug
   def call(conn, spec_module) do
-    {spec, operation_lookup} =
+    # {spec, operation_lookup} =
+    _ =
       case @cache.get(spec_module) do
         nil ->
-          spec = build_spec(spec_module)
-          @cache.put(spec_module, spec)
-          spec
+          spec_and_lookup = build_spec(spec_module)
+          @cache.put(spec_module, spec_and_lookup)
+          spec_and_lookup
 
-        spec ->
-          spec
+        spec_and_lookup ->
+          spec_and_lookup
       end
 
     private_data =
@@ -38,8 +40,9 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
       |> Map.get(:private)
       |> Map.get(:open_api_spex, %{})
       |> Map.put(:spec_module, spec_module)
-      |> Map.put(:spec, spec)
-      |> Map.put(:operation_lookup, operation_lookup)
+
+    # |> Map.put(:spec, spec)
+    # |> Map.put(:operation_lookup, operation_lookup)
 
     Plug.Conn.put_private(conn, :open_api_spex, private_data)
   end

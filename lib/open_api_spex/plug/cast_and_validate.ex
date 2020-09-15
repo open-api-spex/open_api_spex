@@ -61,8 +61,10 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
         operation_id: operation_id,
         render_error: render_error
       }) do
-    spec = private_data.spec
-    operation = private_data.operation_lookup[operation_id]
+    spec_module = private_data.spec_module
+    cache_module = OpenApiSpex.Plug.Cache.adapter()
+    {spec, operation_lookup} = cache_module.get(spec_module)
+    operation = operation_lookup[operation_id]
 
     content_type =
       case Conn.get_req_header(conn, "content-type") do
@@ -74,9 +76,6 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
         _ ->
           nil
       end
-
-    private_data = Map.put(private_data, :operation_id, operation_id)
-    conn = Conn.put_private(conn, :open_api_spex, private_data)
 
     with {:ok, conn} <- OpenApiSpex.cast_and_validate(spec, operation, conn, content_type) do
       conn
@@ -100,21 +99,17 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
         },
         opts
       ) do
+    spec_module = private_data.spec_module
+    cache_module = OpenApiSpex.Plug.Cache.adapter()
+    {spec, operation_lookup} = cache_module.get(spec_module)
+
     operation =
-      case private_data.operation_lookup[{controller, action}] do
+      case operation_lookup[{controller, action}] do
         nil ->
           operationId = controller.open_api_operation(action).operationId
-          operation = private_data.operation_lookup[operationId]
-
-          operation_lookup =
-            private_data.operation_lookup
-            |> Map.put({controller, action}, operation)
-
-          OpenApiSpex.Plug.Cache.adapter().put(
-            private_data.spec_module,
-            {private_data.spec, operation_lookup}
-          )
-
+          operation = operation_lookup[operationId]
+          operation_lookup = Map.put(operation_lookup, {controller, action}, operation)
+          cache_module.put(spec_module, {spec, operation_lookup})
           operation
 
         operation ->
