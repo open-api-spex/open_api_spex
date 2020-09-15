@@ -460,6 +460,26 @@ defmodule MyErrorRendererPlug do
 end
 ```
 
+## Generate Examples
+
+OpenApiSpex can generate example data from specs. This has a similar result as
+SwaggerUI when it generates example requests or responses for an endpoint.
+Generated examples are a convenient way to come up with test data for
+controller/plug tests.
+
+```elixir
+use MyAppWeb.ConnCase
+
+test "create/2", %{conn: conn} do
+  request_body = OpenApiSpex.Schema.example(MyAppWeb.Schemas.UserRequest.schema())
+
+  json =
+    conn
+    |> post(user_path(conn), request_body)
+    |> json_response(200)
+end
+```
+
 ## Validate Examples
 
 As schemas evolve, you may want to confirm that the examples given match the schemas.
