@@ -21,6 +21,8 @@ defmodule OpenApiSpex.Plug.Cache do
   ```
   """
 
+  alias OpenApiSpex.OpenApi
+
   default_adapter =
     if(function_exported?(:persistent_term, :info, 0)) do
       OpenApiSpex.Plug.PersistentTermCache
@@ -30,8 +32,8 @@ defmodule OpenApiSpex.Plug.Cache do
 
   @default_adapter default_adapter
 
-  @callback get(module) :: {OpenApiSpex.OpenApi.t(), map} | nil
-  @callback put(module, {OpenApiSpex.OpenApi.t(), map}) :: :ok
+  @callback get(module) :: {OpenApi.t(), map} | nil
+  @callback put(module, {OpenApi.t(), map}) :: :ok
   @callback erase(module) :: :ok
 
   @doc """
