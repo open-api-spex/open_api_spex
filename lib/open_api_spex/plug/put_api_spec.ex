@@ -46,7 +46,7 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
       spec_and_lookup
     else
       spec = spec_module.spec()
-      operation_lookup = OpenApi.build_operation_lookup(spec)
+      operation_lookup = build_operation_lookup(spec)
       spec_and_lookup = {spec, operation_lookup}
       @cache.put(spec_module, spec_and_lookup)
       spec_and_lookup
@@ -68,5 +68,17 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
   def spec_module(conn) do
     private_data = Map.get(conn.private, :open_api_spex) || raise @missing_oas_key
     private_data.spec_module
+  end
+
+  @spec build_operation_lookup(OpenApi.t()) :: %{
+          String.t() => OpenApiSpex.Operation.t()
+        }
+  defp build_operation_lookup(%OpenApi{} = spec) do
+    spec
+    |> Map.get(:paths)
+    |> Stream.flat_map(fn {_name, item} -> Map.values(item) end)
+    |> Stream.filter(fn x -> match?(%OpenApiSpex.Operation{}, x) end)
+    |> Stream.map(fn operation -> {operation.operationId, operation} end)
+    |> Enum.into(%{})
   end
 end
