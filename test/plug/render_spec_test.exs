@@ -5,12 +5,7 @@ defmodule OpenApiSpex.Plug.RenderSpecTest do
   alias OpenApiSpex.Plug.{PutApiSpec, RenderSpec}
 
   defmodule ApiSpec do
-    def spec do
-      %OpenApi{
-        info: %{},
-        paths: %{}
-      }
-    end
+    def spec, do: %OpenApi{info: %{}, paths: %{}}
   end
 
   test "call/2" do
