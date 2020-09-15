@@ -20,7 +20,7 @@ The package can be installed by adding `open_api_spex` to your list of dependenc
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.8"}
+    {:open_api_spex, "~> 3.9"}
   ]
 end
 ```
@@ -457,6 +457,26 @@ defmodule MyErrorRendererPlug do
     |> Conn.put_resp_content_type("application/json")
     |> Conn.send_resp(422, json)
   end
+end
+```
+
+## Generate Examples
+
+OpenApiSpex can generate example data from specs. This has a similar result as
+SwaggerUI when it generates example requests or responses for an endpoint.
+Generated examples are a convenient way to come up with test data for
+controller/plug tests.
+
+```elixir
+use MyAppWeb.ConnCase
+
+test "create/2", %{conn: conn} do
+  request_body = OpenApiSpex.Schema.example(MyAppWeb.Schemas.UserRequest.schema())
+
+  json =
+    conn
+    |> post(user_path(conn), request_body)
+    |> json_response(200)
 end
 ```
 
