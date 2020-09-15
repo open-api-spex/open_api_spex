@@ -21,6 +21,8 @@ defmodule OpenApiSpex.Plug.Cache do
   ```
   """
 
+  alias Plug.Conn
+
   default_adapter =
     if(function_exported?(:persistent_term, :info, 0)) do
       OpenApiSpex.Plug.PersistentTermCache
@@ -52,12 +54,16 @@ defmodule OpenApiSpex.Plug.Cache do
     adapter.erase()
   end
 
-  @spec spec_and_operation_lookup(Conn.t()) :: {spec :: term, operation_lookup :: map}
+  @spec spec_and_operation_lookup(Conn.t()) ::
+          {spec :: OpenApiSpex.OpenApi.t(),
+           operation_lookup :: %{any => OpenApiSpex.Operation.t()}}
   def spec_and_operation_lookup(conn) do
     spec_module = spec_module(conn)
     adapter().get(spec_module)
   end
 
+  @spec get_and_cache_controller_action(Conn.t(), String.t(), {module, atom}) ::
+          OpenApiSpex.Operation.t()
   def get_and_cache_controller_action(conn, operation_id, {controller, action}) do
     spec_module = spec_module(conn)
     {spec, operation_lookup} = spec_and_operation_lookup(conn)
@@ -67,6 +73,7 @@ defmodule OpenApiSpex.Plug.Cache do
     operation
   end
 
+  @spec spec_module(Conn.t()) :: module
   def spec_module(conn) do
     private_data = Map.get(conn.private, :open_api_spex) || raise @missing_oas_key
     private_data.spec_module
