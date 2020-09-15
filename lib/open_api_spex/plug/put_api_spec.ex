@@ -23,7 +23,6 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
 
   @impl Plug
   def call(conn, spec_module) do
-    # {spec, operation_lookup} =
     _ =
       case @cache.get(spec_module) do
         nil ->
