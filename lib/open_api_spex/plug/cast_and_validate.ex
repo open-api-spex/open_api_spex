@@ -99,6 +99,8 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
       ) do
     {_spec, operation_lookup} = OpenApiSpex.Plug.Cache.get_spec_and_operation_lookup(conn)
 
+    # This caching is to improve performance of extracting Operation specs
+    # at runtime when they're using the @doc-based syntax.
     operation =
       case operation_lookup[{controller, action}] do
         nil ->
