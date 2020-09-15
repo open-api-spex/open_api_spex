@@ -41,9 +41,6 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
       |> Map.get(:open_api_spex, %{})
       |> Map.put(:spec_module, spec_module)
 
-    # |> Map.put(:spec, spec)
-    # |> Map.put(:operation_lookup, operation_lookup)
-
     Plug.Conn.put_private(conn, :open_api_spex, private_data)
   end
 

@@ -57,13 +57,11 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
   end
 
   @impl Plug
-  def call(conn = %{private: %{open_api_spex: private_data}}, %{
+  def call(conn = %{private: %{open_api_spex: _}}, %{
         operation_id: operation_id,
         render_error: render_error
       }) do
-    spec_module = private_data.spec_module
-    cache_module = OpenApiSpex.Plug.Cache.adapter()
-    {spec, operation_lookup} = cache_module.get(spec_module)
+    {spec, operation_lookup} = OpenApiSpex.Plug.Cache.spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
     content_type =
@@ -94,23 +92,23 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
           private: %{
             phoenix_controller: controller,
             phoenix_action: action,
-            open_api_spex: private_data
+            open_api_spex: _
           }
         },
         opts
       ) do
-    spec_module = private_data.spec_module
-    cache_module = OpenApiSpex.Plug.Cache.adapter()
-    {spec, operation_lookup} = cache_module.get(spec_module)
+    {_spec, operation_lookup} = OpenApiSpex.Plug.Cache.spec_and_operation_lookup(conn)
 
     operation =
       case operation_lookup[{controller, action}] do
         nil ->
-          operationId = controller.open_api_operation(action).operationId
-          operation = operation_lookup[operationId]
-          operation_lookup = Map.put(operation_lookup, {controller, action}, operation)
-          cache_module.put(spec_module, {spec, operation_lookup})
-          operation
+          operation_id = controller.open_api_operation(action).operationId
+
+          OpenApiSpex.Plug.Cache.get_and_cache_controller_action(
+            conn,
+            operation_id,
+            {controller, action}
+          )
 
         operation ->
           operation
@@ -124,7 +122,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
   end
 
   def call(_conn = %{private: %{open_api_spex: _pd}}, _opts) do
-    raise ":operation_id was neither provided nor inferred from conn. Consider putting plug OpenApiSpex.Plug.Cast rather into your phoenix controller."
+    raise ":operation_id was neither provided nor inferred from conn. Consider putting plug OpenApiSpex.Plug.CastAndValidate rather into your phoenix controller."
   end
 
   def call(_conn, _opts) do
