@@ -56,13 +56,11 @@ defmodule OpenApiSpex.Plug.Cast do
 
   @impl Plug
   @deprecated "Use OpenApiSpex.Plug.CastAndValidate instead"
-  def call(conn = %{private: %{open_api_spex: private_data}}, %{
+  def call(conn = %{private: %{open_api_spex: _private_data}}, %{
         operation_id: operation_id,
         render_error: render_error
       }) do
-    spec_module = private_data.spec_module
-    cache_module = OpenApiSpex.Plug.Cache.adapter()
-    {spec, operation_lookup} = cache_module.get(spec_module)
+    {spec, operation_lookup} = OpenApiSpex.Plug.Cache.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
     content_type =

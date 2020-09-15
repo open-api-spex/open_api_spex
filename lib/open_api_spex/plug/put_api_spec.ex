@@ -13,7 +13,6 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
       plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec
   """
   @behaviour Plug
-  @cache OpenApiSpex.Plug.Cache.adapter()
 
   @impl Plug
   def init(opts) do
@@ -23,43 +22,16 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
 
   @impl Plug
   def call(conn, spec_module) do
-    _ =
-      case @cache.get(spec_module) do
-        nil ->
-          spec_and_lookup = build_spec(spec_module)
-          @cache.put(spec_module, spec_and_lookup)
-          spec_and_lookup
-
-        spec_and_lookup ->
-          spec_and_lookup
-      end
-
     private_data =
       conn
       |> Map.get(:private)
       |> Map.get(:open_api_spex, %{})
       |> Map.put(:spec_module, spec_module)
 
-    Plug.Conn.put_private(conn, :open_api_spex, private_data)
-  end
+    conn = Plug.Conn.put_private(conn, :open_api_spex, private_data)
 
-  @spec build_spec(module) ::
-          {OpenApiSpex.OpenApi.t(), %{String.t() => OpenApiSpex.Operation.t()}}
-  defp build_spec(mod) do
-    spec = mod.spec()
-    operation_lookup = build_operation_lookup(spec)
-    {spec, operation_lookup}
-  end
+    _ = OpenApiSpex.Plug.Cache.get_spec_and_operation_lookup(conn)
 
-  @spec build_operation_lookup(OpenApiSpex.OpenApi.t()) :: %{
-          String.t() => OpenApiSpex.Operation.t()
-        }
-  defp build_operation_lookup(spec = %OpenApiSpex.OpenApi{}) do
-    spec
-    |> Map.get(:paths)
-    |> Stream.flat_map(fn {_name, item} -> Map.values(item) end)
-    |> Stream.filter(fn x -> match?(%OpenApiSpex.Operation{}, x) end)
-    |> Stream.map(fn operation -> {operation.operationId, operation} end)
-    |> Enum.into(%{})
+    conn
   end
 end
