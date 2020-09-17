@@ -403,6 +403,10 @@ defmodule OpenApiSpex.Schema do
   defp default(%{default: default}), do: default
   defp default(%Reference{}), do: nil
 
+  defp default(value) do
+    raise "Expected %Schema{}, schema module, or %Reference{}. Got: #{inspect(value)}"
+  end
+
   defp example_for(schemas, type) when type in [:anyOf, :allOf] do
     # Only handles :object schemas for now
     schemas

@@ -224,10 +224,15 @@ defmodule OpenApiSpex.SchemaResolver do
 
   defp resolve_schema_modules_from_schema_properties(nil, schemas), do: {nil, schemas}
 
-  defp resolve_schema_modules_from_schema_properties(properties, schemas) do
+  defp resolve_schema_modules_from_schema_properties(properties, schemas)
+       when is_map(properties) do
     Enum.reduce(properties, {properties, schemas}, fn {name, property}, {properties, schemas} ->
       {new_property, schemas} = resolve_schema_modules_from_schema(property, schemas)
       {Map.put(properties, name, new_property), schemas}
     end)
+  end
+
+  defp resolve_schema_modules_from_schema_properties(properties, _schemas) do
+    raise "Expected :properties to be a map. Got: #{inspect(properties)}"
   end
 end

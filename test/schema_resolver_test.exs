@@ -121,4 +121,36 @@ defmodule OpenApiSpex.SchemaResolverTest do
     assert %Reference{"$ref": "#/components/schemas/User"} =
              get_friends.responses[200].content["application/json"].schema.items
   end
+
+  test "raises informative error when schema :properties is not a map" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
+        "/api/users" => %PathItem{
+          get: %Operation{
+            responses: %{
+              200 => %Response{
+                description: "Success",
+                content: %{
+                  "application/json" => %MediaType{
+                    schema: %Schema{
+                      type: :object,
+                      properties: Invalid
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    assert_raise RuntimeError, "Expected :properties to be a map. Got: Invalid", fn ->
+      OpenApiSpex.resolve_schema_modules(spec)
+    end
+  end
 end
