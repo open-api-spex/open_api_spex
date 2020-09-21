@@ -318,4 +318,20 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert Jason.decode!(conn.resp_body) == %{"_json" => [%{"one" => "this"}]}
     end
   end
+
+  describe "json-api schemas" do
+    test "create cart" do
+      request_body = %{"data" => %{"attributes" => %{"total" => "200"}}}
+
+      conn =
+        :post
+        |> Plug.Test.conn("api/jsonapi/carts", Jason.encode!(request_body))
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      # Phoenix parses json body params that start with array as structs starting with _json key
+      # https://hexdocs.pm/plug/Plug.Parsers.JSON.html
+      assert Jason.decode!(conn.resp_body) == %{"_json" => [%{"one" => "this"}]}
+    end
+  end
 end

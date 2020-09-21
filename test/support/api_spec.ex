@@ -8,7 +8,8 @@ defmodule OpenApiSpexTest.ApiSpec do
     Info,
     Components,
     Parameter,
-    Schema
+    Schema,
+    JsonApiSchemas
   }
 
   alias OpenApiSpexTest.{Router, Schemas}

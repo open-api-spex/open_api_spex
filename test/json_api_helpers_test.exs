@@ -10,6 +10,11 @@ defmodule OpenApiSpex.JsonApiHelpersTest do
       spec = OpenApiSpexTest.ApiSpec2.spec()
       assert %Schema{} = _schema = spec.components.schemas["CartIndexResponse"]
     end
+
+    test "show action" do
+      spec = OpenApiSpexTest.ApiSpec2.spec() |> IO.inspect()
+      assert %Schema{} = _schema = spec.components.schemas["ShowCartResponse"]
+    end
   end
 
   describe "generate_resource_document/1" do

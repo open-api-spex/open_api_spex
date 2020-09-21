@@ -29,7 +29,7 @@ defmodule OpenApiSpexTest.Router do
     post "/utility/echo/body_params", UtilityController, :echo_body_params
 
     get "/json_render_error", JsonRenderErrorController, :index
-    get "/jsonapi/carts", JsonApiController, :index
-    get "/jsonapi/carts/:id", JsonApiController, :show
+
+    resources "/jsonapi/carts", JsonApiController, only: [:create, :index, :show]
   end
 end

@@ -4,6 +4,7 @@ defmodule OpenApiSpex.JsonApiHelpers.JsonApiDocument do
 
   defstruct resource: nil,
             multiple: false,
+            paginated: false,
             title: nil,
             "x-struct": nil
 
@@ -32,11 +33,20 @@ defmodule OpenApiSpex.JsonApiHelpers.JsonApiDocument do
         resource_item_schema
       end
 
+    properties = %{
+      data: resource_schema
+    }
+
+    properties =
+      if document.paginated do
+        Map.merge(properties, pagination_spec())
+      else
+        properties
+      end
+
     %Schema{
       type: :object,
-      properties: %{
-        data: resource_schema
-      },
+      properties: properties,
       required: [:data],
       title: document.title,
       "x-struct": document."x-struct"
@@ -47,5 +57,32 @@ defmodule OpenApiSpex.JsonApiHelpers.JsonApiDocument do
     __MODULE__
     |> struct!(document_attrs)
     |> schema()
+  end
+
+  def pagination_spec() do
+    # https://jsonapi.org/format/#fetching-pagination
+    # TODO: Links can be omitted or nullable, nullable should be delcared!
+    %{
+      self: %Schema{
+        type: :string,
+        description: "Link to this page of results"
+      },
+      prev: %Schema{
+        type: :string,
+        description: "Link to the previous page of results"
+      },
+      next: %Schema{
+        type: :string,
+        description: "Link to the next page of results"
+      },
+      last: %Schema{
+        type: :string,
+        description: "Link to the last page of results"
+      },
+      first: %Schema{
+        type: :string,
+        description: "Link to the first page of results"
+      }
+    }
   end
 end
