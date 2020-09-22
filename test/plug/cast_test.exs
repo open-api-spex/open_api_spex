@@ -321,7 +321,13 @@ defmodule OpenApiSpex.Plug.CastTest do
 
   describe "json-api schemas" do
     test "create cart" do
-      request_body = %{"data" => %{"attributes" => %{"total" => "200"}}}
+      request_body = %{
+        "data" => %{
+          "attributes" => %{"total" => 200},
+          "type" => "cart",
+          "id" => "492e7435-cd23-4ce0-a189-edf7fdc4b490"
+        }
+      }
 
       conn =
         :post
@@ -329,9 +335,37 @@ defmodule OpenApiSpex.Plug.CastTest do
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 
-      # Phoenix parses json body params that start with array as structs starting with _json key
-      # https://hexdocs.pm/plug/Plug.Parsers.JSON.html
-      assert Jason.decode!(conn.resp_body) == %{"_json" => [%{"one" => "this"}]}
+      assert Jason.decode!(conn.resp_body) == request_body
+    end
+
+    test "list carts" do
+      conn =
+        :get
+        |> Plug.Test.conn("api/jsonapi/carts")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert Jason.decode!(conn.resp_body) == %{"data" => []}
+    end
+
+    test "paginated carts" do
+      conn =
+        :get
+        |> Plug.Test.conn("api/jsonapi/carts-paginated?page[number]=1&page[size]=10")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "data" => [],
+               "links" => %{
+                 "first" =>
+                   "https://example.com/api/jsonapi/carts-paginated?page[number]=1&page[size]=10",
+                 "last" =>
+                   "https://example.com/api/jsonapi/carts-paginated?page[number]=10&page[size]=10",
+                 "next" =>
+                   "https://example.com/api/jsonapi/carts-paginated?page[number]=2&page[size]=10",
+                 "prev" =>
+                   "https://example.com/api/jsonapi/carts-paginated?page[number]=0&page[size]=10"
+               }
+             }
     end
   end
 end

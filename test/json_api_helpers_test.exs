@@ -1,36 +1,52 @@
 defmodule OpenApiSpex.JsonApiHelpersTest do
   use ExUnit.Case, async: true
 
-  alias OpenApiSpexTest.{CartDocument, CartIndexDocument, CartResource}
+  alias OpenApiSpexTest.JsonApiSchemas.{
+    CartResource,
+    CartDocument,
+    CartPaginatedDocument,
+    CartListDocument
+  }
+
   alias OpenApiSpex.{JsonApiHelpers, Schema}
   alias OpenApiSpex.JsonApiHelpers.JsonApiResource
 
-  describe "from operation specs" do
-    test "index action" do
-      spec = OpenApiSpexTest.ApiSpec2.spec()
-      assert %Schema{} = _schema = spec.components.schemas["CartIndexResponse"]
-    end
-
-    test "show action" do
-      spec = OpenApiSpexTest.ApiSpec2.spec() |> IO.inspect()
-      assert %Schema{} = _schema = spec.components.schemas["ShowCartResponse"]
-    end
-  end
+  # describe "from operation specs" do
+  #   test "index action" do
+  #     spec = OpenApiSpexTest.ApiSpec.spec()
+  #     assert %Schema{} = _schema = spec.components.schemas["CartAnnotatedDocument"]
+  #   end
+  # end
 
   describe "generate_resource_document/1" do
     test "generate schema/0" do
       assert %Schema{} = schema = CartDocument.schema()
       assert schema.title == "CartDocument"
       assert %{data: _} = schema.properties
-      assert schema.properties.data.title == CartResource.schema().title
+      assert schema.properties.data.schema().title == CartResource.schema().title
     end
 
     test "generate schema for index document" do
-      assert %Schema{} = schema = CartIndexDocument.schema()
-      assert schema.title == "CartIndexDocument"
+      assert %Schema{} = schema = CartListDocument.schema()
+      assert schema.title == "CartListDocument"
       assert %{data: _} = schema.properties
       assert schema.properties.data.type == :array
-      assert schema.properties.data.items == OpenApiSpexTest.CartResource
+      assert schema.properties.data.items == CartResource
+    end
+
+    test "generate schema for paginated document" do
+      assert %Schema{} = schema = CartPaginatedDocument.schema()
+      assert schema.title == "CartPaginatedDocument"
+      assert %{data: _} = schema.properties
+      assert schema.properties.data.type == :array
+      assert schema.properties.data.items == CartResource
+
+      # Check for meta fields
+      assert %{links: links} = schema.properties
+      assert links.properties.first.type == :string
+      assert links.properties.last.type == :string
+      assert links.properties.prev.type == :string
+      assert links.properties.next.type == :string
     end
   end
 

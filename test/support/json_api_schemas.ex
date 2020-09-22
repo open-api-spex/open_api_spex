@@ -16,6 +16,19 @@ defmodule OpenApiSpexTest.JsonApiSchemas do
     )
   end
 
+  defmodule PageBasedPaginationParameter do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "PageBasedPaginationParameter",
+      type: :object,
+      properties: %{
+        number: %Schema{type: :integer},
+        size: %Schema{type: :integer}
+      }
+    })
+  end
+
   defmodule CartDocument do
     JsonApiHelpers.generate_document_schema(
       title: "CartDocument",

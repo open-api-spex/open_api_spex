@@ -23,7 +23,7 @@ defmodule OpenApiSpex.JsonApiHelpers.JsonApiDocument do
       end
 
     resource_schema =
-      if document.multiple do
+      if document.multiple || document.paginated do
         %Schema{
           type: :array,
           items: resource_item_schema,
@@ -39,7 +39,7 @@ defmodule OpenApiSpex.JsonApiHelpers.JsonApiDocument do
 
     properties =
       if document.paginated do
-        Map.merge(properties, pagination_spec())
+        Map.put(properties, :links, pagination_spec())
       else
         properties
       end
@@ -62,26 +62,33 @@ defmodule OpenApiSpex.JsonApiHelpers.JsonApiDocument do
   def pagination_spec() do
     # https://jsonapi.org/format/#fetching-pagination
     # TODO: Links can be omitted or nullable, nullable should be delcared!
-    %{
-      self: %Schema{
-        type: :string,
-        description: "Link to this page of results"
-      },
-      prev: %Schema{
-        type: :string,
-        description: "Link to the previous page of results"
-      },
-      next: %Schema{
-        type: :string,
-        description: "Link to the next page of results"
-      },
-      last: %Schema{
-        type: :string,
-        description: "Link to the last page of results"
-      },
-      first: %Schema{
-        type: :string,
-        description: "Link to the first page of results"
+    %Schema{
+      type: :object,
+      properties: %{
+        prev: %Schema{
+          type: :string,
+          description: "Link to the previous page of results",
+          nullable: true,
+          readOnly: true
+        },
+        next: %Schema{
+          type: :string,
+          description: "Link to the next page of results",
+          nullable: true,
+          readOnly: true
+        },
+        last: %Schema{
+          type: :string,
+          description: "Link to the last page of results",
+          nullable: true,
+          readOnly: true
+        },
+        first: %Schema{
+          type: :string,
+          description: "Link to the first page of results",
+          nullable: true,
+          readOnly: true
+        }
       }
     }
   end

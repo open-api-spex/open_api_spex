@@ -30,21 +30,39 @@ defmodule OpenApiSpexTest.JsonApiController do
   @doc """
   Get a list of carts, but paginated.
   """
-  @doc responses: [
+  @doc parameters: [
+         page: [in: :query, type: JsonApiSchemas.PageBasedPaginationParameter, required: true]
+       ],
+       responses: [
          ok: {
            "Carts",
            "application/json",
-           JsonApiHelpers.document_schema(
-             title: "CartIndexResponse",
-             resource: @resource,
-             multiple: true
-           )
+           JsonApiSchemas.CartPaginatedDocument
          }
        ]
-  def paged_index(conn, _params) do
-    json(conn, %{data: []})
+  def paginated_index(conn, %{page: page}) do
+    page_params = Map.from_struct(page)
+    uri = %URI{scheme: "https", host: "example.com"}
+
+    paged_url_fn =
+      &OpenApiSpexTest.Router.Helpers.json_api_url(uri, :paginated_index,
+        page: %{page_params | number: &1}
+      )
+
+    response = %{
+      data: [],
+      links: %{
+        first: paged_url_fn.(1),
+        last: paged_url_fn.(10),
+        prev: paged_url_fn.(page.number - 1),
+        next: paged_url_fn.(page.number + 1)
+      }
+    }
+
+    json(conn, response)
   end
 
+  @spec annotated_index(Plug.Conn.t(), any) :: Plug.Conn.t()
   @doc """
   Get a list of carts, but defined in annotation.
   """
@@ -53,7 +71,7 @@ defmodule OpenApiSpexTest.JsonApiController do
            "Carts",
            "application/json",
            JsonApiHelpers.document_schema(
-             title: "CartIndexResponse",
+             title: "CartAnnotatedDocument",
              resource: @resource,
              multiple: true
            )
@@ -66,13 +84,22 @@ defmodule OpenApiSpexTest.JsonApiController do
   @doc """
   Create a Cart.
   """
-  @doc
   @doc request_body: {"CartDocument", "application/json", @resource_document},
        responses: [
          created: {"CartDocument", "application/json", @resource_document}
        ]
-  def create(conn, _params) do
-    json(conn, %@resource_document{data: %@resource{}})
+  def create(%Plug.Conn{body_params: payload} = conn, _params) do
+    response = %{
+      data: %JsonApiSchemas.CartResource{
+        id: "492e7435-cd23-4ce0-a189-edf7fdc4b490",
+        type: "cart",
+        attributes: payload.data.attributes
+      }
+    }
+
+    conn
+    |> put_status(:created)
+    |> json(response)
   end
 
   @doc """

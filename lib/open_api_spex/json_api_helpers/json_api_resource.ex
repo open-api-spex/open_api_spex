@@ -22,7 +22,8 @@ defmodule OpenApiSpex.JsonApiHelpers.JsonApiResource do
         type: %Schema{type: :string},
         attributes: attributes_schema(resource)
       },
-      required: [:id, :type],
+      # For responses, :id must be required too
+      required: [:type],
       title: resource.title <> "Resource"
     }
   end
