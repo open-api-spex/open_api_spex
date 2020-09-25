@@ -120,6 +120,7 @@ defmodule OpenApiSpex.OpenApi.Decode do
   defp prepare_schema(map) do
     map
     |> convert_value_to_atom_if_present("type")
+    |> convert_value_to_atom_if_present("format")
     |> convert_value_to_atom_if_present("x-struct")
     |> convert_value_to_list_of_atoms_if_present("required")
   end
