@@ -202,7 +202,7 @@ defmodule OpenApiSpex.Schema do
         properties: %{
           id: %Schema{type: :integer, minimum: 1},
           name: %Schema{type: :string, pattern: "[a-zA-Z][a-zA-Z0-9_]+"},
-          email: %Scheam{type: :string, format: :email},
+          email: %Schema{type: :string, format: :email},
           last_login: %Schema{type: :string, format: :"date-time"}
         },
         required: [:name, :email],
