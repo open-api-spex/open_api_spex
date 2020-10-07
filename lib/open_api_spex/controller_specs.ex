@@ -262,6 +262,7 @@ defmodule OpenApiSpex.ControllerSpecs do
 
     %Operation{
       description: Map.get(spec, :description),
+      deprecated: Map.get(spec, :deprecated),
       operationId: OperationBuilder.build_operation_id(spec, module, action),
       parameters: OperationBuilder.build_parameters(spec),
       requestBody: OperationBuilder.build_request_body(spec),
