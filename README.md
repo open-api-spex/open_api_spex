@@ -9,7 +9,7 @@ Leverage Open API Specification 3 (formerly Swagger) to document, test, validate
 - Use the spec to cast request params to well defined schema structs
 - Validate params against schemas, eliminate bad requests before they hit your controllers
 - Validate responses against schemas in tests, ensuring your docs are accurate and reliable
-- Explore the API interactively with with [SwaggerUI](https://swagger.io/swagger-ui/)
+- Explore the API interactively with [SwaggerUI](https://swagger.io/swagger-ui/)
 
 Full documentation available on [hexdocs](https://hexdocs.pm/open_api_spex/)
 
