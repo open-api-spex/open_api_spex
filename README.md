@@ -91,7 +91,7 @@ For each plug (controller) that will handle API requests, operations need
 to be defined that the plug/controller will handle. The operations can
 be defined using moduledoc attributes that are supported in Elixir 1.7 and higher.
 
-Note: For projects using Elixir releases, [#242](there is an issue) that
+Note: For projects using Elixir releases, [there is an issue](https://github.com/open-api-spex/open_api_spex/issues/242) that
 potentially breaks OpenApiSpex's integration with your application. See the next section
 for work-arounds to this issue.
 
@@ -174,7 +174,7 @@ OpenAPI's (and JSON Schema's) `camelCase` convention.
 
 If the ExDoc-based operation specs don't provide the flexibiliy you need, the `%Operation{}` struct
 and related structs can be used instead. See the
-[example user controller that uses `%Operation{}` structs]([example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller_with_struct_specs.ex).)
+[example user controller that uses `%Operation{}` structs](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller_with_struct_specs.ex).
 
 For examples of other action operations, see the
 [example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex).
@@ -259,7 +259,7 @@ end
 ```
 
 For more examples of schema definitions, see the
-[sample Phoenix app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/schemas.ex)
+[sample Phoenix app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/schemas.ex).
 
 ## Serve the Spec
 
@@ -293,7 +293,7 @@ mix openapi.spec.json --spec MyAppWeb.ApiSpec
 
 ## Serve Swagger UI
 
-Once your API spec is available through a route (see "Serve the Spec"), the `OpenApiSpex.Plug.SwaggerUI` plug can be used to
+Once your API spec is available through a route (see ["Serve the Spec"](#serve-the-spec)), the `OpenApiSpex.Plug.SwaggerUI` plug can be used to
 serve a SwaggerUI interface. The `path:` plug option must be supplied to give the path to the API spec.
 
 All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
@@ -318,7 +318,7 @@ All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than
 
 > :warning: This functionality currently converts Strings into Atoms, which makes it potentially [vulnerable to DoS attacks](https://til.hashrocket.com/posts/gkwwfy9xvw-converting-strings-to-atoms-safely). We recommend that you load Open API Schemas from _known files_ during application startup and _not dynamically from external sources at runtime_.
 
-OpenApiSpex has functionality to import an existing schema, casting it into an %OpenApi{} struct. This means you can load a schema that is JSON or YAML encoded. See the example below:
+OpenApiSpex has functionality to import an existing schema, casting it into an `%OpenApi{}` struct. This means you can load a schema that is JSON or YAML encoded. See the example below:
 
 ```elixir
 # Importing an existing JSON encoded schema
