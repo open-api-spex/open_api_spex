@@ -27,6 +27,6 @@ defmodule OpenApiSpex.Info do
           contact: Contact.t() | nil,
           license: License.t() | nil,
           version: String.t(),
-          extensions: %{String.t() => String.t()} | nil
+          extensions: %{String.t() => any()} | nil
         }
 end
