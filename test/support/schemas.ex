@@ -131,11 +131,11 @@ defmodule OpenApiSpexTest.Schemas do
     })
 
     @doc """
-    Unauthorized object, as a whole response.
+    GenericError object, as a whole response.
     """
     def response do
       Operation.response(
-        "Authorization Required",
+        "Error",
         "application/json",
         __MODULE__
       )
