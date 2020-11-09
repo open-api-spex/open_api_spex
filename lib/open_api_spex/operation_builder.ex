@@ -96,8 +96,8 @@ defmodule OpenApiSpex.OperationBuilder do
 
   def build_responses(_), do: []
 
-  @spec status_to_code(integer | :default) :: integer
-  defp status_to_code(:default), do: "default"
+  @spec status_to_code(integer | atom) :: integer | :default
+  defp status_to_code(:default), do: :default
   defp status_to_code(status), do: Plug.Conn.Status.code(status)
 
   def build_request_body(%{body: {name, mime, schema}}) do
