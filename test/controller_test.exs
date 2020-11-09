@@ -42,6 +42,10 @@ defmodule OpenApiSpex.ControllerTest do
       assert %{responses: %{404 => _}} = @controller.open_api_operation(:update)
     end
 
+    test "has default response" do
+      assert %{responses: %{:default => _}} = @controller.open_api_operation(:update)
+    end
+
     test "has parameter `:id`" do
       assert %{parameters: [param]} = @controller.open_api_operation(:update)
       assert param.name == :id

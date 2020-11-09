@@ -3,7 +3,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
 
   use OpenApiSpex.Controller
   alias OpenApiSpex.Header
-  alias OpenApiSpexTest.Schemas.{NotFound, Unauthorized, User}
+  alias OpenApiSpexTest.Schemas.{GenericError, NotFound, Unauthorized, User}
 
   @doc """
   Update a user
@@ -22,7 +22,8 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
            headers: %{"token" => %Header{description: "Access token"}}
          },
          unauthorized: Unauthorized.response(),
-         not_found: NotFound.response()
+         not_found: NotFound.response(),
+         default: GenericError.response()
        ]
   @doc security: [%{"authorization" => []}]
   def update(_conn, _params), do: :ok
