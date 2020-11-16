@@ -178,7 +178,9 @@ defmodule OpenApiSpex do
                 OpenApiSpex.Schema,
                 unquote(body)
                 |> Map.delete(:__struct__)
-                |> Map.put(:"x-struct", __MODULE__)
+                |> update_in([:"x-struct"], fn struct_module ->
+                  struct_module || __MODULE__
+                end)
                 |> update_in([:title], fn title ->
                   title || __MODULE__ |> Module.split() |> List.last()
                 end)
@@ -186,9 +188,11 @@ defmodule OpenApiSpex do
 
       def schema, do: @schema
 
-      @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
-      defstruct Schema.properties(@schema)
-      @type t :: %__MODULE__{}
+      if Map.get(@schema, :"x-struct") == __MODULE__ do
+        @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
+        defstruct Schema.properties(@schema)
+        @type t :: %__MODULE__{}
+      end
 
       Map.from_struct(@schema) |> OpenApiSpex.validate_compiled_schema()
 
