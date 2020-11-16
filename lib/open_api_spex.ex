@@ -178,7 +178,9 @@ defmodule OpenApiSpex do
                 OpenApiSpex.Schema,
                 unquote(body)
                 |> Map.delete(:__struct__)
-                |> Map.put(:"x-struct", __MODULE__)
+                |> update_in([:"x-struct"], fn struct_module ->
+                  struct_module || __MODULE__
+                end)
                 |> update_in([:title], fn title ->
                   title || __MODULE__ |> Module.split() |> List.last()
                 end)
