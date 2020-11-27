@@ -39,7 +39,7 @@ defmodule OpenApiSpex.Mixfile do
   defp package() do
     [
       name: "open_api_spex",
-      files: ["lib", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md", ".formatter.exs"],
       maintainers: [
         "Mike Buhot (m.buhot@gmail.com)",
         "Moxley Stratton",
