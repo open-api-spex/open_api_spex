@@ -93,7 +93,7 @@ be defined using moduledoc attributes that are supported in Elixir 1.7 and highe
 
 ```elixir
 defmodule MyAppWeb.UserController do
-  use Phoenix.Controller
+  use MyAppWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
   alias MyAppWeb.Schemas.{UserParams, UserResponse}
@@ -137,15 +137,15 @@ and the HTTP status codes can be replaced with their text equivalents:
 ```elixir
 responses: [
   ok: {"User response", "application/json", MyAppWeb.Schemas.UserResponse},
-  unprocessable_entity: {"Bad request parameters", "application/json", MyAppWeb.Schema.BadRequestParameters},
-  not_found: {"Not found", "application/json", MyAppWeb.Schema.NotFound}
+  unprocessable_entity: {"Bad request parameters", "application/json", MyAppWeb.Schemas.BadRequestParameters},
+  not_found: {"Not found", "application/json", MyAppWeb.Schemas.NotFound}
 ]
 ```
 
 The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
 
-If you need to omit the spec for some action then pass false to the second argument of `operation/2`
-for the action:
+If you need to omit the spec for some action then pass false to the
+second argument of `operation/2` for the action:
 
 ```elixir
 operation :create, false
@@ -160,7 +160,7 @@ The definitions data is cached, so it does not actually extract the definitions 
 Note that the names of the OpenAPI fields follow `snake_case` naming convention instead of
 OpenAPI's (and JSON Schema's) `camelCase` convention.
 
-### Alternatives to ControllerSpecs-based Operation Specs
+### Alternatives to ControllerSpecs-style Operation Specs
 
 #### %Operation{}
 
@@ -370,8 +370,8 @@ defmodule MyAppWeb.UserController do
   plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
 
   operation :create,
-    summary: "Create user.",
-    description: "Create a user."
+    summary: "Create user",
+    description: "Creates a user from the given params.\nThis is another line of text in the description."
     parameters: [
       id: [in: :query, type: :integer, description: "user ID"]
     ],
