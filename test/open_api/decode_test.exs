@@ -218,7 +218,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
              } == link
 
       assert %{
-               "api_key" => api_key_security_scheme,
+               "api_key" => _api_key_security_scheme,
                "petstore_auth" => petstore_auth_security_scheme
              } = securitySchemes
 
@@ -387,7 +387,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
 
       test_conn = fetch_query_params(test_conn)
 
-      assert {:ok, validation_result} =
+      assert {:ok, _validation_result} =
                OpenApiSpex.cast_and_validate(
                  spec,
                  spec.paths["/example"].post,

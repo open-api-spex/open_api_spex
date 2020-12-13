@@ -169,6 +169,37 @@ defmodule OpenApiSpex do
           }
         }
       end
+
+  ## Example
+
+  This example shows the `:struct?` and `:derive?` options that may
+  be passed to `schema/2`:
+
+      defmodule MyAppWeb.Schemas.User do
+        require OpenApiSpex
+        alias OpenApiSpex.Schema
+
+        OpenApiSpex.schema(
+          %{
+            type: :object,
+            properties: %{
+              name: %Schema{type: :string}
+            }
+          },
+          struct?: false,
+          derive?: false
+        )
+      end
+
+  ## Options
+
+  - `:struct?` (boolean) - When false, prevents the automatic generation
+    of a struct definition for the schema module.
+  - `:derive?` When false, prevents the automatic generation
+    of a `@derive` call for either `Poison.Encoder`
+    or `Jason.Encoder`. Using this option can
+    prevent "... protocol has already been consolidated ..."
+    compiler warnings.
   """
   defmacro schema(body, opts \\ []) do
     quote do
