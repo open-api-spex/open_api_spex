@@ -195,7 +195,7 @@ defmodule OpenApiSpex do
 
   - `:struct?` (boolean) - When false, prevents the automatic generation
     of a struct definition for the schema module.
-  - `:derive?` When false, prevents the automatic generation
+  - `:derive?` (boolean) When false, prevents the automatic generation
     of a `@derive` call for either `Poison.Encoder`
     or `Jason.Encoder`. Using this option can
     prevent "... protocol has already been consolidated ..."
