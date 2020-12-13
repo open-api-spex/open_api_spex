@@ -170,37 +170,61 @@ defmodule OpenApiSpex do
         }
       end
   """
-  defmacro schema(body) do
+  defmacro schema(body, opts \\ []) do
     quote do
       @compile {:report_warnings, false}
       @behaviour OpenApiSpex.Schema
-      @schema struct(
-                OpenApiSpex.Schema,
-                unquote(body)
-                |> Map.delete(:__struct__)
-                |> update_in([:"x-struct"], fn struct_module ->
-                  struct_module || __MODULE__
-                end)
-                |> update_in([:title], fn title ->
-                  title || __MODULE__ |> Module.split() |> List.last()
-                end)
-              )
+      @schema OpenApiSpex.build_schema(unquote(body), module: __MODULE__)
 
       def schema, do: @schema
 
       if Map.get(@schema, :"x-struct") == __MODULE__ do
-        @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
-        defstruct Schema.properties(@schema)
-        @type t :: %__MODULE__{}
+        if Keyword.get(unquote(opts), :derive?, true) do
+          @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
+        end
+
+        if Keyword.get(unquote(opts), :struct?, true) do
+          defstruct Schema.properties(@schema)
+          @type t :: %__MODULE__{}
+        end
       end
-
-      Map.from_struct(@schema) |> OpenApiSpex.validate_compiled_schema()
-
-      # Throwing warnings to prevent runtime bugs (like in issue #144)
-      @schema
-      |> SchemaConsistency.warnings()
-      |> Enum.each(&IO.warn("Inconsistent schema: #{&1}", Macro.Env.stacktrace(__ENV__)))
     end
+  end
+
+  @doc """
+  Build a Schema struct from the given keyword list.
+
+  This function adds extra functionality that isn't
+  """
+  def build_schema(body, opts \\ []) do
+    module = opts[:module] || body[:"x-struct"]
+
+    attrs =
+      body
+      |> Map.delete(:__struct__)
+      |> update_in([:"x-struct"], fn struct_module ->
+        struct_module || module
+      end)
+      |> update_in([:title], fn title ->
+        title || title_from_module(module)
+      end)
+
+    schema = struct(OpenApiSpex.Schema, attrs)
+
+    Map.from_struct(schema) |> OpenApiSpex.validate_compiled_schema()
+
+    # Throwing warnings to prevent runtime bugs (like in issue #144)
+    schema
+    |> SchemaConsistency.warnings()
+    |> Enum.each(&IO.warn("Inconsistent schema: #{&1}", Macro.Env.stacktrace(__ENV__)))
+
+    schema
+  end
+
+  def title_from_module(nil), do: nil
+
+  def title_from_module(module) do
+    module |> Module.split() |> List.last()
   end
 
   @doc """
