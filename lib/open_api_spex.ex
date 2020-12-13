@@ -225,7 +225,18 @@ defmodule OpenApiSpex do
   @doc """
   Build a Schema struct from the given keyword list.
 
-  This function adds extra functionality that isn't
+  This function adds functionality over defining a
+  schema with struct literal sytax using `%OpenApiSpex.Struct{}`:
+
+  - When the `:module` option is given, the `:"x-struct` and `:title`
+    attributes of the schema will be autopopulated based on the given
+    module
+  - Validations are performed on the schema to ensure it is correct.
+
+  ## Options
+
+  - `:module` (module) - A module in the application that the schema
+    should be associated with.
   """
   def build_schema(body, opts \\ []) do
     module = opts[:module] || body[:"x-struct"]
