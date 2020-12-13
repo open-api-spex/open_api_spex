@@ -205,7 +205,10 @@ defmodule OpenApiSpex do
     quote do
       @compile {:report_warnings, false}
       @behaviour OpenApiSpex.Schema
-      @schema OpenApiSpex.build_schema(unquote(body), module: __MODULE__)
+      @schema OpenApiSpex.build_schema(
+                unquote(body),
+                Keyword.merge([module: __MODULE__], unquote(opts))
+              )
 
       def schema, do: @schema
 
@@ -245,7 +248,11 @@ defmodule OpenApiSpex do
       body
       |> Map.delete(:__struct__)
       |> update_in([:"x-struct"], fn struct_module ->
-        struct_module || module
+        if Keyword.get(opts, :struct?, true) do
+          struct_module || module
+        else
+          struct_module
+        end
       end)
       |> update_in([:title], fn title ->
         title || title_from_module(module)
