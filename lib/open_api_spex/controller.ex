@@ -2,6 +2,10 @@ defmodule OpenApiSpex.Controller do
   @moduledoc ~S'''
   Generation of OpenAPI documentation via ExDoc documentation and tags.
 
+  Note: For projects using Elixir releases, [there is an issue](https://github.com/open-api-spex/open_api_spex/issues/242) that
+  potentially breaks OpenApiSpex's integration with your application. Please use `OpenApiSpex.ControllerSpecs` instead.
+
+
   ## Supported OpenAPI fields
 
   ### `description` and `summary`
