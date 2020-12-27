@@ -47,7 +47,6 @@ defmodule OpenApiSpexTest.DslController do
   end
 
   defmodule UsersDestroyResponse do
-    alias OpenApiSpex.Schema
     require OpenApiSpex
 
     OpenApiSpex.schema(%{
@@ -117,7 +116,7 @@ defmodule OpenApiSpexTest.DslController do
       no_content: {"Users destroy response", "application/json", UsersDestroyResponse}
     ]
 
-  def index(conn, _) do
+  def destroy(conn, _) do
     json(conn, [])
   end
 end

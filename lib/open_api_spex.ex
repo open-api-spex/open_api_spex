@@ -169,38 +169,111 @@ defmodule OpenApiSpex do
           }
         }
       end
+
+  ## Example
+
+  This example shows the `:struct?` and `:derive?` options that may
+  be passed to `schema/2`:
+
+      defmodule MyAppWeb.Schemas.User do
+        require OpenApiSpex
+        alias OpenApiSpex.Schema
+
+        OpenApiSpex.schema(
+          %{
+            type: :object,
+            properties: %{
+              name: %Schema{type: :string}
+            }
+          },
+          struct?: false,
+          derive?: false
+        )
+      end
+
+  ## Options
+
+  - `:struct?` (boolean) - When false, prevents the automatic generation
+    of a struct definition for the schema module.
+  - `:derive?` (boolean) When false, prevents the automatic generation
+    of a `@derive` call for either `Poison.Encoder`
+    or `Jason.Encoder`. Using this option can
+    prevent "... protocol has already been consolidated ..."
+    compiler warnings.
   """
-  defmacro schema(body) do
+  defmacro schema(body, opts \\ []) do
     quote do
       @compile {:report_warnings, false}
       @behaviour OpenApiSpex.Schema
-      @schema struct(
-                OpenApiSpex.Schema,
-                unquote(body)
-                |> Map.delete(:__struct__)
-                |> update_in([:"x-struct"], fn struct_module ->
-                  struct_module || __MODULE__
-                end)
-                |> update_in([:title], fn title ->
-                  title || __MODULE__ |> Module.split() |> List.last()
-                end)
+      @schema OpenApiSpex.build_schema(
+                unquote(body),
+                Keyword.merge([module: __MODULE__], unquote(opts))
               )
 
       def schema, do: @schema
 
       if Map.get(@schema, :"x-struct") == __MODULE__ do
-        @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
-        defstruct Schema.properties(@schema)
-        @type t :: %__MODULE__{}
+        if Keyword.get(unquote(opts), :derive?, true) do
+          @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
+        end
+
+        if Keyword.get(unquote(opts), :struct?, true) do
+          defstruct Schema.properties(@schema)
+          @type t :: %__MODULE__{}
+        end
       end
-
-      Map.from_struct(@schema) |> OpenApiSpex.validate_compiled_schema()
-
-      # Throwing warnings to prevent runtime bugs (like in issue #144)
-      @schema
-      |> SchemaConsistency.warnings()
-      |> Enum.each(&IO.warn("Inconsistent schema: #{&1}", Macro.Env.stacktrace(__ENV__)))
     end
+  end
+
+  @doc """
+  Build a Schema struct from the given keyword list.
+
+  This function adds functionality over defining a
+  schema with struct literal sytax using `%OpenApiSpex.Struct{}`:
+
+  - When the `:module` option is given, the `:"x-struct` and `:title`
+    attributes of the schema will be autopopulated based on the given
+    module
+  - Validations are performed on the schema to ensure it is correct.
+
+  ## Options
+
+  - `:module` (module) - A module in the application that the schema
+    should be associated with.
+  """
+  def build_schema(body, opts \\ []) do
+    module = opts[:module] || body[:"x-struct"]
+
+    attrs =
+      body
+      |> Map.delete(:__struct__)
+      |> update_in([:"x-struct"], fn struct_module ->
+        if Keyword.get(opts, :struct?, true) do
+          struct_module || module
+        else
+          struct_module
+        end
+      end)
+      |> update_in([:title], fn title ->
+        title || title_from_module(module)
+      end)
+
+    schema = struct(OpenApiSpex.Schema, attrs)
+
+    Map.from_struct(schema) |> OpenApiSpex.validate_compiled_schema()
+
+    # Throwing warnings to prevent runtime bugs (like in issue #144)
+    schema
+    |> SchemaConsistency.warnings()
+    |> Enum.each(&IO.warn("Inconsistent schema: #{&1}", Macro.Env.stacktrace(__ENV__)))
+
+    schema
+  end
+
+  def title_from_module(nil), do: nil
+
+  def title_from_module(module) do
+    module |> Module.split() |> List.last()
   end
 
   @doc """
