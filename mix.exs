@@ -42,7 +42,7 @@ defmodule OpenApiSpex.Mixfile do
       files: ["lib", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md", ".formatter.exs"],
       maintainers: [
         "Mike Buhot (m.buhot@gmail.com)",
-        "Moxley Stratton",
+        "Moxley Stratton (moxley.stratton@gmail.com)",
         "Pierre Fenoll (pierrefenoll@gmail.com)"
       ],
       licenses: ["Mozilla Public License, version 2.0"],
@@ -53,12 +53,13 @@ defmodule OpenApiSpex.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:poison, "~> 3.1", optional: true},
-      {:jason, "~> 1.0", optional: true},
-      {:plug, "~> 1.7"},
-      {:phoenix, "~> 1.3", only: [:dev, :test]},
+      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
-      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false}
+      {:httpoison, "~> 1.7"},
+      {:jason, "~> 1.0", optional: true},
+      {:phoenix, "~> 1.3", only: [:dev, :test]},
+      {:plug, "~> 1.7"},
+      {:poison, "~> 3.1", optional: true}
     ]
   end
 end

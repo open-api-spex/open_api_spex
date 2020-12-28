@@ -1,10 +1,8 @@
-defmodule OpenApiSpex.Plug.SwaggerUIOAuth2Redirect do
+defmodule OpenApiSpex.Plug.SwaggerUIOAuth2ClientRedirect do
   @moduledoc """
   This plug will handle the callback from an OAuth server
   """
   @behaviour Plug
-
-  import Plug.Conn
 
   @html """
     <!-- HTML for static distribution bundle build -->
@@ -19,7 +17,6 @@ defmodule OpenApiSpex.Plug.SwaggerUIOAuth2Redirect do
     <script>
         'use strict';
         function run() {
-            prompt("press any key to continue");
             var oauth2 = window.opener.swaggerUIRedirectOauth2;
             console.log("oauth2", oauth2)
             var sentState = oauth2.state;
@@ -81,9 +78,9 @@ defmodule OpenApiSpex.Plug.SwaggerUIOAuth2Redirect do
             } else {
                 var callbackOpts2 = { auth: oauth2.auth, token: qp, isValid: isValid, redirectUrl: redirectUrl };
                 console.log("callbackOpts2", callbackOpts2);
-                oauth2.callback({ auth: oauth2.auth, token: qp, isValid: isValid, redirectUrl: redirectUrl, state: qp.state });
+                oauth2.callback({ auth: oauth2.auth, token: qp, isValid: isValid, redirectUrl: redirectUrl });
             }
-            // window.close();
+            window.close();
         }
     </script>
   """
@@ -93,15 +90,11 @@ defmodule OpenApiSpex.Plug.SwaggerUIOAuth2Redirect do
 
   @impl Plug
   def call(conn, _opts) do
-    conn = fetch_query_params(conn)
-    query_params = conn.query_params
-    IO.inspect(query_params, label: "query_params")
-
     html = render()
 
     conn
-    |> put_resp_content_type("text/html")
-    |> send_resp(200, html)
+    |> Plug.Conn.put_resp_content_type("text/html")
+    |> Plug.Conn.send_resp(200, html)
   end
 
   require EEx
