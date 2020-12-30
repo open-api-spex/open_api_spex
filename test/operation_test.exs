@@ -20,7 +20,9 @@ defmodule OpenApiSpex.OperationTest do
           _helper = nil,
           _pipe_through = [],
           _private = %{},
-          _assigns = %{}
+          _assigns = %{},
+          _metadata = %{},
+          _trailing_slash? = false
         )
 
       assert Operation.from_route(route) ==
