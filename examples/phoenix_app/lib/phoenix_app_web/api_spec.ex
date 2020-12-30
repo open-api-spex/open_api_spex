@@ -19,8 +19,7 @@ defmodule PhoenixAppWeb.ApiSpec do
             flows: %OAuthFlows{
               authorizationCode: %OAuthFlow{
                 authorizationUrl: "https://github.com/login/oauth/authorize",
-                # tokenUrl: "https://github.com/login/oauth/access_token",
-                tokenUrl: "http://localhost:4000/oauth/access_token",
+                tokenUrl: "/oauth/access_token",
                 scopes: %{"user:email" => "Read your email address."}
               }
             }

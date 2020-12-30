@@ -1,10 +1,8 @@
 defmodule PhoenixAppWeb.OauthController do
   use PhoenixAppWeb, :controller
 
-  def access_token(conn, _params) do
-    {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
-    body = URI.decode_query(body)
-    provider_params = body
+  def access_token(conn = %Plug.Conn{}, _params) do
+    provider_params = conn.body_params
 
     provider_response = HTTPoison.post!(
       "https://github.com/login/oauth/access_token",
