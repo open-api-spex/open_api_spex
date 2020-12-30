@@ -10,7 +10,8 @@ defmodule OpenApiSpex.SchemaResolverTest do
     Reference,
     RequestBody,
     Response,
-    Schema
+    Schema,
+    SchemaResolver
   }
 
   test "Resolves schemas in OpenApi spec" do
@@ -151,6 +152,61 @@ defmodule OpenApiSpex.SchemaResolverTest do
 
     assert_raise RuntimeError, "Expected :properties to be a map. Got: Invalid", fn ->
       OpenApiSpex.resolve_schema_modules(spec)
+    end
+  end
+
+  describe "add_schemas/2" do
+    @empty_spec %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{},
+      components: %{schemas: %{}}
+    }
+
+    defmodule SomeSchema do
+      def schema do
+        %Schema{
+          type: :object,
+          title: "SomeSchema",
+          properties: %{name: %Schema{type: :string}}
+        }
+      end
+    end
+
+    test "Schema module" do
+      spec = SchemaResolver.add_schemas(@empty_spec, [SomeSchema])
+
+      assert spec.components.schemas == %{
+               "SomeSchema" => SomeSchema.schema()
+             }
+    end
+
+    defmodule ArraySchema do
+      def schema do
+        %Schema{
+          type: :type,
+          title: "ArraySchema",
+          items: SomeSchema
+        }
+      end
+    end
+
+    test "Schema module of type:array with module-referenced items" do
+      spec = SchemaResolver.add_schemas(@empty_spec, [ArraySchema])
+
+      assert %{
+               "ArraySchema" => array_schema,
+               "SomeSchema" => some_schema
+             } = spec.components.schemas
+
+      assert some_schema == SomeSchema.schema()
+      assert array_schema.title == "ArraySchema"
+
+      assert array_schema.items == %OpenApiSpex.Reference{
+               "$ref": "#/components/schemas/SomeSchema"
+             }
     end
   end
 end
