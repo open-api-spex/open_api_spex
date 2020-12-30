@@ -55,7 +55,6 @@ defmodule OpenApiSpex.Mixfile do
     [
       {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
-      {:httpoison, "~> 1.7"},
       {:jason, "~> 1.0", optional: true},
       {:phoenix, "~> 1.3", only: [:dev, :test]},
       {:plug, "~> 1.7"},
