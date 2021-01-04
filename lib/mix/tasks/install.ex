@@ -4,7 +4,7 @@ defmodule Mix.Tasks.Openapi.Install do
 
     ## Example
 
-      mix run Openapi.Install
+      mix run Openapi.Install '/path_to_app'
   """
   use Mix.Task
 
