@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Openapi.Install do
   @bundle 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.32.4/swagger-ui-bundle.js'
 
   @impl true
-  def run(path) do
+  def run([path]) do
     Mix.Task.run("app.start")
 
     :inets.start()
