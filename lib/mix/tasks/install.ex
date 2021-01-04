@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Openapi.Install do
+defmodule Mix.Tasks.Openapi.Spec.Install do
   @moduledoc """
   Fetch and install the resources locally for the interface.
 
