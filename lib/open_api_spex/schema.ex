@@ -183,7 +183,8 @@ defmodule OpenApiSpex.Schema do
     :example,
     :deprecated,
     :"x-struct",
-    :"x-validate"
+    :"x-validate",
+    :"x-register"
   ]
 
   @typedoc """

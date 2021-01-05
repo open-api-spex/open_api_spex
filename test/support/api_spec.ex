@@ -35,7 +35,7 @@ defmodule OpenApiSpexTest.ApiSpec do
       },
       components: %Components{
         schemas:
-          for schemaMod <- [
+          for schema_mod <- [
                 Schemas.Pet,
                 Schemas.PetType,
                 Schemas.Cat,
@@ -46,7 +46,7 @@ defmodule OpenApiSpexTest.ApiSpec do
                 Schemas.Primitive
               ],
               into: %{} do
-            schema = schemaMod.schema()
+            schema = schema_mod.schema()
             {schema.title, schema}
           end,
         parameters: %{

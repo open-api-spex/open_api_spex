@@ -29,5 +29,9 @@ defmodule OpenApiSpexTest.Router do
     post "/utility/echo/body_params", UtilityController, :echo_body_params
 
     get "/json_render_error", JsonRenderErrorController, :index
+
+    resources "/jsonapi/carts", JsonApiController, only: [:create, :index, :show]
+    get "/jsonapi/carts-paginated", JsonApiController, :paginated_index
+    get "/jsonapi/carts-annotated", JsonApiController, :annotated_index
   end
 end
