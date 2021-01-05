@@ -69,16 +69,16 @@ defmodule OpenApiSpex.OperationBuilder do
   def build_responses(%{responses: responses}) when is_list(responses) or is_map(responses) do
     Map.new(responses, fn
       {status, {description, mime, schema}} ->
-        {Plug.Conn.Status.code(status), Operation.response(description, mime, schema)}
+        {status_to_code(status), Operation.response(description, mime, schema)}
 
       {status, {description, mime, schema, opts}} ->
-        {Plug.Conn.Status.code(status), Operation.response(description, mime, schema, opts)}
+        {status_to_code(status), Operation.response(description, mime, schema, opts)}
 
       {status, %Response{} = response} ->
-        {Plug.Conn.Status.code(status), response}
+        {status_to_code(status), response}
 
       {status, description} when is_binary(description) ->
-        {Plug.Conn.Status.code(status), %Response{description: description}}
+        {status_to_code(status), %Response{description: description}}
     end)
   end
 
@@ -95,6 +95,9 @@ defmodule OpenApiSpex.OperationBuilder do
   end
 
   def build_responses(_), do: []
+
+  defp status_to_code(:default), do: :default
+  defp status_to_code(status), do: Plug.Conn.Status.code(status)
 
   def build_request_body(%{body: {name, mime, schema}}) do
     IO.warn("Using :body key for requestBody is deprecated. Please use :request_body instead.")

@@ -22,7 +22,7 @@ defmodule OpenApiSpex.ControllerTest do
     test "summary matches 'Endpoint summary'" do
       op = @controller.open_api_operation(:update)
       assert op.summary == "Update a user"
-      assert op.description == "Update a user\n\nFull description for this endpoint...\n"
+      assert op.description == "Full description for this endpoint...\n"
     end
 
     test "security matches 'foo'" do
@@ -40,6 +40,10 @@ defmodule OpenApiSpex.ControllerTest do
 
     test "has response for HTTP 404" do
       assert %{responses: %{404 => _}} = @controller.open_api_operation(:update)
+    end
+
+    test "has default response" do
+      assert %{responses: %{:default => _}} = @controller.open_api_operation(:update)
     end
 
     test "has parameter `:id`" do

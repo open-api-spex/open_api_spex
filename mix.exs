@@ -39,7 +39,7 @@ defmodule OpenApiSpex.Mixfile do
   defp package() do
     [
       name: "open_api_spex",
-      files: ["lib", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE", "CHANGELOG.md", ".formatter.exs"],
       maintainers: [
         "Mike Buhot (m.buhot@gmail.com)",
         "Moxley Stratton",
@@ -57,7 +57,7 @@ defmodule OpenApiSpex.Mixfile do
       {:jason, "~> 1.0", optional: true},
       {:plug, "~> 1.7"},
       {:phoenix, "~> 1.3", only: [:dev, :test]},
-      {:ex_doc, "~> 0.20", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false}
     ]
   end

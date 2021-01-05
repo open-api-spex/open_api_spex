@@ -254,7 +254,13 @@ defmodule OpenApiSpex.ControllerSpecs do
     end
   end
 
-  @doc false
+  @doc """
+  Define an Operation for a controller action.
+
+  See `OpenApiSpex.ControllerSpecs` for usage and examples.
+  """
+  def operation_spec(_module, _action, nil = _spec), do: nil
+
   def operation_spec(module, action, spec) do
     spec = Map.new(spec)
     shared_tags = Module.get_attribute(module, :shared_tags, []) |> List.flatten()
@@ -262,6 +268,7 @@ defmodule OpenApiSpex.ControllerSpecs do
 
     %Operation{
       description: Map.get(spec, :description),
+      deprecated: Map.get(spec, :deprecated),
       operationId: OperationBuilder.build_operation_id(spec, module, action),
       parameters: OperationBuilder.build_parameters(spec),
       requestBody: OperationBuilder.build_request_body(spec),

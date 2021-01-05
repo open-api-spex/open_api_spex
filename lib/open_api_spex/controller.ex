@@ -2,13 +2,16 @@ defmodule OpenApiSpex.Controller do
   @moduledoc ~S'''
   Generation of OpenAPI documentation via ExDoc documentation and tags.
 
+  Note: For projects using Elixir releases, [there is an issue](https://github.com/open-api-spex/open_api_spex/issues/242) that
+  potentially breaks OpenApiSpex's integration with your application. Please use `OpenApiSpex.ControllerSpecs` instead.
+
   ## Supported OpenAPI fields
 
   ### `description` and `summary`
 
   Description of endpoint will be filled with documentation string in the same
-  manner as ExDocs, so first line will be used as a `summary` and whole
-  documentation will be used as `description` field.
+  manner as ExDocs, so first line will be used as a `summary` and the rest of it
+  will be used as `description` field.
 
   ### `operation_id`
 
@@ -215,9 +218,9 @@ defmodule OpenApiSpex.Controller do
           true ->
             {summary, description} =
               if is_map(docs) do
-                description = Map.get(docs, "en", "")
-                [summary | _] = String.split(description, ~r/\n\s*\n/, parts: 2)
-                {summary, description}
+                contents = Map.get(docs, "en", "")
+                [summary | description] = String.split(contents, ~r/\n\s*\n/, parts: 2)
+                {summary, List.first(description)}
               else
                 {"", ""}
               end

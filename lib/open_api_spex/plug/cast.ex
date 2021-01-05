@@ -56,21 +56,18 @@ defmodule OpenApiSpex.Plug.Cast do
 
   @impl Plug
   @deprecated "Use OpenApiSpex.Plug.CastAndValidate instead"
-  def call(conn = %{private: %{open_api_spex: private_data}}, %{
+  def call(conn = %{private: %{open_api_spex: _private_data}}, %{
         operation_id: operation_id,
         render_error: render_error
       }) do
-    spec = private_data.spec
-    operation = private_data.operation_lookup[operation_id]
+    {spec, operation_lookup} = OpenApiSpex.Plug.PutApiSpec.get_spec_and_operation_lookup(conn)
+    operation = operation_lookup[operation_id]
 
     content_type =
       Conn.get_req_header(conn, "content-type")
       |> Enum.at(0, "")
       |> String.split(";")
       |> Enum.at(0)
-
-    private_data = Map.put(private_data, :operation_id, operation_id)
-    conn = Conn.put_private(conn, :open_api_spex, private_data)
 
     case apply(OpenApiSpex, :cast, [spec, operation, conn, content_type]) do
       {:ok, conn} ->

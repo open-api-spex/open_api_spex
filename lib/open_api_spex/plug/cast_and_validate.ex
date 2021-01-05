@@ -42,6 +42,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
   @behaviour Plug
 
+  alias OpenApiSpex.Plug.PutApiSpec
   alias Plug.Conn
 
   @impl Plug
@@ -57,12 +58,12 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
   end
 
   @impl Plug
-  def call(conn = %{private: %{open_api_spex: private_data}}, %{
+  def call(conn = %{private: %{open_api_spex: _}}, %{
         operation_id: operation_id,
         render_error: render_error
       }) do
-    spec = private_data.spec
-    operation = private_data.operation_lookup[operation_id]
+    {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
+    operation = operation_lookup[operation_id]
 
     content_type =
       case Conn.get_req_header(conn, "content-type") do
@@ -74,9 +75,6 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
         _ ->
           nil
       end
-
-    private_data = Map.put(private_data, :operation_id, operation_id)
-    conn = Conn.put_private(conn, :open_api_spex, private_data)
 
     with {:ok, conn} <- OpenApiSpex.cast_and_validate(spec, operation, conn, content_type) do
       conn
@@ -95,27 +93,25 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
           private: %{
             phoenix_controller: controller,
             phoenix_action: action,
-            open_api_spex: private_data
+            open_api_spex: _
           }
         },
         opts
       ) do
+    {_spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
+
+    # This caching is to improve performance of extracting Operation specs
+    # at runtime when they're using the @doc-based syntax.
     operation =
-      case private_data.operation_lookup[{controller, action}] do
+      case operation_lookup[{controller, action}] do
         nil ->
-          operationId = controller.open_api_operation(action).operationId
-          operation = private_data.operation_lookup[operationId]
+          operation_id = controller.open_api_operation(action).operationId
 
-          operation_lookup =
-            private_data.operation_lookup
-            |> Map.put({controller, action}, operation)
-
-          OpenApiSpex.Plug.Cache.adapter().put(
-            private_data.spec_module,
-            {private_data.spec, operation_lookup}
+          PutApiSpec.get_and_cache_controller_action(
+            conn,
+            operation_id,
+            {controller, action}
           )
-
-          operation
 
         operation ->
           operation
@@ -129,10 +125,10 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
   end
 
   def call(_conn = %{private: %{open_api_spex: _pd}}, _opts) do
-    raise ":operation_id was neither provided nor inferred from conn. Consider putting plug OpenApiSpex.Plug.Cast rather into your phoenix controller."
+    raise ":operation_id was neither provided nor inferred from conn. Consider putting plug OpenApiSpex.Plug.CastAndValidate rather into your phoenix controller."
   end
 
   def call(_conn, _opts) do
-    raise ":open_api_spex was not found under :private. Maybe OpenApiSpex.Plug.PutApiSpec was not called before?"
+    raise ":open_api_spex was not found under :private. Maybe PutApiSpec was not called before?"
   end
 end

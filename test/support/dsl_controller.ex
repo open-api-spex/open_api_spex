@@ -46,6 +46,14 @@ defmodule OpenApiSpexTest.DslController do
     })
   end
 
+  defmodule UsersDestroyResponse do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      type: :string
+    })
+  end
+
   tags ["users"]
 
   security [%{"api_key" => ["mySecurityScheme"]}]
@@ -91,6 +99,24 @@ defmodule OpenApiSpexTest.DslController do
     ]
 
   def index(conn, _) do
+    json(conn, [])
+  end
+
+  operation :destroy,
+    deprecated: true,
+    summary: "User destroy",
+    parameters: [
+      username: [
+        in: :query,
+        description: "Username to destroy",
+        type: :string
+      ]
+    ],
+    responses: [
+      no_content: {"Users destroy response", "application/json", UsersDestroyResponse}
+    ]
+
+  def destroy(conn, _) do
     json(conn, [])
   end
 end

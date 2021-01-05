@@ -102,6 +102,46 @@ defmodule OpenApiSpexTest.Schemas do
     end
   end
 
+  defmodule GenericError do
+    @moduledoc """
+    Generic error
+    """
+    require OpenApiSpex
+    alias OpenApiSpex.Operation
+
+    # OpenApiSpex.schema/1 macro can be optionally used to reduce boilerplate code
+    OpenApiSpex.schema(%{
+      title: "Error",
+      type: :object,
+      properties: %{
+        errors: %Schema{
+          type: :array,
+          items: %Schema{
+            type: :object,
+            properties: %{
+              detail: %Schema{
+                type: :string,
+                example: "An error occured."
+              },
+              title: %Schema{type: :string, example: "Error"}
+            }
+          }
+        }
+      }
+    })
+
+    @doc """
+    GenericError object, as a whole response.
+    """
+    def response do
+      Operation.response(
+        "Error",
+        "application/json",
+        __MODULE__
+      )
+    end
+  end
+
   defmodule NoContent do
     require OpenApiSpex
     alias OpenApiSpex.Operation

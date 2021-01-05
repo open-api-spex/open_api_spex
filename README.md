@@ -9,7 +9,7 @@ Leverage Open API Specification 3 (formerly Swagger) to document, test, validate
 - Use the spec to cast request params to well defined schema structs
 - Validate params against schemas, eliminate bad requests before they hit your controllers
 - Validate responses against schemas in tests, ensuring your docs are accurate and reliable
-- Explore the API interactively with with [SwaggerUI](https://swagger.io/swagger-ui/)
+- Explore the API interactively with [SwaggerUI](https://swagger.io/swagger-ui/)
 
 Full documentation available on [hexdocs](https://hexdocs.pm/open_api_spex/)
 
@@ -91,43 +91,34 @@ For each plug (controller) that will handle API requests, operations need
 to be defined that the plug/controller will handle. The operations can
 be defined using moduledoc attributes that are supported in Elixir 1.7 and higher.
 
-Note: For projects using Elixir releases, [#242](there is an issue) that
-potentially breaks OpenApiSpex's integration with your application. See the next section
-for work-arounds to this issue.
-
 ```elixir
 defmodule MyAppWeb.UserController do
-  @moduledoc tags: ["users"]
-
   use MyAppWeb, :controller
-  use OpenApiSpex.Controller
+  use OpenApiSpex.ControllerSpecs
 
-  @doc """
-  List users
-  """
-  @doc responses: %{
-    200 => {"Users", "application/json", MyAppWeb.Schema.Users}
-  }
-  def index(conn, _params) do
-    {:ok, users} = MyApp.Users.all()
+  alias MyAppWeb.Schemas.{UserParams, UserResponse}
 
-    json(conn, users)
-  end
+  tags ["users"]
+  security [%{}, %{"petstore_auth" => ["write:users", "read:users"]}]
 
-  @doc """
-  Update user
-  """
-  @doc parameters: [
-      id: [in: :query, schema: %OpenApiSpex.Schema{type: :string}, required: true, description: "User ID"]
+  operation :update,
+    summary: "Update user",
+    parameters: [
+      id: [in: :path, description: "User ID", type: :integer, example: 1001]
     ],
-    request_body: {"Request body to update a User", "application/json", User, required: true},
-    responses: %{
-      200 => {"User", "application/json", MyAppWeb.Schema.User}
-    }
-  def update(conn, %{id: id}) do
-    with {:ok, user} <- MyApp.Users.update(conn.body_params) do
-      json(conn, user)
-    end
+    request_body: {"User params", "application/json", UserParams},
+    responses: [
+      ok: {"User response", "application/json", UserResponse}
+    ]
+
+  def update(conn, %{"id" => id}) do
+    json(conn, %{
+      data: %{
+        id: id,
+        name: "joe user",
+        email: "joe@gmail.com"
+      }
+    })
   end
 end
 ```
@@ -135,8 +126,8 @@ end
 There is a convenient shortcut `:type` for base data types supported by open api
 
 ```elixir
-@doc parameters: [
-  id: [in: :query, type: :string, required: true, description: "User ID"]
+parameters: [
+  id: [in: :query, type: :integer, required: true, description: "User ID", example: 1001]
 ]
 ```
 
@@ -144,19 +135,20 @@ The responses can also be defined using keyword list syntax,
 and the HTTP status codes can be replaced with their text equivalents:
 
 ```elixir
-  @doc responses: [
-    ok: {"User", "application/json", MyAppWeb.Schema.User}
-    unprocessable_entity: {"Bad request parameters", "application/json", MyAppWeb.Schema.BadRequestParameters},
-    not_found: {"Not found", "application/json", MyAppWeb.Schema.NotFound}
-  ]
+responses: [
+  ok: {"User response", "application/json", MyAppWeb.Schemas.UserResponse},
+  unprocessable_entity: {"Bad request parameters", "application/json", MyAppWeb.Schemas.BadRequestParameters},
+  not_found: {"Not found", "application/json", MyAppWeb.Schemas.NotFound}
+]
 ```
 
 The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
 
-If you need to omit the spec for some action then pass false to the generator:
+If you need to omit the spec for some action then pass false to the
+second argument of `operation/2` for the action:
 
 ```elixir
-@doc false
+operation :create, false
 ```
 
 Each definition in a controller action or plug operation is converted
@@ -165,26 +157,19 @@ by your application's `ApiSpec` module, which in turn is
 called from the `OpenApiSpex.Plug.PutApiSpex` plug on each request.
 The definitions data is cached, so it does not actually extract the definitions on each request.
 
-Note that in the ExDoc-based definitions, the names of the OpenAPI fields follow `snake_case` naming convention instead of
+Note that the names of the OpenAPI fields follow `snake_case` naming convention instead of
 OpenAPI's (and JSON Schema's) `camelCase` convention.
 
-### Alternatives to ExDoc-Based Operation Specs
+### Alternatives to ControllerSpecs-style Operation Specs
 
 #### %Operation{}
 
-If the ExDoc-based operation specs don't provide the flexibiliy you need, the `%Operation{}` struct
+If ControllerSpecs-style operation specs don't provide the flexibiliy you need, the `%Operation{}` struct
 and related structs can be used instead. See the
-[example user controller that uses `%Operation{}` structs]([example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller_with_struct_specs.ex).)
+[example user controller that uses `%Operation{}` structs](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller_with_struct_specs.ex).
 
 For examples of other action operations, see the
 [example web app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller.ex).
-
-#### Experimental API
-
-There is a new, experimental Operation spec API that has the same lightweight syntax
-as the ExDoc-based API, but without the potentially breaking issue described in
-[issue #242](https://github.com/open-api-spex/open_api_spex/issues/242).
-This new API is described in the `OpenApiSpex.ControllerSpecs` docs.
 
 ### Schemas
 
@@ -259,7 +244,7 @@ end
 ```
 
 For more examples of schema definitions, see the
-[sample Phoenix app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/schemas.ex)
+[sample Phoenix app](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/schemas.ex).
 
 ## Serve the Spec
 
@@ -293,7 +278,7 @@ mix openapi.spec.json --spec MyAppWeb.ApiSpec
 
 ## Serve Swagger UI
 
-Once your API spec is available through a route (see "Serve the Spec"), the `OpenApiSpex.Plug.SwaggerUI` plug can be used to
+Once your API spec is available through a route (see ["Serve the Spec"](#serve-the-spec)), the `OpenApiSpex.Plug.SwaggerUI` plug can be used to
 serve a SwaggerUI interface. The `path:` plug option must be supplied to give the path to the API spec.
 
 All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
@@ -318,7 +303,7 @@ All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than
 
 > :warning: This functionality currently converts Strings into Atoms, which makes it potentially [vulnerable to DoS attacks](https://til.hashrocket.com/posts/gkwwfy9xvw-converting-strings-to-atoms-safely). We recommend that you load Open API Schemas from _known files_ during application startup and _not dynamically from external sources at runtime_.
 
-OpenApiSpex has functionality to import an existing schema, casting it into an %OpenApi{} struct. This means you can load a schema that is JSON or YAML encoded. See the example below:
+OpenApiSpex has functionality to import an existing schema, casting it into an `%OpenApi{}` struct. This means you can load a schema that is JSON or YAML encoded. See the example below:
 
 ```elixir
 # Importing an existing JSON encoded schema
@@ -378,24 +363,23 @@ Example usage of `CastAndValidate` in a Phoenix controller:
 ```elixir
 defmodule MyAppWeb.UserController do
   use MyAppWeb, :controller
-  alias OpenApiSpex.Operation
+  use OpenApiSpex.ControllerSpecs
+
   alias MyAppWeb.Schemas.{User, UserRequest, UserResponse}
 
   plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
 
-  @doc """
-  Create user.
-
-  Create a user.
-  """
-  @doc parameters: [
-         id: [in: :query, type: :integer, description: "user ID"]
-       ],
-       request_body: {"The user attributes", "application/json", UserRequest},
-       responses: %{
-         201 => {"User", "application/json", UserResponse}
-         422 => OpenApiSpex.JsonErrorResponse.response()
-       }
+  operation :create,
+    summary: "Create user",
+    description: "Creates a user from the given params.\nThis is another line of text in the description."
+    parameters: [
+      id: [in: :query, type: :integer, description: "user ID"]
+    ],
+    request_body: {"The user attributes", "application/json", UserRequest},
+    responses: %{
+      201 => {"User", "application/json", UserResponse}
+      422 => OpenApiSpex.JsonErrorResponse.response()
+    }
   def create(
         conn = %{
           body_params: %UserRequest{
@@ -406,6 +390,12 @@ defmodule MyAppWeb.UserController do
       ) do
     # conn.body_params cast to UserRequest struct
     # conn.params.id cast to integer
+
+    # Note: Using pattern-matching in the action function's arguments can
+    # cause Dialyzer to complain. This is because Dialyzer expects the
+    # `conn` and `params` arguments to have string keys, not atom keys.
+    # To resolve this, fetch the `:body_params` with
+    # `body_params = Map.get(conn, :body_params)`.
   end
 end
 ```

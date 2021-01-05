@@ -203,7 +203,7 @@ defmodule OpenApiSpex.Schema do
         properties: %{
           id: %Schema{type: :integer, minimum: 1},
           name: %Schema{type: :string, pattern: "[a-zA-Z][a-zA-Z0-9_]+"},
-          email: %Scheam{type: :string, format: :email},
+          email: %Schema{type: :string, format: :email},
           last_login: %Schema{type: :string, format: :"date-time"}
         },
         required: [:name, :email],
@@ -403,6 +403,10 @@ defmodule OpenApiSpex.Schema do
   defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
   defp default(%{default: default}), do: default
   defp default(%Reference{}), do: nil
+
+  defp default(value) do
+    raise "Expected %Schema{}, schema module, or %Reference{}. Got: #{inspect(value)}"
+  end
 
   defp example_for(schemas, type) when type in [:anyOf, :allOf] do
     # Only handles :object schemas for now

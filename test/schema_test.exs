@@ -181,4 +181,19 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(schema) == "2020-04-20T16:20:00Z"
     end
   end
+
+  describe "properties/1" do
+    test "informative error raised for invalid :properties" do
+      schema = %Schema{
+        type: :object,
+        properties: %{errors: []}
+      }
+
+      assert_raise RuntimeError,
+                   "Expected %Schema{}, schema module, or %Reference{}. Got: []",
+                   fn ->
+                     Schema.properties(schema)
+                   end
+    end
+  end
 end
