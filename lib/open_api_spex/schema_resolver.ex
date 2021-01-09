@@ -40,6 +40,12 @@ defmodule OpenApiSpex.SchemaResolver do
     %{spec | paths: paths, components: %{components | schemas: schemas, responses: responses}}
   end
 
+  @doc false
+  def add_schemas(spec = %OpenApi{}, schemas) do
+    {_, schemas} = resolve_schema_modules_from_schema(schemas, spec.components.schemas)
+    put_in(spec.components.schemas, schemas)
+  end
+
   defp resolve_schema_modules_from_paths(paths = %{}, schemas = %{}) do
     Enum.reduce(paths, {paths, schemas}, fn {path, path_item}, {paths, schemas} ->
       {new_path_item, schemas} = resolve_schema_modules_from_path_item(path_item, schemas)

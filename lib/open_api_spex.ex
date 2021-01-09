@@ -37,6 +37,32 @@ defmodule OpenApiSpex do
   end
 
   @doc """
+  Add more schemas to an existing OpenApi struct.
+
+  This is useful when the schemas are not used by a Plug or Controller.
+  Perhaps they're used by a Phoenix Channel.
+
+  ## Example
+
+      defmodule MyAppWeb.ApiSpec do
+        def spec do
+          %OpenApiSpex.OpenApi{
+            # ...
+            paths: OpenApiSpex.Paths.from_router(MyAppWeb.Router)
+            # ...
+          }
+          |> OpenApiSpex.resolve_schema_modules()
+          |> OpenApiSpex.add_schemas([
+            MyAppWeb.Schemas.Message,
+            MyAppWeb.Schemas.Channel
+          ])
+        end
+      end
+  """
+  @spec add_schemas(OpenApi.t(), list(module)) :: OpenApi.t()
+  defdelegate add_schemas(spec, schema_modules), to: SchemaResolver
+
+  @doc """
   Cast and validate a value against a given Schema.
   """
   def cast_value(value, schema = %schema_mod{}) when schema_mod in [Schema, Reference] do
