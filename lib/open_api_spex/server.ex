@@ -37,7 +37,7 @@ defmodule OpenApiSpex.Server do
   @spec from_endpoint(module) :: t
   def from_endpoint(endpoint) do
     uri = apply(endpoint, :struct_url, [])
-    path = apply(endpoint, :path, [""])
+    path = apply(endpoint, :path, [""]) || "/"
     uri = %{uri | path: path}
 
     %Server{
