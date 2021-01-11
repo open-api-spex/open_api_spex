@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.ServerTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Server}
+  alias OpenApiSpex.Server
   alias OpenApiSpexTest.Endpoint
 
   @otp_app :open_api_spex_test
