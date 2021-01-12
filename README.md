@@ -20,7 +20,7 @@ The package can be installed by adding `open_api_spex` to your list of dependenc
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.9"}
+    {:open_api_spex, "~> 3.10"}
   ]
 end
 ```
@@ -88,8 +88,7 @@ To learn more about the different security schemes please the check the [officia
 ### Operations
 
 For each plug (controller) that will handle API requests, operations need
-to be defined that the plug/controller will handle. The operations can
-be defined using moduledoc attributes that are supported in Elixir 1.7 and higher.
+to be defined that the plug/controller will handle.
 
 ```elixir
 defmodule MyAppWeb.UserController do
@@ -123,6 +122,16 @@ defmodule MyAppWeb.UserController do
 end
 ```
 
+Note: In order to prevent Elixir Formatter from automatically adding parentheses to the `ControllerSpecs` macro
+call arguments, add `:open_api_spex` to the `import_deps` list in `.formatter.exs`:
+
+.formatter.exs:
+```elixir
+[
+  import_deps: [:open_api_spex]
+]
+```
+
 There is a convenient shortcut `:type` for base data types supported by open api
 
 ```elixir
@@ -143,6 +152,16 @@ responses: [
 ```
 
 The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
+
+Alternately, the HTTP status codes can be specified directly:
+
+```elixir
+responses: %{
+  200 => {"User response", "application/json", MyAppWeb.Schemas.UserResponse},
+  422 => {"Bad request parameters", "application/json", MyAppWeb.Schemas.BadRequestParameters},
+  404 => {"Not found", "application/json", MyAppWeb.Schemas.NotFound}
+}
+```
 
 If you need to omit the spec for some action then pass false to the
 second argument of `operation/2` for the action:
@@ -454,8 +473,7 @@ end
 
 OpenApiSpex can generate example data from specs. This has a similar result as
 SwaggerUI when it generates example requests or responses for an endpoint.
-Generated examples are a convenient way to come up with test data for
-controller/plug tests.
+This is a convenient way to generate test data for controller/plug tests.
 
 ```elixir
 use MyAppWeb.ConnCase

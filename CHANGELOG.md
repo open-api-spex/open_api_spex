@@ -1,3 +1,33 @@
+# 3.10.0
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+- [noozo](https://github.com/noozo)
+- [sernajoto](https://github.com/sernajoto)
+- [pacoguzman](https://github.com/pacoguzman)
+- [vitorleal](https://github.com/vitorleal)
+- [zlarsen](https://github.com/zlarsen)
+- [surik](https://github.com/surik)
+- [brentjr](https://github.com/brentjr)
+- [dwmcc](https://github.com/dwmcc)
+- [wingyplus](https://github.com/wingyplus)
+
+- Feature: Support OAuth2 for swagger-ui (#217)
+- Feature: Support `default` response type in responses (#301)
+- Feature: Allow overriding `x-struct` in `OpenApiSpex.shcmea/1` (#304)
+- Feature: Ability to specify `deprecated` in ControllerSpec operation (#296)
+- Feature: `:struct?` and `:derive?` options in `OpenApiSpex.schema/1` (#312)
+- Feature: `OpenApiSpex.add_schemas/2` (#314)
+- Enhancement: Remove api_spec data from Conn (#286)
+- Enhancement: More informative errors for bad schema (#288, #284, #287) 
+- Fix: Convert `:format` value to atom when decoding schema file (#293)
+- Fix: Type spec in OpenApiSpex.Info
+- Fix: Elixir Formatter rules in published package (#306)
+- Docs: Fix spelling error in example code (#295)
+- Docs: Fix type in README (#297)
+- Docs: Fix links and punctuation in README (#298)
+- Docs: Promote ControlerSpecs as the preferred API for controller operations (#311)
+
 # 3.9.0
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
