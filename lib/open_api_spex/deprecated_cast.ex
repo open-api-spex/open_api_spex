@@ -1,5 +1,9 @@
 defmodule OpenApiSpex.DeprecatedCast do
-  @moduledoc false
+  @moduledoc """
+  This module is deprecated.
+
+  Please use `OpenApiSpex.Cast` instead.
+  """
 
   alias OpenApiSpex.{Discriminator, Reference, Schema}
 

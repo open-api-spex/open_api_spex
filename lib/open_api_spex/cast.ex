@@ -17,11 +17,12 @@ defmodule OpenApiSpex.Cast do
   }
 
   @type schema_or_reference :: Schema.t() | Reference.t()
+
   @type t :: %__MODULE__{
           value: term(),
           schema: schema_or_reference | nil,
           schemas: map(),
-          path: [atom() | String.t() | integer()],
+          path: [atom | Elixir.String.t() | integer],
           key: atom() | nil,
           index: integer,
           errors: [Error.t()]
