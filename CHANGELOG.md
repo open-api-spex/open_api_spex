@@ -14,7 +14,7 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 
 - Feature: Support OAuth2 for swagger-ui (#217)
 - Feature: Support `default` response type in responses (#301)
-- Feature: Allow overriding `x-struct` in `OpenApiSpex.shcmea/1` (#304)
+- Feature: Allow overriding `x-struct` in `OpenApiSpex.schema/1` (#304)
 - Feature: Ability to specify `deprecated` in ControllerSpec operation (#296)
 - Feature: `:struct?` and `:derive?` options in `OpenApiSpex.schema/1` (#312)
 - Feature: `OpenApiSpex.add_schemas/2` (#314)
