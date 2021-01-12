@@ -4,6 +4,6 @@ defmodule PhoenixAppWeb.Endpoint do
   plug Plug.RequestId
   plug Plug.Logger
   plug Plug.Static, at: "/", from: {:phoenix_app, "priv/static"}
-  plug Plug.Parsers, parsers: [:json], pass: ["*/*"], json_decoder: Jason
+  plug Plug.Parsers, parsers: [:urlencoded, :json], pass: ["*/*"], json_decoder: Jason
   plug PhoenixAppWeb.Router
 end

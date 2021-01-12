@@ -87,14 +87,27 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         ],
         layout: "StandaloneLayout",
         requestInterceptor: function(request){
-          request.headers["x-csrf-token"] = "<%= csrf_token %>";
+          server_base = window.location.protocol + "//" + window.location.host;
+          if(request.url.startsWith(server_base)) {
+            request.headers["x-csrf-token"] = "<%= csrf_token %>";
+          } else {
+            delete request.headers["x-csrf-token"];
+          }
           return request;
         }
-        <%= for {k, v} <- Map.drop(config, [:path]) do %>
+        <%= for {k, v} <- Map.drop(config, [:path, :oauth]) do %>
         , <%= camelize(k) %>: <%= OpenApiSpex.OpenApi.json_encoder().encode!(v) %>
         <% end %>
       })
       // End Swagger UI call region
+      <%= if config[:oauth] do %>
+        ui.initOAuth(
+          <%= config.oauth
+              |> Map.new(fn {k, v} -> {camelize(k), v} end)
+              |> OpenApiSpex.OpenApi.json_encoder().encode!()
+          %>
+        )
+      <% end %>
       window.ui = ui
     }
     </script>
@@ -108,6 +121,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   ## Options
 
    * `:path` - Required. The URL path to the API definition.
+   * `:oauth` - Optional. Config to pass to the `SwaggerUIBundle.initOAuth()` function.
    * all other opts - forwarded to the `SwaggerUIBundle` constructor
 
   ## Example
@@ -125,6 +139,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   @impl Plug
   def call(conn, config) do
     csrf_token = Plug.CSRFProtection.get_csrf_token()
+    config = supplement_config(config, conn)
     html = render(config, csrf_token)
 
     conn
@@ -147,5 +162,15 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
       [first] -> first
       [first, rest] -> first <> Macro.camelize(rest)
     end
+  end
+
+  defp supplement_config(%{oauth2_redirect_url: {:endpoint_url, path}} = config, conn) do
+    endpoint_module = apply(Phoenix.Controller, :endpoint_module, [conn])
+    url = Path.join(endpoint_module.url(), path)
+    Map.put(config, :oauth2_redirect_url, url)
+  end
+
+  defp supplement_config(config, _conn) do
+    config
   end
 end
