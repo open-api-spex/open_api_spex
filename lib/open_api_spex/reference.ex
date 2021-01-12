@@ -30,7 +30,7 @@ defmodule OpenApiSpex.Reference do
       ...> Reference.resolve_schema(%Reference{"$ref": "#/components/schemas/user"}, schemas)
       %OpenApiSpex.Schema{type: :object, title: "user"}
   """
-  @spec resolve_schema(Reference.t(), Components.schema_map()) :: Schema.t() | nil
+  @spec resolve_schema(Reference.t(), Components.schemas_map()) :: Schema.t() | nil
   def resolve_schema(%Reference{"$ref": "#/components/schemas/" <> name}, schemas),
     do: schemas[name]
 
