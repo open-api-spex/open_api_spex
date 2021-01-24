@@ -264,6 +264,7 @@ defmodule OpenApiSpex.ControllerSpecs do
   def operation_spec(module, action, spec) do
     spec = Map.new(spec)
     shared_tags = Module.get_attribute(module, :shared_tags, []) |> List.flatten()
+
     security =
       case Module.get_attribute(module, :shared_security) do
         [] -> nil
