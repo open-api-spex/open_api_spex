@@ -182,7 +182,6 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
       true -> value
       false -> OpenApiSpex.OpenApi.json_encoder().encode!(value)
     end
-    |> IO.inspect()
   end
 
   defp supplement_config(%{oauth2_redirect_url: {:endpoint_url, path}} = config, conn) do
