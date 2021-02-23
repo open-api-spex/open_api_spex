@@ -96,7 +96,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
           return request;
         }
         <%= for {k, v} <- Map.drop(config, [:path, :oauth]) do %>
-        , <%= camelize(k) %>: <%= OpenApiSpex.OpenApi.json_encoder().encode!(v) %>
+        , <%= camelize(k) %>: <%= encode_config(k, v) %>
         <% end %>
       })
       // End Swagger UI call region
@@ -114,6 +114,19 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     </body>
     </html>
   """
+
+  @ui_config_methods [
+    "operationsSorter",
+    "tagsSorter",
+    "onComplete",
+    "requestInterceptor",
+    "responseInterceptor",
+    "modelPropertyMacro",
+    "parameterMacro",
+    "initOAuth",
+    "preauthorizeBasic",
+    "preauthorizeApiKey"
+  ]
 
   @doc """
   Initializes the plug.
@@ -161,6 +174,13 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     |> case do
       [first] -> first
       [first, rest] -> first <> Macro.camelize(rest)
+    end
+  end
+
+  defp encode_config(key, value) do
+    case Enum.member?(@ui_config_methods, camelize(key)) do
+      true -> value
+      false -> OpenApiSpex.OpenApi.json_encoder().encode!(value)
     end
   end
 
