@@ -1,5 +1,6 @@
 defmodule OpenApiSpex.OperationTest do
   use ExUnit.Case
+  alias OpenApiSpexTest.Schemas
   alias OpenApiSpex.Operation
   alias OpenApiSpexTest.UserController
 
@@ -39,6 +40,28 @@ defmodule OpenApiSpex.OperationTest do
     test "from_plug" do
       assert Operation.from_plug(UserController, :show) ==
                UserController.open_api_operation(:show)
+    end
+
+    test "response" do
+      assert %OpenApiSpex.Response{} =
+        Operation.response(
+          "A description for the response",
+          "application/json",
+          Schemas.User.schema().example
+        )
+
+      assert %OpenApiSpex.Response{} =
+        Operation.response(
+          "A description for the response",
+          "application/json",
+          Schemas.User.schema().example,
+          headers: %{
+            "content-length" => %OpenApiSpex.Header{
+              description: "The length of response",
+              example: "content-length: 42"
+            }
+          }
+        )
     end
   end
 end

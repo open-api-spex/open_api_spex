@@ -128,7 +128,7 @@ defmodule OpenApiSpex.Operation do
   end
 
   @doc """
-  Shorthand for constructing a Response with description, media_type, schema and optional examples
+  Shorthand for constructing a Response with description, media_type, schema and optional headers or examples
   """
   @spec response(
           description :: String.t(),
@@ -139,6 +139,7 @@ defmodule OpenApiSpex.Operation do
   def response(description, media_type, schema_ref, opts \\ []) do
     %Response{
       description: description,
+      headers: opts[:headers],
       content: %{
         media_type => %MediaType{
           schema: schema_ref,
