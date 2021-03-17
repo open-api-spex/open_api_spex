@@ -50,7 +50,8 @@ defmodule OpenApiSpex.ControllerSpecsTest do
 
       assert %Response{
                content: %{"application/json" => media_type},
-               description: "User response"
+               description: "User response",
+               headers: %{"content-type" => %OpenApiSpex.Header{}}
              } = response
 
       assert %MediaType{schema: OpenApiSpexTest.DslController.UserResponse} = media_type

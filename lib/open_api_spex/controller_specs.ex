@@ -181,6 +181,11 @@ defmodule OpenApiSpex.ControllerSpecs do
       3. An Open API schema. This can be a schema module that implements the
          `OpenApiSpex.Schema` [behaviour](https://hexdocs.pm/elixir/Module.html#module-behaviour),
          or an `OpenApiSpex.Schema` struct.
+      4. An optional `Keyword` list with the following optional key/values:
+        a. example: an example string
+        b. examples: a list of example strings
+        c. headers: a `Map` with string keys defining the header name and
+           an `OpenApiSpex.Header` struct as a value.
 
     - If the response represents an empty response, the definition value can
       be a single string representing the response description. For example:
