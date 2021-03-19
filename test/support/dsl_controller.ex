@@ -70,13 +70,22 @@ defmodule OpenApiSpexTest.DslController do
     ],
     request_body: {"User params", "application/json", UserParams},
     responses: [
-      ok: {"User response", "application/json", UserResponse}
+      ok: { "User response", "application/json", UserResponse,
+        headers: %{
+          "content-type" => %OpenApiSpex.Header{
+            description: "Type of the content for the response",
+            example: "content-type: application/json; charset=utf-8"
+          }
+        }
+      }
     ],
     tags: ["custom"],
     security: [%{"two" => ["another"]}]
 
   def update(conn, %{"id" => id}) do
-    json(conn, %{
+    conn
+    |> put_resp_header("content-type", "application/json; charset=utf-8")
+    |> json(%{
       data: %{
         id: id,
         name: "joe user",
