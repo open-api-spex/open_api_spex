@@ -11,9 +11,9 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
   Full description for this endpoint...
   """
   @doc external_docs: %{
-    description: "Check out these docs",
-    url: "https://example.com/"
-  }
+         description: "Check out these docs",
+         url: "https://example.com/"
+       }
   @doc parameters: [
          id: [in: :path, type: :string, required: true]
        ]
