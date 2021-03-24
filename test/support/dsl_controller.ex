@@ -137,6 +137,10 @@ defmodule OpenApiSpexTest.DslController do
   end
 
   operation :destroy,
+    external_docs: %{
+      description: "User destroy docs",
+      url: "https://example.com/"
+    },
     deprecated: true,
     summary: "User destroy",
     parameters: [

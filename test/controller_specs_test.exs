@@ -64,6 +64,16 @@ defmodule OpenApiSpex.ControllerSpecsTest do
              } = DslController.open_api_operation(:destroy)
     end
 
+    test ":external_docs" do
+      assert %OpenApiSpex.Operation{
+               summary: "User destroy",
+               externalDocs: %OpenApiSpex.ExternalDocumentation{
+                 description: "User destroy docs",
+                 url: "https://example.com/"
+               }
+             } = DslController.open_api_operation(:destroy)
+    end
+
     test "outputs warning when action not defined for called open_api_operation" do
       output = capture_io(:stderr, fn -> DslController.open_api_operation(:undefined) end)
 
