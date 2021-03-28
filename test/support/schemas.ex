@@ -157,13 +157,22 @@ defmodule OpenApiSpexTest.Schemas do
     end
   end
 
+  defmodule Unit do
+    OpenApiSpex.schema(%{
+      title: "Unit",
+      description: "SI unit name",
+      type: :string,
+      default: "cm"
+    })
+  end
+
   defmodule Size do
     OpenApiSpex.schema(%{
       title: "Size",
       description: "A size of a pet",
       type: :object,
       properties: %{
-        unit: %Schema{type: :string, description: "SI unit name", default: "cm"},
+        unit: Unit,
         value: %Schema{type: :integer, description: "Size in given unit", default: 100}
       },
       required: [:unit, :value]

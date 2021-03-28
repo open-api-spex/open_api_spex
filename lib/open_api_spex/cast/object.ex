@@ -2,6 +2,7 @@ defmodule OpenApiSpex.Cast.Object do
   @moduledoc false
   alias OpenApiSpex.Cast
   alias OpenApiSpex.Cast.Error
+  alias OpenApiSpex.Reference
 
   def cast(%{value: value} = ctx) when not is_map(value) do
     Cast.error(ctx, {:invalid_type, :object})
@@ -11,23 +12,36 @@ defmodule OpenApiSpex.Cast.Object do
     {:ok, value}
   end
 
-  def cast(%{value: value, schema: schema} = ctx) do
+  def cast(%{value: value, schema: schema, schemas: schemas} = ctx) do
     original_value = value
     schema_properties = schema.properties || %{}
 
     with :ok <- check_unrecognized_properties(ctx, schema_properties),
-         value = cast_atom_keys(value, schema_properties),
+         resolved_schema_properties <- resolve_schema_properties_references(schema_properties, schemas),
+         value = cast_atom_keys(value, resolved_schema_properties),
          ctx = %{ctx | value: value},
          {:ok, ctx} <- cast_additional_properties(ctx, original_value),
          :ok <- check_required_fields(ctx, schema),
          :ok <- check_max_properties(ctx),
          :ok <- check_min_properties(ctx),
-         {:ok, value} <- cast_properties(%{ctx | schema: schema_properties}) do
-      value_with_defaults = apply_defaults(value, schema_properties)
+         {:ok, value} <- cast_properties(%{ctx | schema: resolved_schema_properties}) do
+      value_with_defaults = apply_defaults(value, resolved_schema_properties)
       ctx = to_struct(%{ctx | value: value_with_defaults})
       {:ok, ctx}
     end
   end
+
+  defp resolve_schema_properties_references(schema_properties, schemas) do
+    Enum.reduce(schema_properties, schema_properties, fn property, properties ->
+      resolve_property_if_reference(property, properties, schemas)
+    end)
+  end
+
+  defp resolve_property_if_reference({key, %Reference{} = reference}, properties, schemas) do
+    Map.put(properties, key, Reference.resolve_schema(reference, schemas))
+  end
+
+  defp resolve_property_if_reference(_not_a_reference, properties, _schemas), do: properties
 
   # When additionalProperties is not false, extra properties are allowed in input
   defp check_unrecognized_properties(%{schema: %{additionalProperties: ap}}, _expected_keys)
