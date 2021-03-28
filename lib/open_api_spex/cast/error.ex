@@ -201,8 +201,8 @@ defmodule OpenApiSpex.Cast.Error do
     |> add_context_fields(ctx)
   end
 
-  def new(ctx, {:missing_field, name}) do
-    %__MODULE__{reason: :missing_field, name: name}
+  def new(ctx, {:missing_field, name, property}) do
+    %__MODULE__{reason: :missing_field, name: name, meta: %{property: property}}
     |> add_context_fields(ctx)
   end
 
