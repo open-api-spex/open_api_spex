@@ -6,7 +6,6 @@ defmodule OpenApiSpex.TestAssertions do
   alias OpenApiSpex.OpenApi
   alias OpenApiSpex.Cast.Error
   alias OpenApiSpex.Schema
-  alias OpenApiSpex.Reference
 
   @dialyzer {:no_match, assert_schema: 3}
 
@@ -32,9 +31,9 @@ defmodule OpenApiSpex.TestAssertions do
         errors =
           errors
           |> Enum.reject(fn error ->
-            property = find_property(schema, error.path, schemas)
-
-            ignore_error?(error, property, assert_operation)
+            schema
+            |> find_property(error, schemas)
+            |> ignore_error?(error, assert_operation)
           end)
           |> Enum.map(fn error ->
             message = Error.message(error)
@@ -70,20 +69,18 @@ defmodule OpenApiSpex.TestAssertions do
     assert_schema(value, schema_title, api_spec, :request)
   end
 
-  defp ignore_error?(%Error{reason: :missing_field}, %Schema{readOnly: true}, :request), do: true
-  defp ignore_error?(%Error{reason: :missing_field}, %Schema{writeOnly: true}, :response), do: true
-  defp ignore_error?(_error, _assert_operation), do: false
+  defp ignore_error?(%Schema{readOnly: true}, %Error{reason: :missing_field}, :request), do: true
+  defp ignore_error?(%Schema{writeOnly: true}, %Error{reason: :missing_field}, :response), do: true
+  defp ignore_error?(_property, _error, _assert_operation), do: false
 
-  defp find_property(schema, path, schemas) do
+  defp find_property(schema, %Error{path: path}, schemas) do
     Enum.reduce(path, schema, fn path_item, acc ->
       case acc do
-        %Schema{type: :array} ->
-          acc.items
-          |> OpenApiSpex.resolve_schema(schemas)
+        %Schema{type: :array, items: items} ->
+          OpenApiSpex.resolve_schema(items, schemas)
 
-        %Schema{} ->
-          acc
-          |> Map.get(:properties)
+        %Schema{type: _type, properties: properties} ->
+          properties
           |> Map.get(path_item)
           |> OpenApiSpex.resolve_schema(schemas)
       end
