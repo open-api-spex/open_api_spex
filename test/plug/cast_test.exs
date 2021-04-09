@@ -105,6 +105,7 @@ defmodule OpenApiSpex.Plug.CastTest do
           "id" => 123,
           "name" => "asdf",
           "email" => "foo@bar.com",
+          "password" => "0123456789",
           "updated_at" => "2017-09-12T14:44:55Z"
         }
       }
@@ -120,6 +121,7 @@ defmodule OpenApiSpex.Plug.CastTest do
                  id: 123,
                  name: "asdf",
                  email: "foo@bar.com",
+                 password: "0123456789",
                  updated_at: ~N[2017-09-12T14:44:55Z] |> DateTime.from_naive!("Etc/UTC")
                }
              }
@@ -142,6 +144,7 @@ defmodule OpenApiSpex.Plug.CastTest do
           "id" => 123,
           "name" => "*1234",
           "email" => "foo@bar.com",
+          "password" => "0123456789",
           "updated_at" => "2017-09-12T14:44:55Z"
         }
       }

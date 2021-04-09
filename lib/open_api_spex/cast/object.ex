@@ -60,7 +60,7 @@ defmodule OpenApiSpex.Cast.Object do
       errors =
         Enum.map(missing_keys, fn key ->
           ctx = %{ctx | path: [key | ctx.path]}
-          Error.new(ctx, {:missing_field, key, schema.properties[key]})
+          Error.new(ctx, {:missing_field, key})
         end)
 
       {:error, ctx.errors ++ errors}

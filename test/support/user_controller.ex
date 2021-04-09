@@ -68,8 +68,14 @@ defmodule OpenApiSpexTest.UserController do
          created: {"User", "application/json", Schemas.UserResponse}
        ]
   def create(conn = %{body_params: %Schemas.UserRequest{user: user = %Schemas.User{}}}, _) do
+    user =
+      user
+      |> Map.from_struct()
+      |> Map.put(:id, 1234)
+      |> Map.delete(:password)
+
     json(conn, %Schemas.UserResponse{
-      data: %{user | id: 1234}
+      data: user
     })
   end
 
