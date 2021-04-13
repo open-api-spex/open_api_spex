@@ -56,12 +56,12 @@ defmodule MyAppWeb.ApiSpec do
 end
 ```
 
-Or you can use application's spec value in `info:` key.
+Or you can use your application's spec values in the `info:` key.
 
 ```elixir
 info: %Info{
-  description: Application.spec(:my_app, :description)
-  version: Application.spec(:my_app, :vsn)
+  title: to_string(Application.spec(:my_app, :description)),
+  version: to_string(Application.spec(:my_app, :vsn))
 }
 ```
 
