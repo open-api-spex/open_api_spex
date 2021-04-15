@@ -71,11 +71,14 @@ defmodule OpenApiSpex.SchemaResolver do
 
     {responses, schemas} = resolve_schema_modules_from_responses(operation.responses, schemas)
 
+    {callbacks, schemas} = resolve_schema_modules_from_callbacks(operation.callbacks, schemas)
+
     new_operation = %{
       operation
       | parameters: parameters,
         requestBody: request_body,
-        responses: responses
+        responses: responses,
+        callbacks: callbacks
     }
 
     {new_operation, schemas}
@@ -147,6 +150,13 @@ defmodule OpenApiSpex.SchemaResolver do
 
   defp resolve_schema_modules_from_request_body(request_body = %Reference{}, schemas) do
     {request_body, schemas}
+  end
+
+  defp resolve_schema_modules_from_callbacks(callbacks = %{}, schemas) do
+    Enum.reduce(callbacks, {callbacks, schemas}, fn {callback, paths}, {callbacks, schemas} ->
+      {new_paths, schemas} = resolve_schema_modules_from_paths(paths, schemas)
+      {Map.put(callbacks, callback, new_paths), schemas}
+    end)
   end
 
   defp resolve_schema_modules_from_responses(responses, schemas = %{}) when is_list(responses) do

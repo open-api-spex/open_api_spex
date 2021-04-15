@@ -93,6 +93,47 @@ defmodule OpenApiSpex.SchemaResolverTest do
               }
             }
           }
+        },
+        "/api/users/subscribe" => %PathItem{
+          post: %Operation{
+            description: "Subscribe to user updates",
+            operationId: "UserController.subscribe",
+            requestBody: %RequestBody{
+              required: true,
+              content: %{
+                "application/json" => %MediaType{
+                  schema: OpenApiSpexTest.Schemas.UserSubscribeRequest
+                }
+              }
+            },
+            callbacks: %{
+              "user_updated" => %{
+                "{$request.body#/callback_url}" => %PathItem{
+                  post: %Operation{
+                    description: "Provided endpoint for sending updates",
+                    requestBody: %RequestBody{
+                      required: true,
+                      content: %{
+                        "application/json" => %MediaType{
+                          schema: OpenApiSpexTest.Schemas.UserResponse
+                        }
+                      }
+                    },
+                    responses: %{
+                      200 => %Response{
+                        description: "Your server returns this code if it accepts the callback"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            responses: %{
+              201 => %Response{
+                description: "Webhook created"
+              }
+            }
+          }
         }
       }
     }
@@ -112,6 +153,7 @@ defmodule OpenApiSpex.SchemaResolverTest do
              "UserRequest" => %Schema{},
              "UserResponse" => %Schema{},
              "User" => %Schema{},
+             "UserSubscribeRequest" => %Schema{},
              "PaymentDetails" => %Schema{},
              "CreditCardPaymentDetails" => %Schema{},
              "DirectDebitPaymentDetails" => %Schema{}
