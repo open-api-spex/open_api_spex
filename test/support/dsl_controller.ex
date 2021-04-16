@@ -10,7 +10,8 @@ defmodule OpenApiSpexTest.DslController do
       type: :object,
       properties: %{
         email: %Schema{type: :string},
-        name: %Schema{type: :string}
+        name: %Schema{type: :string},
+        callback_url: %Schema{type: :string},
       }
     })
   end
@@ -68,6 +69,29 @@ defmodule OpenApiSpexTest.DslController do
         example: 1001
       ]
     ],
+    callbacks: %{
+      "user_updates" => %{
+        "{$request.body#/callback_url}" => %{
+          post: %Operation{
+            description: "Provided endpoint for sending updates",
+            requestBody: %RequestBody{
+              required: true,
+              content: %{
+                "application/json" => %MediaType{
+                  schema: OpenApiSpexTest.Schemas.UserResponse
+                }
+              }
+            },
+            responses: %{
+              200 => %Response{
+                description: "Your server returns this code if it accepts the callback"
+              }
+            }
+          }
+        }
+        }
+      }
+    },
     request_body: {"User params", "application/json", UserParams},
     responses: [
       ok: { "User response", "application/json", UserResponse,

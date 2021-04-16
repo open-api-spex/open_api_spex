@@ -337,6 +337,23 @@ defmodule OpenApiSpexTest.Schemas do
     })
   end
 
+
+
+  defmodule UserSubscribeRequest do
+    OpenApiSpex.schema(%{
+      title: "UserSubscribeRequest",
+      description: "POST body for subscribing to user changes",
+      type: :object,
+      properties: %{
+        callback_url: %Schema{type: :string}
+      },
+      required: [:callback_url],
+      example: %{
+        "callback_url" => "https://myserver.com/send/callback/here"
+      }
+    })
+  end
+
   defmodule EntityWithDict do
     OpenApiSpex.schema(%{
       title: "EntityWithDict",
