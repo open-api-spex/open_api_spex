@@ -51,6 +51,17 @@ defmodule OpenApiSpex.Cast.Object do
 
   defp check_required_fields(%{value: input_map} = ctx, schema) do
     required = schema.required || []
+
+    # Adjust required fields list, based on read_write_scope
+    required =
+      Enum.filter(required, fn key ->
+        case {ctx.read_write_scope, schema.properties[key]} do
+          {:read_only, %{readOnly: true}} -> false
+          {:write_only, %{writeOnly: true}} -> false
+          _ -> true
+        end
+      end)
+
     input_keys = Map.keys(input_map)
     missing_keys = required -- input_keys
 
