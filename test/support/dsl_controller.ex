@@ -2,6 +2,8 @@ defmodule OpenApiSpexTest.DslController do
   use Phoenix.Controller
   use OpenApiSpex.ControllerSpecs
 
+  alias OpenApiSpex.{MediaType, Operation, RequestBody, Response}
+
   defmodule UserParams do
     alias OpenApiSpex.Schema
     require OpenApiSpex
@@ -11,7 +13,7 @@ defmodule OpenApiSpexTest.DslController do
       properties: %{
         email: %Schema{type: :string},
         name: %Schema{type: :string},
-        callback_url: %Schema{type: :string},
+        callback_url: %Schema{type: :string}
       }
     })
   end
@@ -89,19 +91,18 @@ defmodule OpenApiSpexTest.DslController do
             }
           }
         }
-        }
       }
     },
     request_body: {"User params", "application/json", UserParams},
     responses: [
-      ok: { "User response", "application/json", UserResponse,
-        headers: %{
-          "content-type" => %OpenApiSpex.Header{
-            description: "Type of the content for the response",
-            example: "content-type: application/json; charset=utf-8"
-          }
-        }
-      }
+      ok:
+        {"User response", "application/json", UserResponse,
+         headers: %{
+           "content-type" => %OpenApiSpex.Header{
+             description: "Type of the content for the response",
+             example: "content-type: application/json; charset=utf-8"
+           }
+         }}
     ],
     tags: ["custom"],
     security: [%{"two" => ["another"]}]
