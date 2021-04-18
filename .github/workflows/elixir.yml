@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        elixir: [1.11]
+        elixir: [1.8, 1.11]
         otp: [23.0]
 
     steps:
