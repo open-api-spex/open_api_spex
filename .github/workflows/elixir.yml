@@ -16,7 +16,7 @@ jobs:
         otp: [22.3, 23.0]
         exclude:
           - elixir: 1.8
-            otp_release: 23.0
+            otp: 23.0
 
     steps:
       - uses: actions/checkout@v2
