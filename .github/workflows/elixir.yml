@@ -10,14 +10,21 @@ jobs:
   build:
     name: Build and test
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        elixir: [1.8, 1.11]
+        otp: [20.3, 21.3, 22.3, 23.0]
+        exclude:
+          - elixir: 1.8
+            otp_release: 23.0
 
     steps:
       - uses: actions/checkout@v2
       - name: Set up Elixir
         uses: actions/setup-elixir@v1
         with:
-          elixir-version: "1.11.2" # Define the elixir version [required]
-          otp-version: "23.1.5" # Define the OTP version [required]
+          elixir-version: ${{ matrix.elixir }} # Define the elixir version [required]
+          otp-version: ${{ matrix.otp }} # Define the OTP version [required]
       - name: Restore dependencies cache
         uses: actions/cache@v2
         with:
