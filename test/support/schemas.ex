@@ -340,8 +340,6 @@ defmodule OpenApiSpexTest.Schemas do
     })
   end
 
-
-
   defmodule UserSubscribeRequest do
     OpenApiSpex.schema(%{
       title: "UserSubscribeRequest",

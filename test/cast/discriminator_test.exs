@@ -218,63 +218,67 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
                "#/data/#{@discriminator}/breed: String length is smaller than minLength: 5"
     end
 
-    test "without setting a composite key, raises compile time error" do
-      # While we're still specifying the composite key here, it'll be set to
-      # nil. E.g. %Schema{anyOf: nil, discriminator: %{...}}
-      discriminator_schema =
-        build_discriminator_schema(nil, :anyOf, String.to_atom(@discriminator), nil)
+    if Version.compare(System.version(), "1.10.0") in [:gt, :eq] do
+      test "without setting a composite key, raises compile time error" do
+        # While we're still specifying the composite key here, it'll be set to
+        # nil. E.g. %Schema{anyOf: nil, discriminator: %{...}}
+        discriminator_schema =
+          build_discriminator_schema(nil, :anyOf, String.to_atom(@discriminator), nil)
 
-      # We have to escape the map to unquote it later.
-      schema_as_map = Map.from_struct(discriminator_schema) |> Macro.escape()
+        # We have to escape the map to unquote it later.
+        schema_as_map = Map.from_struct(discriminator_schema) |> Macro.escape()
 
-      # A module which will define our broken schema, and throw an error.
-      code =
-        quote do
-          defmodule DiscriminatorWihoutCompositeKey do
-            require OpenApiSpex
+        # A module which will define our broken schema, and throw an error.
+        code =
+          quote do
+            defmodule DiscriminatorWihoutCompositeKey do
+              require OpenApiSpex
 
-            OpenApiSpex.schema(unquote(schema_as_map))
+              OpenApiSpex.schema(unquote(schema_as_map))
+            end
           end
-        end
 
-      # Confirm we raise the error when we compile the code
-      assert_raise(OpenApiSpex.SchemaException, fn ->
-        Code.eval_quoted(code)
-      end)
+        # Confirm we raise the error when we compile the code
+        assert_raise(OpenApiSpex.SchemaException, fn ->
+          Code.eval_quoted(code)
+        end)
+      end
     end
 
-    # From the OAS discriminator docs:
-    #
-    #   "[..] inline schema definitions, which do not have a given id,
-    #   cannot be used in polymorphism."
-    test "discriminator schemas without titles, raise compile time error", %{
-      schemas: %{dog: dog, cat: cat}
-    } do
-      discriminator_schema =
-        build_discriminator_schema(
-          [cat, %{dog | title: nil}],
-          :anyOf,
-          String.to_atom(@discriminator),
-          nil
-        )
+    if Version.compare(System.version(), "1.10.0") in [:gt, :eq] do
+      # From the OAS discriminator docs:
+      #
+      #   "[..] inline schema definitions, which do not have a given id,
+      #   cannot be used in polymorphism."
+      test "discriminator schemas without titles, raise compile time error", %{
+        schemas: %{dog: dog, cat: cat}
+      } do
+        discriminator_schema =
+          build_discriminator_schema(
+            [cat, %{dog | title: nil}],
+            :anyOf,
+            String.to_atom(@discriminator),
+            nil
+          )
 
-      # We have to escape the map to unquote it later.
-      schema_as_map = Map.from_struct(discriminator_schema) |> Macro.escape()
+        # We have to escape the map to unquote it later.
+        schema_as_map = Map.from_struct(discriminator_schema) |> Macro.escape()
 
-      # A module which will define our broken schema, and throw an error.
-      code =
-        quote do
-          defmodule DiscriminatorSchemaWithoutId do
-            require OpenApiSpex
+        # A module which will define our broken schema, and throw an error.
+        code =
+          quote do
+            defmodule DiscriminatorSchemaWithoutId do
+              require OpenApiSpex
 
-            OpenApiSpex.schema(unquote(schema_as_map))
+              OpenApiSpex.schema(unquote(schema_as_map))
+            end
           end
-        end
 
-      # Confirm we raise the error when we compile the code
-      assert_raise(OpenApiSpex.SchemaException, fn ->
-        Code.eval_quoted(code)
-      end)
+        # Confirm we raise the error when we compile the code
+        assert_raise(OpenApiSpex.SchemaException, fn ->
+          Code.eval_quoted(code)
+        end)
+      end
     end
   end
 end

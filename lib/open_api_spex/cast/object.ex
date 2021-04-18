@@ -17,7 +17,8 @@ defmodule OpenApiSpex.Cast.Object do
     schema_properties = schema.properties || %{}
 
     with :ok <- check_unrecognized_properties(ctx, schema_properties),
-         resolved_schema_properties <- resolve_schema_properties_references(schema_properties, schemas),
+         resolved_schema_properties <-
+           resolve_schema_properties_references(schema_properties, schemas),
          value = cast_atom_keys(value, resolved_schema_properties),
          ctx = %{ctx | value: value},
          {:ok, ctx} <- cast_additional_properties(ctx, original_value),
