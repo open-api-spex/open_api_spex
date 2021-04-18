@@ -188,6 +188,7 @@ defmodule OpenApiSpexTest.Schemas do
         id: %Schema{type: :integer, description: "User ID"},
         name: %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
         email: %Schema{type: :string, description: "Email address", format: :email},
+        password: %Schema{type: :string, description: "Login password", writeOnly: true},
         inserted_at: %Schema{
           type: :string,
           description: "Creation timestamp",
@@ -195,12 +196,13 @@ defmodule OpenApiSpexTest.Schemas do
         },
         updated_at: %Schema{type: :string, description: "Update timestamp", format: :"date-time"}
       },
-      required: [:name, :email],
+      required: [:name, :email, :password],
       additionalProperties: false,
       example: %{
         "id" => 123,
         "name" => "Joe User",
         "email" => "joe@gmail.com",
+        "password" => "12345678",
         "inserted_at" => "2017-09-12T12:34:55Z",
         "updated_at" => "2017-09-13T10:11:12Z"
       }
@@ -286,7 +288,8 @@ defmodule OpenApiSpexTest.Schemas do
       example: %{
         "user" => %{
           "name" => "Joe User",
-          "email" => "joe@gmail.com"
+          "email" => "joe@gmail.com",
+          "password" => "0123456789"
         }
       }
     })

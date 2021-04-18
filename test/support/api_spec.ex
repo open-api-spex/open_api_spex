@@ -1,18 +1,45 @@
 defmodule OpenApiSpexTest.ApiSpec do
   alias OpenApiSpex.{
-    OpenApi,
-    Contact,
-    License,
-    Paths,
-    Server,
-    Info,
     Components,
+    Components,
+    Contact,
+    Info,
+    License,
+    OpenApi,
     Parameter,
-    Schema
+    Paths,
+    Schema,
+    Server
   }
 
   alias OpenApiSpexTest.{Router, Schemas}
   @behaviour OpenApi
+
+  @info %Info{
+    title: "A",
+    version: "3.0",
+    contact: %Contact{
+      name: "joe",
+      email: "Joe@gmail.com",
+      url: "https://help.joe.com"
+    },
+    license: %License{
+      name: "MIT",
+      url: "http://mit.edu/license"
+    }
+  }
+
+  def info, do: @info
+
+  def empty_spec do
+    %OpenApi{
+      paths: %{},
+      info: @info,
+      components: %Components{
+        schemas: %{}
+      }
+    }
+  end
 
   @impl OpenApi
   def spec() do
@@ -20,19 +47,7 @@ defmodule OpenApiSpexTest.ApiSpec do
       servers: [
         %Server{url: "http://example.com"}
       ],
-      info: %Info{
-        title: "A",
-        version: "3.0",
-        contact: %Contact{
-          name: "joe",
-          email: "Joe@gmail.com",
-          url: "https://help.joe.com"
-        },
-        license: %License{
-          name: "MIT",
-          url: "http://mit.edu/license"
-        }
-      },
+      info: @info,
       components: %Components{
         schemas:
           for schemaMod <- [

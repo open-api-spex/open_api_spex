@@ -16,6 +16,8 @@ defmodule OpenApiSpex.Cast do
     String
   }
 
+  @type read_write_scope :: nil | :read | :write
+
   @type schema_or_reference :: Schema.t() | Reference.t()
 
   @type t :: %__MODULE__{
@@ -25,7 +27,8 @@ defmodule OpenApiSpex.Cast do
           path: [atom | Elixir.String.t() | integer],
           key: atom() | nil,
           index: integer,
-          errors: [Error.t()]
+          errors: [Error.t()],
+          read_write_scope: read_write_scope
         }
 
   defstruct value: nil,
@@ -34,7 +37,8 @@ defmodule OpenApiSpex.Cast do
             path: [],
             key: nil,
             index: 0,
-            errors: []
+            errors: [],
+            read_write_scope: nil
 
   @doc ~S"""
   Cast and validate a value against the given schema.

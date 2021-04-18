@@ -3,6 +3,7 @@ defmodule OpenApiSpex.ObjectTest do
   alias OpenApiSpex.{Cast, Schema}
   alias OpenApiSpex.Cast.{Object, Error}
 
+  defp cast(%Cast{} = ctx), do: Object.cast(ctx)
   defp cast(ctx), do: Object.cast(struct(Cast, ctx))
 
   describe "cast/3" do
@@ -76,7 +77,7 @@ defmodule OpenApiSpex.ObjectTest do
     test "required fields" do
       schema = %Schema{
         type: :object,
-        properties: %{age: nil, name: nil},
+        properties: %{age: %Schema{type: :integer}, name: %Schema{type: :string}},
         required: [:age, :name]
       }
 
@@ -89,6 +90,39 @@ defmodule OpenApiSpex.ObjectTest do
       assert error2.reason == :missing_field
       assert error2.name == :name
       assert error2.path == [:name]
+    end
+
+    @test_cases [
+      %{schema: [readOnly: true], read_write_scope: :write, result: :ok},
+      %{schema: [writeOnly: true], read_write_scope: :read, result: :ok},
+      %{schema: [readOnly: true], read_write_scope: nil, result: :error},
+      %{schema: [writeOnly: true], read_write_scope: nil, result: :error}
+    ]
+
+    for test_case <- @test_cases do
+      @schema_attrs test_case.schema
+      @read_write_scope test_case.read_write_scope
+      @expected_result test_case.result
+
+      test "required, schema:#{inspect(@schema_attrs)}, read_write_scope:#{
+             inspect(@read_write_scope)
+           }" do
+        object_schema = %Schema{
+          type: :object,
+          properties: %{name: struct!(Schema, @schema_attrs)},
+          required: [:name]
+        }
+
+        cast_ctx = %Cast{
+          value: %{},
+          schema: object_schema,
+          read_write_scope: @read_write_scope
+        }
+
+        assert {result, _} = cast(cast_ctx)
+
+        assert result == @expected_result
+      end
     end
 
     test "fields with default values" do
