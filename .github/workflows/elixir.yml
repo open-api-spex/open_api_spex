@@ -1,0 +1,36 @@
+name: Elixir CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Elixir
+        uses: actions/setup-elixir@v1
+        with:
+          elixir-version: "1.11.2" # Define the elixir version [required]
+          otp-version: "23.1.5" # Define the OTP version [required]
+      - name: Restore dependencies cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build/test
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/mix.lock', '**/config/*.exs') }}
+          restore-keys: ${{ runner.os }}-deps-
+      - name: Install and compile dependencies
+        run: MIX_ENV=test mix do deps.get, deps.compile
+      - name: Compile application
+        run: MIX_ENV=test mix compile --warnings-as-errors
+      - name: Check formatting
+        run: mix format --check-formatted
+      - name: Run tests
+        run: mix test
