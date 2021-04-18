@@ -56,8 +56,8 @@ defmodule OpenApiSpex.Cast.Object do
     required =
       Enum.filter(required, fn key ->
         case {ctx.read_write_scope, schema.properties[key]} do
-          {:read_only, %{readOnly: true}} -> false
-          {:write_only, %{writeOnly: true}} -> false
+          {:read, %{writeOnly: true}} -> false
+          {:write, %{readOnly: true}} -> false
           _ -> true
         end
       end)

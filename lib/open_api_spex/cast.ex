@@ -16,7 +16,7 @@ defmodule OpenApiSpex.Cast do
     String
   }
 
-  @type read_write_scope :: nil | :read_only | :write_only
+  @type read_write_scope :: nil | :read | :write
 
   @type schema_or_reference :: Schema.t() | Reference.t()
 

@@ -16,9 +16,9 @@ defmodule OpenApiSpex.SchemaTest do
       spec = ApiSpec.spec()
 
       assert_schema(Schemas.User.schema().example, "User", spec)
-      assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec, :request)
-      assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec, :response)
-      assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec, :response)
+      assert_schema(Schemas.UserRequest.schema().example, "UserRequest", spec, :write)
+      assert_schema(Schemas.UserResponse.schema().example, "UserResponse", spec, :read)
+      assert_schema(Schemas.UsersResponse.schema().example, "UsersResponse", spec, :read)
     end
 
     test "Array Schema example matches schema" do

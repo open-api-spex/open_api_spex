@@ -93,8 +93,8 @@ defmodule OpenApiSpex.ObjectTest do
     end
 
     @test_cases [
-      %{schema: [readOnly: true], read_write_scope: :read_only, result: :ok},
-      %{schema: [writeOnly: true], read_write_scope: :write_only, result: :ok},
+      %{schema: [readOnly: true], read_write_scope: :write, result: :ok},
+      %{schema: [writeOnly: true], read_write_scope: :read, result: :ok},
       %{schema: [readOnly: true], read_write_scope: nil, result: :error},
       %{schema: [writeOnly: true], read_write_scope: nil, result: :error}
     ]
