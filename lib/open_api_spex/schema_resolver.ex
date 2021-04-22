@@ -210,7 +210,8 @@ defmodule OpenApiSpex.SchemaResolver do
   end
 
   defp resolve_schema_modules_from_schema(schema = %Schema{title: title}, schemas) do
-    schemas = if is_nil(title) do
+    schemas =
+      if is_nil(title) do
         schemas
       else
         Map.put(schemas, title, schema)
