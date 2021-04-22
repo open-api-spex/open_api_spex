@@ -132,13 +132,22 @@ defmodule OpenApiSpex.Cast.Object do
   end
 
   defp cast_properties(%{value: object, schema: schema_properties} = ctx) do
-    Enum.reduce(object, {:ok, %{}}, fn
-      {key, value}, {:ok, output} ->
-        cast_property(%{ctx | key: key, value: value, schema: schema_properties}, output)
+    Enum.reduce(object, {%{}, []}, fn {key, value}, {output, object_errors} ->
+      case cast_property(%{ctx | key: key, value: value, schema: schema_properties}, output) do
+        {:ok, output} ->
+          {output, object_errors}
 
-      _, error ->
-        error
+        {:error, errors} ->
+          {output, object_errors ++ errors}
+      end
     end)
+    |> case do
+      {output, []} ->
+        {:ok, output}
+
+      {_, errors} ->
+        {:error, errors}
+    end
   end
 
   defp cast_additional_properties(%{schema: %{additionalProperties: ap}} = ctx, original_value) do

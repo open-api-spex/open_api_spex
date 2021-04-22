@@ -291,5 +291,26 @@ defmodule OpenApiSpex.ObjectTest do
 
       assert {:ok, _} = cast(value: %{one: "one"}, schema: schema)
     end
+
+    test "return all cast properties errors" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          name: %Schema{type: :string, minLength: 3},
+          age: %Schema{type: :integer, minimum: 16}
+        }
+      }
+
+      assert {:error, [error1, error2]} =
+               cast(value: %{"age" => 0, "name" => "N"}, schema: schema)
+
+      assert %Error{} = error1
+      assert error1.reason == :minimum
+      assert error1.path == [:age]
+
+      assert %Error{} = error2
+      assert error2.reason == :min_length
+      assert error2.path == [:name]
+    end
   end
 end
