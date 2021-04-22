@@ -96,7 +96,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
           return request;
         }
         <%= for {k, v} <- Map.drop(config, [:path, :oauth]) do %>
-        , <%= camelize(k) %>: <%= encode_config(k, v) %>
+        , <%= camelize(k) %>: <%= encode_config(camelize(k), v) %>
         <% end %>
       })
       // End Swagger UI call region
@@ -116,8 +116,6 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   """
 
   @ui_config_methods [
-    "operationsSorter",
-    "tagsSorter",
     "onComplete",
     "requestInterceptor",
     "responseInterceptor",
@@ -177,8 +175,16 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     end
   end
 
+  defp encode_config("tagsSorter", "alpha" = value) do
+    value
+  end
+
+  defp encode_config("operationsSorter", value) when value == "alpha" or value == "method" do
+    value
+  end
+
   defp encode_config(key, value) do
-    case Enum.member?(@ui_config_methods, camelize(key)) do
+    case Enum.member?(@ui_config_methods, key) do
       true -> value
       false -> OpenApiSpex.OpenApi.json_encoder().encode!(value)
     end
