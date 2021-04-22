@@ -116,6 +116,8 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   """
 
   @ui_config_methods [
+    "operationsSorter",
+    "tagsSorter",
     "onComplete",
     "requestInterceptor",
     "responseInterceptor",
@@ -176,11 +178,11 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   end
 
   defp encode_config("tagsSorter", "alpha" = value) do
-    value
+    OpenApiSpex.OpenApi.json_encoder().encode!(value)
   end
 
   defp encode_config("operationsSorter", value) when value == "alpha" or value == "method" do
-    value
+    OpenApiSpex.OpenApi.json_encoder().encode!(value)
   end
 
   defp encode_config(key, value) do
