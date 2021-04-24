@@ -27,7 +27,7 @@ You can ask for help using OpenApiSpex by:
 To ship a release to Hex.pm, complete the following checklist:
 
 - Confirm the project builds and all tests pass on your machine `mix clean; mix test`
-- If possible, look for regressions by testing `master` against a project that uses open_api_spex.
+- If possible, look for regressions by testing `master` against a project that uses `:open_api_spex`.
 - Confirm the docs build successfully and do not contain obvious formatting errors `mix docs; open doc/index.html`
 - Review the `CHANGELOG.md` file, adding a line for each pr / issue and a larger description for significant changes.
 - Update the `@version` attribute in `mix.exs`
@@ -36,4 +36,4 @@ To ship a release to Hex.pm, complete the following checklist:
 - Push master branch to `open_api_spex` repo
 - Push package to Hex: `mix hex.publish`
 - Add a release announcement to the [Elixir Forum thread](https://elixirforum.com/t/openapispex-openapi-swagger-3-0-for-plug-apis/15614)
-- Add a release announcement to the #open_api_spex channel in the Elixir Slack workspace.
+- Add a release announcement to the #open_api_spex channel in the Elixir Slack workspace

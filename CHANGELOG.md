@@ -1,4 +1,11 @@
-# 3.10.0
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## v3.10.0 - 2021-01-11
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
@@ -12,39 +19,39 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 - [dwmcc](https://github.com/dwmcc)
 - [wingyplus](https://github.com/wingyplus)
 
-- Feature: Support OAuth2 for swagger-ui (#217)
-- Feature: Support `default` response type in responses (#301)
-- Feature: Allow overriding `x-struct` in `OpenApiSpex.schema/1` (#304)
-- Feature: Ability to specify `deprecated` in ControllerSpec operation (#296)
-- Feature: `:struct?` and `:derive?` options in `OpenApiSpex.schema/1` (#312)
-- Feature: `OpenApiSpex.add_schemas/2` (#314)
-- Enhancement: Remove api_spec data from Conn (#286)
-- Enhancement: More informative errors for bad schema (#288, #284, #287) 
-- Fix: Convert `:format` value to atom when decoding schema file (#293)
-- Fix: Type spec in OpenApiSpex.Info
-- Fix: Elixir Formatter rules in published package (#306)
-- Docs: Fix spelling error in example code (#295)
-- Docs: Fix type in README (#297)
-- Docs: Fix links and punctuation in README (#298)
-- Docs: Promote ControlerSpecs as the preferred API for controller operations (#311)
+* Feature: Support OAuth2 for swagger-ui (#217)
+* Feature: Support `default` response type in responses (#301)
+* Feature: Allow overriding `x*struct` in `OpenApiSpex.schema/1` (#304)
+* Feature: Ability to specify `deprecated` in ControllerSpec operation (#296)
+* Feature: `:struct?` and `:derive?` options in `OpenApiSpex.schema/1` (#312)
+* Feature: `OpenApiSpex.add_schemas/2` (#314)
+* Enhancement: Remove api_spec data from Conn (#286)
+* Enhancement: More informative errors for bad schema (#288, #284, #287)
+* Fix: Convert `:format` value to atom when decoding schema file (#293)
+* Fix: Type spec in OpenApiSpex.Info
+* Fix: Elixir Formatter rules in published package (#306)
+* Docs: Fix spelling error in example code (#295)
+* Docs: Fix type in README (#297)
+* Docs: Fix links and punctuation in README (#298)
+* Docs: Promote ControlerSpecs as the preferred API for controller operations (#311)
 
-# 3.9.0
+## v3.9.0 - 2020-09-14
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
 - [feng19](https://github.com/feng19)
 - [jbernardo95](https://github.com/jbernardo95)
 
-- Feature: Generate example from schema (#266)
-- Feature: Allow SwaggerUI to be configured via Plug opts (#271)
-- Feature: Warn on invalid or missing operation specs (#273, #278)
-- Feature: Experimental alternative API for defining Operation specs (#265, #280)
-- Fix: Handle the same operation occurring at different routes (#272)
-- Fix: Casting header names that have upper-case letters in specs (#281)
-- Maint: Upgrade Elixir dependencies in example projects (#269)
-- Maint: Format project with Elixir Formatter (#279)
+* Feature: Generate example from schema (#266)
+* Feature: Allow SwaggerUI to be configured via Plug opts (#271)
+* Feature: Warn on invalid or missing operation specs (#273, #278)
+* Feature: Experimental alternative API for defining Operation specs (#265, #280)
+* Fix: Handle the same operation occurring at different routes (#272)
+* Fix: Casting header names that have upper*case letters in specs (#281)
+* Maint: Upgrade Elixir dependencies in example projects (#269)
+* Maint: Format project with Elixir Formatter (#279)
 
-# 3.8.0
+## v3.8.0 - 2020-08-22
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
@@ -74,7 +81,7 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 * Fix: ReferenceError: `components.parameter` missing `s` in CastParamters (#257)
 * Fix: struct def for custom validators (#263)
 
-# 3.7.0
+## v3.7.0 - 2020-06-05
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
@@ -97,7 +104,7 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 * Fix: CastAndValidate: incorrect content-type handling (#218)
 * Fix: Can't cast and validate a JSON array as request body (#229)
 
-# 3.6.0
+## v3.6.0 - 2020-02-13
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
@@ -115,7 +122,7 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 * Fix: Support free-form query parameters (#171)
 * Fix: Resolve schema modules from Response in Components (#186)
 
-# 3.5.2
+## v3.5.2 - 2019-11-15
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
@@ -125,7 +132,7 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 * Fix: Update README for Info from `Application.spec/2` (#174)
 * Fix: Casting for unsupported params (#170)
 
-# 3.5.1
+## v3.5.1 - 2019-11-10
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
@@ -135,7 +142,7 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 * Fix: In ExDoc-based operation spec (experimental), change key name used to define `requestBody` (#164)
 * Fix: `oneOf` schema having object schemas (#167)
 
-# 3.5.0
+## v3.5.0 - 2019-10-29
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
@@ -256,7 +263,7 @@ defmodule MyAppWeb.MyControllerTest do
 end
 ```
 
-# 3.4.0
+## v3.4.0 - 2019-06-14
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
 
@@ -266,48 +273,48 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 
 * Feature: the `OpenApiSpex` and `OpenApiSpex.Info` structs now support [extensions](https://swagger.io/docs/specification/openapi-extensions/) (#108) (#114)
 
-The `extensions` key may contain any additional data that should be included in the info, eg the `x-logo` and `x-tagGroups` extensions:
+  The `extensions` key may contain any additional data that should be included in the info, eg the `x-logo` and `x-tagGroups` extensions:
 
-```elixir
- spec = %OpenApi{
-   info: %Info{
-     title: "Test",
-     version: "1.0.0",
+  ```elixir
+   spec = %OpenApi{
+     info: %Info{
+       title: "Test",
+       version: "1.0.0",
+       extensions: %{
+         "x-logo" => %{
+           "url" => "https://example.com/logo.png",
+           "backgroundColor" => "#FFFFFF",
+           "altText" => "Example logo"
+         }
+       }
+     },
      extensions: %{
-       "x-logo" => %{
-         "url" => "https://example.com/logo.png",
-         "backgroundColor" => "#FFFFFF",
-         "altText" => "Example logo"
-       }
-     }
-   },
-   extensions: %{
-     "x-tagGroups" => [
-       %{
-         "name" => "Methods",
-         "tags" => [
-           "Search",
-           "Fetch",
-           "Delete"
-         ]
-       }
-     ]
-   },
-   paths: %{ ... }
- }
-```
+       "x-tagGroups" => [
+         %{
+           "name" => "Methods",
+           "tags" => [
+             "Search",
+             "Fetch",
+             "Delete"
+           ]
+         }
+       ]
+     },
+     paths: %{ ... }
+   }
+  ```
 
 - Deprecation: `OpenApiSpex.Server.from_endpoint/2` has been deprecated in favor of `OpenApiSpex.Server.from_endpoint/1`.
   Simply remove the `otp_app:` option from the call to use the new function. (#116)
 
-```elixir
+  ```elixir
   # server = Server.from_endpoint(Endpoint, otp_app: :my_phoenix_app)
   server = Server.from_endpoint(MyPhoenixAppWeb.Endpoint)
-```
+  ```
 
 - Fix: The internal representation of a Phoenix Route struct changed in Phoenix 1.4.7 breaking the `OpenApiSpex.Paths.from_router/1` function. OpenApiSpex 3.4.0 will support both representations until the Phoenix API becomes stable. (#118)
 
-# 3.3.0
+## v3.3.0 - 2019-05-05
 
 Thanks to the contributions from the community! 👍
 
@@ -320,19 +327,19 @@ Thanks to the contributions from the community! 👍
 
 * Feature: Enums expressed as atoms or atom-keyed maps can be cast from strings (or string-keyed maps). (#60) (#101)
 
-Example:
+  Example:
 
-```elixir
+  ```elixir
   parameters: [
     Operation.parameter(:sort, :query, :string, "sort direction", enum: [:asc, :desc])
   ],
-```
+  ```
 
 - Fix: Schema module references are resolved in in-line parameter/response schemas. (#77) (#105)
 
-Example: The response schema is given in-line as an array, but items are resolved from the `User` module.
+  Example: The response schema is given in-line as an array, but items are resolved from the `User` module.
 
-```elixir
+  ```elixir
   responses: %{
     200 => Operation.response(
       "User array",
@@ -343,7 +350,7 @@ Example: The response schema is given in-line as an array, but items are resolve
       }
     )
   }
-```
+  ```
 
 - Fix: Ensure integer query parameters are validated correctly after conversion from string. (#106)
 - Fix: Ensure integers are validated correctly against schema `minimum`, `maximum`, `exlcusiveMinimum` and `exclusiveMaximum` attributes. (#97)
@@ -353,7 +360,7 @@ Example: The response schema is given in-line as an array, but items are resolve
 - Docs: Improved documentation for combined `CastAndValidate` plug. (#91)
 - Internals: Cache mapping from phoenix controller/action to OpenApi operation. (#102)
 
-# 3.2.1
+## v3.2.1 - 2019-03-11
 
 Patch release for documentation updates and improved error rendering Plug when using `CastAndValidate`.
 
@@ -361,7 +368,7 @@ Thanks [moxley](https://github.com/moxley)!
 
 - Cast and validate guide (#89)
 
-# 3.2.0
+## v3.2.0 - 2019-03-10
 
 This release contains many improvements and internal changes thanks to the contributions of the community!
 
@@ -384,7 +391,7 @@ This release contains many improvements and internal changes thanks to the contr
 * Fix: Gracefully report error when failing to convert request params to an object type (#63)
 * Internals: Improved code organisation of unit test suite (#62)
 
-# 3.1.0
+## v3.1.0 - 2018-10-28
 
 - Add support for validating polymorphic schemas using `oneOf`, `anyOf`, `allOf`, `not` constructs.
 - Updated example apps to work with new API
@@ -392,7 +399,7 @@ This release contains many improvements and internal changes thanks to the contr
 
 Thanks to [fenollp](https://github.com/fenollp) and [tapickell](https://github.com/tapickell) for contributions!
 
-# 3.0.0
+## v3.0.0 - 2018-10-25
 
 Major version bump as the behaviour of `OpenApiSpex.Plug.Cast` has changed (#39).
 To enable requests that contain a body as well as path or query params, the result of casting the
@@ -415,14 +422,14 @@ to
 - Fix: Support casting GET requests without Content-Type header (#50, #49)
 - Open API Spex has been moved to the new `open-api-spex` Github organisation
 
-# 2.3.1
+## v2.3.1 - 2018-09-09
 
 - Docs: Update example application to include swagger generate mix task (#41)
 - Fix: Ignore charset in content-type header when looking up schema by content type. (#45)
 
 Thanks to [dmt](https://github.com/dmt) and [fenollp](https://github.com/fenollp) for contributions!
 
-# 2.3.0
+## v2.3.0 - 2018-08-05
 
 - Feature: Validate string enum types. (#33)
 - Feature: Detect and report missing API spec in `OpenApiSpex.Plug.Cast` (#37)
@@ -431,29 +438,29 @@ Thanks to [dmt](https://github.com/dmt) and [fenollp](https://github.com/fenollp
 Thanks to [slavo2](https://github.com/slavo2) and [anagromataf](https://github.com/anagromataf) for
 contributions!
 
-# 2.2.0
+## v2.2.0 - 2018-07-07
 
 - Feature: Support composite schemas in `OpenApiSpex.schema`
 
-structs defined with `OpenApiSpex.schema` will include all properties defined in schemas
-listed in `allOf`. See the `OpenApiSpex.Schema` docs for some examples.
+  structs defined with `OpenApiSpex.schema` will include all properties defined in schemas
+  listed in `allOf`. See the `OpenApiSpex.Schema` docs for some examples.
 
 - Feature: Support composite and polymorphic schemas with `OpenApiSpex.cast/3`.
   - `discriminator` is used to cast polymorphic shemas to a more specific schema.
   - `allOf` will cast all properties in each included schema
   - `oneOf` / `anyOf` will attempt to use each schema until a successful cast is made
 
-# 2.1.1
+## v2.1.1 - 2018-06-12
 
 - Fix: (#24, #25) Operations that define `parameters` and a `requestBody` schema can be validated.
 
-# 2.1.0
+## v2.1.0 - 2018-06-08
 
 - Feature: (#16) Error response from `OpenApiSpex.cast` when value contains unknown properties and schema declares `additionalProperties: false`.
 - Feature: (#20) Update swagger-ui to version 3.17.0.
 - Fix: (#17, #21, #22) Update typespecs for struct types.
 
-# 2.0.0
+## v2.0.0 - 2018-06-06
 
 Major version update following from API change in `OpenApiSpex.cast` and `OpenApiSpex.validate`.
 When casting/validating all parameters against an `OpenApiSpex.Operation`, the complete `Plug.Conn` struct must now be passed, where the combined params map was previously accepted.
@@ -470,32 +477,32 @@ Thanks [cstaud](https://github.com/cstaud), [rutho](https://github.com/ThomasRue
 - Fix: `OpenApiSpex.schema` macro allows defining schemas without any properties
 - Fix: type declarations better reflect when `nil` is allowed
 
-# 1.1.4
+## v1.1.4 - 2018-01-21
 
 - `additionalProperties` is now `nil` by default, was previously `true`
 
-# 1.1.3
+## v1.1.3 - 2017-10-15
 
 - Fix several bugs and make some minor enhancements to schema casting and validating.
 - Add sample application to enable end-to-end testing
 
-# 1.1.2
+## v1.1.2 - 2017-10-15
 
 Fix openapi version output in generated spec.
 
-# 1.1.1
+## v1.1.1 - 2017-10-15
 
 Update swagger-ui to version 3.3.2
 
-# 1.1.0
+## v1.1.0 - 2017-10-15
 
 Include path to invalid element in validation errors.
 Eg: "#/user/name: Value does not match pattern: [a-zA-Z][a-za-z0-9_]+"
 
-# 1.0.1
+## v1.0.1 - 2017-10-12
 
 Cache API spec in application environment after first call to PutApiSpec plug
 
-# 1.0.0
+## v1.0.0 - 2017-10-02
 
 Initial release. This package is inspired by [phoenix_swagger](https://github.com/xerions/phoenix_swagger) but targets Open API Spec 3.0.
