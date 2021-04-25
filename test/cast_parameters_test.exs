@@ -1,6 +1,15 @@
 defmodule OpenApiSpex.CastParametersTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Operation, Schema, Components, CastParameters, Reference}
+
+  alias OpenApiSpex.{
+    CastParameters,
+    Components,
+    MediaType,
+    Operation,
+    Parameter,
+    Reference,
+    Schema
+  }
 
   describe "cast/3" do
     test "fails for not supported additional properties " do
@@ -44,6 +53,55 @@ defmodule OpenApiSpex.CastParametersTest do
       {:ok, conn} = CastParameters.cast(conn, operation, components)
 
       assert %{params: %{"Content-Type": "application/json"}} = conn
+    end
+
+    test "cast json query params" do
+      schema = %Schema{
+        type: :object,
+        title: "FilterParams",
+        properties: %{
+          size: %Schema{type: :string, pattern: "^XS|S|M|L|XL$"},
+          color: %Schema{type: :string}
+        }
+      }
+
+      parameter = %Parameter{
+        in: :query,
+        name: :filter,
+        required: false,
+        content: %{
+          "application/json" => %MediaType{
+            schema: %Reference{"$ref": "#/components/schemas/FilterParams"}
+          }
+        }
+      }
+
+      operation = %Operation{
+        parameters: [parameter],
+        responses: %{
+          200 => %Schema{type: :object}
+        }
+      }
+
+      components = %Components{
+        schemas: %{"FilterParams" => schema}
+      }
+
+      filter_json =
+        %{size: "S", color: "blue"}
+        |> Jason.encode!()
+        |> URI.encode()
+
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users?filter=#{filter_json}")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> Plug.Conn.fetch_query_params()
+
+      # Referencing issue: https://github.com/open-api-spex/open_api_spex/issues/349
+      # Ideally, this would be a successful cast, the JSON parameter would be decoded as
+      # part of the casting process. However, that behavior is not yet supported.
+      CastParameters.cast(conn, operation, components)
     end
   end
 

@@ -42,14 +42,14 @@ defmodule OpenApiSpex.CastParameters do
         do: {property_name, value}
   end
 
-  defp create_location_schema(parameters) do
+  defp create_location_schema(parameters, components) do
     %Schema{
       type: :object,
       additionalProperties: false,
       properties: parameters |> Map.new(fn p -> {p.name, Parameter.schema(p)} end),
       required: parameters |> Enum.filter(& &1.required) |> Enum.map(& &1.name)
     }
-    |> maybe_add_additional_properties()
+    |> maybe_add_additional_properties(components)
   end
 
   defp schemas_by_location(operation, components) do
@@ -73,7 +73,7 @@ defmodule OpenApiSpex.CastParameters do
       |> Enum.group_by(& &1.in)
 
     Map.new(param_specs_by_location, fn {location, parameters} ->
-      {location, create_location_schema(parameters)}
+      {location, create_location_schema(parameters, components)}
     end)
   end
 
@@ -95,14 +95,20 @@ defmodule OpenApiSpex.CastParameters do
     end)
   end
 
-  defp maybe_add_additional_properties(schema) do
+  defp maybe_add_additional_properties(schema, components) do
     ap_schema =
-      Enum.reject(
-        schema.properties,
-        fn {_name, %{additionalProperties: ap}} ->
-          is_nil(ap) or ap == false
-        end
-      )
+      schema.properties
+      |> Enum.map(fn
+        {name, %Schema{} = schema} ->
+          {name, schema}
+
+        {name, %Reference{"$ref": "#/components/schemas/" <> _} = ref} ->
+          {name, Reference.resolve_schema(ref, components.schemas)}
+      end)
+      |> Enum.filter(fn
+        {_name, %{additionalProperties: ap}} -> ap
+        _ -> false
+      end)
 
     case ap_schema do
       [{_, %{additionalProperties: ap}}] -> %{schema | additionalProperties: ap}
