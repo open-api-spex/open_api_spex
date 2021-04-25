@@ -278,9 +278,9 @@ defmodule OpenApiSpex.ControllerSpecs do
 
     %Operation{
       callbacks: Map.get(spec, :callbacks, %{}),
-      externalDocs: OperationBuilder.build_external_docs(spec),
       description: Map.get(spec, :description),
       deprecated: Map.get(spec, :deprecated),
+      externalDocs: OperationBuilder.build_external_docs(spec),
       operationId: OperationBuilder.build_operation_id(spec, module, action),
       parameters: OperationBuilder.build_parameters(spec),
       requestBody: OperationBuilder.build_request_body(spec),
