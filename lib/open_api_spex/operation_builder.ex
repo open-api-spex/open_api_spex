@@ -1,7 +1,7 @@
 defmodule OpenApiSpex.OperationBuilder do
   @moduledoc false
 
-  alias OpenApiSpex.{Operation, Parameter, Response, Reference}
+  alias OpenApiSpex.{ExternalDocumentation, Operation, Parameter, Response, Reference}
 
   def ensure_type_and_schema_exclusive!(name, type, schema) do
     if type != nil && schema != nil do
@@ -16,6 +16,16 @@ defmodule OpenApiSpex.OperationBuilder do
         """
     end
   end
+
+  def build_external_docs(%{external_docs: _external_docs} = operation_spec, _module_spec),
+    do: build_external_docs(operation_spec)
+
+  def build_external_docs(_operation_spec, module_spec), do: build_external_docs(module_spec)
+
+  def build_external_docs(%{external_docs: external_docs}),
+    do: struct(ExternalDocumentation, external_docs)
+
+  def build_external_docs(_spec), do: nil
 
   def build_operation_id(meta, mod, name) do
     Map.get(meta, :operation_id, "#{inspect(mod)}.#{name}")

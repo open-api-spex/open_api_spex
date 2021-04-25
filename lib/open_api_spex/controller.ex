@@ -179,6 +179,7 @@ defmodule OpenApiSpex.Controller do
     with {:ok, {mod_meta, summary, description, meta}} <- get_docs(mod, name) do
       %Operation{
         summary: summary,
+        externalDocs: OperationBuilder.build_external_docs(meta, mod_meta),
         description: description,
         operationId: OperationBuilder.build_operation_id(meta, mod, name),
         parameters: OperationBuilder.build_parameters(meta),

@@ -65,6 +65,16 @@ defmodule OpenApiSpex.ControllerTest do
       assert schema == OpenApiSpexTest.Schemas.User
     end
 
+    test "has externalDocs" do
+      %{externalDocs: external_docs} = @controller.open_api_operation(:update)
+
+      assert %OpenApiSpex.ExternalDocumentation{description: description, url: url} =
+               external_docs
+
+      assert description == "Check out these docs"
+      assert url == "https://example.com/"
+    end
+
     test "sets the operation_id" do
       op = @controller.open_api_operation(:show)
       assert op.operationId == "show_user"
