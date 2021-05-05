@@ -1,7 +1,6 @@
 # Open API Spex
 
 [![Elixir CI](https://github.com/open-api-spex/open_api_spex/actions/workflows/elixir.yml/badge.svg)](https://github.com/open-api-spex/open_api_spex/actions/workflows/elixir.yml)
-[![Build Status](https://travis-ci.com/open-api-spex/open_api_spex.svg?branch=master)](https://travis-ci.com/open-api-spex/open_api_spex)
 [![Module Version](https://img.shields.io/hexpm/v/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/open_api_spex/)
 [![Total Download](https://img.shields.io/hexpm/dt/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
