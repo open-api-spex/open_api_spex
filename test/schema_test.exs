@@ -180,6 +180,36 @@ defmodule OpenApiSpex.SchemaTest do
       schema = %Schema{type: :string, format: :"date-time"}
       assert Schema.example(schema) == "2020-04-20T16:20:00Z"
     end
+
+    test "example for schema module" do
+      defmodule Bar do
+        require OpenApiSpex
+        OpenApiSpex.schema(%{
+          type: :object,
+          properties: %{
+            baz: %Schema{
+              type: :int,
+              example: 2
+            }
+          }
+        })
+      end
+      defmodule Foo do
+        require OpenApiSpex
+        OpenApiSpex.schema(%{
+          type: :object,
+          properties: %{
+            bar: Bar,
+            foo: %Schema{
+              type: :string,
+              example: "1"
+            }
+          }
+        })
+      end
+
+      assert Schema.example(Foo) == %{bar: %{baz: 2}, foo: "1"}
+    end
   end
 
   describe "properties/1" do
