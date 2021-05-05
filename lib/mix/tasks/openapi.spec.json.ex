@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Openapi.Spec.Json do
   @moduledoc """
-  Serialize the given OpenApi spec module to a json file.
+  Serialize the given OpenApi spec module to a JSON file.
   """
   use Mix.Task
   require Mix.Generator

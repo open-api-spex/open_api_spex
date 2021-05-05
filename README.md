@@ -1,7 +1,12 @@
 # Open API Spex
 
+[![Elixir CI](https://github.com/open-api-spex/open_api_spex/actions/workflows/elixir.yml/badge.svg)](https://github.com/open-api-spex/open_api_spex/actions/workflows/elixir.yml)
 [![Build Status](https://travis-ci.com/open-api-spex/open_api_spex.svg?branch=master)](https://travis-ci.com/open-api-spex/open_api_spex)
-[![Hex.pm](https://img.shields.io/hexpm/v/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
+[![Module Version](https://img.shields.io/hexpm/v/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/open_api_spex/)
+[![Total Download](https://img.shields.io/hexpm/dt/open_api_spex.svg)](https://hex.pm/packages/open_api_spex)
+[![License](https://img.shields.io/hexpm/l/open_api_spex.svg)](https://github.com/open-api-spex/open_api_spex/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/open-api-spex/open_api_spex.svg)](https://github.com/open-api-spex/open_api_spex/commits/master)
 
 Leverage Open API Specification 3 (formerly Swagger) to document, test, validate and explore your Plug and Phoenix APIs.
 
@@ -11,11 +16,11 @@ Leverage Open API Specification 3 (formerly Swagger) to document, test, validate
 - Validate responses against schemas in tests, ensuring your docs are accurate and reliable
 - Explore the API interactively with [SwaggerUI](https://swagger.io/swagger-ui/)
 
-Full documentation available on [hexdocs](https://hexdocs.pm/open_api_spex/)
+Full documentation available on [HexDocs](https://hexdocs.pm/open_api_spex/).
 
 ## Installation
 
-The package can be installed by adding `open_api_spex` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `:open_api_spex` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -183,7 +188,7 @@ OpenAPI's (and JSON Schema's) `camelCase` convention.
 
 #### %Operation{}
 
-If ControllerSpecs-style operation specs don't provide the flexibiliy you need, the `%Operation{}` struct
+If ControllerSpecs-style operation specs don't provide the flexibility you need, the `%Operation{}` struct
 and related structs can be used instead. See the
 [example user controller that uses `%Operation{}` structs](https://github.com/open-api-spex/open_api_spex/blob/master/examples/phoenix_app/lib/phoenix_app_web/controllers/user_controller_with_struct_specs.ex).
 
@@ -270,20 +275,20 @@ For more examples of schema definitions, see the
 To serve the API spec from your application, first add the `OpenApiSpex.Plug.PutApiSpec` plug somewhere in the pipeline.
 
 ```elixir
-  pipeline :api do
-    plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec
-  end
+pipeline :api do
+  plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec
+end
 ```
 
 Now the spec will be available for use in downstream plugs.
 The `OpenApiSpex.Plug.RenderSpec` plug will render the spec as JSON:
 
 ```elixir
-  scope "/api" do
-    pipe_through :api
-    resources "/users", MyAppWeb.UserController, only: [:create, :index, :show]
-    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
-  end
+scope "/api" do
+  pipe_through :api
+  resources "/users", MyAppWeb.UserController, only: [:create, :index, :show]
+  get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+end
 ```
 
 ## Generating the Spec
@@ -303,19 +308,19 @@ serve a SwaggerUI interface. The `path:` plug option must be supplied to give th
 All JavaScript and CSS assets are sourced from cdnjs.cloudflare.com, rather than vendoring into this package.
 
 ```elixir
-  scope "/" do
-    pipe_through :browser # Use the default browser stack
+scope "/" do
+  pipe_through :browser # Use the default browser stack
 
-    get "/", MyAppWeb.PageController, :index
-    get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
-  end
+  get "/", MyAppWeb.PageController, :index
+  get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+end
 
-  scope "/api" do
-    pipe_through :api
+scope "/api" do
+  pipe_through :api
 
-    resources "/users", MyAppWeb.UserController, only: [:create, :index, :show]
-    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
-  end
+  resources "/users", MyAppWeb.UserController, only: [:create, :index, :show]
+  get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+end
 ```
 
 ## Importing an existing schema file
@@ -522,3 +527,9 @@ test "UserController produces a UsersResponse", %{conn: conn} do
   assert_schema(json, "UsersResponse", api_spec)
 end
 ```
+
+## Copyright and License
+
+Copyright (c) 2017 Michael Buhot
+
+Licensed under the Mozilla Public License, Version 2.0, which can be found in [LICENSE](./LICENSE).
