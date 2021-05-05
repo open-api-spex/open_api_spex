@@ -214,6 +214,7 @@ defmodule OpenApiSpex.OpenApi.Decode do
     |> prepare_schema()
     |> (&struct_from_map(Schema, &1)).()
     |> prop_to_struct(:properties, Schemas)
+    |> manage_additional_properties()
     |> prop_to_struct(:externalDocs, ExternalDocumentation)
   end
 
@@ -403,4 +404,13 @@ defmodule OpenApiSpex.OpenApi.Decode do
       to_struct(v, mod)
     end)
   end
+
+  defp manage_additional_properties(%_{additionalProperties: %{"$ref" => reference}} = map) do
+    Map.put(map, :additionalProperties, %Reference{"$ref": reference})
+  end
+
+  defp manage_additional_properties(%_{additionalProperties: value} = map) when is_boolean(value),
+    do: map
+
+  defp manage_additional_properties(map), do: map
 end

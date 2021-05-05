@@ -130,47 +130,6 @@ defmodule OpenApiSpec.CastTest do
       assert error.path == [:age]
     end
 
-    test "additional properties" do
-      age_schema = %Schema{type: :integer}
-
-      schema = %Schema{
-        type: :object,
-        properties: %{
-        },
-        additionalProperties: %Reference{"$ref": "#/components/schemas/Age"
-        }
-      }
-
-      assert cast(
-               value: %{"age" => "20"},
-               schema: schema,
-               schemas: %{"Age" => age_schema}
-             ) == {:ok, %{age: 20}}
-    end
-
-    test "nested additional properties" do
-      nested_schema = %Schema{
-        type: :object,
-        properties: %{
-          age: %Reference{"$ref": "#/components/schemas/Age"}
-        }
-      }
-      age_schema = %Schema{type: :integer}
-
-      schema = %Schema{
-        type: :object,
-        properties: %{
-        },
-        additionalProperties: %Reference{"$ref": "#/components/schemas/NestedSchema"}
-      }
-
-      assert cast(
-               value: %{"nested" => %{"age" => "20"}},
-               schema: schema,
-               schemas: %{"Age" => age_schema, "NestedSchema" => nested_schema}
-             ) == {:ok, %{nested: %{age: 20}}}
-    end
-
     test "nested paths" do
       schema = %Schema{
         type: :object,
