@@ -184,6 +184,7 @@ defmodule OpenApiSpex.SchemaTest do
     test "example for schema module" do
       defmodule Bar do
         require OpenApiSpex
+
         OpenApiSpex.schema(%{
           type: :object,
           properties: %{
@@ -194,8 +195,10 @@ defmodule OpenApiSpex.SchemaTest do
           }
         })
       end
+
       defmodule Foo do
         require OpenApiSpex
+
         OpenApiSpex.schema(%{
           type: :object,
           properties: %{
