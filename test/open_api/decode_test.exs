@@ -157,7 +157,10 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                }
              } == components_parameters_parameter
 
-      assert %{"User" => user_schema, "Admin" => admin_schema} = schemas
+      assert %{
+               "User" => user_schema,
+               "Admin" => admin_schema
+             } = schemas
 
       assert %OpenApiSpex.Schema{
                allOf: [
@@ -188,6 +191,13 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                    xml: %OpenApiSpex.Xml{
                      namespace: "http://example.com/schema/sample",
                      prefix: "sample"
+                   }
+                 },
+                 metadata: %OpenApiSpex.Schema{
+                   properties: %{},
+                   type: :object,
+                   additionalProperties: %OpenApiSpex.Reference{
+                     "$ref": "#/components/schemas/MetadataObject"
                    }
                  }
                }

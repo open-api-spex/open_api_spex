@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.ObjectTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Cast, Schema}
+  alias OpenApiSpex.{Cast, Schema, Reference}
   alias OpenApiSpex.Cast.{Object, Error}
 
   defp cast(%Cast{} = ctx), do: Object.cast(ctx)
@@ -239,6 +239,49 @@ defmodule OpenApiSpex.ObjectTest do
 
       assert {:error, [%{path: ["brian", "size"], reason: :invalid_type}]} =
                cast(value: input, schema: schema)
+    end
+
+    test "when additionalProperties schema is a reference" do
+      age_schema = %Schema{type: :integer}
+
+      schema = %Schema{
+        type: :object,
+        properties: %{},
+        additionalProperties: %Reference{"$ref": "#/components/schemas/Age"}
+      }
+
+      input = %{"age" => "20"}
+
+      assert cast(
+               value: input,
+               schema: schema,
+               schemas: %{"Age" => age_schema}
+             ) == {:ok, %{"age" => 20}}
+    end
+
+    test "when additionalProperties schema is a object with nested reference" do
+      nested_schema = %Schema{
+        type: :object,
+        properties: %{
+          age: %Reference{"$ref": "#/components/schemas/Age"}
+        }
+      }
+
+      age_schema = %Schema{type: :integer}
+
+      schema = %Schema{
+        type: :object,
+        properties: %{},
+        additionalProperties: %Reference{"$ref": "#/components/schemas/NestedSchema"}
+      }
+
+      input = %{"nested" => %{"age" => "20"}}
+
+      assert cast(
+               value: input,
+               schema: schema,
+               schemas: %{"Age" => age_schema, "NestedSchema" => nested_schema}
+             ) == {:ok, %{"nested" => %{age: 20}}}
     end
 
     defmodule User do

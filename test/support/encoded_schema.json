@@ -155,6 +155,12 @@
           "phone_number": {
             "nullable": true,
             "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MetadataObject"
+            }
           }
         },
         "type": "object"
@@ -186,6 +192,34 @@
         "discriminator": {
           "propertyName": "userType"
         }
+      },
+      "MetadataObject": {
+        "description": "Maximum 3 lines of metadata allowed",
+        "type": "object",
+        "properties": {
+          "data_1": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "data_2": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "data_3": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        }
+      },
+      "Metadata": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "object"
+          }
+        ]
       }
     },
     "links": {
