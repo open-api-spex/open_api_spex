@@ -21,6 +21,18 @@ defmodule OpenApiSpex.CastOneOfTest do
                "Failed to cast value to one of: more than one schemas validate"
     end
 
+    test "oneOf, more than one matching schema with failing schema" do
+      schema = %Schema{
+        oneOf: [%Schema{type: :integer}, %Schema{type: :string}, %Schema{type: :bool}]
+      }
+
+      assert {:error, [error]} = cast(value: "1", schema: schema)
+      assert error.reason == :one_of
+
+      assert Error.message(error) ==
+               "Failed to cast value to one of: more than one schemas validate"
+    end
+
     test "oneOf, no castable schema" do
       schema = %Schema{oneOf: [%Schema{type: :string}]}
       assert {:error, [error]} = cast(value: 1, schema: schema)
