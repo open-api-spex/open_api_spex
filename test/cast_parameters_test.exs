@@ -55,6 +55,54 @@ defmodule OpenApiSpex.CastParametersTest do
       assert %{params: %{"Content-Type": "application/json"}} = conn
     end
 
+    test "cast style: form, explode: false query parameters" do
+      size_schema = %Schema{
+        type: :string,
+        enum: [
+          "XS", "S", "M", "L", "XL"
+        ]
+      }
+
+      schema = %Schema{
+        title: "SizeParams",
+        type: :array,
+        uniqueItems: true,
+        minItems: 2,
+        items: size_schema
+      }
+
+      parameter = %Parameter{
+        in: :query,
+        name: :sizes,
+        required: true,
+        style: :form,
+        explode: false,
+        schema: schema
+      }
+
+      operation = %Operation{
+        parameters: [parameter],
+        responses: %{
+          200 => %Schema{type: :object}
+        }
+      }
+
+      components = %Components{
+        schemas: %{"SizeParams" => schema}
+      }
+
+      sizes_param = "S,M,L"
+
+      conn =
+        :get
+        |> Plug.Test.conn("/api/t-shirts?sizes=#{sizes_param}")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> Plug.Conn.fetch_query_params()
+
+      assert {:ok, val} = CastParameters.cast(conn, operation, components)
+      assert val == ["S", "M", "L"]
+    end
+
     test "cast json query params" do
       schema = %Schema{
         type: :object,
