@@ -59,7 +59,11 @@ defmodule OpenApiSpex.CastParametersTest do
       size_schema = %Schema{
         type: :string,
         enum: [
-          "XS", "S", "M", "L", "XL"
+          "XS",
+          "S",
+          "M",
+          "L",
+          "XL"
         ]
       }
 
@@ -99,8 +103,8 @@ defmodule OpenApiSpex.CastParametersTest do
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> Plug.Conn.fetch_query_params()
 
-      assert {:ok, val} = CastParameters.cast(conn, operation, components)
-      assert val == ["S", "M", "L"]
+      assert {:ok, conn} = CastParameters.cast(conn, operation, components)
+      assert %{params: %{sizes: ["S", "M", "L"]}} = conn
     end
 
     test "cast json query params" do
