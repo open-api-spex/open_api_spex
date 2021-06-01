@@ -291,8 +291,12 @@ defmodule OpenApiSpex.OpenApi.Decode do
   defp to_struct(map, RequestBodies), do: embedded_ref_or_struct(map, RequestBody)
 
   defp to_struct(map, Parameter) do
+    map = case Application.get_env(:open_api_spex, :keys, :atoms) do
+      :strings -> map
+      _ -> map
+        |> convert_value_to_atom_if_present("name")
+    end
     map
-    |> convert_value_to_atom_if_present("name")
     |> convert_value_to_atom_if_present("in")
     |> convert_value_to_atom_if_present("style")
     |> (&struct_from_map(Parameter, &1)).()

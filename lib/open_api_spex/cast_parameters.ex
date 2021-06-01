@@ -78,12 +78,20 @@ defmodule OpenApiSpex.CastParameters do
   end
 
   defp cast_location(location, schema, components, conn) do
-    params =
-      get_params_by_location(
-        conn,
-        location,
-        schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
-      )
+    params = case Application.get_env(:open_api_spex, :keys, :atoms) do
+      :strings ->
+        get_params_by_location(
+          conn,
+          location,
+          schema.properties |> Map.keys()
+        )
+      _ ->
+        get_params_by_location(
+          conn,
+          location,
+          schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
+        )
+      end
 
     Cast.cast(schema, params, components.schemas)
   end
