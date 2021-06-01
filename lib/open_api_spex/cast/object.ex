@@ -124,8 +124,8 @@ defmodule OpenApiSpex.Cast.Object do
       string_key = to_string(key)
 
       case input_map do
-        %{^key => value} -> Map.put(output, key, value)
-        %{^string_key => value} -> Map.put(output, key, value)
+        %{^key => value} -> Map.put(output, string_key, value)
+        %{^string_key => value} -> Map.put(output, string_key, value)
         _ -> output
       end
     end)

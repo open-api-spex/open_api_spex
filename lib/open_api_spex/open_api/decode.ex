@@ -122,7 +122,6 @@ defmodule OpenApiSpex.OpenApi.Decode do
     |> convert_value_to_atom_if_present("type")
     |> convert_value_to_atom_if_present("format")
     |> convert_value_to_atom_if_present("x-struct")
-    |> convert_value_to_list_of_atoms_if_present("required")
   end
 
   defp to_struct(nil, _mod), do: nil
@@ -208,7 +207,7 @@ defmodule OpenApiSpex.OpenApi.Decode do
     |> Map.update("properties", %{}, fn v ->
       v
       |> Map.new(fn {k, v} ->
-        {String.to_atom(k), v}
+        {k, v}
       end)
     end)
     |> prepare_schema()
