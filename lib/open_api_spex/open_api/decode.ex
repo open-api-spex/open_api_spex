@@ -118,10 +118,15 @@ defmodule OpenApiSpex.OpenApi.Decode do
   # The Schema.type and Schema.required keys require some special treatment since their
   # values should be converted to atoms
   defp prepare_schema(map) do
-    map
+    map = map
     |> convert_value_to_atom_if_present("type")
     |> convert_value_to_atom_if_present("format")
     |> convert_value_to_atom_if_present("x-struct")
+    case Application.get_env(:open_api_spex, :keys, :atoms) do
+      :strings -> map
+      _ -> map
+        |> convert_value_to_list_of_atoms_if_present("required")
+    end
   end
 
   defp to_struct(nil, _mod), do: nil
@@ -207,7 +212,10 @@ defmodule OpenApiSpex.OpenApi.Decode do
     |> Map.update("properties", %{}, fn v ->
       v
       |> Map.new(fn {k, v} ->
-        {k, v}
+        case Application.get_env(:open_api_spex, :keys, :atoms) do
+          :strings -> {k, v}
+          _ -> {String.to_atom(k), v}
+        end
       end)
     end)
     |> prepare_schema()

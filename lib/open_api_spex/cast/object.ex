@@ -122,10 +122,15 @@ defmodule OpenApiSpex.Cast.Object do
   defp cast_atom_keys(input_map, properties) do
     Enum.reduce(properties, %{}, fn {key, _}, output ->
       string_key = to_string(key)
+      keyout = case Application.get_env(:open_api_spex, :keys, :atoms) do
+        :strings -> string_key
+        _ -> key
+      end
+
 
       case input_map do
-        %{^key => value} -> Map.put(output, string_key, value)
-        %{^string_key => value} -> Map.put(output, string_key, value)
+        %{^key => value} -> Map.put(output, keyout, value)
+        %{^string_key => value} -> Map.put(output, keyout, value)
         _ -> output
       end
     end)
