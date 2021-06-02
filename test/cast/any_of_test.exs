@@ -35,6 +35,55 @@ defmodule OpenApiSpex.CastAnyOfTest do
       assert {:ok, %{breed: "Corgi", age: 3}} = cast(value: value, schema: schema)
     end
 
+    test "should cast multiple schemas" do
+      dog_schema = %Schema{
+        title: "Dog",
+        type: :object,
+        properties: %{
+          breed: %Schema{type: :string},
+          age: %Schema{type: :integer}
+        }
+      }
+
+      food_schema = %Schema{
+        title: "Food",
+        type: :object,
+        properties: %{
+          food: %Schema{type: :string},
+          amount: %Schema{type: :integer}
+        }
+      }
+
+      schema = %Schema{anyOf: [dog_schema, food_schema], title: "MyCoolSchema"}
+      value = %{"breed" => "Corgi", "age" => 3, "food" => "meat"}
+      assert {:ok, %{breed: "Corgi", age: 3, food: "meat"}} = cast(value: value, schema: schema)
+    end
+
+    test "should cast multiple schemas with conflicting properties" do
+      dog_schema = %Schema{
+        title: "Dog",
+        type: :object,
+        properties: %{
+          breed: %Schema{type: :string},
+          age: %Schema{type: :integer}
+        }
+      }
+
+      food_schema = %Schema{
+        title: "Food",
+        type: :object,
+        properties: %{
+          food: %Schema{type: :string},
+          amount: %Schema{type: :integer},
+          age: %Schema{type: :integer}
+        }
+      }
+
+      schema = %Schema{anyOf: [dog_schema, food_schema], title: "MyCoolSchema"}
+      value = %{"breed" => "Corgi", "age" => 3, "food" => "meat"}
+      assert {:ok, %{breed: "Corgi", age: 3, food: "meat"}} = cast(value: value, schema: schema)
+    end
+
     test "no castable schema" do
       schema = %Schema{anyOf: [%Schema{type: :integer}, %Schema{type: :string}]}
       assert {:error, [error]} = cast(value: [:whoops], schema: schema)
