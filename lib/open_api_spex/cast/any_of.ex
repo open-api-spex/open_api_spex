@@ -1,15 +1,16 @@
 defmodule OpenApiSpex.Cast.AnyOf do
   @moduledoc false
   alias OpenApiSpex.Cast
+  alias OpenApiSpex.Schema
 
-  def cast(ctx, failed_schemas \\ [], acc \\ nil)
+  def cast(ctx, failed_schemas \\ [], acc \\ nil), do: cast_any_of(ctx, failed_schemas, acc)
 
-  def cast(%_{schema: %{type: _, anyOf: []}} = ctx, failed_schemas, nil) do
+  defp cast_any_of(%_{schema: %{anyOf: []}} = ctx, failed_schemas, nil) do
     Cast.error(ctx, {:any_of, error_message(failed_schemas, ctx.schemas)})
   end
 
-  def cast(
-        %{schema: %{type: _, anyOf: [schema | remaining]}} = ctx,
+  defp cast_any_of(
+        %{schema: %{anyOf: [%Schema{} = schema | remaining]}} = ctx,
         failed_schemas,
         acc
       ) do
@@ -24,17 +25,24 @@ defmodule OpenApiSpex.Cast.AnyOf do
           |> Enum.concat(acc || %{})
           |> Map.new()
 
-        cast(new_ctx, failed_schemas, acc)
+        cast_any_of(new_ctx, failed_schemas, acc)
 
       {:ok, value} ->
-        cast(new_ctx, failed_schemas, acc || value)
+        cast_any_of(new_ctx, failed_schemas, acc || value)
 
       {:error, _} ->
-        cast(new_ctx, [schema | failed_schemas], acc)
+        cast_any_of(new_ctx, [schema | failed_schemas], acc)
     end
   end
 
-  def cast(%_{schema: %{type: _, anyOf: []}}, _failed_schemas, acc), do: {:ok, acc}
+  defp cast_any_of(%{schema: %{anyOf: [schema | remaining]}} = ctx, failed_schemas, acc) do
+    schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
+    cast_any_of(%{ctx | schema: %{anyOf: [schema | remaining]}}, failed_schemas, acc)
+  end
+
+  defp cast_any_of(%_{schema: %{anyOf: [], "x-struct": module}}, _failed_schemas, acc) when not is_nil(module), do: {:ok, struct(module, acc)}
+
+  defp cast_any_of(%_{schema: %{anyOf: []}}, _failed_schemas, acc), do: {:ok, acc}
 
   ## Private functions
 
