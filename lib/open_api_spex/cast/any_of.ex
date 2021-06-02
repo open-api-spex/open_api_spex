@@ -10,10 +10,10 @@ defmodule OpenApiSpex.Cast.AnyOf do
   end
 
   defp cast_any_of(
-        %{schema: %{anyOf: [%Schema{} = schema | remaining]}} = ctx,
-        failed_schemas,
-        acc
-      ) do
+         %{schema: %{anyOf: [%Schema{} = schema | remaining]}} = ctx,
+         failed_schemas,
+         acc
+       ) do
     relaxed_schema = %{schema | additionalProperties: true, "x-struct": nil}
     new_ctx = put_in(ctx.schema.anyOf, remaining)
 
@@ -40,7 +40,9 @@ defmodule OpenApiSpex.Cast.AnyOf do
     cast_any_of(%{ctx | schema: %{anyOf: [schema | remaining]}}, failed_schemas, acc)
   end
 
-  defp cast_any_of(%_{schema: %{anyOf: [], "x-struct": module}}, _failed_schemas, acc) when not is_nil(module), do: {:ok, struct(module, acc)}
+  defp cast_any_of(%_{schema: %{anyOf: [], "x-struct": module}}, _failed_schemas, acc)
+       when not is_nil(module),
+       do: {:ok, struct(module, acc)}
 
   defp cast_any_of(%_{schema: %{anyOf: []}}, _failed_schemas, acc), do: {:ok, acc}
 
