@@ -130,6 +130,7 @@ Note: In order to prevent Elixir Formatter from automatically adding parentheses
 call arguments, add `:open_api_spex` to the `import_deps` list in `.formatter.exs`:
 
 .formatter.exs:
+
 ```elixir
 [
   import_deps: [:open_api_spex]
@@ -388,31 +389,40 @@ defmodule MyAppWeb.UserController do
   use MyAppWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias MyAppWeb.Schemas.{User, UserRequest, UserResponse}
+  alias MyAppWeb.Schemas.{UserParams, UserResponse}
 
   plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
 
-  operation :create,
-    summary: "Create user",
-    description: "Creates a user from the given params.\nThis is another line of text in the description."
+  operation :update,
+    summary: "Update user",
+    description: "Updates with the given params.\nThis is another line of text in the description."
     parameters: [
-      id: [in: :query, type: :integer, description: "user ID"]
+      id: [in: :path, type: :integer, description: "user ID"],
+      vsn: [in: :query, type: :integer, description: "API version number"],
+      "api-version": [in: :header, type: :integer, description: "API version number"]
     ],
-    request_body: {"The user attributes", "application/json", UserRequest},
+    request_body: {"The user attributes", "application/json", UserParams},
     responses: %{
       201 => {"User", "application/json", UserResponse}
       422 => OpenApiSpex.JsonErrorResponse.response()
     }
-  def create(
+  def update(
         conn = %{
-          body_params: %UserRequest{
-            user: %User{name: name, email: email, birthday: birthday = %Date{}}
+          body_params: %UserParams{
+            name: name,
+            email: email,
+            birthday: %Date{} = birthday
           }
         },
         %{id: id}
       ) do
     # conn.body_params cast to UserRequest struct
+    # conn.params combines path params, query params and header params
     # conn.params.id cast to integer
+    # conn.params.vsn cast to integer
+    # conn.params[:"api-version"] cast to integer
+    # params is the same as conn.params
+    # params.id cast to integer
 
     # Note: Using pattern-matching in the action function's arguments can
     # cause Dialyzer to complain. This is because Dialyzer expects the
