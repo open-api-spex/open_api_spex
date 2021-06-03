@@ -20,7 +20,8 @@ defmodule OpenApiSpex.Operation2 do
     with {:ok, conn} <- cast_parameters(conn, operation, components),
          {:ok, body} <-
            cast_request_body(operation.requestBody, conn.body_params, content_type, components) do
-      {:ok, %{conn | body_params: body}}
+      conn = Map.put(conn, :private, Map.put(conn.private, :body_params, body))
+      {:ok, conn}
     end
   end
 
