@@ -15,7 +15,9 @@ defmodule OpenApiSpex.CastParameters do
   defp cast_to_params(conn, operation, components) do
     operation
     |> schemas_by_location(components)
-    |> Enum.map(fn {location, schema} -> cast_location(location, schema, components, conn) end)
+    |> Enum.map(fn {location, {schema, parameters_contexts}} ->
+      cast_location(location, schema, parameters_contexts, components, conn)
+    end)
     |> reduce_cast_results()
   end
 
@@ -43,13 +45,23 @@ defmodule OpenApiSpex.CastParameters do
   end
 
   defp create_location_schema(parameters, components) do
-    %Schema{
-      type: :object,
-      additionalProperties: false,
-      properties: parameters |> Map.new(fn p -> {p.name, Parameter.schema(p)} end),
-      required: parameters |> Enum.filter(& &1.required) |> Enum.map(& &1.name)
+    {
+      %Schema{
+        type: :object,
+        additionalProperties: false,
+        properties: parameters |> Map.new(fn p -> {p.name, Parameter.schema(p)} end),
+        required: parameters |> Enum.filter(& &1.required) |> Enum.map(& &1.name)
+      }
+      |> maybe_add_additional_properties(components),
+      parameters_contexts(parameters)
     }
-    |> maybe_add_additional_properties(components)
+  end
+
+  # Extract context information from parameters, useful later when casting
+  defp parameters_contexts(parameters) do
+    Map.new(parameters, fn parameter ->
+      {Atom.to_string(parameter.name), Map.take(parameter, [:explode, :style])}
+    end)
   end
 
   defp schemas_by_location(operation, components) do
@@ -77,15 +89,32 @@ defmodule OpenApiSpex.CastParameters do
     end)
   end
 
-  defp cast_location(location, schema, components, conn) do
+  defp cast_location(location, schema, parameters_contexts, components, conn) do
     params =
       get_params_by_location(
         conn,
         location,
         schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
       )
+      |> pre_parse_parameters(parameters_contexts)
 
     Cast.cast(schema, params, components.schemas)
+  end
+
+  defp pre_parse_parameters(%{} = parameters, %{} = parameters_context) do
+    Map.new(parameters, fn {key, value} = _parameter ->
+      {key, pre_parse_parameter(value, Map.get(parameters_context, key, %{}))}
+    end)
+  end
+
+  defp pre_parse_parameter(parameter, %{explode: false, style: :form} = _context) do
+    # e.g. sizes=S,L,M
+    # This does not take care of cases where the value may contain a comma itself
+    String.split(parameter, ",")
+  end
+
+  defp pre_parse_parameter(parameter, _) do
+    parameter
   end
 
   defp reduce_cast_results(results) do
