@@ -12,7 +12,7 @@ defmodule OpenApiSpex.CastParametersTest do
   }
 
   describe "cast/3" do
-    test "fails for not supported additional properties " do
+    test "fails for unsupported additional properties " do
       conn = create_conn_with_unexpected_path_param()
       operation = create_operation()
       components = create_components()
@@ -45,7 +45,7 @@ defmodule OpenApiSpex.CastParametersTest do
       assert %{params: %{includeInactive: false}} = conn
     end
 
-    test "casting of headers is not case sensitive" do
+    test "casting of headers is case-insensitive" do
       conn = create_conn()
       operation = create_operation()
       components = create_components()
