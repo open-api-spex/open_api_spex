@@ -26,7 +26,7 @@ defmodule OpenApiSpex.Paths do
   @doc """
   Create a Paths map from a list of routes.
   """
-  @spec from_routes([Phoenix.Route.t]) :: t
+  @spec from_routes([Phoenix.Route.t()]) :: t
   def from_routes(routes) do
     paths =
       routes
