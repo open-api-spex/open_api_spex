@@ -21,9 +21,15 @@ defmodule OpenApiSpex.Paths do
   Create a Paths map from the routes in the given router module.
   """
   @spec from_router(module) :: t
-  def from_router(router) do
+  def from_router(router), do: from_routes(router.__routes__())
+
+  @doc """
+  Create a Paths map from a list of routes.
+  """
+  @spec from_routes([Phoenix.Route.t()]) :: t
+  def from_routes(routes) do
     paths =
-      router.__routes__()
+      routes
       |> Enum.group_by(fn route -> route.path end)
       |> Enum.map(fn {k, v} -> {open_api_path(k), PathItem.from_routes(v)} end)
       |> Enum.filter(fn {_k, v} -> !is_nil(v) end)
