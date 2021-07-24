@@ -17,10 +17,10 @@ defmodule OpenApiSpex.CastParameters do
 
     def function(_conn, params)
 
-    Consider migrating from using the Plug.Conn body_params argument to reading
+    Consider migrating from using the Plug.Conn params argument to reading
     casted parameters from the connection assigns:
 
-    def function(%Conn{assigns: %{casted_params: body_params}}, _params) do ...
+    def function(%Conn{assigns: %{casted_params: params}}, _params) do ...
 
     If you have already migrated to the new behaviour, you can disable the old one:
 
