@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        elixir: ['1.9', '1.10', '1.11', '1.12']
+        elixir: ['1.10', '1.11', '1.12']
         otp: ['23', '24']
 
     steps:
