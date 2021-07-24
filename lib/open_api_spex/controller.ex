@@ -180,7 +180,7 @@ defmodule OpenApiSpex.Controller do
       %Operation{
         summary: summary,
         externalDocs: OperationBuilder.build_external_docs(meta, mod_meta),
-        description: description,
+        description: description || "",
         operationId: OperationBuilder.build_operation_id(meta, mod, name),
         parameters: OperationBuilder.build_parameters(meta),
         requestBody: OperationBuilder.build_request_body(meta),
