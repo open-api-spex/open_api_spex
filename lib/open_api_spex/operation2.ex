@@ -15,7 +15,7 @@ defmodule OpenApiSpex.Operation2 do
   alias Plug.Conn
 
   unless Application.compile_env(:open_api_spex, :do_not_cast_conn_body_params) do
-    import Logger
+    require Logger
 
     Logger.warn(fn -> "
     Casting of Plug.Conn body_params by open_api_spex is deprected and will be
