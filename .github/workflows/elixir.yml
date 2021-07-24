@@ -7,6 +7,37 @@ on:
     branches: [master]
 
 jobs:
+  lint:
+    name: Lint (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        otp: ['24']
+        elixir: ['1.12']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - uses: actions/cache@v1
+        env:
+          cache-name: mix
+        with:
+          path: ~/.mix
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ matrix.otp }}-${{ matrix.elixir }}
+      - uses: actions/cache@v1
+        env:
+          cache-name: build
+        with:
+          path: _build
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ matrix.otp }}-${{ matrix.elixir }}
+      - run: mix deps.get
+      - run: mix compile --warnings-as-errors
+      - run: mix format --check-formatted
+      - run: mix credo --strict --all
+      - run: mix dialyzer
+
   build:
     name: Build and test
     runs-on: ubuntu-18.04
@@ -34,8 +65,5 @@ jobs:
         run: MIX_ENV=test mix do deps.get, deps.compile
       - name: Compile application
         run: MIX_ENV=test mix compile --warnings-as-errors
-      - name: Check formatting
-        if: ${{ matrix.elixir == '1.12' }}
-        run: mix format --check-formatted
       - name: Run tests
         run: mix test
