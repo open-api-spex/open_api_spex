@@ -84,10 +84,8 @@ defmodule OpenApiSpex.Mixfile do
 
   defp dialyzer do
     [
-      plt_add_apps: [:mix, :jason, :poison],
-      plt_add_deps: :apps_direct,
-      flags: ["-Werror_handling", "-Wno_unused", "-Wunmatched_returns", "-Wunderspecs"],
-      remove_defaults: [:unknown]
+      plt_add_apps: [:ex_unit, :mix, :jason, :poison],
+      plt_add_deps: :apps_direct
     ]
   end
 end

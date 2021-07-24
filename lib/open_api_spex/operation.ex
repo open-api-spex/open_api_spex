@@ -8,6 +8,7 @@ defmodule OpenApiSpex.Operation do
     MediaType,
     Operation,
     Parameter,
+    PathItem,
     Reference,
     RequestBody,
     Response,
@@ -16,6 +17,8 @@ defmodule OpenApiSpex.Operation do
     SecurityRequirement,
     Server
   }
+
+  alias Plug.Conn
 
   @enforce_keys :responses
   defstruct tags: [],
