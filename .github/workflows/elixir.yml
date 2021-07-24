@@ -12,9 +12,10 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        elixir: [1.9, 1.11]
-        otp: [23.0]
-
+        elixir: ['1.9', '1.11']
+        otp: ['23']
+        exclude:
+          - {otp: '23', elixir: '1.9'}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Elixir
