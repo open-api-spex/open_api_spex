@@ -46,7 +46,6 @@ defmodule PhoenixApp.Mixfile do
       {:phoenix, "~> 1.4"},
       {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.0"},
-      {:httpoison, "~> 1.7"},
       {:dialyxir, "1.0.0-rc.6", only: [:dev], runtime: false}
     ]
   end
