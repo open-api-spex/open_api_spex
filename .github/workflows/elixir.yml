@@ -37,33 +37,32 @@ jobs:
       - run: mix format --check-formatted
       - run: mix credo --strict --all
       - run: mix dialyzer
-
-  build:
-    name: Build and test
-    runs-on: ubuntu-18.04
+  test:
+    runs-on: ubuntu-latest
+    name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
     strategy:
       matrix:
-        elixir: ['1.10', '1.11', '1.12']
-        otp: ['23', '24']
-
+        otp: ['21', '22', '23', '24']
+        elixir: ['1.9', '1.10', '1.11', '1.12']
+        exclude:
+          - {otp: '21', elixir: '1.12'}
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Elixir
-        uses: actions/setup-elixir@v1
+      - uses: erlef/setup-beam@v1
         with:
-          elixir-version: ${{ matrix.elixir }} # Define the elixir version [required]
-          otp-version: ${{ matrix.otp }} # Define the OTP version [required]
-      - name: Restore dependencies cache
-        uses: actions/cache@v2
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - uses: actions/cache@v1
+        env:
+          cache-name: mix
         with:
-          path: |
-            deps
-            _build/test
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/mix.lock', '**/config/*.exs') }}
-          restore-keys: ${{ runner.os }}-deps-
-      - name: Install and compile dependencies
-        run: MIX_ENV=test mix do deps.get, deps.compile
-      - name: Compile application
-        run: MIX_ENV=test mix compile
-      - name: Run tests
-        run: mix test
+          path: ~/.mix
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ matrix.otp }}-${{ matrix.elixir }}
+      - uses: actions/cache@v1
+        env:
+          cache-name: build
+        with:
+          path: _build
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ matrix.otp }}-${{ matrix.elixir }}
+      - run: mix deps.get
+      - run: mix test
