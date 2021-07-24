@@ -17,7 +17,7 @@ defmodule OpenApiSpex.Operation2 do
   unless Application.compile_env(:open_api_spex, :do_not_cast_conn_body_params) do
     import Logger
 
-    Logger.warn("
+    Logger.warn(fn -> "
     Casting of Plug.Conn body_params by open_api_spex is deprected and will be
     removed in the next major release:
 
@@ -31,7 +31,7 @@ defmodule OpenApiSpex.Operation2 do
     If you have already migrated to the new behaviour, you can disable the old one:
 
     config :open_api_spex, do_not_cast_conn_body_params: true
-    ")
+    " end)
   end
 
   @spec cast(Operation.t(), Conn.t(), String.t() | nil, Components.t()) ::
