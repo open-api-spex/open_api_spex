@@ -35,7 +35,7 @@ jobs:
       - run: mix deps.get
       - run: mix compile --warnings-as-errors
       - run: mix format --check-formatted
-      - run: mix credo --strict --all
+      # - run: mix credo --strict --all
       - run: mix dialyzer
   test:
     runs-on: ubuntu-latest
