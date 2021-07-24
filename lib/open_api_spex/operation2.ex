@@ -14,13 +14,37 @@ defmodule OpenApiSpex.Operation2 do
   alias OpenApiSpex.Cast.Error
   alias Plug.Conn
 
+  unless Application.compile_env(:open_api_spex, :do_not_cast_conn_body_params) do
+    import Logger
+
+    Logger.warn("
+    Casting of Plug.Conn body_params by open_api_spex is deprected and will be
+    removed in the next major release:
+
+    def function(%Conn{body_params: body_params}, _params)
+
+    Consider migrating from using the Plug.Conn body_params argument to reading
+    casted parameters from the connection assigns:
+
+    def function(%Conn{assigns: %{casted_body_params: body_params}}, _params) do ...
+
+    If you have already migrated to the new behaviour, you can disable the old one:
+
+    config :open_api_spex, do_not_cast_conn_body_params: true
+    ")
+  end
+
   @spec cast(Operation.t(), Conn.t(), String.t() | nil, Components.t()) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
   def cast(operation = %Operation{}, conn = %Conn{}, content_type, components = %Components{}) do
     with {:ok, conn} <- cast_parameters(conn, operation, components),
          {:ok, body} <-
            cast_request_body(operation.requestBody, conn.body_params, content_type, components) do
-      {:ok, %{conn | body_params: body}}
+      if Application.get_env(:open_api_spex, :do_not_cast_conn_body_params) do
+        {:ok, Conn.assign(conn, :casted_body_params, body)}
+      else
+        {:ok, %{Conn.assign(conn, :casted_body_params, body) | body_params: body}}
+      end
     end
   end
 
