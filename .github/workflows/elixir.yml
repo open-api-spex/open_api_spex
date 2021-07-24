@@ -12,13 +12,8 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-<<<<<<< HEAD
-        elixir: [1.9, 1.12]
-        otp: [23.0]
-=======
-        elixir: [1.9, 1.10, 1.11, 1.12]
-        otp: [23, 24]
->>>>>>> 2e752bc (Widen test matrix)
+        elixir: ['1.9', '1.10', '1.11', '1.12']
+        otp: ['23', '24']
 
     steps:
       - uses: actions/checkout@v2
