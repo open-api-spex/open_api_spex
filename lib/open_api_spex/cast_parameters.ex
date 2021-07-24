@@ -4,7 +4,7 @@ defmodule OpenApiSpex.CastParameters do
   alias OpenApiSpex.Cast.Error
   alias Plug.Conn
 
-  unless Application.compile_env(:open_api_spex, :do_not_cast_conn_body_params) do
+  unless Application.compile_env(:open_api_spex, :do_not_cast_conn_params) do
     require Logger
 
     Logger.warn("
