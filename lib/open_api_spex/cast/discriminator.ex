@@ -85,8 +85,11 @@ defmodule OpenApiSpex.Cast.Discriminator do
       {:ok, "#/components/schemas/" <> name} ->
         find_discriminator_schema(name, nil, schemas)
 
-      {:ok, name} -> find_discriminator_schema(name, nil, schemas)
-        :error -> find_discriminator_schema(discriminator, nil, schemas)
+      {:ok, name} ->
+        find_discriminator_schema(name, nil, schemas)
+
+      :error ->
+        find_discriminator_schema(discriminator, nil, schemas)
     end
   end
 

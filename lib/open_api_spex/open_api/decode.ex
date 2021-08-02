@@ -62,7 +62,8 @@ defmodule OpenApiSpex.OpenApi.Decode do
       %{^atom_key => value} ->
         {atom_key, value}
 
-      _ -> map_get(map, to_string(atom_key))
+      _ ->
+        map_get(map, to_string(atom_key))
     end
   end
 

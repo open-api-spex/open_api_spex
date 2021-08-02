@@ -2,6 +2,7 @@ defmodule OpenApiSpex.Header do
   @moduledoc """
   Defines the `OpenApiSpex.Header.t` type.
   """
+
   alias OpenApiSpex.{Example, Reference, Schema}
 
   defstruct [

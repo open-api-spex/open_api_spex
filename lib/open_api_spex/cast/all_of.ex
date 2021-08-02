@@ -19,9 +19,9 @@ defmodule OpenApiSpex.Cast.AllOf do
       {:error, errors} ->
         with {:ok, cleaned_ctx} <- reject_error_values(ctx, errors),
              {:ok, cleaned_values} <- Cast.cast(cleaned_ctx) do
-              new_ctx = put_in(ctx.schema.allOf, remaining)
-              new_ctx = update_in(new_ctx.value, fn values -> values -- cleaned_ctx.value end)
-              cast_all_of(new_ctx, Enum.concat(acc, cleaned_values))
+          new_ctx = put_in(ctx.schema.allOf, remaining)
+          new_ctx = update_in(new_ctx.value, fn values -> values -- cleaned_ctx.value end)
+          cast_all_of(new_ctx, Enum.concat(acc, cleaned_values))
         else
           _ -> Cast.error(ctx, {:all_of, to_string(schema.title || schema.type)})
         end
