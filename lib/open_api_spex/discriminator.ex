@@ -29,10 +29,11 @@ defmodule OpenApiSpex.Discriminator do
   """
   @spec resolve(t, map, %{String.t() => Schema.t()}) :: {:ok, Schema.t()} | {:error, String.t()}
   def resolve(%{propertyName: name, mapping: mapping}, value = %{}, schemas = %{}) do
-    with {:ok, val} <- get_property_value(value, name) do
+    case get_property_value(value, name) do
+      {:ok, val} ->
       mapped = map_property_value(mapping, val)
       lookup_schema(schemas, mapped)
-    else
+
       {:error, reason} -> {:error, reason}
     end
   end

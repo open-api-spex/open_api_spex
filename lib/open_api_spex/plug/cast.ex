@@ -44,6 +44,7 @@ defmodule OpenApiSpex.Plug.Cast do
 
   @behaviour Plug
 
+  alias OpenApiSpex.Plug.PutApiSpec
   alias Plug.Conn
 
   @impl Plug
@@ -60,7 +61,7 @@ defmodule OpenApiSpex.Plug.Cast do
         operation_id: operation_id,
         render_error: render_error
       }) do
-    {spec, operation_lookup} = OpenApiSpex.Plug.PutApiSpec.get_spec_and_operation_lookup(conn)
+    {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
     content_type =

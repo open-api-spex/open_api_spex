@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.Plug.AppEnvCache do
+  @moduledoc "OpenApiSpex AppEnvCache"
+
   @behaviour OpenApiSpex.Plug.Cache
 
   @impl true

@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.TermType do
+  @moduledoc false
+
   alias OpenApiSpex.Schema
 
   @spec type(term) :: Schema.data_type() | nil | String.t()

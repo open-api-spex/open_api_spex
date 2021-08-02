@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.Cast.Error do
+  @moduledoc "OpenApiSpex Cast Error"
+
   alias OpenApiSpex.TermType
 
   @type all_of_error :: {:all_of, [String.t()]}

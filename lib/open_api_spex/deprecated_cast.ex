@@ -147,11 +147,11 @@ defmodule OpenApiSpex.DeprecatedCast do
   def cast(ref = %Reference{}, val, schemas),
     do: cast(Reference.resolve_schema(ref, schemas), val, schemas)
 
-  def cast(_additionalProperties = false, val, _schemas) do
+  def cast(_additional_properties = false, val, _schemas) do
     {:error, "Unexpected field with value #{inspect(val)}"}
   end
 
-  def cast(_additionalProperties, val, _schemas), do: {:ok, val}
+  def cast(_additional_properties, val, _schemas), do: {:ok, val}
 
   defp make_struct(val = %_{}, _), do: {:ok, val}
   defp make_struct(val, %{"x-struct": nil}), do: {:ok, val}

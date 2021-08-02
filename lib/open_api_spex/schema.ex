@@ -133,12 +133,12 @@ defmodule OpenApiSpex.Schema do
   """
 
   alias OpenApiSpex.{
-    Schema,
-    Reference,
     DeprecatedCast,
     Discriminator,
-    Xml,
-    ExternalDocumentation
+    ExternalDocumentation,
+    Reference,
+    Schema,
+    Xml
   }
 
   @doc """
@@ -297,21 +297,21 @@ defmodule OpenApiSpex.Schema do
   """
   defdelegate cast(schema, value, schemas), to: DeprecatedCast
 
-  @doc ~S"""
+  @doc """
   Validate a value against a Schema.
 
   This expects that the value has already been `cast` to the appropriate data type.
 
   ## Examples
 
-      iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :integer, minimum: 5}, 3, %{})
-      {:error, "#: 3 is smaller than minimum 5"}
+  iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :integer, minimum: 5}, 3, %{})
+  {:error, "#: 3 is smaller than minimum 5"}
 
-      iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joe@gmail.com", %{})
-      :ok
+  iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joe@gmail.com", %{})
+  :ok
 
-      iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joegmail.com", %{})
-      {:error, "#: Value \"joegmail.com\" does not match pattern: (.*)@(.*)"}
+  iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joegmail.com", %{})
+  {:error, "#: Value \\\"joegmail.com\\\" does not match pattern: (.*)@(.*)"}
   """
   @spec validate(Schema.t() | Reference.t(), any, %{String.t() => Schema.t() | Reference.t()}) ::
           :ok | {:error, String.t()}

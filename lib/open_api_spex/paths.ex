@@ -2,7 +2,7 @@ defmodule OpenApiSpex.Paths do
   @moduledoc """
   Defines the `OpenApiSpex.Paths.t` type.
   """
-  alias OpenApiSpex.{PathItem, Operation}
+  alias OpenApiSpex.{Operation, PathItem}
 
   @typedoc """
   [Paths Object](https://swagger.io/specification/#pathsObject)
@@ -66,7 +66,7 @@ defmodule OpenApiSpex.Paths do
     all_operations
     |> Enum.group_by(fn {_path, _verb, operation} -> operation.operationId end)
     |> Enum.filter(fn
-      {_operationId, [_item]} -> false
+      {_operation_id, [_item]} -> false
       _ -> true
     end)
   end

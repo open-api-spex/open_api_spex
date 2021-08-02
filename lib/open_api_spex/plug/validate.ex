@@ -70,9 +70,10 @@ defmodule OpenApiSpex.Plug.Validate do
       |> String.split(";", parts: 2)
       |> Enum.at(0)
 
-    with :ok <- apply(OpenApiSpex, :validate, [spec, operation, conn, content_type]) do
-      conn
-    else
+    case apply(OpenApiSpex, :validate, [spec, operation, conn, content_type]) do
+      :ok ->
+        conn
+
       {:error, reason} ->
         opts = render_error.init(reason)
 

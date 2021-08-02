@@ -4,18 +4,18 @@ defmodule OpenApiSpex.OpenApi do
   construct an `OpenApiSpex.OpenApi.t` at runtime.
   """
   alias OpenApiSpex.{
-    Extendable,
-    Info,
-    Server,
-    Paths,
     Components,
-    SecurityRequirement,
-    Tag,
+    Example,
+    Extendable,
     ExternalDocumentation,
-    OpenApi,
+    Info,
     MediaType,
+    OpenApi,
+    Paths,
     Schema,
-    Example
+    SecurityRequirement,
+    Server,
+    Tag
   }
 
   @enforce_keys [:info, :paths]

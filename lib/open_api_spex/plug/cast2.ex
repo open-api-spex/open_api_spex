@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.Plug.Cast2 do
+  @moduledoc false
+
   @behaviour Plug
 
   @impl Plug

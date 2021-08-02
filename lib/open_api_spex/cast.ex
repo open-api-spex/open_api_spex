@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.Cast do
+  @moduledoc "Validates values agains OpenApiSpex schemas"
+
   alias OpenApiSpex.{Reference, Schema}
   alias OpenApiSpex.Reference
 

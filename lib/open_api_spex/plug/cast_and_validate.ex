@@ -42,6 +42,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
   @behaviour Plug
 
+  alias Plug.Conn
   alias OpenApiSpex.Plug.PutApiSpec
 
   @impl Plug
@@ -64,15 +65,27 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
-    with {:ok, conn} <- OpenApiSpex.cast_and_validate(spec, operation, conn) do
-      conn
-    else
+    content_type =
+      case Conn.get_req_header(conn, "content-type") do
+        [header_value | _] ->
+          header_value
+          |> String.split(";")
+          |> Enum.at(0)
+
+        _ ->
+          nil
+      end
+
+    case OpenApiSpex.cast_and_validate(spec, operation, conn, content_type) do
+      {:ok, conn} ->
+        conn
+
       {:error, errors} ->
         errors = render_error.init(errors)
 
         conn
         |> render_error.call(errors)
-        |> Plug.Conn.halt()
+        |> Conn.halt()
     end
   end
 

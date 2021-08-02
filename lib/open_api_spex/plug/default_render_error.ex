@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.Plug.DefaultRenderError do
+  @moduledoc false
+
   @deprecated "#{__MODULE__} is no longer the default error renderer"
   @behaviour Plug
 

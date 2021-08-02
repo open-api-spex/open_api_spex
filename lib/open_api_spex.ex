@@ -10,9 +10,9 @@ defmodule OpenApiSpex do
     Operation2,
     Reference,
     Schema,
+    SchemaConsistency,
     SchemaException,
-    SchemaResolver,
-    SchemaConsistency
+    SchemaResolver
   }
 
   alias OpenApiSpex.Cast.Error

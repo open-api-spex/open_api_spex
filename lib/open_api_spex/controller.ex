@@ -176,62 +176,64 @@ defmodule OpenApiSpex.Controller do
   @doc false
   @spec __api_operation__(module(), atom()) :: Operation.t() | nil
   def __api_operation__(mod, name) do
-    with {:ok, {mod_meta, summary, description, meta}} <- get_docs(mod, name) do
-      %Operation{
-        summary: summary,
-        externalDocs: OperationBuilder.build_external_docs(meta, mod_meta),
-        description: description || "",
-        operationId: OperationBuilder.build_operation_id(meta, mod, name),
-        parameters: OperationBuilder.build_parameters(meta),
-        requestBody: OperationBuilder.build_request_body(meta),
-        responses: OperationBuilder.build_responses(meta),
-        security: OperationBuilder.build_security(meta, mod_meta),
-        tags: OperationBuilder.build_tags(meta, mod_meta)
-      }
-    else
-      _ -> nil
+    case get_docs(mod, name) do
+      {:ok, {mod_meta, summary, description, meta}} ->
+        %Operation{
+          summary: summary,
+          externalDocs: OperationBuilder.build_external_docs(meta, mod_meta),
+          description: description || "",
+          operationId: OperationBuilder.build_operation_id(meta, mod, name),
+          parameters: OperationBuilder.build_parameters(meta),
+          requestBody: OperationBuilder.build_request_body(meta),
+          responses: OperationBuilder.build_responses(meta),
+          security: OperationBuilder.build_security(meta, mod_meta),
+          tags: OperationBuilder.build_tags(meta, mod_meta)
+        }
+
+      _ ->
+        nil
     end
   end
 
   defp get_docs(module, name) do
     {:docs_v1, _anno, _lang, _format, _module_doc, mod_meta, mod_docs} = Code.fetch_docs(module)
 
-    doc_for_function =
-      Enum.find(mod_docs, fn
-        {{:function, ^name, _}, _, _, _, _} -> true
-        _ -> false
-      end)
+    mod_docs
+    |> Enum.find(mod_docs, fn
+      {{:function, ^name, _}, _, _, _, _} -> true
+      _ -> false
+    end)
+    |> doc_for_function(module, name, mod_meta)
+  end
 
-    case doc_for_function do
-      {_, _, _, :hidden, _} ->
+  defp doc_for_function({_, _, _, :hidden, _}, _module, _name, _mod_meta), do: nil
+
+  defp doc_for_function({_, _, _, docs, meta}, module, name, mod_meta) when is_map(meta) do
+    cond do
+      Enum.empty?(meta) ->
+        IO.warn("No docs found for function #{module}.#{name}/2")
         nil
 
-      {_, _, _, docs, meta} when is_map(meta) ->
-        cond do
-          Enum.empty?(meta) ->
-            IO.warn("No docs found for function #{module}.#{name}/2")
-            nil
-
-          not Map.has_key?(meta, :responses) ->
-            IO.warn("No responses declaration found for function #{module}.#{name}/2")
-            nil
-
-          true ->
-            {summary, description} =
-              with %{"en" => contents} <- docs,
-                   [summary | maybe_description] = String.split(contents, ~r/\n\s*\n/, parts: 2) do
-                {summary, List.first(maybe_description) || ""}
-              else
-                _ ->
-                  {"", ""}
-              end
-
-            {:ok, {mod_meta, summary, description, meta}}
-        end
-
-      _ ->
-        IO.warn("Invalid docs declaration found for function #{module}.#{name}/2")
+      not Map.has_key?(meta, :responses) ->
+        IO.warn("No responses declaration found for function #{module}.#{name}/2")
         nil
+
+      true ->
+        {summary, description} =
+          if is_map(docs) do
+            contents = Map.get(docs, "en", "")
+            [summary | description] = String.split(contents, ~r/\n\s*\n/, parts: 2)
+            {summary, List.first(description)}
+          else
+            {"", ""}
+          end
+
+        {:ok, {mod_meta, summary, description, meta}}
     end
+  end
+
+  defp doc_for_function(_doc_for_function, module, name, _mod_meta) do
+    IO.warn("Invalid docs declaration found for function #{module}.#{name}/2")
+    nil
   end
 end
