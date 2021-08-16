@@ -40,11 +40,11 @@ defmodule OpenApiSpex.Cast.Discriminator do
   defp cast_discriminator(%_{value: value, schema: schema} = ctx) do
     {discriminator_property, mappings} = discriminator_details(schema)
 
-    case Map.pop(value, "#{discriminator_property}") do
-      {"", _} ->
+    case value["#{discriminator_property}"] || value[:"#{discriminator_property}"] do
+      v when v in ["", nil] ->
         error(:no_value_for_discriminator, ctx)
 
-      {discriminator_value, _castable_value} ->
+      discriminator_value ->
         # The cast specified by the composite key (allOf, anyOf, oneOf) MUST succeed
         # or return an error according to the Open API Spec.
         composite_ctx = %{
