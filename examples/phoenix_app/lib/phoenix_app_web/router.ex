@@ -9,7 +9,8 @@ defmodule PhoenixAppWeb.Router do
     oauth: [
       # client_id: "e2195a7487322a0f19bf"
       client_id: "Iv1.d7c611e5607d77b0"
-    ]
+    ],
+    favicon: false
   ]
 
   def swagger_ui_config, do: @swagger_ui_config

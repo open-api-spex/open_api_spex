@@ -21,7 +21,8 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
           path: "/api/openapi",
           default_model_expand_depth: 3,
-          display_operation_id: true
+          display_operation_id: true,
+          favicon: false
       end
 
       # Other scopes may use custom stacks.
@@ -41,8 +42,10 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
       <meta charset="UTF-8">
       <title>Swagger UI</title>
       <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.34.0/swagger-ui.css" >
-      <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
-      <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
+      <%= if config[:favicon] do %>
+        <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
+        <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
+      <% end %>
       <style>
         html
         {
@@ -142,7 +145,8 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
       get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
         path: "/api/openapi",
         default_model_expand_depth: 3,
-        display_operation_id: true
+        display_operation_id: true,
+        favicon: false
   """
   @impl Plug
   def init(opts) when is_list(opts) do
