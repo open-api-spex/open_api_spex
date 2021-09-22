@@ -1,6 +1,10 @@
 defmodule OpenApiSpex.Plug.CastTest do
   use ExUnit.Case
 
+  import OpenApiSpex.TestAssertions
+
+  alias OpenApiSpexTest.ApiSpec
+
   describe "query params - basics" do
     test "Valid Param" do
       conn =
@@ -37,6 +41,18 @@ defmodule OpenApiSpex.Plug.CastTest do
                "source" => %{"pointer" => "/validParam"},
                "title" => "Invalid value"
              }
+    end
+
+    test "matches JsonErrorResponse" do
+      api_spec = ApiSpec.spec()
+
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users?validParam=123")
+        |> OpenApiSpexTest.Router.call([])
+
+      error_resp = Jason.decode!(conn.resp_body)
+      assert_schema(error_resp, "JsonErrorResponse", api_spec)
     end
 
     test "with requestBody" do

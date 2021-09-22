@@ -6,7 +6,7 @@ defmodule OpenApiSpex.JsonErrorResponse do
 
       @doc responses: %{
              201 => {"User", "application/json", UserResponse}
-             422 => {"Unprocessable Entity"], "application/json", OpenApiSpex.JsonApiErrorResponse}
+             422 => {"Unprocessable Entity", "application/json", OpenApiSpex.JsonErrorResponse}
            }
   """
   require OpenApiSpex
@@ -18,6 +18,7 @@ defmodule OpenApiSpex.JsonErrorResponse do
       errors: %Schema{
         type: :array,
         items: %Schema{
+          type: :object,
           properties: %{
             title: %Schema{type: :string, example: "Invalid value"},
             source: %Schema{
