@@ -43,7 +43,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
-    test "matches JsonErrorResponse" do
+    test "error response matches JsonErrorResponse" do
       api_spec = ApiSpec.spec()
 
       conn =
