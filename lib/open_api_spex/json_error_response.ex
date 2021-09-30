@@ -38,13 +38,13 @@ defmodule OpenApiSpex.JsonErrorResponse do
   })
 
   @doc """
-  Convenience function to return that wraps JsonApiErrorResponse in an Operation response.
+  Convenience function to return that wraps JsonErrorResponse in an Operation response.
 
   ## Examples
 
       @doc responses: %{
              201 => {"User", "application/json", UserResponse}
-             422 => OpenApiSpex.JsonApiErrorResponse.response()
+             422 => OpenApiSpex.JsonErrorResponse.response()
            }
   """
   def response do
