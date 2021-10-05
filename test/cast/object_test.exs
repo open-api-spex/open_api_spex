@@ -241,6 +241,32 @@ defmodule OpenApiSpex.ObjectTest do
                cast(value: input, schema: schema)
     end
 
+    test "additionalProperties are casted and validated when properties is nil" do
+      schema = %Schema{
+        type: :object,
+        properties: nil,
+        additionalProperties: %Schema{
+          type: :object,
+          properties: %{
+            age: %Schema{type: :integer},
+            name: %Schema{type: :string}
+          },
+          required: [:age, :name]
+        }
+      }
+
+      input = %{"alex" => %{"name" => "Joe"}}
+
+      assert {:error,
+              [
+                %{
+                  name: :age,
+                  path: ["alex", :age],
+                  reason: :missing_field
+                }
+              ]} = cast(value: input, schema: schema)
+    end
+
     test "when additionalProperties schema is a reference" do
       age_schema = %Schema{type: :integer}
 
