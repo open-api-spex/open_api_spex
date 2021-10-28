@@ -65,18 +65,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
-    content_type =
-      case Conn.get_req_header(conn, "content-type") do
-        [header_value | _] ->
-          header_value
-          |> String.split(";")
-          |> Enum.at(0)
-
-        _ ->
-          nil
-      end
-
-    case OpenApiSpex.cast_and_validate(spec, operation, conn, content_type) do
+    case OpenApiSpex.cast_and_validate(spec, operation, conn) do
       {:ok, conn} ->
         conn
 
