@@ -35,6 +35,7 @@ jobs:
       - name: Compile application
         run: MIX_ENV=test mix compile --warnings-as-errors
       - name: Check formatting
+        if: ${{ matrix.elixir == '1.11' }}
         run: mix format --check-formatted
       - name: Run tests
         run: mix test
