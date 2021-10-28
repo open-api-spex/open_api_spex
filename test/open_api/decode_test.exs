@@ -400,8 +400,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                OpenApiSpex.cast_and_validate(
                  spec,
                  spec.paths["/example"].post,
-                 test_conn,
-                 "application/json"
+                 test_conn
                )
     end
   end
