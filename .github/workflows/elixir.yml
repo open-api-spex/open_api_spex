@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        elixir: [1.9, 1.11]
+        elixir: [1.9, 1.12]
         otp: [23.0]
 
     steps:
@@ -35,7 +35,7 @@ jobs:
       - name: Compile application
         run: MIX_ENV=test mix compile --warnings-as-errors
       - name: Check formatting
-        if: ${{ matrix.elixir == '1.11' }}
+        if: ${{ matrix.elixir == '1.12' }}
         run: mix format --check-formatted
       - name: Run tests
         run: mix test
