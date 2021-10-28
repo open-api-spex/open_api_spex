@@ -250,8 +250,7 @@ defmodule OpenApiSpex.Operation2Test do
     end
 
     test "validate missing required query param" do
-      parameter =
-        Operation.parameter(:name, :query, :string, "Filter by user name", required: true)
+      parameter = Operation.parameter(:name, :query, :string, "Filter by user name", required: true)
 
       operation = %{OperationFixtures.user_index() | parameters: [parameter]}
 

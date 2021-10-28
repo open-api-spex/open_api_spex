@@ -370,8 +370,7 @@ defmodule OpenApiSpex.ObjectTest do
         }
       }
 
-      assert {:error, [error1, error2]} =
-               cast(value: %{"age" => 0, "name" => "N"}, schema: schema)
+      assert {:error, [error1, error2]} = cast(value: %{"age" => 0, "name" => "N"}, schema: schema)
 
       assert %Error{} = error1
       assert error1.reason == :minimum

@@ -362,9 +362,7 @@ defmodule OpenApiSpex.Cast.Error do
   end
 
   def message(%{reason: :min_properties, meta: meta}) do
-    "Object property count #{meta.property_count} is less than minProperties: #{
-      meta.min_properties
-    }"
+    "Object property count #{meta.property_count} is less than minProperties: #{meta.min_properties}"
   end
 
   def message_with_path(error) do
