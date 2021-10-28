@@ -351,8 +351,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
 
       assert %{
                "operationCallback" => %{
-                 "http://server-a.com?transactionId={$request.body#/id}" =>
-                   %OpenApiSpex.PathItem{}
+                 "http://server-a.com?transactionId={$request.body#/id}" => %OpenApiSpex.PathItem{}
                }
              } = operationCallbacks
 

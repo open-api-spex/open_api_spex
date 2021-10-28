@@ -1,4 +1,5 @@
 [
+  line_length: 100,
   inputs: ["{mix,.formatter}.exs", "{config,lib,rel,test}/**/*.{ex,exs}"],
   import_deps: [:plug, :phoenix],
   locals_without_parens: [

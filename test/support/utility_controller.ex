@@ -47,8 +47,7 @@ defmodule OpenApiSpexTest.UtilityController do
        ],
        responses: [
          ok:
-           {"Casted Result", "application/json",
-            %Schema{type: :object, additionalProperties: true}}
+           {"Casted Result", "application/json", %Schema{type: :object, additionalProperties: true}}
        ]
   def echo_any(conn, params) do
     json(conn, params)
