@@ -44,7 +44,32 @@ defmodule OpenApiSpex.CastOneOfTest do
 
     test "objects, using discriminator" do
       dog = %{"bark" => "woof", "pet_type" => "Dog"}
-      TestAssertions.assert_schema(dog, "CatOrDog", OpenApiSpexTest.ApiSpec.spec())
+      TestAssertions.assert_schema(dog, "Pet", OpenApiSpexTest.ApiSpec.spec())
+    end
+
+    test "error when value invalid against all schemas, using discriminator" do
+      dog = %{"fur" => "grey", "pet_type" => "Wolf"}
+      api_spec = OpenApiSpexTest.ApiSpec.spec()
+      pet_schema = api_spec.components.schemas["Pet"]
+      assert {:error, [error]} = OpenApiSpex.cast_value(dog, pet_schema, api_spec)
+
+      assert error == %OpenApiSpex.Cast.Error{
+               format: nil,
+               length: 0,
+               meta: %{
+                 failed_schemas: [
+                   "Schema(title: \"Dog\", type: :object)",
+                   "Schema(title: \"Cat\", type: :object)"
+                 ],
+                 message: "no schemas validate",
+                 valid_schemas: []
+               },
+               name: nil,
+               path: ["pet_type"],
+               reason: :one_of,
+               type: nil,
+               value: %{"fur" => "grey", "pet_type" => "Wolf"}
+             }
     end
   end
 
