@@ -58,13 +58,13 @@ defmodule OpenApiSpex.Cast.Discriminator do
   end
 
   defp cast_composition(composite_ctx, ctx, discriminator_value, mappings) do
-    with {composite_schemas, {:ok, _}} <- cast_composition(composite_ctx),
-         %{} = schema <-
-           find_discriminator_schema(discriminator_value, mappings, composite_schemas) do
+    with {composite_schemas, cast_composition_result} <- cast_composition(composite_ctx),
+         {:ok, _} <- cast_composition_result,
+         %{} = schema <- find_discriminator_schema(discriminator_value, mappings, composite_schemas) do
       Cast.cast(%{composite_ctx | schema: schema})
     else
       nil -> error(:invalid_discriminator_value, ctx)
-      other -> other
+      {:error, _} = error -> error
     end
   end
 
