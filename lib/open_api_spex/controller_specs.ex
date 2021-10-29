@@ -264,6 +264,7 @@ defmodule OpenApiSpex.ControllerSpecs do
   See `OpenApiSpex.ControllerSpecs` for usage and examples.
   """
   def operation_spec(_module, _action, nil = _spec), do: nil
+  def operation_spec(_module, _action, false = _spec), do: nil
 
   def operation_spec(module, action, spec) do
     spec = Map.new(spec)
