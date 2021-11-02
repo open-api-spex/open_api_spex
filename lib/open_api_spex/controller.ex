@@ -220,12 +220,13 @@ defmodule OpenApiSpex.Controller do
 
       true ->
         {summary, description} =
-          if is_map(docs) do
-            contents = Map.get(docs, "en", "")
-            [summary | description] = String.split(contents, ~r/\n\s*\n/, parts: 2)
-            {summary, List.first(description)}
-          else
-            {"", ""}
+          case docs do
+            %{"en" => contents} ->
+              [summary | maybe_description] = String.split(contents, ~r/\n\s*\n/, parts: 2)
+              {summary, List.first(maybe_description) || ""}
+
+            _ ->
+              {"", ""}
           end
 
         {:ok, {mod_meta, summary, description, meta}}
