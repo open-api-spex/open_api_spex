@@ -103,8 +103,14 @@ defmodule OpenApiSpex.OpenApi.Decode do
   #
   # This function, ensures that if the map has the key — it'll convert the corresponding value
   # to an atom.
-  defp convert_value_to_atom_if_present(map, key),
-    do: update_map_if_key_present(map, key, &String.to_atom/1)
+  defp convert_value_to_atom_if_present(map, key) do
+    update_fn = fn
+      nil -> nil
+      s -> String.to_atom(s)
+    end
+
+    update_map_if_key_present(map, key, update_fn)
+  end
 
   # In some cases, e.g. Schema type we must convert values that are list of strings to a list atoms,
   #
