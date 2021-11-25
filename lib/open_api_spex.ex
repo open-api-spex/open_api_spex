@@ -83,7 +83,20 @@ defmodule OpenApiSpex do
         conn = %Plug.Conn{},
         content_type \\ nil
       ) do
+    content_type = content_type || content_type_from_header(conn)
     Operation2.cast(operation, conn, content_type, spec.components)
+  end
+
+  defp content_type_from_header(conn = %Plug.Conn{}) do
+    case Plug.Conn.get_req_header(conn, "content-type") do
+      [header_value | _] ->
+        header_value
+        |> String.split(";")
+        |> List.first()
+
+      _ ->
+        nil
+    end
   end
 
   @doc """

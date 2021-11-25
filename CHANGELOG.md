@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.11.0 - 2021-10-29
+
+Thanks to the contributions of the community ❤️💙💛💜🧡
+
+- [@asppsa](https://github.com/asppsa)
+- [@ElijahBrandyberry](https://github.com/ElijahBrandyberry)
+- [@kianmeng](https://github.com/kianmeng)
+- [@lucacorti](https://github.com/lucacorti)
+- [@m0rt3nlund](https://github.com/m0rt3nlund)
+- [@mbuhot](https://github.com/mbuhot)
+- [@moxley](https://github.com/moxley)
+- [@nimish-mehta](https://github.com/nimish)
+- [@reneweteling](https://github.com/reneweteling)
+- [@stefanluptak](https://github.com/stefanluptak)
+- [@vitorbortolotti](https://github.com/vitorbortolotti)
+- [@vorce](https://github.com/vorce)
+- [@ycherniavskyi](https://github.com/ycherniavskyi)
+- [@zoten](https://github.com/zoten)
+- [seantanly](https://github.com/eantanly)
+
+* Docs: Fix Application.spec/2 example in README #344
+* Docs: Misc doc changes (#355)
+* Docs: JsonApiErrorResponse vs JsonErrorResponse (#385)
+* Enhancement: Allow casting params where parameter.content schema is a Reference (#356)
+* Enhancement: external_docs via controller @doc and @moduledoc or ControllerSpecs DSL (#329)
+* Enhancement: Add optional header in opts to Operation.response (#332)
+* Enhancement: Add callback support to operation_spec (#345)
+* Enhancement: Adding helpers to OpenApiSpex.TestAssertions (#343)
+* Enhancement: Collect all errors occurred during cast properties (#354)
+* Enhancement: Add support for multiple specs for the same Phoenix router (#369)
+* Enhancement: updated swagger-ui to 3.34.0 (#378)
+* Fix casting additionalProperties (#386)
+* Fix JsonErrorResponse schema definition (#383)
+* Fix: test for cast of query parameters with style: form and explode: false (#364)
+* Fix: any_of cast for multiple schemas (#366)
+* Fix: Handle oneOf cast when there are multiple success along with failure (#362)
+* Fix: Casting of additionalProperties with references (#360)
+* Fix: Schema.example/1 for schema module (#358)
+* Fix: Stop circular dependency by injecting the schema into list of already processed schemas (#352)
+* Fix: Cast default for referenced schema (#337)
+* Fix: don't json encode swagger-ui methods (#325)
+* Fix: relax requirement on poison preventing version conflicts in library usage (#322)
+* Fix: Allow top level security to apply to operations #321
+* Fix: return error tuple when discriminator cast fails (#393)
+* Infrastructure: Run Elixir CI with GitHub Actions (#347)
+
 ## v3.10.0 - 2021-01-11
 
 Thanks to the contributions of the community ❤️💙💛💜🧡
@@ -47,7 +93,7 @@ Thanks to the contributions of the community ❤️💙💛💜🧡
 * Feature: Warn on invalid or missing operation specs (#273, #278)
 * Feature: Experimental alternative API for defining Operation specs (#265, #280)
 * Fix: Handle the same operation occurring at different routes (#272)
-* Fix: Casting header names that have upper*case letters in specs (#281)
+* Fix: Casting header names that have upper case letters in specs (#281)
 * Maint: Upgrade Elixir dependencies in example projects (#269)
 * Maint: Format project with Elixir Formatter (#279)
 

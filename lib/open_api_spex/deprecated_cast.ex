@@ -488,8 +488,7 @@ defmodule OpenApiSpex.DeprecatedCast do
        do: :ok
 
   defp validate_max_properties(%Schema{type: :object, maxProperties: n}, val, path) do
-    {:error,
-     "#{path}: Object property count #{map_size(val)} is greater than maxProperties: #{n}"}
+    {:error, "#{path}: Object property count #{map_size(val)} is greater than maxProperties: #{n}"}
   end
 
   @spec validate_min_properties(Schema.t(), %{}, String.t()) :: :ok | {:error, String.t()}

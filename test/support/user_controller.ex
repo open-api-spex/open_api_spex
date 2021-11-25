@@ -65,7 +65,8 @@ defmodule OpenApiSpexTest.UserController do
   """
   @doc request_body: {"The user attributes", "application/json", Schemas.UserRequest},
        responses: [
-         created: {"User", "application/json", Schemas.UserResponse}
+         created: {"User", "application/json", Schemas.UserResponse},
+         unprocessable_entity: OpenApiSpex.JsonErrorResponse.response()
        ]
   def create(conn = %{body_params: %Schemas.UserRequest{user: user = %Schemas.User{}}}, _) do
     user =

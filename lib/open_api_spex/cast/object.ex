@@ -8,7 +8,7 @@ defmodule OpenApiSpex.Cast.Object do
     Cast.error(ctx, {:invalid_type, :object})
   end
 
-  def cast(%{value: value, schema: %{properties: nil}}) do
+  def cast(%{value: value, schema: %{properties: nil, additionalProperties: nil}}) do
     {:ok, value}
   end
 

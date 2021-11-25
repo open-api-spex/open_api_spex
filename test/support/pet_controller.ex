@@ -53,8 +53,7 @@ defmodule OpenApiSpexTest.PetController do
 
   Create a pet.
   """
-  @doc request_body:
-         {"The pet attributes", "application/json", Schemas.PetRequest, required: true},
+  @doc request_body: {"The pet attributes", "application/json", Schemas.PetRequest, required: true},
        responses: [
          created: {"Pet", "application/json", Schemas.PetResponse}
        ]
@@ -73,10 +72,7 @@ defmodule OpenApiSpexTest.PetController do
   """
   @doc parameters: [
          {:"x-user-id",
-          in: :header,
-          type: :string,
-          description: "User that performs this action",
-          required: true},
+          in: :header, type: :string, description: "User that performs this action", required: true},
          id: [
            in: :path,
            type: %Schema{type: :integer, minimum: 1},
@@ -133,8 +129,7 @@ defmodule OpenApiSpexTest.PetController do
 
   This action is available as a PUT or a PATCH.
   """
-  @doc request_body:
-         {"The pet attributes", "application/json", Schemas.PetRequest, required: true},
+  @doc request_body: {"The pet attributes", "application/json", Schemas.PetRequest, required: true},
        responses: [
          created: {"Pet", "application/json", Schemas.PetResponse}
        ]

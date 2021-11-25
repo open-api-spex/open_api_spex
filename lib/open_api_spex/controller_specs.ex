@@ -205,8 +205,7 @@ defmodule OpenApiSpex.ControllerSpecs do
   @spec operation(action :: atom, spec :: map) :: any
   defmacro operation(action, spec) do
     quote do
-      @spec_attributes {unquote(action),
-                        operation_spec(__MODULE__, unquote(action), unquote(spec))}
+      @spec_attributes {unquote(action), operation_spec(__MODULE__, unquote(action), unquote(spec))}
 
       def open_api_operation(unquote(action)) do
         @spec_attributes[unquote(action)]
@@ -265,6 +264,7 @@ defmodule OpenApiSpex.ControllerSpecs do
   See `OpenApiSpex.ControllerSpecs` for usage and examples.
   """
   def operation_spec(_module, _action, nil = _spec), do: nil
+  def operation_spec(_module, _action, false = _spec), do: nil
 
   def operation_spec(module, action, spec) do
     spec = Map.new(spec)

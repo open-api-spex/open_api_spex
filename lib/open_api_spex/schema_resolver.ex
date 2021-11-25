@@ -223,8 +223,7 @@ defmodule OpenApiSpex.SchemaResolver do
     {not_schema, schemas} = resolve_schema_modules_from_schema(schema.not, schemas)
     {items, schemas} = resolve_schema_modules_from_schema(schema.items, schemas)
 
-    {additional, schemas} =
-      resolve_schema_modules_from_schema(schema.additionalProperties, schemas)
+    {additional, schemas} = resolve_schema_modules_from_schema(schema.additionalProperties, schemas)
 
     {properties, schemas} =
       resolve_schema_modules_from_schema_properties(schema.properties, schemas)

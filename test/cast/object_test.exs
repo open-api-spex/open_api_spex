@@ -104,9 +104,7 @@ defmodule OpenApiSpex.ObjectTest do
       @read_write_scope test_case.read_write_scope
       @expected_result test_case.result
 
-      test "required, schema:#{inspect(@schema_attrs)}, read_write_scope:#{
-             inspect(@read_write_scope)
-           }" do
+      test "required, schema:#{inspect(@schema_attrs)}, read_write_scope:#{inspect(@read_write_scope)}" do
         object_schema = %Schema{
           type: :object,
           properties: %{name: struct!(Schema, @schema_attrs)},
@@ -241,6 +239,32 @@ defmodule OpenApiSpex.ObjectTest do
                cast(value: input, schema: schema)
     end
 
+    test "additionalProperties are casted and validated when properties is nil" do
+      schema = %Schema{
+        type: :object,
+        properties: nil,
+        additionalProperties: %Schema{
+          type: :object,
+          properties: %{
+            age: %Schema{type: :integer},
+            name: %Schema{type: :string}
+          },
+          required: [:age, :name]
+        }
+      }
+
+      input = %{"alex" => %{"name" => "Joe"}}
+
+      assert {:error,
+              [
+                %{
+                  name: :age,
+                  path: ["alex", :age],
+                  reason: :missing_field
+                }
+              ]} = cast(value: input, schema: schema)
+    end
+
     test "when additionalProperties schema is a reference" do
       age_schema = %Schema{type: :integer}
 
@@ -344,8 +368,7 @@ defmodule OpenApiSpex.ObjectTest do
         }
       }
 
-      assert {:error, [error1, error2]} =
-               cast(value: %{"age" => 0, "name" => "N"}, schema: schema)
+      assert {:error, [error1, error2]} = cast(value: %{"age" => 0, "name" => "N"}, schema: schema)
 
       assert %Error{} = error1
       assert error1.reason == :minimum

@@ -24,7 +24,7 @@ The package can be installed by adding `:open_api_spex` to your list of dependen
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.10"}
+    {:open_api_spex, "~> 3.11"}
   ]
 end
 ```
@@ -343,14 +343,13 @@ open_api_spec_from_yaml = "encoded_schema.yaml"
   |> OpenApiSpex.OpenApi.Decode.decode()
 ```
 
-You can then use the loaded spec to with `OpenApiSpex.cast_and_validate/4`, like:
+You can then use the loaded spec to with `OpenApiSpex.cast_and_validate/3`, like:
 
 ```elixir
 {:ok, _} = OpenApiSpex.cast_and_validate(
   open_api_spec_from_json, # or open_api_spec_from_yaml
   spec.paths["/some_path"].post,
-  test_conn,
-  "application/json"
+  test_conn
 )
 ```
 
