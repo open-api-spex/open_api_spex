@@ -8,7 +8,12 @@ defmodule OpenApiSpex.CastParameters do
           {:error, [Error.t()]} | {:ok, Conn.t()}
   def cast(conn, operation, components) do
     with {:ok, params} <- cast_to_params(conn, operation, components) do
-      {:ok, %{conn | params: params}}
+      conn = case Application.get_env(:open_api_spex, :conn_private_decode, false) do
+        false -> %{conn | params: params}
+        true -> Plug.Conn.put_private(conn, :params, params)
+      end
+
+      {:ok, conn}
     end
   end
 

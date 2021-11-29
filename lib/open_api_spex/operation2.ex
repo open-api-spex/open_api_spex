@@ -20,9 +20,9 @@ defmodule OpenApiSpex.Operation2 do
     with {:ok, conn} <- cast_parameters(conn, operation, components),
          {:ok, body} <-
            cast_request_body(operation.requestBody, conn.body_params, content_type, components) do
-      conn = case Application.get_env(:open_api_spex, :conn_private_body_decode, false) do
+      conn = case Application.get_env(:open_api_spex, :conn_private_decode, false) do
         false -> %{conn | body_params: body}
-        true -> Map.put(conn, :private, Map.put(conn.private, :body_params, body))
+        true -> Plug.Conn.put_private(conn, :body_params, body)
       end
 
       {:ok, conn}
