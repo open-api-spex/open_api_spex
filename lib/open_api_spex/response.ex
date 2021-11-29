@@ -2,7 +2,7 @@ defmodule OpenApiSpex.Response do
   @moduledoc """
   Defines the `OpenApiSpex.Response.t` type.
   """
-  alias OpenApiSpex.{Header, Reference, MediaType, Link}
+  alias OpenApiSpex.{Header, Reference, MediaType, Link, Response}
 
   @enforce_keys :description
   defstruct [
@@ -23,4 +23,19 @@ defmodule OpenApiSpex.Response do
           content: %{String.t() => MediaType.t()} | nil,
           links: %{String.t() => Link.t() | Reference.t()} | nil
         }
+
+  @doc """
+  Resolve a `Reference` to the `Response` it refers to.
+
+  ## Examples
+
+      iex> alias OpenApiSpex.{Response, Reference}
+      ...> responses = %{"aresponse" => %Response{description: "Some response"}}
+      ...> Response.resolve_response(%Reference{"$ref": "#/components/responses/aresponse"}, responses)
+      %OpenApiSpex.Response{description: "Some response"}
+  """
+  @spec resolve_response(Reference.t(), Components.responses_map()) :: Response.t() | nil
+  def resolve_response(%Response{} = response, _responses), do: response
+  def resolve_response(%Reference{"$ref": "#/components/responses/" <> name}, responses),
+    do: responses[name]
 end
