@@ -14,23 +14,25 @@ defmodule OpenApiSpex.Cast.AnyOf do
          failed_schemas,
          acc
        ) do
-    relaxed_schema = %{schema | additionalProperties: true, "x-struct": nil}
+    relaxed_schema = %{schema | "x-struct": nil}
     new_ctx = put_in(ctx.schema.anyOf, remaining)
 
-    case Cast.cast(%{ctx | schema: relaxed_schema}) do
+    case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
       {:ok, value} when is_map(value) ->
-        acc =
-          value
-          |> Enum.reject(fn {k, _} -> is_binary(k) end)
-          |> Enum.concat(acc || %{})
-          |> Map.new()
-
-        cast_any_of(new_ctx, failed_schemas, acc)
+        cast_any_of(new_ctx, failed_schemas, Map.merge(acc || %{}, value))
 
       {:ok, value} ->
         cast_any_of(new_ctx, failed_schemas, acc || value)
 
-      {:error, _} ->
+      {:error, errors} ->
+        new_ctx =
+          if is_object?(relaxed_schema) do
+            # Since in a allOf Schema, every
+            %Cast{new_ctx | errors: new_ctx.errors ++ errors}
+          else
+            new_ctx
+          end
+
         cast_any_of(new_ctx, [schema | failed_schemas], acc)
     end
   end
@@ -66,4 +68,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
     end
     |> Enum.join(", ")
   end
+
+  defp is_object?(%{type: :object}), do: true
+  defp is_object?(_), do: false
 end
