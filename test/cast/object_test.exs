@@ -104,7 +104,9 @@ defmodule OpenApiSpex.ObjectTest do
       @read_write_scope test_case.read_write_scope
       @expected_result test_case.result
 
-      test "required, schema:#{inspect(@schema_attrs)}, read_write_scope:#{inspect(@read_write_scope)}" do
+      test "required, schema:#{inspect(@schema_attrs)}, read_write_scope:#{
+             inspect(@read_write_scope)
+           }" do
         object_schema = %Schema{
           type: :object,
           properties: %{name: struct!(Schema, @schema_attrs)},

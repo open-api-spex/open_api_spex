@@ -203,8 +203,7 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
         title: "Nested Skemuh",
         type: :object,
         properties: %{
-          data:
-            build_discriminator_schema([dog, cat], :anyOf, String.to_atom(@discriminator), nil)
+          data: build_discriminator_schema([dog, cat], :anyOf, String.to_atom(@discriminator), nil)
         }
       }
 
