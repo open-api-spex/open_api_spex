@@ -84,6 +84,39 @@ defmodule OpenApiSpex.CastAnyOfTest do
       assert {:ok, %{breed: "Corgi", age: 3, food: "meat"}} = cast(value: value, schema: schema)
     end
 
+    test "should proper return the errors if no match" do
+      schema_1 = %Schema{
+        type: :object,
+        additionalProperties: false,
+        properties: %{
+          breed: %Schema{type: :string}
+        }
+      }
+
+      schema_2 = %Schema{
+        type: :object,
+        additionalProperties: false,
+        properties: %{
+          food: %Schema{type: :string, minLength: 5}
+        }
+      }
+
+      schema = %Schema{anyOf: [schema_1, schema_2], title: "MyCoolSchema", type: :object}
+      value = %{"food" => "meat"}
+
+      assert {:error, [error_any_of, error_unexpected_field, error_food]} =
+               cast(value: value, schema: schema)
+
+      assert Error.message(error_any_of) ==
+               "Failed to cast value using any of: Schema(type: :object), Schema(type: :object)"
+
+      assert Error.message(error_unexpected_field) ==
+               "Unexpected field: food"
+
+      assert Error.message(error_food) ==
+               "String length is smaller than minLength: 5"
+    end
+
     test "no castable schema" do
       schema = %Schema{anyOf: [%Schema{type: :integer}, %Schema{type: :string}]}
       assert {:error, [error]} = cast(value: [:whoops], schema: schema)

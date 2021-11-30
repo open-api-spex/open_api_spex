@@ -78,6 +78,55 @@ defmodule OpenApiSpex.CastAllOfTest do
     assert {:ok, [2, 3, 4, true, "Test #1", "Five!"]} = cast(value: value, schema: schema)
   end
 
+  test "allOf, optional that does not pass validation" do
+    schema = %Schema{
+      allOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string, minLength: 2}
+          }
+        }
+      ]
+    }
+
+    assert {:error, [error_all_of, error_last_name]} =
+             OpenApiSpex.Cast.AllOf.cast(
+               struct(OpenApiSpex.Cast, value: %{last_name: "x"}, schema: schema)
+             )
+
+    assert Error.message(error_all_of) ==
+             "Failed to cast value as object. Value must be castable using `allOf` schemas listed."
+
+    assert Error.message(error_last_name) ==
+             "String length is smaller than minLength: 2"
+  end
+
+  test "allOf should match all schemas" do
+    schema = %Schema{
+      allOf: [
+        %Schema{
+          type: :object,
+          additionalProperties: false,
+          properties: %{
+            last_name: %Schema{type: :string, minLength: 2}
+          }
+        },
+        %Schema{
+          type: :object,
+          properties: %{
+            name: %Schema{type: :string, minLength: 2}
+          }
+        }
+      ]
+    }
+
+    assert {:ok, %{last_name: "aa"}} =
+             OpenApiSpex.Cast.AllOf.cast(
+               struct(OpenApiSpex.Cast, value: %{last_name: "aa"}, schema: schema)
+             )
+  end
+
   defmodule CatSchema do
     require OpenApiSpex
 
