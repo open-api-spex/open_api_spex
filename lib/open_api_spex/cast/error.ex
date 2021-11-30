@@ -356,7 +356,9 @@ defmodule OpenApiSpex.Cast.Error do
   end
 
   def message(%{reason: :max_properties, meta: meta}) do
-    "Object property count #{meta.property_count} is greater than maxProperties: #{meta.max_properties}"
+    "Object property count #{meta.property_count} is greater than maxProperties: #{
+      meta.max_properties
+    }"
   end
 
   def message(%{reason: :min_properties, meta: meta}) do
