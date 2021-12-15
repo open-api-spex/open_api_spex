@@ -30,8 +30,18 @@ defmodule OpenApiSpex.Cast.AllOf do
     end
   end
 
-  defp cast_all_of(%{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx, acc) do
-    relaxed_schema = %{schema | "x-struct": nil}
+  defp cast_all_of(
+         %{schema: %{allOf: [%Schema{} = schema | remaining]} = x} = ctx,
+         acc
+       ) do
+    IO.inspect(x)
+
+    relaxed_schema = %{
+      schema
+      | "x-struct": nil,
+        required: (x[:required] || []) ++ (schema.required || [])
+    }
+
     new_ctx = put_in(ctx.schema.allOf, remaining)
 
     case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
