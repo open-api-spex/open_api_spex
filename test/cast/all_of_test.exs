@@ -127,6 +127,29 @@ defmodule OpenApiSpex.CastAllOfTest do
              )
   end
 
+  test "allOf with required fields" do
+    schema = %Schema{
+      allOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string}
+          }
+        }
+      ],
+      required: [:last_name]
+    }
+
+    assert {:error, [error_all_of, error_last_name]} =
+             OpenApiSpex.Cast.AllOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
+
+    assert Error.message(error_all_of) ==
+             "Failed to cast value as object. Value must be castable using `allOf` schemas listed."
+
+    assert Error.message(error_last_name) ==
+             "Missing field: last_name"
+  end
+
   defmodule CatSchema do
     require OpenApiSpex
 
