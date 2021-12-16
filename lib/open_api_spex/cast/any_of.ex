@@ -45,6 +45,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
     schema =
       OpenApiSpex.resolve_schema(schema, ctx.schemas)
       |> put_required(properties)
+      |> put_properties(properties)
 
     cast_any_of(%{ctx | schema: %{anyOf: [schema | remaining]}}, failed_schemas, acc)
   end
