@@ -13,6 +13,7 @@ defmodule OpenApiSpex.Cast.OneOf do
         schema =
           OpenApiSpex.resolve_schema(schema, ctx.schemas)
           |> put_required(properties)
+          |> put_properties(properties)
 
         case Cast.cast(%{ctx | schema: schema}) do
           {:ok, value} -> {[{:ok, value, schema} | results], error_schemas}
@@ -30,10 +31,20 @@ defmodule OpenApiSpex.Cast.OneOf do
 
   ## Private functions
 
-  defp put_required(schema, properties) do
-    schema
-    |> Map.put(:required, (schema.required || []) ++ (properties.required || []))
+  defp put_properties(%{properties: schema_properties} = schema, %{properties: properties}) do
+    new_properties = Map.merge(schema_properties, properties)
+
+    Map.put(schema, :properties, new_properties)
   end
+
+  defp put_properties(schema, _), do: schema
+
+  defp put_required(schema, %{required: required}) do
+    schema
+    |> Map.put(:required, (schema.required || []) ++ (required || []))
+  end
+
+  defp put_required(schema, _), do: schema
 
   defp error(ctx, success_results, failed_schemas) do
     valid_schemas = Enum.map(success_results, &elem(&1, 2))
