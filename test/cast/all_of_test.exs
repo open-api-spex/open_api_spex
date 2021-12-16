@@ -3,6 +3,8 @@ defmodule OpenApiSpex.CastAllOfTest do
   alias OpenApiSpex.{Cast, Schema}
   alias OpenApiSpex.Cast.{Error, AllOf}
   alias OpenApiSpex.TestAssertions
+  alias OpenApiSpexTest.Schemas
+  alias OpenApiSpex.Reference
 
   defp cast(ctx), do: AllOf.cast(struct(Cast, ctx))
 
@@ -78,6 +80,94 @@ defmodule OpenApiSpex.CastAllOfTest do
     assert {:ok, [2, 3, 4, true, "Test #1", "Five!"]} = cast(value: value, schema: schema)
   end
 
+  test "allOf, when given required params only from inside the allOf schema, return an error" do
+    schema = %Schema{
+      allOf: [
+        %Reference{
+          "$ref": "#/components/schemas/User"
+        }
+      ],
+      required: [:age]
+    }
+
+    value = %{
+      "name" => "Joe User",
+      "email" => "joe@gmail.com",
+      "password" => "12345678"
+    }
+
+    assert {:error, [error_all_of, error_age]} =
+             OpenApiSpex.Cast.AllOf.cast(
+               struct(OpenApiSpex.Cast,
+                 value: value,
+                 schema: schema,
+                 schemas: %{"User" => Schemas.User.schema()}
+               )
+             )
+
+    assert Error.message(error_all_of) ==
+             "Failed to cast value as User. Value must be castable using `allOf` schemas listed."
+
+    assert Error.message(error_age) ==
+             "Missing field: age"
+  end
+
+  test "allOf, when given all required params inside and outside the allOf, return the schema" do
+    schema = %Schema{
+      allOf: [
+        %Reference{
+          "$ref": "#/components/schemas/User"
+        }
+      ],
+      required: [:age]
+    }
+
+    value = %{
+      "name" => "Joe User",
+      "email" => "joe@gmail.com",
+      "password" => "12345678",
+      "age" => "123"
+    }
+
+    assert {:ok,
+            %{
+              age: 123,
+              email: "joe@gmail.com",
+              name: "Joe User",
+              password: "12345678"
+            }} =
+             OpenApiSpex.Cast.AllOf.cast(
+               struct(OpenApiSpex.Cast,
+                 value: value,
+                 schema: schema,
+                 schemas: %{"User" => Schemas.User.schema()}
+               )
+             )
+  end
+
+  test "allOf with required fields" do
+    schema = %Schema{
+      allOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string}
+          },
+          required: [:last_name]
+        }
+      ]
+    }
+
+    assert {:error, [error_all_of, error_last_name]} =
+             OpenApiSpex.Cast.AllOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
+
+    assert Error.message(error_all_of) ==
+             "Failed to cast value as object. Value must be castable using `allOf` schemas listed."
+
+    assert Error.message(error_last_name) ==
+             "Missing field: last_name"
+  end
+
   test "allOf, optional that does not pass validation" do
     schema = %Schema{
       allOf: [
@@ -125,29 +215,6 @@ defmodule OpenApiSpex.CastAllOfTest do
              OpenApiSpex.Cast.AllOf.cast(
                struct(OpenApiSpex.Cast, value: %{last_name: "aa"}, schema: schema)
              )
-  end
-
-  test "allOf with required fields" do
-    schema = %Schema{
-      allOf: [
-        %Schema{
-          type: :object,
-          properties: %{
-            last_name: %Schema{type: :string}
-          }
-        }
-      ],
-      required: [:last_name]
-    }
-
-    assert {:error, [error_all_of, error_last_name]} =
-             OpenApiSpex.Cast.AllOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
-
-    assert Error.message(error_all_of) ==
-             "Failed to cast value as object. Value must be castable using `allOf` schemas listed."
-
-    assert Error.message(error_last_name) ==
-             "Missing field: last_name"
   end
 
   defmodule CatSchema do

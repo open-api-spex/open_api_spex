@@ -7,10 +7,12 @@ defmodule OpenApiSpex.Cast.OneOf do
     error(ctx, [], [])
   end
 
-  def cast(%{schema: %{type: _, oneOf: schemas}} = ctx) do
+  def cast(%{schema: %{type: _, oneOf: schemas} = properties} = ctx) do
     castable_schemas =
       Enum.reduce(schemas, {[], []}, fn schema, {results, error_schemas} ->
-        schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
+        schema =
+          OpenApiSpex.resolve_schema(schema, ctx.schemas)
+          |> put_required(properties)
 
         case Cast.cast(%{ctx | schema: schema}) do
           {:ok, value} -> {[{:ok, value, schema} | results], error_schemas}
@@ -27,6 +29,11 @@ defmodule OpenApiSpex.Cast.OneOf do
   end
 
   ## Private functions
+
+  defp put_required(schema, properties) do
+    schema
+    |> Map.put(:required, (schema.required || []) ++ (properties.required || []))
+  end
 
   defp error(ctx, success_results, failed_schemas) do
     valid_schemas = Enum.map(success_results, &elem(&1, 2))

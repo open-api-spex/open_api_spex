@@ -37,8 +37,15 @@ defmodule OpenApiSpex.Cast.AnyOf do
     end
   end
 
-  defp cast_any_of(%{schema: %{anyOf: [schema | remaining]}} = ctx, failed_schemas, acc) do
-    schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
+  defp cast_any_of(
+         %{schema: %{anyOf: [schema | remaining]} = properties} = ctx,
+         failed_schemas,
+         acc
+       ) do
+    schema =
+      OpenApiSpex.resolve_schema(schema, ctx.schemas)
+      |> put_required(properties)
+
     cast_any_of(%{ctx | schema: %{anyOf: [schema | remaining]}}, failed_schemas, acc)
   end
 
@@ -49,6 +56,11 @@ defmodule OpenApiSpex.Cast.AnyOf do
   defp cast_any_of(%_{schema: %{anyOf: []}}, _failed_schemas, acc), do: {:ok, acc}
 
   ## Private functions
+
+  defp put_required(schema, properties) do
+    schema
+    |> Map.put(:required, (schema.required || []) ++ (properties.required || []))
+  end
 
   defp error_message([], _) do
     "[] (no schemas provided)"

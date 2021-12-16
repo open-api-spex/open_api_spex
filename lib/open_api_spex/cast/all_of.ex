@@ -41,7 +41,7 @@ defmodule OpenApiSpex.Cast.AllOf do
 
     new_ctx = put_in(ctx.schema.allOf, remaining)
 
-    case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) |> IO.inspect() do
+    case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
       {:ok, value} when is_map(value) ->
         cast_all_of(new_ctx, Map.merge(acc || %{}, value))
 
@@ -69,7 +69,7 @@ defmodule OpenApiSpex.Cast.AllOf do
   defp cast_all_of(%{schema: %{allOf: [schema | remaining]} = properties} = ctx, result) do
     schema =
       OpenApiSpex.resolve_schema(schema, ctx.schemas)
-      |> Map.put(:required, properties.required)
+      |> put_required(properties)
 
     cast_all_of(%{ctx | schema: %{allOf: [schema | remaining]}}, result)
   end
@@ -84,6 +84,11 @@ defmodule OpenApiSpex.Cast.AllOf do
 
   defp cast_all_of(%{schema: schema} = ctx, _acc) do
     Cast.error(ctx, {:all_of, to_string(schema.title || schema.type)})
+  end
+
+  defp put_required(schema, properties) do
+    schema
+    |> Map.put(:required, (schema.required || []) ++ (properties.required || []))
   end
 
   defp reject_error_values(%{value: values} = ctx, [%{reason: :invalid_type} = error | tail]) do
