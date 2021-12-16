@@ -57,10 +57,20 @@ defmodule OpenApiSpex.Cast.AnyOf do
 
   ## Private functions
 
-  defp put_required(schema, properties) do
-    schema
-    |> Map.put(:required, (schema.required || []) ++ (properties.required || []))
+  defp put_properties(%{properties: schema_properties} = schema, %{properties: properties}) do
+    new_properties = Map.merge(schema_properties, properties)
+
+    Map.put(schema, :properties, new_properties)
   end
+
+  defp put_properties(schema, _), do: schema
+
+  defp put_required(schema, %{required: required}) do
+    schema
+    |> Map.put(:required, (schema.required || []) ++ (required || []))
+  end
+
+  defp put_required(schema, _), do: schema
 
   defp error_message([], _) do
     "[] (no schemas provided)"
