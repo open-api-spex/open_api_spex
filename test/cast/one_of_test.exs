@@ -1,8 +1,9 @@
 defmodule OpenApiSpex.CastOneOfTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Cast, Schema}
+  alias OpenApiSpex.{Cast, Reference, Schema}
   alias OpenApiSpex.Cast.{Error, OneOf}
   alias OpenApiSpex.TestAssertions
+  alias OpenApiSpexTest.Schemas
 
   defp cast(ctx), do: OneOf.cast(struct(Cast, ctx))
 
@@ -116,5 +117,87 @@ defmodule OpenApiSpex.CastOneOfTest do
 
       assert to_string(error) == "Failed to cast value to one of: more than one schemas validate"
     end
+  end
+
+  test "oneOf, when given required params only from inside the oneOf schema, return an error" do
+    schema = %Schema{
+      oneOf: [
+        %Reference{
+          "$ref": "#/components/schemas/User"
+        }
+      ],
+      required: [:age]
+    }
+
+    value = %{
+      "name" => "Joe User",
+      "email" => "joe@gmail.com",
+      "password" => "12345678"
+    }
+
+    assert {:error, [oneOf]} =
+             OpenApiSpex.Cast.OneOf.cast(
+               struct(OpenApiSpex.Cast,
+                 value: value,
+                 schema: schema,
+                 schemas: %{"User" => Schemas.User.schema()}
+               )
+             )
+
+    assert Error.message(oneOf) ==
+             "Failed to cast value to one of: no schemas validate"
+  end
+
+  test "allOf, when given all required params inside and outside the allOf, return the schema" do
+    schema = %Schema{
+      allOf: [
+        %Reference{
+          "$ref": "#/components/schemas/User"
+        }
+      ],
+      required: [:age]
+    }
+
+    value = %{
+      "name" => "Joe User",
+      "email" => "joe@gmail.com",
+      "password" => "12345678",
+      "age" => "123"
+    }
+
+    assert {:ok,
+            %{
+              age: 123,
+              email: "joe@gmail.com",
+              name: "Joe User",
+              password: "12345678"
+            }} =
+             OpenApiSpex.Cast.AllOf.cast(
+               struct(OpenApiSpex.Cast,
+                 value: value,
+                 schema: schema,
+                 schemas: %{"User" => Schemas.User.schema()}
+               )
+             )
+  end
+
+  test "oneOf with required fields" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string}
+          },
+          required: [:last_name]
+        }
+      ]
+    }
+
+    assert {:error, [error_one_of]} =
+             OpenApiSpex.Cast.OneOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
+
+    assert Error.message(error_one_of) ==
+             "Failed to cast value to one of: no schemas validate"
   end
 end

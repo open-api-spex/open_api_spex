@@ -1,6 +1,7 @@
 defmodule OpenApiSpex.CastAnyOfTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Cast, Schema}
+  alias OpenApiSpex.{Cast, Reference, Schema}
+  alias OpenApiSpexTest.Schemas
   alias OpenApiSpex.Cast.{Error, AnyOf}
 
   defp cast(ctx), do: AnyOf.cast(struct(Cast, ctx))
@@ -137,6 +138,94 @@ defmodule OpenApiSpex.CastAnyOfTest do
       assert error.reason == :any_of
 
       assert Error.message(error) == "Failed to cast value using any of: [] (no schemas provided)"
+    end
+
+    test "anyOf, when given required params only from inside the anyOf schema, return an error" do
+      schema = %Schema{
+        anyOf: [
+          %Reference{
+            "$ref": "#/components/schemas/User"
+          }
+        ],
+        required: [:age]
+      }
+
+      value = %{
+        "name" => "Joe User",
+        "email" => "joe@gmail.com",
+        "password" => "12345678"
+      }
+
+      assert {:error, [error_any_of, error_age]} =
+               OpenApiSpex.Cast.AnyOf.cast(
+                 struct(OpenApiSpex.Cast,
+                   value: value,
+                   schema: schema,
+                   schemas: %{"User" => Schemas.User.schema()}
+                 )
+               )
+
+      assert Error.message(error_any_of) ==
+               "Failed to cast value using any of: Schema(title: \"User\", type: :object)"
+
+      assert Error.message(error_age) ==
+               "Missing field: age"
+    end
+
+    test "anyOf, when given all required params inside and outside the anyOf, return the schema" do
+      schema = %Schema{
+        anyOf: [
+          %Reference{
+            "$ref": "#/components/schemas/User"
+          }
+        ],
+        required: [:age]
+      }
+
+      value = %{
+        "name" => "Joe User",
+        "email" => "joe@gmail.com",
+        "password" => "12345678",
+        "age" => "123"
+      }
+
+      assert {:ok,
+              %{
+                age: 123,
+                email: "joe@gmail.com",
+                name: "Joe User",
+                password: "12345678"
+              }} =
+               OpenApiSpex.Cast.AnyOf.cast(
+                 struct(OpenApiSpex.Cast,
+                   value: value,
+                   schema: schema,
+                   schemas: %{"User" => Schemas.User.schema()}
+                 )
+               )
+    end
+
+    test "anyOf with required fields" do
+      schema = %Schema{
+        anyOf: [
+          %Schema{
+            type: :object,
+            properties: %{
+              last_name: %Schema{type: :string}
+            },
+            required: [:last_name]
+          }
+        ]
+      }
+
+      assert {:error, [error_all_of, error_last_name]} =
+               OpenApiSpex.Cast.AnyOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
+
+      assert Error.message(error_all_of) ==
+               "Failed to cast value using any of: Schema(type: :object)"
+
+      assert Error.message(error_last_name) ==
+               "Missing field: last_name"
     end
   end
 end
