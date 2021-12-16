@@ -31,20 +31,17 @@ defmodule OpenApiSpex.Cast.AllOf do
   end
 
   defp cast_all_of(
-         %{schema: %{allOf: [%Schema{} = schema | remaining]} = x} = ctx,
+         %{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx,
          acc
        ) do
-    IO.inspect(x)
-
     relaxed_schema = %{
       schema
-      | "x-struct": nil,
-        required: (x[:required] || []) ++ (schema.required || [])
+      | "x-struct": nil
     }
 
     new_ctx = put_in(ctx.schema.allOf, remaining)
 
-    case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
+    case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) |> IO.inspect() do
       {:ok, value} when is_map(value) ->
         cast_all_of(new_ctx, Map.merge(acc || %{}, value))
 
@@ -69,8 +66,11 @@ defmodule OpenApiSpex.Cast.AllOf do
     end
   end
 
-  defp cast_all_of(%{schema: %{allOf: [schema | remaining]}} = ctx, result) do
-    schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
+  defp cast_all_of(%{schema: %{allOf: [schema | remaining]} = properties} = ctx, result) do
+    schema =
+      OpenApiSpex.resolve_schema(schema, ctx.schemas)
+      |> Map.put(:required, properties.required)
+
     cast_all_of(%{ctx | schema: %{allOf: [schema | remaining]}}, result)
   end
 
