@@ -137,7 +137,7 @@ defmodule OpenApiSpex.Controller do
     @moduledoc tags: ["Users"]
 
     use MyAppWeb, :controller
-    use #{inspect(__MODULE__)}
+    use OpenApiSpex.Controller
 
     @doc """
     Endpoint summary
