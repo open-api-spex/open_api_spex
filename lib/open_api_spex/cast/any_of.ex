@@ -45,7 +45,6 @@ defmodule OpenApiSpex.Cast.AnyOf do
     schema =
       OpenApiSpex.resolve_schema(schema, ctx.schemas)
       |> put_required(properties)
-      |> put_properties(properties)
 
     cast_any_of(%{ctx | schema: %{anyOf: [schema | remaining]}}, failed_schemas, acc)
   end
@@ -57,14 +56,6 @@ defmodule OpenApiSpex.Cast.AnyOf do
   defp cast_any_of(%_{schema: %{anyOf: []}}, _failed_schemas, acc), do: {:ok, acc}
 
   ## Private functions
-
-  defp put_properties(%{properties: schema_properties} = schema, %{properties: properties}) do
-    new_properties = Map.merge(schema_properties, properties)
-
-    Map.put(schema, :properties, new_properties)
-  end
-
-  defp put_properties(schema, _), do: schema
 
   defp put_required(schema, %{required: required}) do
     schema
