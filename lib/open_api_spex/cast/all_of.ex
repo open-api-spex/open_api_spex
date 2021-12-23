@@ -1,9 +1,12 @@
 defmodule OpenApiSpex.Cast.AllOf do
   @moduledoc false
   alias OpenApiSpex.Cast
+  alias OpenApiSpex.Cast.Error
   alias OpenApiSpex.Schema
 
-  def cast(ctx), do: cast_all_of(ctx, nil)
+  def cast(ctx) do
+    cast_all_of(ctx, nil)
+  end
 
   defp cast_all_of(%{schema: %{allOf: [%Schema{type: :array} = schema | remaining]}} = ctx, acc)
        when is_list(acc) or acc == nil do
@@ -66,32 +69,27 @@ defmodule OpenApiSpex.Cast.AllOf do
     end
   end
 
-  defp cast_all_of(%{schema: %{allOf: [schema | remaining]} = properties} = ctx, result) do
-    schema =
-      OpenApiSpex.resolve_schema(schema, ctx.schemas)
-      |> put_required(properties)
-
-    cast_all_of(%{ctx | schema: %{allOf: [schema | remaining]}}, result)
+  defp cast_all_of(%{schema: %{allOf: [nested_schema | remaining]} = schema} = ctx, result) do
+    nested_schema = OpenApiSpex.resolve_schema(nested_schema, ctx.schemas)
+    cast_all_of(%{ctx | schema: %{schema | allOf: [nested_schema | remaining]}}, result)
   end
 
-  defp cast_all_of(%{schema: %{allOf: []}, errors: []}, acc) do
-    # All values have been casted against the allOf schemas and there is no error - return accumulator
-    {:ok, acc}
+  defp cast_all_of(%{schema: %{allOf: []}, errors: []} = ctx, acc) do
+    with :ok <- check_required_fields(ctx, acc) do
+      {:ok, acc}
+    end
   end
 
-  defp cast_all_of(%{schema: %{allOf: [], "x-struct": module}}, acc) when not is_nil(module),
-    do: {:ok, struct(module, acc)}
+  defp cast_all_of(%{schema: %{allOf: [], errors: [], "x-struct": module}} = ctx, acc)
+       when not is_nil(module) do
+    with :ok <- check_required_fields(ctx, acc) do
+      {:ok, acc}
+    end
+  end
 
   defp cast_all_of(%{schema: schema} = ctx, _acc) do
     Cast.error(ctx, {:all_of, to_string(schema.title || schema.type)})
   end
-
-  defp put_required(schema, %{required: required}) do
-    schema
-    |> Map.put(:required, (schema.required || []) ++ (required || []))
-  end
-
-  defp put_required(schema, _), do: schema
 
   defp reject_error_values(%{value: values} = ctx, [%{reason: :invalid_type} = error | tail]) do
     new_values = List.delete(values, error.value)
@@ -110,4 +108,25 @@ defmodule OpenApiSpex.Cast.AllOf do
 
   defp is_object?(%{type: :object}), do: true
   defp is_object?(_), do: false
+
+  defp check_required_fields(ctx, %{} = acc) do
+    required = ctx.schema.required || []
+
+    input_keys = Map.keys(acc)
+    missing_keys = required -- input_keys
+
+    if missing_keys == [] do
+      :ok
+    else
+      errors =
+        Enum.map(missing_keys, fn key ->
+          ctx = %{ctx | path: [key | ctx.path]}
+          Error.new(ctx, {:missing_field, key})
+        end)
+
+      {:error, ctx.errors ++ errors}
+    end
+  end
+
+  defp check_required_fields(_ctx, _acc), do: :ok
 end

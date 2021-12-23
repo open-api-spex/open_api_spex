@@ -1,6 +1,7 @@
 defmodule OpenApiSpex.Cast.AnyOf do
   @moduledoc false
   alias OpenApiSpex.Cast
+  alias OpenApiSpex.Cast.Error
   alias OpenApiSpex.Schema
 
   def cast(ctx, failed_schemas \\ [], acc \\ nil), do: cast_any_of(ctx, failed_schemas, acc)
@@ -38,31 +39,33 @@ defmodule OpenApiSpex.Cast.AnyOf do
   end
 
   defp cast_any_of(
-         %{schema: %{anyOf: [schema | remaining]} = properties} = ctx,
+         %{schema: %{anyOf: [nested_schema | remaining]} = schema} = ctx,
          failed_schemas,
          acc
        ) do
-    schema =
-      OpenApiSpex.resolve_schema(schema, ctx.schemas)
-      |> put_required(properties)
+    nested_schema = OpenApiSpex.resolve_schema(nested_schema, ctx.schemas)
 
-    cast_any_of(%{ctx | schema: %{anyOf: [schema | remaining]}}, failed_schemas, acc)
+    cast_any_of(
+      %{ctx | schema: %{schema | anyOf: [nested_schema | remaining]}},
+      failed_schemas,
+      acc
+    )
   end
 
-  defp cast_any_of(%_{schema: %{anyOf: [], "x-struct": module}}, _failed_schemas, acc)
-       when not is_nil(module),
-       do: {:ok, struct(module, acc)}
+  defp cast_any_of(%_{schema: %{anyOf: [], "x-struct": module}} = ctx, _failed_schemas, acc)
+       when not is_nil(module) do
+    with :ok <- check_required_fields(ctx, acc) do
+      {:ok, struct(module, acc)}
+    end
+  end
 
-  defp cast_any_of(%_{schema: %{anyOf: []}}, _failed_schemas, acc), do: {:ok, acc}
+  defp cast_any_of(%_{schema: %{anyOf: []}} = ctx, _failed_schemas, acc) do
+    with :ok <- check_required_fields(ctx, acc) do
+      {:ok, acc}
+    end
+  end
 
   ## Private functions
-
-  defp put_required(schema, %{required: required}) do
-    schema
-    |> Map.put(:required, (schema.required || []) ++ (required || []))
-  end
-
-  defp put_required(schema, _), do: schema
 
   defp error_message([], _) do
     "[] (no schemas provided)"
@@ -85,4 +88,25 @@ defmodule OpenApiSpex.Cast.AnyOf do
 
   defp is_object?(%{type: :object}), do: true
   defp is_object?(_), do: false
+
+  defp check_required_fields(ctx, %{} = acc) do
+    required = ctx.schema.required || []
+
+    input_keys = Map.keys(acc)
+    missing_keys = required -- input_keys
+
+    if missing_keys == [] do
+      :ok
+    else
+      errors =
+        Enum.map(missing_keys, fn key ->
+          ctx = %{ctx | path: [key | ctx.path]}
+          Error.new(ctx, {:missing_field, key})
+        end)
+
+      {:error, ctx.errors ++ errors}
+    end
+  end
+
+  defp check_required_fields(_ctx, _acc), do: :ok
 end

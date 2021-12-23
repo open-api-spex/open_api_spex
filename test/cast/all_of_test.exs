@@ -96,7 +96,7 @@ defmodule OpenApiSpex.CastAllOfTest do
       "password" => "12345678"
     }
 
-    assert {:error, [error_all_of, error_age]} =
+    assert {:error, [error_age]} =
              OpenApiSpex.Cast.AllOf.cast(
                struct(OpenApiSpex.Cast,
                  value: value,
@@ -104,9 +104,6 @@ defmodule OpenApiSpex.CastAllOfTest do
                  schemas: %{"User" => Schemas.User.schema()}
                )
              )
-
-    assert Error.message(error_all_of) ==
-             "Failed to cast value as User. Value must be castable using `allOf` schemas listed."
 
     assert Error.message(error_age) ==
              "Missing field: age"
@@ -152,20 +149,66 @@ defmodule OpenApiSpex.CastAllOfTest do
           type: :object,
           properties: %{
             last_name: %Schema{type: :string}
-          },
-          required: [:last_name]
+          }
+        }
+      ],
+      required: [:last_name]
+    }
+
+    assert {:error, [error_last_name]} =
+             OpenApiSpex.Cast.AllOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
+
+    assert Error.message(error_last_name) ==
+             "Missing field: last_name"
+  end
+
+  test "allOf, required fields nested with references" do
+    address_schema = %Schema{
+      type: :object,
+      properties: %{
+        street: %Schema{type: :string}
+      }
+    }
+
+    nested_schema = %Schema{
+      title: "Nested",
+      allOf: [
+        %Reference{
+          "$ref": "#/components/schemas/User"
+        },
+        %Reference{
+          "$ref": "#/components/schemas/Address"
         }
       ]
     }
 
-    assert {:error, [error_all_of, error_last_name]} =
-             OpenApiSpex.Cast.AllOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
+    schema = %Schema{
+      title: "Parent",
+      allOf: [%Reference{"$ref": "#/components/schemas/Nested"}],
+      required: [:age]
+    }
 
-    assert Error.message(error_all_of) ==
-             "Failed to cast value as object. Value must be castable using `allOf` schemas listed."
+    value = %{
+      "name" => "Joe User",
+      "email" => "joe@gmail.com",
+      "password" => "12345678"
+    }
 
-    assert Error.message(error_last_name) ==
-             "Missing field: last_name"
+    assert {:error, [error]} =
+             OpenApiSpex.Cast.AllOf.cast(
+               struct(OpenApiSpex.Cast,
+                 value: value,
+                 schema: schema,
+                 schemas: %{
+                   "User" => Schemas.User.schema(),
+                   "Address" => address_schema,
+                   "Nested" => nested_schema
+                 }
+               )
+             )
+
+    assert Error.message(error) ==
+             "Missing field: age"
   end
 
   test "allOf, optional that does not pass validation" do
