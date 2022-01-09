@@ -405,12 +405,19 @@ defmodule OpenApiSpex.OpenApi.Decode do
     end)
   end
 
+  # additionalProperties is a reference
   defp manage_additional_properties(%_{additionalProperties: %{"$ref" => reference}} = map) do
     Map.put(map, :additionalProperties, %Reference{"$ref": reference})
   end
 
+  # additionalProperties is a boolean without validation
   defp manage_additional_properties(%_{additionalProperties: value} = map) when is_boolean(value),
     do: map
+
+  # additionalProperties with custom one off validation
+  defp manage_additional_properties(%_{additionalProperties: %{} = props} = map) do
+    Map.put(map, :additionalProperties, to_struct(props, Schema))
+  end
 
   defp manage_additional_properties(map), do: map
 end
