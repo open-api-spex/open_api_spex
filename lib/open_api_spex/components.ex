@@ -29,6 +29,7 @@ defmodule OpenApiSpex.Components do
   ]
 
   @type schemas_map :: %{String.t() => Schema.t() | Reference.t()}
+  @type responses_map :: %{String.t() => Response.t() | Reference.t()}
 
   @typedoc """
   [Components Object](https://swagger.io/specification/#componentsObject)
@@ -39,7 +40,7 @@ defmodule OpenApiSpex.Components do
   """
   @type t :: %Components{
           schemas: schemas_map | nil,
-          responses: %{String.t() => Response.t() | Reference.t()} | nil,
+          responses: responses_map | nil,
           parameters: %{String.t() => Parameter.t() | Reference.t()} | nil,
           examples: %{String.t() => Example.t() | Reference.t()} | nil,
           requestBodies: %{String.t() => RequestBody.t() | Reference.t()} | nil,
