@@ -36,6 +36,7 @@ defmodule OpenApiSpex.Response do
   """
   @spec resolve_response(Reference.t(), Components.responses_map()) :: Response.t() | nil
   def resolve_response(%Response{} = response, _responses), do: response
+
   def resolve_response(%Reference{"$ref": "#/components/responses/" <> name}, responses),
     do: responses[name]
 end
