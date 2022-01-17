@@ -69,7 +69,7 @@ defmodule OpenApiSpex.ControllerSpecs do
 
       operation :update,
         summary: "Update user",
-        description: "Updates a user record from the given ID path paramter and request body parameters.",
+        description: "Updates a user record from the given ID path parameter and request body parameters.",
         parameters: [
           id: [
             in: :path,
@@ -119,7 +119,7 @@ defmodule OpenApiSpex.ControllerSpecs do
         %OpenApiSpex.Reference{"$ref": "#/components/parameters/user_id"}
       ]
       ```
-  - `request_body` The endpoint's request body. There are multiple ways to specifiy a request body:
+  - `request_body` The endpoint's request body. There are multiple ways to specify a request body:
     - A three or four-element tuple:
 
         ```elixir

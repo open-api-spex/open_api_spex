@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.Responses do
   @moduledoc """
-  Defines teh `OpenApiSpex.Responses.t` type.
+  Defines the `OpenApiSpex.Responses.t` type.
   """
   alias OpenApiSpex.{Response, Reference}
 
