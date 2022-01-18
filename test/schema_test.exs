@@ -54,7 +54,7 @@ defmodule OpenApiSpex.SchemaTest do
       assert Name.schema().title == "Name"
     end
 
-    test "custome title" do
+    test "custom title" do
       assert Age.schema().title == "CustomAge"
     end
   end

@@ -121,7 +121,7 @@ defmodule OpenApiSpexTest.Schemas do
             properties: %{
               detail: %Schema{
                 type: :string,
-                example: "An error occured."
+                example: "An error occurred."
               },
               title: %Schema{type: :string, example: "Error"}
             }

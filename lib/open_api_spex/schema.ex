@@ -77,7 +77,7 @@ defmodule OpenApiSpex.Schema do
                     type: :string,
                     description: "The measured skill for hunting",
                     default: "lazy",
-                    enum: ["clueless", "lazy", "adventurous", "aggresive"]
+                    enum: ["clueless", "lazy", "adventurous", "aggressive"]
                   }
                 },
                 required: [:huntingSkill]
@@ -290,9 +290,9 @@ defmodule OpenApiSpex.Schema do
     - Cast the properties using each schema listing in `allOf`. When a property is defined in
       multiple `allOf` schemas, it will be cast using the first schema listed containing the property.
 
-    - Cast the value using each schema listed in `oneOf`, stopping as soon as a sucessful cast is made.
+    - Cast the value using each schema listed in `oneOf`, stopping as soon as a successful cast is made.
 
-    - Cast the value using each schema listed in `anyOf`, stopping as soon as a succesful cast is made.
+    - Cast the value using each schema listed in `anyOf`, stopping as soon as a successful cast is made.
   """
   defdelegate cast(schema, value, schemas), to: DeprecatedCast
 
@@ -318,7 +318,7 @@ defmodule OpenApiSpex.Schema do
   defdelegate validate(schema, value, path, schemas), to: DeprecatedCast
 
   @doc """
-  Get the names of all properties definied for a schema.
+  Get the names of all properties defined for a schema.
 
   Includes all properties directly defined in the schema, and all schemas
   included in the `allOf` list.

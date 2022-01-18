@@ -34,12 +34,12 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
     }
   end
 
-  def build_discriminator_schema(schemas, composite_keyword, property_name, mapppings \\ nil) do
+  def build_discriminator_schema(schemas, composite_keyword, property_name, mappings \\ nil) do
     %Schema{
       type: :object,
       discriminator: %{
         propertyName: "#{property_name}",
-        mapping: mapppings
+        mapping: mappings
       }
     }
     |> Map.put(composite_keyword, schemas)

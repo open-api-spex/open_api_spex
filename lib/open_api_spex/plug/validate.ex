@@ -27,7 +27,7 @@ defmodule OpenApiSpex.Plug.Validate do
         render_error: MyApp.RenderError
 
         def render_error(conn, reason) do
-          msg = %{error: reason} |> Posion.encode!()
+          msg = %{error: reason} |> Poison.encode!()
 
           conn
           |> Conn.put_resp_content_type("application/json")
@@ -40,7 +40,7 @@ defmodule OpenApiSpex.Plug.Validate do
         def init(opts), do: opts
 
         def call(conn, reason) do
-          msg = %{error: reason} |> Posion.encode!()
+          msg = %{error: reason} |> Poison.encode!()
 
           conn
           |> Conn.put_resp_content_type("application/json")
