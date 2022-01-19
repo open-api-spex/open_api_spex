@@ -276,6 +276,11 @@ defmodule OpenApiSpex.ControllerSpecs do
         shared_security -> List.flatten(shared_security)
       end
 
+    extensions =
+      spec
+      |> Enum.filter(fn {key, _val} -> is_atom(key) && String.starts_with?(to_string(key), "x-") end)
+      |> Map.new(fn {key, value} -> {to_string(key), value} end)
+
     %Operation{
       callbacks: Map.get(spec, :callbacks, %{}),
       description: Map.get(spec, :description),
@@ -287,7 +292,8 @@ defmodule OpenApiSpex.ControllerSpecs do
       responses: OperationBuilder.build_responses(spec),
       security: OperationBuilder.build_security(spec, %{security: security}),
       summary: Map.get(spec, :summary),
-      tags: OperationBuilder.build_tags(spec, %{tags: shared_tags})
+      tags: OperationBuilder.build_tags(spec, %{tags: shared_tags}),
+      extensions: extensions
     }
   end
 end

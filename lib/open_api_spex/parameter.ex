@@ -24,7 +24,8 @@ defmodule OpenApiSpex.Parameter do
     :schema,
     :example,
     :examples,
-    :content
+    :content,
+    :extensions
   ]
 
   @typedoc """
@@ -67,7 +68,8 @@ defmodule OpenApiSpex.Parameter do
           schema: Schema.t() | Reference.t() | atom | nil,
           example: any,
           examples: %{String.t() => Example.t() | Reference.t()} | nil,
-          content: %{String.t() => MediaType.t()} | nil
+          content: %{String.t() => MediaType.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 
   @type parameters :: %{String.t() => t | Reference.t()} | nil

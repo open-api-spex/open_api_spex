@@ -18,7 +18,8 @@ defmodule OpenApiSpex.PathItem do
     :patch,
     :trace,
     :servers,
-    :parameters
+    :parameters,
+    :extensions
   ]
 
   @typedoc """
@@ -42,7 +43,8 @@ defmodule OpenApiSpex.PathItem do
           patch: Operation.t() | nil,
           trace: Operation.t() | nil,
           servers: [Server.t()] | nil,
-          parameters: [Parameter.t() | Reference.t()] | nil
+          parameters: [Parameter.t() | Reference.t()] | nil,
+          extensions: %{String.t() => any()} | nil
         }
 
   @typedoc """

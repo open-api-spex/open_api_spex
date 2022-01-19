@@ -7,7 +7,17 @@ defimpl OpenApiSpex.Extendable, for: Any do
   def to_map(struct), do: Map.from_struct(struct)
 end
 
-defimpl OpenApiSpex.Extendable, for: [OpenApiSpex.Info, OpenApiSpex.OpenApi] do
+defimpl OpenApiSpex.Extendable,
+  for: [
+    OpenApiSpex.Info,
+    OpenApiSpex.OpenApi,
+    OpenApiSpex.Operation,
+    OpenApiSpex.Parameter,
+    OpenApiSpex.PathItem,
+    OpenApiSpex.Response,
+    OpenApiSpex.SecurityScheme,
+    OpenApiSpex.Tag
+  ] do
   def to_map(struct = %{extensions: e}) do
     struct
     |> Map.from_struct()

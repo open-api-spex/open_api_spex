@@ -9,7 +9,8 @@ defmodule OpenApiSpex.Tag do
   defstruct [
     :name,
     :description,
-    :externalDocs
+    :externalDocs,
+    :extensions
   ]
 
   @typedoc """
@@ -21,6 +22,7 @@ defmodule OpenApiSpex.Tag do
   @type t :: %__MODULE__{
           name: String.t(),
           description: String.t() | nil,
-          externalDocs: ExternalDocumentation.t() | nil
+          externalDocs: ExternalDocumentation.t() | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

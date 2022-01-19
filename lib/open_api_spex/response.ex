@@ -9,7 +9,8 @@ defmodule OpenApiSpex.Response do
     :description,
     :headers,
     :content,
-    :links
+    :links,
+    :extensions
   ]
 
   @typedoc """
@@ -21,7 +22,8 @@ defmodule OpenApiSpex.Response do
           description: String.t(),
           headers: %{String.t() => Header.t() | Reference.t()} | nil,
           content: %{String.t() => MediaType.t()} | nil,
-          links: %{String.t() => Link.t() | Reference.t()} | nil
+          links: %{String.t() => Link.t() | Reference.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 
   @doc """
