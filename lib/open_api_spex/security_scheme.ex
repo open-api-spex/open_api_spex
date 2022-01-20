@@ -13,7 +13,8 @@ defmodule OpenApiSpex.SecurityScheme do
     :scheme,
     :bearerFormat,
     :flows,
-    :openIdConnectUrl
+    :openIdConnectUrl,
+    :extensions
   ]
 
   @typedoc """
@@ -31,6 +32,7 @@ defmodule OpenApiSpex.SecurityScheme do
           scheme: String.t() | nil,
           bearerFormat: String.t() | nil,
           flows: OAuthFlows.t() | nil,
-          openIdConnectUrl: String.t() | nil
+          openIdConnectUrl: String.t() | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

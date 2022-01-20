@@ -130,7 +130,8 @@ defmodule OpenApiSpexTest.DslController do
     ],
     responses: [
       ok: {"Users index response", "application/json", UsersIndexResponse}
-    ]
+    ],
+    "x-foo": "bar"
 
   def index(conn, _) do
     json(conn, [])

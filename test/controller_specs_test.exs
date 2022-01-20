@@ -101,5 +101,10 @@ defmodule OpenApiSpex.ControllerSpecsTest do
       assert %OpenApiSpex.Operation{operationId: "OpenApiSpexTest.DslController.index"} =
                DslController.open_api_operation(:index)
     end
+
+    test "supports extensions" do
+      assert %OpenApiSpex.Operation{extensions: %{"x-foo" => "bar"}} =
+               DslController.open_api_operation(:index)
+    end
   end
 end

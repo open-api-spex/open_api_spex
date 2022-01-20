@@ -29,7 +29,8 @@ defmodule OpenApiSpex.Operation do
             callbacks: %{},
             deprecated: false,
             security: nil,
-            servers: nil
+            servers: nil,
+            extensions: nil
 
   @typedoc """
   [Operation Object](https://swagger.io/specification/#operationObject)
@@ -48,7 +49,8 @@ defmodule OpenApiSpex.Operation do
           callbacks: %{String.t() => Callback.t() | Reference.t()},
           deprecated: boolean,
           security: [SecurityRequirement.t()] | nil,
-          servers: [Server.t()] | nil
+          servers: [Server.t()] | nil,
+          extensions: %{String.t() => any()} | nil
         }
 
   @doc """
