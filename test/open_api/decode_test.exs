@@ -33,14 +33,17 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                version: _version,
                description: _description,
                contact: contact,
-               license: license
+               license: license,
+               extensions: info_extensions
              } = info
 
       assert %OpenApiSpex.Contact{} = contact
 
       assert %OpenApiSpex.License{} = license
 
-      assert nil == extensions
+      assert info_extensions == %{"x-extension" => "foo"}
+
+      assert %{"x-extension" => %{"value" => "haha"}} == extensions
 
       assert %OpenApiSpex.ExternalDocumentation{
                description: _,
@@ -154,7 +157,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                schema: %OpenApiSpex.Schema{
                  example: "gzip",
                  type: :string
-               }
+               },
+               extensions: %{"x-extension" => "foo"}
              } == components_parameters_parameter
 
       assert %{
@@ -228,13 +232,17 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
              } == link
 
       assert %{
-               "api_key" => _api_key_security_scheme,
+               "api_key" => api_key_security_scheme,
                "petstore_auth" => petstore_auth_security_scheme
              } = securitySchemes
 
       assert %OpenApiSpex.SecurityScheme{
                flows: oauth_flows
              } = petstore_auth_security_scheme
+
+      assert %OpenApiSpex.SecurityScheme{
+               extensions: %{"x-extension" => "foo"}
+             } = api_key_security_scheme
 
       assert %OpenApiSpex.OAuthFlows{
                implicit: oauth_flow
@@ -278,6 +286,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
       assert [tag] = tags
 
       assert %OpenApiSpex.Tag{
+               extensions: %{"x-extension" => "foo"},
                description: "Pets operations",
                externalDocs: %OpenApiSpex.ExternalDocumentation{
                  description: "Find more info here",
@@ -296,6 +305,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                "/example" => %OpenApiSpex.PathItem{
                  summary: "/example summary",
                  description: "/example description",
+                 extensions: %{"x-extension" => "foo"},
                  servers: [%OpenApiSpex.Server{}],
                  parameters: [
                    %OpenApiSpex.Reference{
@@ -303,6 +313,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                    }
                  ],
                  post: %OpenApiSpex.Operation{
+                   extensions: %{"x-extension" => "foo"},
                    parameters: [
                      %OpenApiSpex.Reference{},
                      %OpenApiSpex.Reference{},
@@ -346,7 +357,9 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
              ] == operationSecurity
 
       assert %{
-               "200" => %OpenApiSpex.Response{}
+               "200" => %OpenApiSpex.Response{
+                 extensions: %{"x-extension" => "foo"}
+               }
              } = operationResponses
 
       assert %{
