@@ -7,7 +7,8 @@
       "name": "test"
     },
     "title": "Duffel Technology Ltd.",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "x-extension": "foo"
   },
   "x-extension": {
     "value": "haha"
@@ -43,7 +44,8 @@
         "schema": {
           "example": "gzip",
           "type": "string"
-        }
+        },
+        "x-extension": "foo"
       }
     },
     "headers": {
@@ -83,6 +85,7 @@
     },
     "securitySchemes": {
       "api_key": {
+        "x-extension": "foo",
         "type": "apiKey",
         "name": "api_key",
         "in": "header"
@@ -319,9 +322,11 @@
   },
   "paths": {
     "/example": {
+      "x-extension": "foo",
       "summary": "/example summary",
       "description": "/example description",
       "post": {
+        "x-extension": "foo",
         "operationId": "example-post-test",
         "callbacks": {
           "operationCallback": {
@@ -445,6 +450,7 @@
         },
         "responses": {
           "200": {
+            "x-extension": "foo",
             "content": {
               "application/json": {
                 "example": {
@@ -483,6 +489,7 @@
         },
         "responses": {
           "200": {
+            "x-extension": "foo",
             "content": {
               "application/json": {
                 "example": {
@@ -543,7 +550,8 @@
       "externalDocs": {
         "description": "Find more info here",
         "url": "https://example.com"
-      }
+      },
+      "x-extension": "foo"
     }
   ],
   "externalDocs": {
