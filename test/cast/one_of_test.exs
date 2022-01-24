@@ -194,10 +194,13 @@ defmodule OpenApiSpex.CastOneOfTest do
       ]
     }
 
-    assert {:error, [error_one_of]} =
+    assert {:error, [error_one_of, error_last_name]} =
              OpenApiSpex.Cast.OneOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
 
     assert Error.message(error_one_of) ==
              "Failed to cast value to one of: no schemas validate"
+
+    assert Error.message(error_last_name) ==
+             "Missing field: last_name"
   end
 end
