@@ -215,10 +215,10 @@ defmodule OpenApiSpex.CastAnyOfTest do
         ]
       }
 
-      assert {:error, [error_all_of, error_last_name]} =
+      assert {:error, [error_any_of, error_last_name]} =
                OpenApiSpex.Cast.AnyOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
 
-      assert Error.message(error_all_of) ==
+      assert Error.message(error_any_of) ==
                "Failed to cast value using any of: Schema(type: :object)"
 
       assert Error.message(error_last_name) ==

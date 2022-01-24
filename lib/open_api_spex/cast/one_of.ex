@@ -10,23 +10,40 @@ defmodule OpenApiSpex.Cast.OneOf do
 
   def cast(%{schema: %{type: _, oneOf: schemas}} = ctx) do
     castable_schemas =
-      Enum.reduce(schemas, {[], []}, fn schema, {results, error_schemas} ->
+      Enum.reduce(schemas, {ctx, [], []}, fn schema, {ctx, results, error_schemas} ->
         schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
+        relaxed_schema = %{schema | "x-struct": nil}
 
         with {:ok, value} <-
-               Cast.cast(%{ctx | schema: %{schema | "x-struct": nil}}),
+               Cast.cast(%{ctx | errors: [], schema: relaxed_schema}),
              :ok <- check_required_fields(ctx, value) do
-          {[{:ok, value, schema} | results], error_schemas}
+          {ctx, [{:ok, value, schema} | results], error_schemas}
         else
-          _error -> {results, [schema | error_schemas]}
+          {:error, errors} ->
+            ctx =
+              if is_object?(relaxed_schema) do
+                # Since in a allOf Schema, every
+                %Cast{ctx | errors: ctx.errors ++ errors}
+              else
+                ctx
+              end
+
+            {ctx, results, [schema | error_schemas]}
         end
       end)
 
     case castable_schemas do
-      {[{:ok, %_{} = value, _}], _} -> {:ok, value}
-      {[{:ok, value, %Schema{"x-struct": nil}}], _} -> {:ok, value}
-      {[{:ok, value, %Schema{"x-struct": module}}], _} -> {:ok, struct(module, value)}
-      {success_results, failed_schemas} -> error(ctx, success_results, failed_schemas)
+      {_, [{:ok, %_{} = value, _}], _} ->
+        {:ok, value}
+
+      {_, [{:ok, value, %Schema{"x-struct": nil}}], _} ->
+        {:ok, value}
+
+      {_, [{:ok, value, %Schema{"x-struct": module}}], _} ->
+        {:ok, struct(module, value)}
+
+      {ctx, success_results, failed_schemas} ->
+        error(ctx, success_results, failed_schemas)
     end
   end
 
@@ -87,4 +104,6 @@ defmodule OpenApiSpex.Cast.OneOf do
   end
 
   defp check_required_fields(_ctx, _acc), do: :ok
+  defp is_object?(%{type: :object}), do: true
+  defp is_object?(_), do: false
 end
