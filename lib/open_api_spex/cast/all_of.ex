@@ -54,16 +54,8 @@ defmodule OpenApiSpex.Cast.AllOf do
         cast_all_of(new_ctx, acc || value)
 
       {:error, errors} ->
-        ctx =
-          if is_object?(relaxed_schema) do
-            # Since in a allOf Schema, every
-            %Cast{ctx | errors: ctx.errors ++ errors}
-          else
-            ctx
-          end
-
         Cast.error(
-          ctx,
+          %Cast{ctx | errors: ctx.errors ++ errors},
           {:all_of, to_string(relaxed_schema.title || relaxed_schema.type)}
         )
     end
@@ -105,9 +97,6 @@ defmodule OpenApiSpex.Cast.AllOf do
     # Some errors couldn't be resolved, we break and return the remaining errors
     errors
   end
-
-  defp is_object?(%{type: :object}), do: true
-  defp is_object?(_), do: false
 
   defp check_required_fields(ctx, %{} = acc) do
     required = ctx.schema.required || []

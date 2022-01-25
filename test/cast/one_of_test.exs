@@ -27,7 +27,7 @@ defmodule OpenApiSpex.CastOneOfTest do
         oneOf: [%Schema{type: :integer}, %Schema{type: :string}, %Schema{type: :bool}]
       }
 
-      assert {:error, [error]} = cast(value: "1", schema: schema)
+      assert {:error, [error, _]} = cast(value: "1", schema: schema)
       assert error.reason == :one_of
 
       assert Error.message(error) ==
@@ -36,7 +36,7 @@ defmodule OpenApiSpex.CastOneOfTest do
 
     test "oneOf, no castable schema" do
       schema = %Schema{oneOf: [%Schema{type: :string}]}
-      assert {:error, [error]} = cast(value: 1, schema: schema)
+      assert {:error, [error | _]} = cast(value: 1, schema: schema)
       assert error.reason == :one_of
 
       assert Error.message(error) ==
@@ -52,7 +52,7 @@ defmodule OpenApiSpex.CastOneOfTest do
       dog = %{"fur" => "grey", "pet_type" => "Wolf"}
       api_spec = OpenApiSpexTest.ApiSpec.spec()
       pet_schema = api_spec.components.schemas["Pet"]
-      assert {:error, [error]} = OpenApiSpex.cast_value(dog, pet_schema, api_spec)
+      assert {:error, [error | _]} = OpenApiSpex.cast_value(dog, pet_schema, api_spec)
 
       assert error == %OpenApiSpex.Cast.Error{
                format: nil,
@@ -135,7 +135,7 @@ defmodule OpenApiSpex.CastOneOfTest do
       "password" => "12345678"
     }
 
-    assert {:error, [oneOf]} =
+    assert {:error, [oneOf | _]} =
              OpenApiSpex.Cast.OneOf.cast(
                struct(OpenApiSpex.Cast,
                  value: value,
@@ -146,39 +146,6 @@ defmodule OpenApiSpex.CastOneOfTest do
 
     assert Error.message(oneOf) ==
              "Failed to cast value to one of: no schemas validate"
-  end
-
-  test "allOf, when given all required params inside and outside the allOf, return the schema" do
-    schema = %Schema{
-      allOf: [
-        %Reference{
-          "$ref": "#/components/schemas/User"
-        }
-      ],
-      required: [:age]
-    }
-
-    value = %{
-      "name" => "Joe User",
-      "email" => "joe@gmail.com",
-      "password" => "12345678",
-      "age" => "123"
-    }
-
-    assert {:ok,
-            %{
-              age: 123,
-              email: "joe@gmail.com",
-              name: "Joe User",
-              password: "12345678"
-            }} =
-             OpenApiSpex.Cast.AllOf.cast(
-               struct(OpenApiSpex.Cast,
-                 value: value,
-                 schema: schema,
-                 schemas: %{"User" => Schemas.User.schema()}
-               )
-             )
   end
 
   test "oneOf with required fields" do

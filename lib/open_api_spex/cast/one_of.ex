@@ -20,15 +20,7 @@ defmodule OpenApiSpex.Cast.OneOf do
           {ctx, [{:ok, value, schema} | results], error_schemas}
         else
           {:error, errors} ->
-            ctx =
-              if is_object?(relaxed_schema) do
-                # Since in a allOf Schema, every
-                %Cast{ctx | errors: ctx.errors ++ errors}
-              else
-                ctx
-              end
-
-            {ctx, results, [schema | error_schemas]}
+            {%Cast{ctx | errors: ctx.errors ++ errors}, results, [schema | error_schemas]}
         end
       end)
 
@@ -104,6 +96,4 @@ defmodule OpenApiSpex.Cast.OneOf do
   end
 
   defp check_required_fields(_ctx, _acc), do: :ok
-  defp is_object?(%{type: :object}), do: true
-  defp is_object?(_), do: false
 end

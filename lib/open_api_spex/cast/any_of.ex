@@ -26,15 +26,11 @@ defmodule OpenApiSpex.Cast.AnyOf do
         cast_any_of(new_ctx, failed_schemas, acc || value)
 
       {:error, errors} ->
-        new_ctx =
-          if is_object?(relaxed_schema) do
-            # Since in a allOf Schema, every
-            %Cast{new_ctx | errors: new_ctx.errors ++ errors}
-          else
-            new_ctx
-          end
-
-        cast_any_of(new_ctx, [schema | failed_schemas], acc)
+        cast_any_of(
+          %Cast{new_ctx | errors: new_ctx.errors ++ errors},
+          [schema | failed_schemas],
+          acc
+        )
     end
   end
 
@@ -85,9 +81,6 @@ defmodule OpenApiSpex.Cast.AnyOf do
     end
     |> Enum.join(", ")
   end
-
-  defp is_object?(%{type: :object}), do: true
-  defp is_object?(_), do: false
 
   defp check_required_fields(ctx, %{} = acc) do
     required = ctx.schema.required || []
