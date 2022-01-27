@@ -173,7 +173,7 @@ defmodule OpenApiSpex.Cast do
   # Explicit nil types are considered as wildcards, as in
   # properties
   #   value: {}
-  # See #418
+  # See  https://json-schema.org/understanding-json-schema/basics.html#id1
   def cast(%__MODULE__{schema: %{type: nil}, value: value} = _ctx),
     do: {:ok, value}
 
