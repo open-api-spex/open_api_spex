@@ -170,6 +170,13 @@ defmodule OpenApiSpex.Cast do
   def cast(%__MODULE__{schema: %{type: :array}} = ctx),
     do: Array.cast(ctx)
 
+  # Explicit nil types are considered as wildcards, as in
+  # properties
+  #   value: {}
+  # See  https://json-schema.org/understanding-json-schema/basics.html#id1
+  def cast(%__MODULE__{schema: %{type: nil}, value: value} = _ctx),
+    do: {:ok, value}
+
   def cast(%__MODULE__{schema: %{type: _other}} = ctx),
     do: error(ctx, {:invalid_schema_type})
 

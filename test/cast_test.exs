@@ -12,9 +12,7 @@ defmodule OpenApiSpec.CastTest do
       assert error.reason == :invalid_schema_type
       assert error.type == :nope
 
-      assert {:error, [error]} = cast(value: "string", schema: %Schema{type: nil})
-      assert error.reason == :invalid_schema_type
-      assert error.type == nil
+      assert {:ok, "string"} = cast(value: "string", schema: %Schema{type: nil})
     end
 
     # Note: full tests for primitives are covered in Cast.PrimitiveTest
