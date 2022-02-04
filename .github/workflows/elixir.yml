@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         otp: ['24']
-        elixir: ['1.12']
+        elixir: ['1.13']
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
@@ -43,12 +43,13 @@ jobs:
     strategy:
       matrix:
         otp: ['21', '22', '23', '24']
-        elixir: ['1.9', '1.10', '1.11', '1.12']
+        elixir: ['1.9', '1.10', '1.11', '1.12', '1.13']
         exclude:
+          - {otp: '21', elixir: '1.13'}
           - {otp: '21', elixir: '1.12'}
+          - {otp: '23', elixir: '1.9'}
           - {otp: '24', elixir: '1.10'}
           - {otp: '24', elixir: '1.9'}
-          - {otp: '23', elixir: '1.9'}
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
