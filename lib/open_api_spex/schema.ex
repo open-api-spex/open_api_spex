@@ -297,7 +297,7 @@ defmodule OpenApiSpex.Schema do
   """
   defdelegate cast(schema, value, schemas), to: DeprecatedCast
 
-  @doc """
+  @doc ~S"""
   Validate a value against a Schema.
 
   This expects that the value has already been `cast` to the appropriate data type.
@@ -311,7 +311,7 @@ defmodule OpenApiSpex.Schema do
   :ok
 
   iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joegmail.com", %{})
-  {:error, "#: Value \\\"joegmail.com\\\" does not match pattern: (.*)@(.*)"}
+  {:error, "#: Value \"joegmail.com\" does not match pattern: (.*)@(.*)"}
   """
   @spec validate(Schema.t() | Reference.t(), any, %{String.t() => Schema.t() | Reference.t()}) ::
           :ok | {:error, String.t()}
