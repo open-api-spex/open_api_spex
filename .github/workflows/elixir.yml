@@ -10,6 +10,8 @@ jobs:
   lint:
     name: Lint (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
     runs-on: ubuntu-latest
+    env:
+      CACHE_GENERATION: 1
     strategy:
       matrix:
         otp: ['24']
@@ -20,18 +22,15 @@ jobs:
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
-      - uses: actions/cache@v1
-        env:
-          cache-name: mix
+      - name: PLT cache
+        uses: actions/cache@v2
         with:
-          path: ~/.mix
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ matrix.otp }}-${{ matrix.elixir }}
-      - uses: actions/cache@v1
-        env:
-          cache-name: build
-        with:
-          path: _build
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ matrix.otp }}-${{ matrix.elixir }}
+          key: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build-${{ env.CACHE_GENERATION }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build-${{ env.CACHE_GENERATION }}
+          path: |
+            priv/plts
       - run: mix deps.get
       - run: mix compile --warnings-as-errors
       - run: mix format --check-formatted
