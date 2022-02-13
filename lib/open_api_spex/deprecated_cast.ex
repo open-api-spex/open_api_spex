@@ -138,9 +138,8 @@ defmodule OpenApiSpex.DeprecatedCast do
       |> no_struct()
       |> Enum.split_with(fn {k, _v} -> is_binary(k) end)
 
-    with {:ok, props} <- cast_properties(schema, regular_properties, schemas),
-         {:ok, struct} <- Map.new(others ++ props) |> make_struct(schema) do
-      {:ok, struct}
+    with {:ok, props} <- cast_properties(schema, regular_properties, schemas) do
+      make_struct(Map.new(others ++ props), schema)
     end
   end
 
@@ -285,9 +284,8 @@ defmodule OpenApiSpex.DeprecatedCast do
   def validate(schema = %Schema{type: :array}, value, path, schemas) when is_list(value) do
     with :ok <- validate_max_items(schema, value, path),
          :ok <- validate_min_items(schema, value, path),
-         :ok <- validate_unique_items(schema, value, path),
-         :ok <- validate_array_items(schema, value, {path, 0}, schemas) do
-      :ok
+         :ok <- validate_unique_items(schema, value, path) do
+      validate_array_items(schema, value, {path, 0}, schemas)
     end
   end
 
@@ -296,16 +294,14 @@ defmodule OpenApiSpex.DeprecatedCast do
 
     with :ok <- validate_required_properties(schema, value, path),
          :ok <- validate_max_properties(schema, value, path),
-         :ok <- validate_min_properties(schema, value, path),
-         :ok <-
-           validate_object_properties(
-             schema.properties,
-             MapSet.new(schema.required),
-             value,
-             path,
-             schemas
-           ) do
-      :ok
+         :ok <- validate_min_properties(schema, value, path) do
+      validate_object_properties(
+        schema.properties,
+        MapSet.new(schema.required),
+        value,
+        path,
+        schemas
+      )
     end
   end
 
@@ -332,18 +328,16 @@ defmodule OpenApiSpex.DeprecatedCast do
   @spec validate_number_types(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
   defp validate_number_types(schema, value, path) do
     with :ok <- validate_multiple(schema, value, path),
-         :ok <- validate_maximum(schema, value, path),
-         :ok <- validate_minimum(schema, value, path) do
-      :ok
+         :ok <- validate_maximum(schema, value, path) do
+      validate_minimum(schema, value, path)
     end
   end
 
   @spec validate_string_types(Schema.t(), String.t(), String.t()) :: :ok | {:error, String.t()}
   defp validate_string_types(schema, value, path) do
     with :ok <- validate_max_length(schema, value, path),
-         :ok <- validate_min_length(schema, value, path),
-         :ok <- validate_pattern(schema, value, path) do
-      :ok
+         :ok <- validate_min_length(schema, value, path) do
+      validate_pattern(schema, value, path)
     end
   end
 
@@ -531,9 +525,8 @@ defmodule OpenApiSpex.DeprecatedCast do
              property_value,
              property_path,
              schemas
-           ),
-         :ok <- validate_object_properties(rest, required, value, path, schemas) do
-      :ok
+           ) do
+      validate_object_properties(rest, required, value, path, schemas)
     end
   end
 

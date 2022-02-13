@@ -242,10 +242,8 @@ defmodule OpenApiSpex.Operation do
     with :ok <- validate_required_parameters(operation.parameters || [], conn.params),
          parameters <-
            Enum.filter(operation.parameters || [], &Map.has_key?(conn.params, &1.name)),
-         :ok <- validate_parameter_schemas(parameters, conn.params, schemas),
-         :ok <-
-           validate_body_schema(operation.requestBody, conn.body_params, content_type, schemas) do
-      :ok
+         :ok <- validate_parameter_schemas(parameters, conn.params, schemas) do
+      validate_body_schema(operation.requestBody, conn.body_params, content_type, schemas)
     end
   end
 

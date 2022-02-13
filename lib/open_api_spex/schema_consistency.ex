@@ -14,7 +14,7 @@ defmodule OpenApiSpex.SchemaConsistency do
       &validate_type_key/1
     ]
     |> Enum.reduce([], fn validator, acc ->
-      case apply(validator, [schema]) do
+      case validator.(schema) do
         :ok -> acc
         {:error, message} -> [message | acc]
       end

@@ -49,11 +49,10 @@ defmodule OpenApiSpex.Paths do
   defp open_api_path(path) do
     path
     |> String.split("/")
-    |> Enum.map(fn
+    |> Enum.map_join("/", fn
       ":" <> segment -> "{#{segment}}"
       segment -> segment
     end)
-    |> Enum.join("/")
   end
 
   @spec find_duplicate_operations(paths :: t) :: [{operation_id, [{path, verb, Operation.t()}]}]
