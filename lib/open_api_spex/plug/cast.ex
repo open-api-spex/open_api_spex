@@ -70,7 +70,8 @@ defmodule OpenApiSpex.Plug.Cast do
       |> String.split(";")
       |> Enum.at(0)
 
-    case OpenApiSpex.cast(spec, operation, conn, content_type) do
+    # credo:disable-for-next-line
+    case apply(OpenApiSpex, :cast, [spec, operation, conn, content_type]) do
       {:ok, conn} ->
         conn
 

@@ -70,7 +70,8 @@ defmodule OpenApiSpex.Plug.Validate do
       |> String.split(";", parts: 2)
       |> Enum.at(0)
 
-    case OpenApiSpex.validate(spec, operation, conn, content_type) do
+    # credo:disable-for-next-line
+    case apply(OpenApiSpex, :validate, [spec, operation, conn, content_type]) do
       :ok ->
         conn
 
