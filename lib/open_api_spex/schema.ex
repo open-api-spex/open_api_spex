@@ -51,7 +51,7 @@ defmodule OpenApiSpex.Schema do
           alias OpenApiSpex.{Schema, Discriminator}
           OpenApiSpex.schema(%{
             title: "PetCommon",
-            description: "Properties common to all Pets"
+            description: "Properties common to all Pets",
             type: :object,
             properties: %{
               name: %Schema{type: :string},
@@ -116,7 +116,7 @@ defmodule OpenApiSpex.Schema do
 
         defmodule Pet do
           require OpenApiSpex
-          alias OpenApiSpex.{Schema, Discriminator}
+          alias OpenApiSpex.Discriminator
           OpenApiSpex.schema(%{
             title: "Pet",
             type: :object,
@@ -129,6 +129,7 @@ defmodule OpenApiSpex.Schema do
             ]
           })
         end
+      end
   """
 
   alias OpenApiSpex.{
