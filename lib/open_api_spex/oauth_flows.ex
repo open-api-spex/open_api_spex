@@ -8,7 +8,8 @@ defmodule OpenApiSpex.OAuthFlows do
     :implicit,
     :password,
     :clientCredentials,
-    :authorizationCode
+    :authorizationCode,
+    :extensions
   ]
 
   @typedoc """
@@ -20,6 +21,7 @@ defmodule OpenApiSpex.OAuthFlows do
           implicit: OAuthFlow.t() | nil,
           password: OAuthFlow.t() | nil,
           clientCredentials: OAuthFlow.t() | nil,
-          authorizationCode: OAuthFlow.t() | nil
+          authorizationCode: OAuthFlow.t() | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

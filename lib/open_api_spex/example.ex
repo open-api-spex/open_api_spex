@@ -6,7 +6,8 @@ defmodule OpenApiSpex.Example do
     :summary,
     :description,
     :value,
-    :externalValue
+    :externalValue,
+    :extensions
   ]
 
   @typedoc """
@@ -18,6 +19,7 @@ defmodule OpenApiSpex.Example do
           summary: String.t() | nil,
           description: String.t() | nil,
           value: any,
-          externalValue: String.t() | nil
+          externalValue: String.t() | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

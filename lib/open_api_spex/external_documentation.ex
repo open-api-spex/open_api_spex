@@ -6,7 +6,8 @@ defmodule OpenApiSpex.ExternalDocumentation do
   @enforce_keys :url
   defstruct [
     :description,
-    :url
+    :url,
+    :extensions
   ]
 
   @typedoc """
@@ -16,6 +17,7 @@ defmodule OpenApiSpex.ExternalDocumentation do
   """
   @type t :: %__MODULE__{
           description: String.t() | nil,
-          url: String.t()
+          url: String.t(),
+          extensions: %{String.t() => any()} | nil
         }
 end

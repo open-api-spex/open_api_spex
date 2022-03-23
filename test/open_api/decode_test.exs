@@ -37,17 +37,22 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                extensions: info_extensions
              } = info
 
-      assert %OpenApiSpex.Contact{} = contact
+      assert %OpenApiSpex.Contact{
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
+             } = contact
 
-      assert %OpenApiSpex.License{} = license
+      assert %OpenApiSpex.License{
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
+             } = license
 
-      assert info_extensions == %{"x-extension" => "foo"}
+      assert info_extensions == %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
 
       assert %{"x-extension" => %{"value" => "haha"}} == extensions
 
       assert %OpenApiSpex.ExternalDocumentation{
                description: _,
-               url: _
+               url: _,
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } = externalDocs
 
       assert %OpenApiSpex.Components{
@@ -65,7 +70,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                securitySchemes: securitySchemes,
                headers: %{
                  "api-version" => components_headers_header
-               }
+               },
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } = components
 
       assert %{
@@ -74,7 +80,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                  content: %{
                    "application/json" => media_type
                  },
-                 required: false
+                 required: false,
+                 extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
                }
              } = requestBodies
 
@@ -103,7 +110,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                          type: :integer
                        }
                      }
-                   }
+                   },
+                   extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
                  }
                },
                example: nil
@@ -145,7 +153,9 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
              } == responses
 
       assert %{
-               "foo" => %OpenApiSpex.Example{}
+               "foo" => %OpenApiSpex.Example{
+                 extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
+               }
              } = examples
 
       assert %OpenApiSpex.Parameter{
@@ -158,7 +168,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                  example: "gzip",
                  type: :string
                },
-               extensions: %{"x-extension" => "foo"}
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } == components_parameters_parameter
 
       assert %{
@@ -176,7 +186,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                  }
                ],
                discriminator: %OpenApiSpex.Discriminator{
-                 propertyName: "userType"
+                 propertyName: "userType",
+                 extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
                }
              } == admin_schema
 
@@ -194,7 +205,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                  first_name: %OpenApiSpex.Schema{
                    xml: %OpenApiSpex.Xml{
                      namespace: "http://example.com/schema/sample",
-                     prefix: "sample"
+                     prefix: "sample",
+                     extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
                    }
                  },
                  metadata: %OpenApiSpex.Schema{
@@ -204,7 +216,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                      "$ref": "#/components/schemas/MetadataObject"
                    }
                  }
-               }
+               },
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } = user_schema
 
       assert %OpenApiSpex.Link{
@@ -227,8 +240,10 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                server: %OpenApiSpex.Server{
                  description: "Development server",
                  url: "https://development.gigantic-server.com/v1",
-                 variables: %{}
-               }
+                 variables: %{},
+                 extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
+               },
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } == link
 
       assert %{
@@ -241,11 +256,12 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
              } = petstore_auth_security_scheme
 
       assert %OpenApiSpex.SecurityScheme{
-               extensions: %{"x-extension" => "foo"}
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } = api_key_security_scheme
 
       assert %OpenApiSpex.OAuthFlows{
-               implicit: oauth_flow
+               implicit: oauth_flow,
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } = oauth_flows
 
       assert %OpenApiSpex.OAuthFlow{
@@ -255,7 +271,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                scopes: %{
                  "read:pets" => "read your pets",
                  "write:pets" => "modify pets in your account"
-               }
+               },
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } = oauth_flow
 
       assert %OpenApiSpex.Header{
@@ -263,7 +280,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                schema: %OpenApiSpex.Schema{
                  type: :string,
                  enum: ["beta"]
-               }
+               },
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
              } == components_headers_header
 
       assert [server] = servers
@@ -286,7 +304,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
       assert [tag] = tags
 
       assert %OpenApiSpex.Tag{
-               extensions: %{"x-extension" => "foo"},
+               extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}},
                description: "Pets operations",
                externalDocs: %OpenApiSpex.ExternalDocumentation{
                  description: "Find more info here",
@@ -305,7 +323,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                "/example" => %OpenApiSpex.PathItem{
                  summary: "/example summary",
                  description: "/example description",
-                 extensions: %{"x-extension" => "foo"},
+                 extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}},
                  servers: [%OpenApiSpex.Server{}],
                  parameters: [
                    %OpenApiSpex.Reference{
@@ -313,7 +331,7 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                    }
                  ],
                  post: %OpenApiSpex.Operation{
-                   extensions: %{"x-extension" => "foo"},
+                   extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}},
                    parameters: [
                      %OpenApiSpex.Reference{},
                      %OpenApiSpex.Reference{},
@@ -358,7 +376,12 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
 
       assert %{
                "200" => %OpenApiSpex.Response{
-                 extensions: %{"x-extension" => "foo"}
+                 content: %{
+                   "application/json" => %OpenApiSpex.MediaType{
+                     extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
+                   }
+                 },
+                 extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
                }
              } = operationResponses
 

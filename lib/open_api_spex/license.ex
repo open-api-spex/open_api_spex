@@ -6,7 +6,8 @@ defmodule OpenApiSpex.License do
   @enforce_keys :name
   defstruct [
     :name,
-    :url
+    :url,
+    :extensions
   ]
 
   @typedoc """
@@ -16,6 +17,7 @@ defmodule OpenApiSpex.License do
   """
   @type t :: %__MODULE__{
           name: String.t(),
-          url: String.t() | nil
+          url: String.t() | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end
