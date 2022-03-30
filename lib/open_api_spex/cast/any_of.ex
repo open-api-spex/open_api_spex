@@ -2,6 +2,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
   @moduledoc false
   alias OpenApiSpex.Cast
   alias OpenApiSpex.Cast.Error
+  alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Schema
 
   def cast(ctx, failed_schemas \\ [], acc \\ nil), do: cast_any_of(ctx, failed_schemas, acc)
@@ -20,7 +21,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
 
     case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
       {:ok, value} when is_map(value) ->
-        cast_any_of(new_ctx, failed_schemas, Map.merge(acc || %{}, value))
+        cast_any_of(new_ctx, failed_schemas, Utils.merge_maps(acc || %{}, value))
 
       {:ok, value} ->
         cast_any_of(new_ctx, failed_schemas, acc || value)

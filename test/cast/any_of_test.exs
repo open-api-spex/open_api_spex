@@ -224,5 +224,21 @@ defmodule OpenApiSpex.CastAnyOfTest do
       assert Error.message(error_last_name) ==
                "Missing field: last_name"
     end
+
+    test "anyOf with additionalProperties" do
+      schema = %Schema{
+        anyOf: [
+          %Schema{
+            type: :object,
+            properties: %{
+              last_name: %Schema{type: :string}
+            }
+          },
+          %Schema{type: :object, additionalProperties: true}
+        ]
+      }
+
+      assert {:ok, %{last_name: "Smith"}} == cast(value: %{"last_name" => "Smith"}, schema: schema)
+    end
   end
 end

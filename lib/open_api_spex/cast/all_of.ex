@@ -2,6 +2,7 @@ defmodule OpenApiSpex.Cast.AllOf do
   @moduledoc false
   alias OpenApiSpex.Cast
   alias OpenApiSpex.Cast.Error
+  alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Schema
 
   def cast(ctx) do
@@ -46,7 +47,7 @@ defmodule OpenApiSpex.Cast.AllOf do
 
     case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
       {:ok, value} when is_map(value) ->
-        cast_all_of(new_ctx, Map.merge(acc || %{}, value))
+        cast_all_of(new_ctx, Utils.merge_maps(acc || %{}, value))
 
       {:ok, value} ->
         # allOf definitions with primitives are a little bit strange..., we just return the cast for the first Schema,

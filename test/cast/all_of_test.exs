@@ -66,6 +66,22 @@ defmodule OpenApiSpex.CastAllOfTest do
       assert {:ok, %{id: "e30aee0f-dbda-40bd-9198-6cf609b8b640", bar: "foo"}} =
                cast(value: value, schema: schema)
     end
+
+    test "allOf with additionalProperties" do
+      schema = %Schema{
+        allOf: [
+          %Schema{
+            type: :object,
+            properties: %{
+              last_name: %Schema{type: :string}
+            }
+          },
+          %Schema{type: :object, additionalProperties: true}
+        ]
+      }
+
+      assert {:ok, %{last_name: "Smith"}} == cast(value: %{"last_name" => "Smith"}, schema: schema)
+    end
   end
 
   test "allOf, for multi-type array" do
