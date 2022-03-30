@@ -11,11 +11,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
     Cast.error(ctx, {:any_of, error_message(failed_schemas, ctx.schemas)})
   end
 
-  defp cast_any_of(
-         %{schema: %{anyOf: [%Schema{} = schema | remaining]}} = ctx,
-         failed_schemas,
-         acc
-       ) do
+  defp cast_any_of(%{schema: %{anyOf: [%Schema{} = schema | remaining]}} = ctx, failed_schemas, acc) do
     relaxed_schema = %{schema | "x-struct": nil}
     new_ctx = put_in(ctx.schema.anyOf, remaining)
 

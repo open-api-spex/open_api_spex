@@ -14,8 +14,7 @@ defmodule OpenApiSpex.Cast.OneOf do
         schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
         relaxed_schema = %{schema | "x-struct": nil}
 
-        with {:ok, value} <-
-               Cast.cast(%{ctx | errors: [], schema: relaxed_schema}),
+        with {:ok, value} <- Cast.cast(%{ctx | errors: [], schema: relaxed_schema}),
              :ok <- check_required_fields(ctx, value) do
           {ctx, [{:ok, value, schema} | results], error_schemas}
         else
@@ -25,17 +24,10 @@ defmodule OpenApiSpex.Cast.OneOf do
       end)
 
     case castable_schemas do
-      {_, [{:ok, %_{} = value, _}], _} ->
-        {:ok, value}
-
-      {_, [{:ok, value, %Schema{"x-struct": nil}}], _} ->
-        {:ok, value}
-
-      {_, [{:ok, value, %Schema{"x-struct": module}}], _} ->
-        {:ok, struct(module, value)}
-
-      {ctx, success_results, failed_schemas} ->
-        error(ctx, success_results, failed_schemas)
+      {_, [{:ok, %_{} = value, _}], _} -> {:ok, value}
+      {_, [{:ok, value, %Schema{"x-struct": nil}}], _} -> {:ok, value}
+      {_, [{:ok, value, %Schema{"x-struct": module}}], _} -> {:ok, struct(module, value)}
+      {ctx, success_results, failed_schemas} -> error(ctx, success_results, failed_schemas)
     end
   end
 

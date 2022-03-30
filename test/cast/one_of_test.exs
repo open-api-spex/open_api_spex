@@ -136,13 +136,7 @@ defmodule OpenApiSpex.CastOneOfTest do
     }
 
     assert {:error, [oneOf | _]} =
-             OpenApiSpex.Cast.OneOf.cast(
-               struct(OpenApiSpex.Cast,
-                 value: value,
-                 schema: schema,
-                 schemas: %{"User" => Schemas.User.schema()}
-               )
-             )
+             cast(value: value, schema: schema, schemas: %{"User" => Schemas.User.schema()})
 
     assert Error.message(oneOf) ==
              "Failed to cast value to one of: no schemas validate"
@@ -161,8 +155,7 @@ defmodule OpenApiSpex.CastOneOfTest do
       ]
     }
 
-    assert {:error, [error_one_of, error_last_name]} =
-             OpenApiSpex.Cast.OneOf.cast(struct(OpenApiSpex.Cast, value: %{}, schema: schema))
+    assert {:error, [error_one_of, error_last_name]} = cast(value: %{}, schema: schema)
 
     assert Error.message(error_one_of) ==
              "Failed to cast value to one of: no schemas validate"

@@ -5,9 +5,7 @@ defmodule OpenApiSpex.Cast.AllOf do
   alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Schema
 
-  def cast(ctx) do
-    cast_all_of(ctx, nil)
-  end
+  def cast(ctx), do: cast_all_of(ctx, nil)
 
   defp cast_all_of(%{schema: %{allOf: [%Schema{type: :array} = schema | remaining]}} = ctx, acc)
        when is_list(acc) or acc == nil do
@@ -34,15 +32,8 @@ defmodule OpenApiSpex.Cast.AllOf do
     end
   end
 
-  defp cast_all_of(
-         %{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx,
-         acc
-       ) do
-    relaxed_schema = %{
-      schema
-      | "x-struct": nil
-    }
-
+  defp cast_all_of(%{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx, acc) do
+    relaxed_schema = %{schema | "x-struct": nil}
     new_ctx = put_in(ctx.schema.allOf, remaining)
 
     case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
