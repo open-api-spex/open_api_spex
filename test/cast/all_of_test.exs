@@ -286,7 +286,9 @@ defmodule OpenApiSpex.CastAllOfTest do
     }
 
     value = ["Test #1", "2", "3", "4", "true", "Five!"]
-    assert {:ok, [2, 3, 4, true, "Test #1", "Five!"]} = cast(value: value, schema: schema)
+
+    assert {:error, [_all_of_err, _test1_err, _true_err, _five_err]} =
+             cast(value: value, schema: schema)
   end
 
   defmodule CatSchema do
