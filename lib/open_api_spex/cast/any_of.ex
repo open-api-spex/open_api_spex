@@ -4,9 +4,10 @@ defmodule OpenApiSpex.Cast.AnyOf do
   alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Schema
 
-  def cast(ctx, failed_schemas \\ [], acc \\ nil), do: cast_any_of(ctx, failed_schemas, acc)
+  def cast(ctx, failed_schemas \\ [], acc \\ :__not_casted),
+    do: cast_any_of(ctx, failed_schemas, acc)
 
-  defp cast_any_of(%_{schema: %{anyOf: []}} = ctx, failed_schemas, nil) do
+  defp cast_any_of(%_{schema: %{anyOf: []}} = ctx, failed_schemas, :__not_casted) do
     Cast.error(ctx, {:any_of, error_message(failed_schemas, ctx.schemas)})
   end
 
@@ -16,10 +17,11 @@ defmodule OpenApiSpex.Cast.AnyOf do
 
     case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
       {:ok, value} when is_map(value) ->
-        cast_any_of(new_ctx, failed_schemas, Utils.merge_maps(acc || %{}, value))
+        acc = acc |> value_if_not_casted(%{}) |> Utils.merge_maps(value)
+        cast_any_of(new_ctx, failed_schemas, acc)
 
       {:ok, value} ->
-        cast_any_of(new_ctx, failed_schemas, acc || value)
+        cast_any_of(new_ctx, failed_schemas, value_if_not_casted(acc, value))
 
       {:error, errors} ->
         cast_any_of(
@@ -77,4 +79,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
     end
     |> Enum.join(", ")
   end
+
+  defp value_if_not_casted(:__not_casted, value), do: value
+  defp value_if_not_casted(value, _), do: value
 end

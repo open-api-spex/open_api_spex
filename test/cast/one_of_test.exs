@@ -186,4 +186,20 @@ defmodule OpenApiSpex.CastOneOfTest do
 
     assert {:ok, _} = cast(value: %{}, schema: schema, read_write_scope: :write)
   end
+
+  test "oneOf with nullable option" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string}
+          }
+        },
+        %Schema{type: :string, nullable: true}
+      ]
+    }
+
+    assert {:ok, nil} = cast(value: nil, schema: schema)
+  end
 end

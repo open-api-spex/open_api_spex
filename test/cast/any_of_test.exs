@@ -264,5 +264,21 @@ defmodule OpenApiSpex.CastAnyOfTest do
 
       assert {:ok, _} = cast(value: %{}, schema: schema, read_write_scope: :write)
     end
+
+    test "anyOf with nullable option" do
+      schema = %Schema{
+        anyOf: [
+          %Schema{
+            type: :object,
+            properties: %{
+              last_name: %Schema{type: :string}
+            }
+          },
+          %Schema{type: :string, nullable: true}
+        ]
+      }
+
+      assert {:ok, nil} = cast(value: nil, schema: schema)
+    end
   end
 end

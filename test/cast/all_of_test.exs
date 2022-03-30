@@ -264,6 +264,16 @@ defmodule OpenApiSpex.CastAllOfTest do
 
       assert {:ok, _} = cast(value: %{}, schema: schema, read_write_scope: :write)
     end
+
+    test "allOf with nullable option" do
+      schema = %Schema{
+        allOf: [
+          %Schema{type: :string, nullable: true}
+        ]
+      }
+
+      assert {:ok, nil} = cast(value: nil, schema: schema)
+    end
   end
 
   test "allOf, for multi-type array" do
