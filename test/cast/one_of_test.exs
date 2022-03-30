@@ -163,4 +163,27 @@ defmodule OpenApiSpex.CastOneOfTest do
     assert Error.message(error_last_name) ==
              "Missing field: last_name"
   end
+
+  test "oneOf with readOnly required fields" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string, readOnly: true}
+          },
+          required: [:last_name]
+        }
+      ]
+    }
+
+    assert {:error, [error_one_of, error_last_name]} =
+             cast(value: %{}, schema: schema, read_write_scope: :read)
+
+    assert Error.message(error_one_of) == "Failed to cast value to one of: no schemas validate"
+
+    assert Error.message(error_last_name) == "Missing field: last_name"
+
+    assert {:ok, _} = cast(value: %{}, schema: schema, read_write_scope: :write)
+  end
 end

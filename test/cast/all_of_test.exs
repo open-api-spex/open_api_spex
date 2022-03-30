@@ -240,6 +240,30 @@ defmodule OpenApiSpex.CastAllOfTest do
 
       assert {:ok, %{last_name: "Smith"}} == cast(value: %{"last_name" => "Smith"}, schema: schema)
     end
+
+    test "allOf with readOnly required fields" do
+      schema = %Schema{
+        allOf: [
+          %Schema{
+            type: :object,
+            properties: %{
+              last_name: %Schema{type: :string, readOnly: true}
+            },
+            required: [:last_name]
+          }
+        ]
+      }
+
+      assert {:error, [error_all_of, error_last_name]} =
+               cast(value: %{}, schema: schema, read_write_scope: :read)
+
+      assert Error.message(error_all_of) ==
+               "Failed to cast value as object. Value must be castable using `allOf` schemas listed."
+
+      assert Error.message(error_last_name) == "Missing field: last_name"
+
+      assert {:ok, _} = cast(value: %{}, schema: schema, read_write_scope: :write)
+    end
   end
 
   test "allOf, for multi-type array" do

@@ -240,5 +240,29 @@ defmodule OpenApiSpex.CastAnyOfTest do
 
       assert {:ok, %{last_name: "Smith"}} == cast(value: %{"last_name" => "Smith"}, schema: schema)
     end
+
+    test "anyOf with readOnly required fields" do
+      schema = %Schema{
+        anyOf: [
+          %Schema{
+            type: :object,
+            properties: %{
+              last_name: %Schema{type: :string, readOnly: true}
+            },
+            required: [:last_name]
+          }
+        ]
+      }
+
+      assert {:error, [error_any_of, error_last_name]} =
+               cast(value: %{}, schema: schema, read_write_scope: :read)
+
+      assert Error.message(error_any_of) ==
+               "Failed to cast value using any of: Schema(type: :object)"
+
+      assert Error.message(error_last_name) == "Missing field: last_name"
+
+      assert {:ok, _} = cast(value: %{}, schema: schema, read_write_scope: :write)
+    end
   end
 end

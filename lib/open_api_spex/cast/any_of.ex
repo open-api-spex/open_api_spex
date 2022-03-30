@@ -1,7 +1,6 @@
 defmodule OpenApiSpex.Cast.AnyOf do
   @moduledoc false
   alias OpenApiSpex.Cast
-  alias OpenApiSpex.Cast.Error
   alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Schema
 
@@ -47,13 +46,13 @@ defmodule OpenApiSpex.Cast.AnyOf do
 
   defp cast_any_of(%_{schema: %{anyOf: [], "x-struct": module}} = ctx, _failed_schemas, acc)
        when not is_nil(module) do
-    with :ok <- check_required_fields(ctx, acc) do
+    with :ok <- Utils.check_required_fields(ctx, acc) do
       {:ok, struct(module, acc)}
     end
   end
 
   defp cast_any_of(%_{schema: %{anyOf: []}} = ctx, _failed_schemas, acc) do
-    with :ok <- check_required_fields(ctx, acc) do
+    with :ok <- Utils.check_required_fields(ctx, acc) do
       {:ok, acc}
     end
   end
@@ -78,25 +77,4 @@ defmodule OpenApiSpex.Cast.AnyOf do
     end
     |> Enum.join(", ")
   end
-
-  defp check_required_fields(ctx, %{} = acc) do
-    required = ctx.schema.required || []
-
-    input_keys = Map.keys(acc)
-    missing_keys = required -- input_keys
-
-    if missing_keys == [] do
-      :ok
-    else
-      errors =
-        Enum.map(missing_keys, fn key ->
-          ctx = %{ctx | path: [key | ctx.path]}
-          Error.new(ctx, {:missing_field, key})
-        end)
-
-      {:error, ctx.errors ++ errors}
-    end
-  end
-
-  defp check_required_fields(_ctx, _acc), do: :ok
 end

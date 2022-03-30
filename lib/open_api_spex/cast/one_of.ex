@@ -1,7 +1,7 @@
 defmodule OpenApiSpex.Cast.OneOf do
   @moduledoc false
   alias OpenApiSpex.Cast
-  alias OpenApiSpex.Cast.Error
+  alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Schema
 
   def cast(%_{schema: %{type: _, oneOf: []}} = ctx) do
@@ -15,7 +15,7 @@ defmodule OpenApiSpex.Cast.OneOf do
         relaxed_schema = %{schema | "x-struct": nil}
 
         with {:ok, value} <- Cast.cast(%{ctx | errors: [], schema: relaxed_schema}),
-             :ok <- check_required_fields(ctx, value) do
+             :ok <- Utils.check_required_fields(ctx, value) do
           {ctx, [{:ok, value, schema} | results], error_schemas}
         else
           {:error, errors} ->
@@ -67,25 +67,4 @@ defmodule OpenApiSpex.Cast.OneOf do
         "Schema(type: #{inspect(type)})"
     end
   end
-
-  defp check_required_fields(ctx, %{} = acc) do
-    required = ctx.schema.required || []
-
-    input_keys = Map.keys(acc)
-    missing_keys = required -- input_keys
-
-    if missing_keys == [] do
-      :ok
-    else
-      errors =
-        Enum.map(missing_keys, fn key ->
-          ctx = %{ctx | path: [key | ctx.path]}
-          Error.new(ctx, {:missing_field, key})
-        end)
-
-      {:error, ctx.errors ++ errors}
-    end
-  end
-
-  defp check_required_fields(_ctx, _acc), do: :ok
 end
