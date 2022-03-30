@@ -120,9 +120,17 @@ defmodule OpenApiSpex.Cast do
     {:ok, nil}
   end
 
-  # nullable: false
-  def cast(%__MODULE__{value: nil} = ctx) do
-    error(ctx, {:null_value})
+  # nullable not present in root schema or equal to false
+  # dispatch to xxxOf modules if corresponding key is present
+  # or return error
+  def cast(%__MODULE__{value: nil, schema: schema} = ctx) do
+    cond do
+      match?(%{nullable: false}, schema) -> error(ctx, {:null_value})
+      match?(%{oneOf: list} when is_list(list), schema) -> OneOf.cast(ctx)
+      match?(%{anyOf: list} when is_list(list), schema) -> AnyOf.cast(ctx)
+      match?(%{allOf: list} when is_list(list), schema) -> AllOf.cast(ctx)
+      true -> error(ctx, {:null_value})
+    end
   end
 
   # Enum
