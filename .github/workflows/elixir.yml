@@ -10,8 +10,6 @@ jobs:
   lint:
     name: Lint (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
     runs-on: ubuntu-latest
-    env:
-      CACHE_GENERATION: 1
     strategy:
       matrix:
         otp: ['24']
@@ -27,9 +25,9 @@ jobs:
         uses: actions/cache@v2
         with:
           key: |
-            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build-${{ env.CACHE_GENERATION }}
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
           restore-keys: |
-            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build-${{ env.CACHE_GENERATION }}
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
           path: |
             priv/plts
       - run: mix deps.get
@@ -59,12 +57,12 @@ jobs:
           cache-name: mix
         with:
           path: ~/.mix
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ matrix.otp }}-${{ matrix.elixir }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{  steps.beam.outputs.elixir-version }}-${{ teps.beam.outputs.otp-version }}
       - uses: actions/cache@v1
         env:
           cache-name: build
         with:
           path: _build
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ matrix.otp }}-${{ matrix.elixir }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.beam.outputs.elixir-version }}-${{ teps.beam.outputs.otp-version }}
       - run: mix deps.get
       - run: mix test

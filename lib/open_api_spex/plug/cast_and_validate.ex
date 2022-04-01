@@ -42,8 +42,8 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
   @behaviour Plug
 
-  alias Plug.Conn
   alias OpenApiSpex.Plug.PutApiSpec
+  alias Plug.Conn
 
   @impl Plug
   def init(opts) do
