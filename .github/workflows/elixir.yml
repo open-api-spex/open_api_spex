@@ -25,9 +25,9 @@ jobs:
         uses: actions/cache@v2
         with:
           key: |
-            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-plt
           restore-keys: |
-            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-plt
           path: |
             priv/plts
       - run: mix deps.get
@@ -52,17 +52,21 @@ jobs:
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
-      - uses: actions/cache@v1
-        env:
-          cache-name: mix
+      - uses: actions/cache@v2
         with:
-          path: ~/.mix
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{  steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}
-      - uses: actions/cache@v1
-        env:
-          cache-name: build
+          key: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-mix
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-mix
+          path: |
+            ~/.mix
+      - uses: actions/cache@v2
         with:
-          path: _build
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}
+          key: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
+          path: |
+            _build
       - run: mix deps.get
       - run: mix test
