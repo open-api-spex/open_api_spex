@@ -57,12 +57,12 @@ jobs:
           cache-name: mix
         with:
           path: ~/.mix
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{  steps.beam.outputs.elixir-version }}-${{ teps.beam.outputs.otp-version }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{  steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}
       - uses: actions/cache@v1
         env:
           cache-name: build
         with:
           path: _build
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.beam.outputs.elixir-version }}-${{ teps.beam.outputs.otp-version }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}
       - run: mix deps.get
       - run: mix test
