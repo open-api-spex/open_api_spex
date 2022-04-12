@@ -153,10 +153,10 @@ defmodule OpenApiSpex.Operation2Test do
 
       assert {:ok, conn} =
                Operation2.cast(
+                 SpecModule.spec(),
                  OperationFixtures.create_user(),
                  conn,
-                 "application/json",
-                 SpecModule.spec().components
+                 "application/json"
                )
 
       assert %Plug.Conn{} = conn
@@ -168,10 +168,10 @@ defmodule OpenApiSpex.Operation2Test do
 
       assert {:ok, conn} =
                Operation2.cast(
+                 SpecModule.spec(),
                  OperationFixtures.create_user(),
                  conn,
                  "application/json",
-                 SpecModule.spec().components,
                  replace_params: false
                )
 
@@ -185,10 +185,10 @@ defmodule OpenApiSpex.Operation2Test do
 
       assert {:ok, conn} =
                Operation2.cast(
+                 SpecModule.spec(),
                  OperationFixtures.update_user(),
                  conn,
-                 "application/json",
-                 SpecModule.spec().components
+                 "application/json"
                )
 
       assert %Plug.Conn{} = conn
@@ -199,10 +199,10 @@ defmodule OpenApiSpex.Operation2Test do
 
       assert {:ok, conn} =
                Operation2.cast(
+                 SpecModule.spec(),
                  OperationFixtures.create_users(),
                  conn,
-                 "application/json",
-                 SpecModule.spec().components
+                 "application/json"
                )
 
       assert %Plug.Conn{} = conn
@@ -213,10 +213,10 @@ defmodule OpenApiSpex.Operation2Test do
 
       assert {:error, errors} =
                Operation2.cast(
+                 SpecModule.spec(),
                  OperationFixtures.create_user(),
                  conn,
-                 "application/json",
-                 SpecModule.spec().components
+                 "application/json"
                )
 
       assert [error] = errors
@@ -229,10 +229,10 @@ defmodule OpenApiSpex.Operation2Test do
 
       assert {:error, errors} =
                Operation2.cast(
+                 SpecModule.spec(),
                  OperationFixtures.update_user(),
                  conn,
-                 "application/json",
-                 SpecModule.spec().components
+                 "application/json"
                )
 
       assert [error] = errors
@@ -296,12 +296,7 @@ defmodule OpenApiSpex.Operation2Test do
       operation = OperationFixtures.create_user()
 
       assert {:error, [%Error{reason: :missing_header, name: "content-type"}]} =
-               Operation2.cast(
-                 operation,
-                 conn,
-                 nil,
-                 SpecModule.spec().components
-               )
+               Operation2.cast(SpecModule.spec(), operation, conn, nil)
     end
 
     test "validate invalid content-type header for required requestBody" do
@@ -312,12 +307,7 @@ defmodule OpenApiSpex.Operation2Test do
       operation = OperationFixtures.create_user()
 
       assert {:error, [%Error{reason: :invalid_header, name: "content-type"}]} =
-               Operation2.cast(
-                 operation,
-                 conn,
-                 "text/html",
-                 SpecModule.spec().components
-               )
+               Operation2.cast(SpecModule.spec(), operation, conn, "text/html")
     end
 
     test "validate invalid content-type header for required requestBody reference" do
@@ -328,12 +318,7 @@ defmodule OpenApiSpex.Operation2Test do
       operation = OperationFixtures.update_user()
 
       assert {:error, [%Error{reason: :invalid_header, name: "content-type"}]} =
-               Operation2.cast(
-                 operation,
-                 conn,
-                 "text/html",
-                 SpecModule.spec().components
-               )
+               Operation2.cast(SpecModule.spec(), operation, conn, "text/html")
     end
 
     test "validate invalid value for integer range" do
@@ -376,13 +361,7 @@ defmodule OpenApiSpex.Operation2Test do
            }
          ]}
 
-      assert expected_response ==
-               Operation2.cast(
-                 operation,
-                 conn,
-                 "text/html",
-                 SpecModule.spec().components
-               )
+      assert expected_response == Operation2.cast(SpecModule.spec(), operation, conn, "text/html")
     end
 
     defp do_index_cast(query_params, opts \\ []) do
@@ -397,10 +376,10 @@ defmodule OpenApiSpex.Operation2Test do
       operation = opts[:operation] || OperationFixtures.user_index()
 
       Operation2.cast(
+        SpecModule.spec(),
         operation,
         conn,
         "application/json",
-        SpecModule.spec().components,
         Keyword.take(opts, [:replace_params])
       )
     end
