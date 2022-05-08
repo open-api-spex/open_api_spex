@@ -12,6 +12,7 @@ defmodule OpenApiSpexTest.Router do
   scope "/api" do
     pipe_through :api
     resources "/users", OpenApiSpexTest.UserController, only: [:create, :index, :show]
+    get "/noapi", OpenApiSpexTest.NoApiController, :noapi
 
     # Used by ParamsTest
     resources "/custom_error_users", OpenApiSpexTest.CustomErrorUserController, only: [:index]
