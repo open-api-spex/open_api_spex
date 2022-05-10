@@ -44,6 +44,32 @@ defmodule OpenApiSpex.CastStringTest do
       assert error.format == :date
     end
 
+    test "casts a string with valid uuid format" do
+      schema = %Schema{type: :string, format: :uuid}
+
+      assert {:ok, "02ef9c5f-29e6-48fc-9ec3-7ed57ed351f6"} =
+               cast(value: "02ef9c5f-29e6-48fc-9ec3-7ed57ed351f6", schema: schema)
+
+      assert {:ok, "02EF9C5F-29E6-48FC-9EC3-7ED57ED351F6"} =
+               cast(value: "02EF9C5F-29E6-48FC-9EC3-7ED57ED351F6", schema: schema)
+    end
+
+    test "returns a cast error with an invalid uuid string" do
+      schema = %Schema{type: :string, format: :uuid}
+
+      assert {:error, [%{reason: :invalid_format, value: "string", format: :uuid}]} =
+               cast(value: "string", schema: schema)
+
+      assert {:error,
+              [
+                %{
+                  reason: :invalid_format,
+                  value: "????????-$$$$-@@@@-9ec3-7ed57ed351f6",
+                  format: :uuid
+                }
+              ]} = cast(value: "????????-$$$$-@@@@-9ec3-7ed57ed351f6", schema: schema)
+    end
+
     test "file upload" do
       schema = %Schema{type: :string, format: :binary}
       upload = %Plug.Upload{}
