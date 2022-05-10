@@ -44,9 +44,10 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
           json_encoder = OpenApiSpex.OpenApi.json_encoder()
           spec = spec.spec()
 
-          json_encoding_result = spec
-          |> OpenApiSpex.OpenApi.to_map(vendor_extensions: vendor_extensions)
-          |> json_encoder.encode(pretty: pretty)
+          json_encoding_result =
+            spec
+            |> OpenApiSpex.OpenApi.to_map(vendor_extensions: vendor_extensions)
+            |> json_encoder.encode(pretty: pretty)
 
           case json_encoding_result do
             {:ok, json} ->
@@ -71,7 +72,10 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   end
 
   defp parse_options(argv) do
-    parse_options = [strict: [spec: :string, endpoint: :string, pretty: :boolean, vendor_extensions: :boolean]]
+    parse_options = [
+      strict: [spec: :string, endpoint: :string, pretty: :boolean, vendor_extensions: :boolean]
+    ]
+
     {opts, args, _} = OptionParser.parse(argv, parse_options)
 
     %Options{

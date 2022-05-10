@@ -83,7 +83,7 @@ defmodule OpenApiSpex.OpenApi do
       defimpl encoder do
         def encode(api_spec = %OpenApi{}, options) do
           api_spec
-          |> OpenApi.to_map
+          |> OpenApi.to_map()
           |> unquote(encoder).encode(options)
         end
       end
