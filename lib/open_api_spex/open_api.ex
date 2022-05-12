@@ -71,6 +71,10 @@ defmodule OpenApiSpex.OpenApi do
   @callback spec() :: t
 
   @json_encoder Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
+  @vendor_extensions ~w(
+    x-struct
+    x-validate
+  )
 
   def json_encoder, do: @json_encoder
 
@@ -79,73 +83,75 @@ defmodule OpenApiSpex.OpenApi do
       defimpl encoder do
         def encode(api_spec = %OpenApi{}, options) do
           api_spec
-          |> to_json()
+          |> OpenApi.to_map()
           |> unquote(encoder).encode(options)
         end
-
-        defp to_json(%Regex{source: source}), do: source
-
-        defp to_json(%object{} = value) when object in [MediaType, Schema, Example] do
-          value
-          |> Extendable.to_map()
-          |> Stream.map(fn
-            {:value, v} when object == Example -> {"value", to_json_example(v)}
-            {:example, v} -> {"example", to_json_example(v)}
-            {k, v} -> {to_string(k), to_json(v)}
-          end)
-          |> Stream.filter(fn
-            {_, nil} -> false
-            _ -> true
-          end)
-          |> Enum.into(%{})
-        end
-
-        defp to_json(value = %{__struct__: _}) do
-          value
-          |> Extendable.to_map()
-          |> to_json()
-        end
-
-        defp to_json(value) when is_map(value) do
-          value
-          |> Stream.map(fn {k, v} -> {to_string(k), to_json(v)} end)
-          |> Stream.filter(fn
-            {_, nil} -> false
-            _ -> true
-          end)
-          |> Enum.into(%{})
-        end
-
-        defp to_json(value) when is_list(value) do
-          Enum.map(value, &to_json/1)
-        end
-
-        defp to_json(nil), do: nil
-        defp to_json(true), do: true
-        defp to_json(false), do: false
-        defp to_json(value) when is_atom(value), do: to_string(value)
-        defp to_json(value), do: value
-
-        defp to_json_example(value = %{__struct__: _}) do
-          value
-          |> Extendable.to_map()
-          |> to_json_example()
-        end
-
-        defp to_json_example(value) when is_map(value) do
-          value
-          |> Stream.map(fn {k, v} -> {to_string(k), to_json_example(v)} end)
-          |> Enum.into(%{})
-        end
-
-        defp to_json_example(value) when is_list(value) do
-          Enum.map(value, &to_json_example/1)
-        end
-
-        defp to_json_example(value), do: to_json(value)
       end
     end
   end
+
+  def to_map(value), do: to_map(value, [])
+  def to_map(%Regex{source: source}, _opts), do: source
+
+  def to_map(%object{} = value, opts) when object in [MediaType, Schema, Example] do
+    value
+    |> Extendable.to_map()
+    |> Stream.map(fn
+      {:value, v} when object == Example -> {"value", to_map_example(v, opts)}
+      {:example, v} -> {"example", to_map_example(v, opts)}
+      {k, v} -> {to_string(k), to_map(v, opts)}
+    end)
+    |> Stream.filter(fn
+      {k, _} when k in @vendor_extensions -> opts[:vendor_extensions]
+      {_, nil} -> false
+      _ -> true
+    end)
+    |> Enum.into(%{})
+  end
+
+  def to_map(value = %{__struct__: _}, opts) do
+    value
+    |> Extendable.to_map()
+    |> to_map(opts)
+  end
+
+  def to_map(value, opts) when is_map(value) do
+    value
+    |> Stream.map(fn {k, v} -> {to_string(k), to_map(v, opts)} end)
+    |> Stream.filter(fn
+      {_, nil} -> false
+      _ -> true
+    end)
+    |> Enum.into(%{})
+  end
+
+  def to_map(value, opts) when is_list(value) do
+    Enum.map(value, &to_map(&1, opts))
+  end
+
+  def to_map(nil, _opts), do: nil
+  def to_map(true, _opts), do: true
+  def to_map(false, _opts), do: false
+  def to_map(value, _opts) when is_atom(value), do: to_string(value)
+  def to_map(value, _opts), do: value
+
+  defp to_map_example(value = %{__struct__: _}, opts) do
+    value
+    |> Extendable.to_map()
+    |> to_map_example(opts)
+  end
+
+  defp to_map_example(value, opts) when is_map(value) do
+    value
+    |> Stream.map(fn {k, v} -> {to_string(k), to_map_example(v, opts)} end)
+    |> Enum.into(%{})
+  end
+
+  defp to_map_example(value, opts) when is_list(value) do
+    Enum.map(value, &to_map_example(&1, opts))
+  end
+
+  defp to_map_example(value, opts), do: to_map(value, opts)
 
   def from_map(map) do
     OpenApi.Decode.decode(map)
