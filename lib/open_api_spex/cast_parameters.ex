@@ -4,13 +4,28 @@ defmodule OpenApiSpex.CastParameters do
   alias OpenApiSpex.Cast.Error
   alias Plug.Conn
 
-  @spec cast(Plug.Conn.t(), Operation.t(), Components.t()) ::
+  @spec cast(Plug.Conn.t(), Operation.t(), Components.t(), opts :: [OpenApiSpex.cast_opt()]) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
-  def cast(conn, operation, components) do
+  def cast(conn, operation, components, opts \\ []) do
+    replace_params = Keyword.get(opts, :replace_params, true)
+
     with {:ok, params} <- cast_to_params(conn, operation, components) do
-      {:ok, %{conn | params: params}}
+      {:ok, conn |> cast_conn(params) |> maybe_replace_params(params, replace_params)}
     end
   end
+
+  defp cast_conn(conn, params) do
+    private_data =
+      conn
+      |> Map.get(:private)
+      |> Map.get(:open_api_spex, %{})
+      |> Map.put(:params, params)
+
+    Plug.Conn.put_private(conn, :open_api_spex, private_data)
+  end
+
+  defp maybe_replace_params(conn, _params, false), do: conn
+  defp maybe_replace_params(conn, params, true), do: %{conn | params: params}
 
   defp cast_to_params(conn, operation, components) do
     operation
