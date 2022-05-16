@@ -77,7 +77,6 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
-
     cast_opts = opts |> Map.take([:replace_params]) |> Map.to_list()
 
     case OpenApiSpex.cast_and_validate(spec, operation, conn, nil, cast_opts) do
