@@ -111,17 +111,21 @@ defmodule OpenApiSpex.Operation do
   """
   @spec request_body(
           description :: String.t(),
-          media_type :: String.t() | %{String.t() => Keyword.t() | map | MediaType.t()},
+          media_type :: String.t() | %{String.t() => Keyword.t() | MediaType.t()},
           schema_ref :: Schema.t() | Reference.t() | module,
           opts :: keyword
         ) :: RequestBody.t()
   def request_body(description, media_type, schema_ref, opts \\ []) do
-    opts = Keyword.new(opts)
-
     content_opts =
-      opts
-      |> Keyword.take([:example, :examples])
-      |> Keyword.put(:schema, schema_ref)
+      case opts do
+        %MediaType{} = media_type ->
+          %MediaType{media_type | schema: schema_ref}
+
+        opts when is_list(opts) ->
+          opts
+          |> Keyword.take([:example, :examples])
+          |> Keyword.put(:schema, schema_ref)
+      end
 
     %RequestBody{
       description: description,
@@ -135,15 +139,21 @@ defmodule OpenApiSpex.Operation do
   """
   @spec response(
           description :: String.t(),
-          media_type :: String.t() | %{String.t() => Keyword.t() | map | MediaType.t()},
+          media_type :: String.t() | %{String.t() => Keyword.t() | MediaType.t()},
           schema_ref :: Schema.t() | Reference.t() | module,
           opts :: keyword
         ) :: Response.t()
   def response(description, media_type, schema_ref, opts \\ []) do
     content_opts =
-      opts
-      |> Keyword.take([:example, :examples])
-      |> Keyword.put(:schema, schema_ref)
+      case opts do
+        %MediaType{} = media_type ->
+          %MediaType{media_type | schema: schema_ref}
+
+        opts when is_list(opts) ->
+          opts
+          |> Keyword.take([:example, :examples])
+          |> Keyword.put(:schema, schema_ref)
+      end
 
     %Response{
       description: description,

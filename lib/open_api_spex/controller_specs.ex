@@ -87,11 +87,15 @@ defmodule OpenApiSpex.ControllerSpecs do
   2. The RequestBody `content` field, consisting of a mapping of content types to their `MediaType` objects,
      or a simple content type string (e.g., "application/json").
      ```elixir
-     content: %{"application/json" => [example: "{[]}"]}
+     content: "application/json"
      ```
      Or:
      ```elixir
-     content: "application/json"
+     content: %{"application/text" => [example: "some text!"]}
+     ```
+     Or:
+     ```elixir
+     content: %{"application/text" => [%OpenApiSpex.MediaType{example: "some text!"}]}
      ```
   3. The default schema of the RequestBody.
   4. A keyword list of options.
