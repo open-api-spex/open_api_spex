@@ -86,6 +86,13 @@ defmodule OpenApiSpex.ControllerSpecs do
   1. The RequestBody `description` field.
   2. The RequestBody `content` field, consisting of a mapping of content types to their `MediaType` objects,
      or a simple content type string (e.g., "application/json").
+     ```elixir
+     content: %{"application/json" => [example: "{[]}"]}
+     ```
+     Or:
+     ```elixir
+     content: "application/json"
+     ```
   3. The default schema of the RequestBody.
   4. A keyword list of options.
 
@@ -124,6 +131,13 @@ defmodule OpenApiSpex.ControllerSpecs do
   1. The ResponseObject `description` field.
   2. The ResponseObject `content` field, consisting of a mapping of content types to their `MediaType` objects,
      or a simple content type string (e.g., "application/json").
+     ```elixir
+     content: %{"application/json" => [example: "{[]}"]}
+     ```
+     Or:
+     ```elixir
+     content: "application/json"
+     ```
   3. The default schema of the response body.
   4. A keyword list of options to add to the `OpenApiSpex.Response` or `OpenApiSpex.MediaType` structs
      that are generated.
