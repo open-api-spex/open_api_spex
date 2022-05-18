@@ -109,17 +109,16 @@ defmodule OpenApiSpex.OperationBuilder do
   defp status_to_code(:default), do: :default
   defp status_to_code(status), do: Plug.Conn.Status.code(status)
 
-  def build_request_body(%{body: {name, mime, schema}}) do
-    IO.warn("Using :body key for requestBody is deprecated. Please use :request_body instead.")
-    Operation.request_body(name, mime, schema)
+  def build_request_body(%{body: {description, media_type, schema}}) do
+    Operation.request_body(description, media_type, schema)
   end
 
-  def build_request_body(%{request_body: {name, mime, schema}}) do
-    Operation.request_body(name, mime, schema)
+  def build_request_body(%{request_body: {description, media_type, schema}}) do
+    Operation.request_body(description, media_type, schema)
   end
 
-  def build_request_body(%{request_body: {name, mime, schema, opts}}) do
-    Operation.request_body(name, mime, schema, opts)
+  def build_request_body(%{request_body: {description, media_type, schema, opts}}) do
+    Operation.request_body(description, media_type, schema, opts)
   end
 
   def build_request_body(_), do: nil
