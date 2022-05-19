@@ -38,6 +38,10 @@ defmodule OpenApiSpex.ControllerSpecsTest do
              } = request_body
 
       assert %MediaType{schema: OpenApiSpexTest.DslController.UserParams} = media_type
+      assert media_type.example == "json example"
+
+      assert text_media_type = request_body.content["application/text"]
+      assert text_media_type.example == "text example"
     end
 
     test ":responses" do
@@ -49,12 +53,17 @@ defmodule OpenApiSpex.ControllerSpecsTest do
       assert %{200 => response} = responses
 
       assert %Response{
-               content: %{"application/json" => media_type},
+               content: content,
                description: "User response",
                headers: %{"content-type" => %OpenApiSpex.Header{}}
              } = response
 
+      assert %{"application/json" => media_type} = content
       assert %MediaType{schema: OpenApiSpexTest.DslController.UserResponse} = media_type
+      assert media_type.example == "json example"
+
+      assert %{"application/text" => media_type} = content
+      assert media_type.example == "text example"
     end
 
     test ":deprecated" do

@@ -93,16 +93,29 @@ defmodule OpenApiSpexTest.DslController do
         }
       }
     },
-    request_body: {"User params", "application/json", UserParams},
+    request_body: {
+      "User params",
+      %{
+        "application/json" => [example: "json example"],
+        "application/text" => [example: "text example"]
+      },
+      UserParams
+    },
     responses: [
-      ok:
-        {"User response", "application/json", UserResponse,
-         headers: %{
-           "content-type" => %OpenApiSpex.Header{
-             description: "Type of the content for the response",
-             example: "content-type: application/json; charset=utf-8"
-           }
-         }}
+      ok: {
+        "User response",
+        %{
+          "application/json" => [example: "json example"],
+          "application/text" => [example: "text example"]
+        },
+        UserResponse,
+        headers: %{
+          "content-type" => %OpenApiSpex.Header{
+            description: "Type of the content for the response",
+            example: "content-type: application/json; charset=utf-8"
+          }
+        }
+      }
     ],
     tags: ["custom"],
     security: [%{"two" => ["another"]}]

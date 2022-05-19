@@ -111,20 +111,25 @@ defmodule OpenApiSpex.Operation do
   """
   @spec request_body(
           description :: String.t(),
-          media_type :: String.t(),
+          media_type :: String.t() | %{String.t() => Keyword.t() | MediaType.t()},
           schema_ref :: Schema.t() | Reference.t() | module,
           opts :: keyword
         ) :: RequestBody.t()
   def request_body(description, media_type, schema_ref, opts \\ []) do
+    content_opts =
+      case opts do
+        %MediaType{} = media_type ->
+          %MediaType{media_type | schema: schema_ref}
+
+        opts when is_list(opts) ->
+          opts
+          |> Keyword.take([:example, :examples])
+          |> Keyword.put(:schema, schema_ref)
+      end
+
     %RequestBody{
       description: description,
-      content: %{
-        media_type => %MediaType{
-          schema: schema_ref,
-          example: opts[:example],
-          examples: opts[:examples]
-        }
-      },
+      content: build_content_map(media_type, content_opts),
       required: opts[:required] || false
     }
   end
@@ -134,21 +139,26 @@ defmodule OpenApiSpex.Operation do
   """
   @spec response(
           description :: String.t(),
-          media_type :: String.t(),
+          media_type :: String.t() | %{String.t() => Keyword.t() | MediaType.t()},
           schema_ref :: Schema.t() | Reference.t() | module,
           opts :: keyword
         ) :: Response.t()
   def response(description, media_type, schema_ref, opts \\ []) do
+    content_opts =
+      case opts do
+        %MediaType{} = media_type ->
+          %MediaType{media_type | schema: schema_ref}
+
+        opts when is_list(opts) ->
+          opts
+          |> Keyword.take([:example, :examples])
+          |> Keyword.put(:schema, schema_ref)
+      end
+
     %Response{
       description: description,
       headers: opts[:headers],
-      content: %{
-        media_type => %MediaType{
-          schema: schema_ref,
-          example: opts[:example],
-          examples: opts[:examples]
-        }
-      }
+      content: build_content_map(media_type, content_opts)
     }
   end
 
@@ -291,5 +301,22 @@ defmodule OpenApiSpex.Operation do
     |> Map.get(content_type)
     |> Map.get(:schema)
     |> Schema.validate(params, schemas)
+  end
+
+  defp build_content_map(media_type, media_type_opts) when is_binary(media_type) do
+    %{
+      media_type => struct!(MediaType, media_type_opts)
+    }
+  end
+
+  defp build_content_map(media_types, shared_opts) when is_map(media_types) do
+    Map.new(media_types, fn {media_type, opts} ->
+      opts = opts |> Keyword.new() |> Keyword.merge(shared_opts)
+      {media_type, struct!(MediaType, opts)}
+    end)
+  end
+
+  defp build_content_map(media_types, _shared_opts) do
+    raise "Expected string or map for request_body: #{inspect(media_types)}"
   end
 end

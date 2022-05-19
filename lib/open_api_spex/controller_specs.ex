@@ -45,6 +45,107 @@ defmodule OpenApiSpex.ControllerSpecs do
   If you use Elixir Formatter, `:open_api_spex` can be added to the `:import_deps`
   list in the `.formatter.exs` file of your project to make parentheses of the
   macros optional.
+
+  `.formatter.exs`:
+
+  ```elixir
+  [
+    import_deps: [:open_api_spex]
+  ]
+  ```
+
+  ## `parameters`
+
+  `parameters` is a keyword list (or map) of request parameters (not body parameters). They each represent the
+  OpenAPI [Parameter Object](https://spec.openapis.org/oas/v3.1.0#parameter-object).
+
+  There is a convenient shortcut `:type` for base data types supported by open api
+
+  ```elixir
+  parameters: [
+    id: [in: :query, type: :integer, required: true, description: "User ID", example: 1001]
+  ]
+  ```
+
+  This is equivalent to:
+
+  ```elixir
+  parameters: [
+    id: [in: :query, schema: %OpenApiSpex.Schema{type: :integer}, required: true, description: "User ID", example: 1001]
+  ]
+  ```
+
+  The keyword value is the parameter name. Each value in the keyword list correlates to a field in the OpenAPI ParameterObject.
+
+  ## `request_body`
+
+  The `request_body` defines the OpenAPI [RequestBodyObject](https://spec.openapis.org/oas/v3.1.0#request-body-object).
+
+  The `request_body` takes a tuple that is 2-4 elements in length. The elements of the tuple are:
+
+  1. The RequestBody `description` field.
+  2. The RequestBody `content` field, consisting of a mapping of content types to their `MediaType` objects,
+     or a simple content type string (e.g., "application/json").
+     ```elixir
+     content: "application/json"
+     ```
+     Or:
+     ```elixir
+     content: %{"application/text" => [example: "some text!"]}
+     ```
+     Or:
+     ```elixir
+     content: %{"application/text" => [%OpenApiSpex.MediaType{example: "some text!"}]}
+     ```
+  3. The default schema of the RequestBody.
+  4. A keyword list of options.
+
+  ## `responses`
+
+  The `responses` key defines the OpenAPI [Responses Object](https://spec.openapis.org/oas/v3.1.0#fixed-fields-7)
+
+  The `responses` value is a keyword list or map that maps the HTTP status to a
+  [ResponseObject](https://spec.openapis.org/oas/v3.1.0#response-object).
+
+  If the the responses is defined using keyword list syntax,
+  the HTTP status codes can be replaced with their text equivalents:
+
+  ```elixir
+  responses: [
+    ok: {"User response", "application/json", MyAppWeb.Schemas.UserResponse},
+    unprocessable_entity: {"Bad request parameters", "application/json", MyAppWeb.Schemas.BadRequestParameters},
+    not_found: {"Not found", "application/json", MyAppWeb.Schemas.NotFound}
+  ]
+  ```
+
+  The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
+
+  Alternately, the HTTP status codes can be specified directly:
+
+  ```elixir
+  responses: %{
+    200 => {"User response", "application/json", MyAppWeb.Schemas.UserResponse},
+    422 => {"Bad request parameters", "application/json", MyAppWeb.Schemas.BadRequestParameters},
+    404 => {"Not found", "application/json", MyAppWeb.Schemas.NotFound}
+  }
+  ```
+
+  The ResponseObject is represented as a tuple that is 2-4 elements in length. The elements of the tuple are:
+
+  1. The ResponseObject `description` field.
+  2. The ResponseObject `content` field, consisting of a mapping of content types to their `MediaType` objects,
+     or a simple content type string (e.g., "application/json").
+     ```elixir
+     content: %{"application/json" => [example: "{[]}"]}
+     ```
+     Or:
+     ```elixir
+     content: "application/json"
+     ```
+  3. The default schema of the response body.
+  4. A keyword list of options to add to the `OpenApiSpex.Response` or `OpenApiSpex.MediaType` structs
+     that are generated.
+
   """
   alias OpenApiSpex.{Operation, OperationBuilder}
 
