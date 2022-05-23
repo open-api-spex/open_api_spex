@@ -3,11 +3,11 @@ defmodule OpenApiSpex.Parameter do
   Defines the `OpenApiSpex.Parameter.t` type.
   """
   alias OpenApiSpex.{
-    Schema,
-    Reference,
     Example,
     MediaType,
-    Parameter
+    Parameter,
+    Reference,
+    Schema
   }
 
   @enforce_keys [:name, :in]

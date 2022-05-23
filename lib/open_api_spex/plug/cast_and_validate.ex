@@ -16,6 +16,15 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
         ...
       end
 
+  Casted params and body params are always stored in `conn.private`.
+  The option `:replace_params` can be set to false to avoid overwriting conn `:body_params` and `:params`
+  with their casted version.
+
+      plug OpenApiSpex.Plug.CastAndValidate,
+        json_render_error_v2: true,
+        operation_id: "MyApp.ShowUser",
+        replace_params: false
+
   If you want customize the error response, you can provide the `:render_error` option to register a plug which creates
   a custom response in the case of a validation error.
 
@@ -43,6 +52,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
   @behaviour Plug
 
   alias OpenApiSpex.Plug.PutApiSpec
+  alias Plug.Conn
 
   @impl Plug
   def init(opts) do
@@ -57,22 +67,28 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
   end
 
   @impl Plug
-  def call(conn = %{private: %{open_api_spex: _}}, %{
-        operation_id: operation_id,
-        render_error: render_error
-      }) do
+  def call(
+        conn = %{private: %{open_api_spex: _}},
+        %{
+          operation_id: operation_id,
+          render_error: render_error
+        } = opts
+      ) do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
-    with {:ok, conn} <- OpenApiSpex.cast_and_validate(spec, operation, conn) do
-      conn
-    else
+    cast_opts = opts |> Map.take([:replace_params]) |> Map.to_list()
+
+    case OpenApiSpex.cast_and_validate(spec, operation, conn, nil, cast_opts) do
+      {:ok, conn} ->
+        conn
+
       {:error, errors} ->
         errors = render_error.init(errors)
 
         conn
         |> render_error.call(errors)
-        |> Plug.Conn.halt()
+        |> Conn.halt()
     end
   end
 

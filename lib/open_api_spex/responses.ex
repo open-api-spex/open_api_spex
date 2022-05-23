@@ -2,7 +2,7 @@ defmodule OpenApiSpex.Responses do
   @moduledoc """
   Defines the `OpenApiSpex.Responses.t` type.
   """
-  alias OpenApiSpex.{Response, Reference}
+  alias OpenApiSpex.{Reference, Response}
 
   @typedoc """
   [Responses Object](https://swagger.io/specification/#responsesObject)

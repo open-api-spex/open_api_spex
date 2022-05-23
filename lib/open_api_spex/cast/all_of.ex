@@ -15,8 +15,10 @@ defmodule OpenApiSpex.Cast.AllOf do
         cast_all_of(new_ctx, Utils.merge_maps(acc || %{}, value))
 
       {:ok, value} ->
-        # allOf definitions with primitives are a little bit strange..., we just return the cast for the first Schema,
-        # but validate the values against every other schema as well, since the value must be compatible with all Schemas
+        # allOf definitions with primitives are a little bit strange.
+        # we just return the cast for the first Schema, but validate
+        # the values against every other schema as well, since the value
+        # must be compatible with all Schemas
         cast_all_of(new_ctx, acc || value)
 
       {:error, errors} ->

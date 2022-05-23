@@ -49,7 +49,7 @@ defmodule OpenApiSpex.JsonErrorResponse do
   """
   def response do
     Operation.response(
-      "Unprocessible Entity",
+      "Unprocessable Entity",
       "application/json",
       __MODULE__
     )

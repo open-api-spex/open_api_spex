@@ -3,16 +3,16 @@ defmodule OpenApiSpex.SchemaResolver do
   Internal module used to resolve `OpenApiSpex.Schema` structs from atoms.
   """
   alias OpenApiSpex.{
-    OpenApi,
     Components,
-    PathItem,
+    MediaType,
+    OpenApi,
     Operation,
     Parameter,
+    PathItem,
     Reference,
-    MediaType,
-    Schema,
     RequestBody,
-    Response
+    Response,
+    Schema
   }
 
   @doc """

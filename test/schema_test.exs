@@ -181,6 +181,11 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(schema) == "2020-04-20T16:20:00Z"
     end
 
+    test "string :uuid format" do
+      schema = %Schema{type: :string, format: :uuid}
+      assert Schema.example(schema) == "02ef9c5f-29e6-48fc-9ec3-7ed57ed351f6"
+    end
+
     test "example for schema module" do
       defmodule Bar do
         require OpenApiSpex

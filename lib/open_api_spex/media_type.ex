@@ -2,7 +2,7 @@ defmodule OpenApiSpex.MediaType do
   @moduledoc """
   Defines the `OpenApiSpex.MediaType.t` type.
   """
-  alias OpenApiSpex.{Schema, Reference, Example, Encoding}
+  alias OpenApiSpex.{Encoding, Example, Reference, Schema}
 
   defstruct [
     :schema,

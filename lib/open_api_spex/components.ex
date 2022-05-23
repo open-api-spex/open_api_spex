@@ -3,17 +3,17 @@ defmodule OpenApiSpex.Components do
   Defines the `OpenApiSpex.Components.t` type.
   """
   alias OpenApiSpex.{
-    Schema,
-    Reference,
-    Response,
-    Parameter,
-    Example,
-    RequestBody,
-    Header,
-    SecurityScheme,
-    Link,
     Callback,
-    Components
+    Components,
+    Example,
+    Header,
+    Link,
+    Parameter,
+    Reference,
+    RequestBody,
+    Response,
+    Schema,
+    SecurityScheme
   }
 
   defstruct [

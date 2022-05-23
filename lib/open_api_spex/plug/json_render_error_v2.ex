@@ -9,8 +9,8 @@ defmodule OpenApiSpex.Plug.JsonRenderErrorV2 do
   """
   @behaviour Plug
 
-  alias Plug.Conn
   alias OpenApiSpex.OpenApi
+  alias Plug.Conn
 
   @impl Plug
   def init(errors), do: errors

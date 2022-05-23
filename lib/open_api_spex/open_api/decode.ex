@@ -1,5 +1,6 @@
 defmodule OpenApiSpex.OpenApi.Decode do
-  # This module exposes functionality to convert an arbitrary map into a OpenApi struct.
+  @moduledoc "This module exposes functionality to convert an arbitrary map into a OpenApi struct."
+
   alias OpenApiSpex.{
     Components,
     Contact,
@@ -57,10 +58,12 @@ defmodule OpenApiSpex.OpenApi.Decode do
   end
 
   defp map_get(map, atom_key) when is_atom(atom_key) do
-    with %{^atom_key => value} <- map do
-      {atom_key, value}
-    else
-      _ -> map_get(map, to_string(atom_key))
+    case map do
+      %{^atom_key => value} ->
+        {atom_key, value}
+
+      _ ->
+        map_get(map, to_string(atom_key))
     end
   end
 

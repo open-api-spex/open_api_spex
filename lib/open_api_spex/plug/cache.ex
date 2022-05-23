@@ -24,7 +24,7 @@ defmodule OpenApiSpex.Plug.Cache do
   alias OpenApiSpex.OpenApi
 
   default_adapter =
-    if(function_exported?(:persistent_term, :info, 0)) do
+    if function_exported?(:persistent_term, :info, 0) do
       OpenApiSpex.Plug.PersistentTermCache
     else
       OpenApiSpex.Plug.AppEnvCache
