@@ -2,7 +2,7 @@ defmodule OpenApiSpex.Encoding do
   @moduledoc """
   Defines the `OpenApiSpex.Encoding.t` type.
   """
-  alias OpenApiSpex.{Header, Reference, Parameter}
+  alias OpenApiSpex.{Header, Parameter, Reference}
 
   defstruct [
     :contentType,

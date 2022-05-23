@@ -3,7 +3,7 @@ defmodule OpenApiSpex.PathItem do
   Defines the `OpenApiSpex.PathItem.t` type.
   """
 
-  alias OpenApiSpex.{Operation, Server, Parameter, PathItem, Reference}
+  alias OpenApiSpex.{Operation, Parameter, PathItem, Reference, Server}
 
   defstruct [
     :"$ref",

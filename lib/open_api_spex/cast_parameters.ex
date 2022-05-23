@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.CastParameters do
   @moduledoc false
-  alias OpenApiSpex.{Cast, Operation, Parameter, Schema, Reference, Components}
+  alias OpenApiSpex.{Cast, Components, Operation, Parameter, Reference, Schema}
   alias OpenApiSpex.Cast.Error
   alias Plug.Conn
 

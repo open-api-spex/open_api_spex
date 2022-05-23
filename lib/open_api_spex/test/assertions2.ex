@@ -3,6 +3,8 @@ defmodule OpenApiSpex.Test.Assertions2 do
   Defines helpers for testing API responses and examples against API spec schemas.
   """
 
+  alias OpenApiSpex.OpenApi
+
   @doc """
   Asserts that `value` conforms to the schema with title `schema_title` in `api_spec`.
   """

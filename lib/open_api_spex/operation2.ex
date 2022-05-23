@@ -5,10 +5,10 @@ defmodule OpenApiSpex.Operation2 do
   alias OpenApiSpex.{
     Cast,
     CastParameters,
-    Operation,
-    RequestBody,
     Components,
-    Reference
+    Operation,
+    Reference,
+    RequestBody
   }
 
   alias OpenApiSpex.Cast.Error

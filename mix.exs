@@ -8,7 +8,7 @@ defmodule OpenApiSpex.Mixfile do
     [
       app: :open_api_spex,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       consolidate_protocols: Mix.env() != :test,
@@ -55,12 +55,13 @@ defmodule OpenApiSpex.Mixfile do
 
   defp deps do
     [
-      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:jason, "~> 1.0", optional: true},
       {:phoenix, "~> 1.3", only: [:dev, :test]},
       {:plug, "~> 1.7"},
-      {:poison, "~> 3.1 or ~> 4.0", optional: true}
+      {:poison, "~> 4.0 or ~> 5.0", optional: true}
     ]
   end
 
@@ -83,10 +84,8 @@ defmodule OpenApiSpex.Mixfile do
 
   defp dialyzer do
     [
-      plt_add_apps: [:mix, :jason, :poison],
-      plt_add_deps: :apps_direct,
-      flags: ["-Werror_handling", "-Wno_unused", "-Wunmatched_returns", "-Wunderspecs"],
-      remove_defaults: [:unknown]
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
+      plt_add_apps: [:ex_unit, :mix, :jason, :poison]
     ]
   end
 end

@@ -398,7 +398,7 @@ defmodule OpenApiSpex.Plug.CastTest do
 
       conn =
         :post
-        |> Plug.Test.conn("api/utility/echo/body_params", Jason.encode!(request_body))
+        |> Plug.Test.conn("/api/utility/echo/body_params", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 

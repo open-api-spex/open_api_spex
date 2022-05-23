@@ -52,6 +52,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
   @behaviour Plug
 
   alias OpenApiSpex.Plug.PutApiSpec
+  alias Plug.Conn
 
   @impl Plug
   def init(opts) do
@@ -78,15 +79,16 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
     cast_opts = opts |> Map.take([:replace_params]) |> Map.to_list()
 
-    with {:ok, conn} <- OpenApiSpex.cast_and_validate(spec, operation, conn, nil, cast_opts) do
-      conn
-    else
+    case OpenApiSpex.cast_and_validate(spec, operation, conn, nil, cast_opts) do
+      {:ok, conn} ->
+        conn
+
       {:error, errors} ->
         errors = render_error.init(errors)
 
         conn
         |> render_error.call(errors)
-        |> Plug.Conn.halt()
+        |> Conn.halt()
     end
   end
 

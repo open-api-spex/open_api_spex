@@ -12,7 +12,8 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
 
       plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec
   """
-  alias OpenApiSpex.OpenApi
+  alias OpenApiSpex.{OpenApi, Operation}
+  alias Plug.Conn
 
   @behaviour Plug
 

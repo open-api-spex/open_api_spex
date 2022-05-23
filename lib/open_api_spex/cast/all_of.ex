@@ -17,13 +17,11 @@ defmodule OpenApiSpex.Cast.AllOf do
         {:ok, Enum.concat(acc, value)}
 
       {:error, errors} ->
-        with {:ok, cleaned_ctx} <- reject_error_values(ctx, errors) do
-          case Cast.cast(cleaned_ctx) do
-            {:ok, cleaned_values} ->
-              new_ctx = put_in(ctx.schema.allOf, remaining)
-              new_ctx = update_in(new_ctx.value, fn values -> values -- cleaned_ctx.value end)
-              cast_all_of(new_ctx, Enum.concat(acc, cleaned_values))
-          end
+        with {:ok, cleaned_ctx} <- reject_error_values(ctx, errors),
+             {:ok, cleaned_values} <- Cast.cast(cleaned_ctx) do
+          new_ctx = put_in(ctx.schema.allOf, remaining)
+          new_ctx = update_in(new_ctx.value, fn values -> values -- cleaned_ctx.value end)
+          cast_all_of(new_ctx, Enum.concat(acc, cleaned_values))
         else
           _ -> Cast.error(ctx, {:all_of, to_string(schema.title || schema.type)})
         end
@@ -48,8 +46,10 @@ defmodule OpenApiSpex.Cast.AllOf do
         cast_all_of(new_ctx, acc)
 
       {:ok, value} ->
-        # allOf definitions with primitives are a little bit strange..., we just return the cast for the first Schema,
-        # but validate the values against every other schema as well, since the value must be compatible with all Schemas
+        # allOf definitions with primitives are a little bit strange.
+        # we just return the cast for the first Schema, but validate
+        # the values against every other schema as well, since the value
+        # must be compatible with all Schemas
         cast_all_of(new_ctx, acc || value)
 
       {:error, _} ->

@@ -8,6 +8,7 @@ defmodule OpenApiSpex.Operation do
     MediaType,
     Operation,
     Parameter,
+    PathItem,
     Reference,
     RequestBody,
     Response,
@@ -16,6 +17,8 @@ defmodule OpenApiSpex.Operation do
     SecurityRequirement,
     Server
   }
+
+  alias Plug.Conn
 
   @enforce_keys :responses
   defstruct tags: [],
@@ -249,10 +252,8 @@ defmodule OpenApiSpex.Operation do
     with :ok <- validate_required_parameters(operation.parameters || [], conn.params),
          parameters <-
            Enum.filter(operation.parameters || [], &Map.has_key?(conn.params, &1.name)),
-         :ok <- validate_parameter_schemas(parameters, conn.params, schemas),
-         :ok <-
-           validate_body_schema(operation.requestBody, conn.body_params, content_type, schemas) do
-      :ok
+         :ok <- validate_parameter_schemas(parameters, conn.params, schemas) do
+      validate_body_schema(operation.requestBody, conn.body_params, content_type, schemas)
     end
   end
 
