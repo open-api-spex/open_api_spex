@@ -1,7 +1,7 @@
 defmodule OpenApiSpex.OperationBuilder do
   @moduledoc false
 
-  alias OpenApiSpex.{ExternalDocumentation, Operation, Parameter, Reference, Response}
+  alias OpenApiSpex.{ExternalDocumentation, Operation, Parameter, Reference, RequestBody, Response}
   alias Plug.Conn.Status
 
   def ensure_type_and_schema_exclusive!(name, type, schema) do
@@ -113,6 +113,8 @@ defmodule OpenApiSpex.OperationBuilder do
   def build_request_body(%{body: {description, media_type, schema}}) do
     Operation.request_body(description, media_type, schema)
   end
+
+  def build_request_body(%{request_body: %RequestBody{} = request_body}), do: request_body
 
   def build_request_body(%{request_body: {description, media_type, schema}}) do
     Operation.request_body(description, media_type, schema)
