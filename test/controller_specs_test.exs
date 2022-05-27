@@ -5,6 +5,7 @@ defmodule OpenApiSpex.ControllerSpecsTest do
 
   alias OpenApiSpex.{MediaType, RequestBody, Response}
   alias OpenApiSpexTest.DslController
+  alias OpenApiSpexTest.DslControllerOperationStructs
 
   describe "operation/1" do
     test "supports :parameters" do
@@ -64,6 +65,47 @@ defmodule OpenApiSpex.ControllerSpecsTest do
 
       assert %{"application/text" => media_type} = content
       assert media_type.example == "text example"
+    end
+
+    test "supports Parameter, RequestBody and Response structs" do
+      assert %OpenApiSpex.Operation{
+               summary: "Update user",
+               requestBody: request_body,
+               responses: responses
+             } = DslControllerOperationStructs.open_api_operation(:update)
+
+      assert %{200 => response} = responses
+
+      assert %Response{
+               content: content,
+               description: "User response",
+               headers: %{"content-type" => %OpenApiSpex.Header{}}
+             } = response
+
+      assert %{
+               "application/json" => %MediaType{
+                 schema: OpenApiSpexTest.DslController.UserResponse,
+                 example: "json example response"
+               },
+               "application/text" => %MediaType{
+                 schema: OpenApiSpexTest.DslController.UserResponse,
+                 example: "text example response"
+               }
+             } = content
+
+      assert %RequestBody{
+               content: %{
+                 "application/json" => %MediaType{
+                   schema: OpenApiSpexTest.DslController.UserParams,
+                   example: "json example request"
+                 },
+                 "application/text" => %MediaType{
+                   schema: OpenApiSpexTest.DslController.UserParams,
+                   example: "text example request"
+                 }
+               },
+               description: "User params"
+             } = request_body
     end
 
     test ":deprecated" do
