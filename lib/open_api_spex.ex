@@ -399,9 +399,19 @@ defmodule OpenApiSpex do
   @doc """
   Resolve a schema or reference to a schema.
   """
-  @spec resolve_schema(Schema.t() | Reference.t(), Components.schemas_map()) :: Schema.t()
+  @spec resolve_schema(Schema.t() | Reference.t() | module, Components.schemas_map()) ::
+          Schema.t()
   def resolve_schema(%Schema{} = schema, _), do: schema
   def resolve_schema(%Reference{} = ref, schemas), do: Reference.resolve_schema(ref, schemas)
+
+  def resolve_schema(mod, _) when is_atom(mod) do
+    IO.warn("""
+    Unresolved schema module: #{inspect(mod)}.
+    Use OpenApiSpex.resolve_schema_modules/1 to resolve modules ahead of time.
+    """)
+
+    mod.schema()
+  end
 
   @doc """
   Get casted body params from a `Plug.Conn`.
