@@ -8,6 +8,7 @@ defmodule OpenApiSpex.Server do
   defstruct [
     :url,
     :description,
+    :extensions,
     variables: %{}
   ]
 
@@ -19,7 +20,8 @@ defmodule OpenApiSpex.Server do
   @type t :: %Server{
           url: String.t(),
           description: String.t() | nil,
-          variables: %{String.t() => ServerVariable.t()}
+          variables: %{String.t() => ServerVariable.t()},
+          extensions: %{String.t() => any()} | nil
         }
 
   @doc """

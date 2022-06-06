@@ -6,7 +6,8 @@ defmodule OpenApiSpex.OAuthFlow do
     :authorizationUrl,
     :tokenUrl,
     :refreshUrl,
-    :scopes
+    :scopes,
+    :extensions
   ]
 
   @typedoc """
@@ -18,6 +19,7 @@ defmodule OpenApiSpex.OAuthFlow do
           authorizationUrl: String.t() | nil,
           tokenUrl: String.t() | nil,
           refreshUrl: String.t() | nil,
-          scopes: %{String.t() => String.t()} | nil
+          scopes: %{String.t() => String.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

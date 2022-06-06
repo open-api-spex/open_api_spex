@@ -184,7 +184,8 @@ defmodule OpenApiSpex.Schema do
     :example,
     :deprecated,
     :"x-struct",
-    :"x-validate"
+    :"x-validate",
+    :extensions
   ]
 
   @typedoc """
@@ -250,7 +251,8 @@ defmodule OpenApiSpex.Schema do
           example: any,
           deprecated: boolean | nil,
           "x-struct": module | nil,
-          "x-validate": module | nil
+          "x-validate": module | nil,
+          extensions: %{String.t() => any()} | nil
         }
 
   @typedoc """

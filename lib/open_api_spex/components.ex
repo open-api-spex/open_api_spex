@@ -25,7 +25,8 @@ defmodule OpenApiSpex.Components do
     :headers,
     :securitySchemes,
     :links,
-    :callbacks
+    :callbacks,
+    :extensions
   ]
 
   @type schemas_map :: %{String.t() => Schema.t() | Reference.t()}
@@ -47,6 +48,7 @@ defmodule OpenApiSpex.Components do
           headers: %{String.t() => Header.t() | Reference.t()} | nil,
           securitySchemes: %{String.t() => SecurityScheme.t() | Reference.t()} | nil,
           links: %{String.t() => Link.t() | Reference.t()} | nil,
-          callbacks: %{String.t() => Callback.t() | Reference.t()} | nil
+          callbacks: %{String.t() => Callback.t() | Reference.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

@@ -7,7 +7,8 @@ defmodule OpenApiSpex.ServerVariable do
   defstruct [
     :enum,
     :default,
-    :description
+    :description,
+    :extensions
   ]
 
   @typedoc """
@@ -18,6 +19,7 @@ defmodule OpenApiSpex.ServerVariable do
   @type t :: %__MODULE__{
           enum: [String.t()] | nil,
           default: String.t(),
-          description: String.t() | nil
+          description: String.t() | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end
