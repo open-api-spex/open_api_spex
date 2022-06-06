@@ -66,7 +66,7 @@ defmodule OpenApiSpex.CastOneOfTest do
                  valid_schemas: []
                },
                name: nil,
-               path: ["pet_type"],
+               path: [],
                reason: :one_of,
                type: nil,
                value: %{"fur" => "grey", "pet_type" => "Wolf"}
