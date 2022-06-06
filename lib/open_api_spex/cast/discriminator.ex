@@ -47,11 +47,7 @@ defmodule OpenApiSpex.Cast.Discriminator do
       discriminator_value ->
         # The cast specified by the composite key (allOf, anyOf, oneOf) MUST succeed
         # or return an error according to the Open API Spec.
-        composite_ctx = %{
-          ctx
-          | schema: %{schema | discriminator: nil},
-            path: ["#{discriminator_property}" | ctx.path]
-        }
+        composite_ctx = %{ctx | schema: %{schema | discriminator: nil}}
 
         cast_composition(composite_ctx, ctx, discriminator_value, mappings)
     end
