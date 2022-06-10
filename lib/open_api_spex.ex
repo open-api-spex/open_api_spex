@@ -94,7 +94,7 @@ defmodule OpenApiSpex do
         opts \\ []
       ) do
     content_type = content_type || content_type_from_header(conn)
-    Operation2.cast(operation, conn, content_type, spec.components, opts)
+    Operation2.cast(spec, operation, conn, content_type, opts)
   end
 
   defp content_type_from_header(conn = %Plug.Conn{}) do
@@ -416,4 +416,26 @@ defmodule OpenApiSpex do
   """
   @spec params(Plug.Conn.t()) :: nil | map()
   def params(%Plug.Conn{} = conn), do: get_in(conn.private, [:open_api_spex, :params])
+
+  @doc """
+
+  """
+  @spec add_parameter_content_parser(
+          OpenApi.t(),
+          content_type | [content_type],
+          parser :: module()
+        ) :: OpenApi.t()
+        when content_type: String.t() | Regex.t()
+  def add_parameter_content_parser(%OpenApi{extensions: ext} = spec, content_type, parser) do
+    extensions = ext || %{}
+
+    param_parsers = Map.get(extensions, "x-parameter-content-parsers", %{})
+
+    param_parsers =
+      content_type
+      |> List.wrap()
+      |> Enum.reduce(param_parsers, fn ct, acc -> Map.put(acc, ct, parser) end)
+
+    %OpenApi{spec | extensions: Map.put(extensions, "x-parameter-content-parsers", param_parsers)}
+  end
 end

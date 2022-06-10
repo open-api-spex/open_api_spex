@@ -6,6 +6,7 @@ defmodule OpenApiSpex.Operation2 do
     Cast,
     CastParameters,
     Components,
+    OpenApi,
     Operation,
     Reference,
     RequestBody
@@ -15,23 +16,23 @@ defmodule OpenApiSpex.Operation2 do
   alias Plug.Conn
 
   @spec cast(
+          OpenApi.t(),
           Operation.t(),
           Conn.t(),
           String.t() | nil,
-          Components.t(),
           opts :: [OpenApiSpex.cast_opt()]
         ) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
   def cast(
+        spec = %OpenApi{components: components},
         operation = %Operation{},
         conn = %Conn{},
         content_type,
-        components = %Components{},
         opts \\ []
       ) do
     replace_params = Keyword.get(opts, :replace_params, true)
 
-    with {:ok, conn} <- cast_parameters(conn, operation, components, opts),
+    with {:ok, conn} <- cast_parameters(conn, operation, spec, opts),
          {:ok, body} <-
            cast_request_body(operation.requestBody, conn.body_params, content_type, components) do
       {:ok, conn |> cast_conn(body) |> maybe_replace_body(body, replace_params)}
@@ -53,8 +54,8 @@ defmodule OpenApiSpex.Operation2 do
   defp maybe_replace_body(conn, _body, false), do: conn
   defp maybe_replace_body(conn, body, true), do: %{conn | body_params: body}
 
-  defp cast_parameters(conn, operation, components, opts) do
-    CastParameters.cast(conn, operation, components, opts)
+  defp cast_parameters(conn, operation, spec, opts) do
+    CastParameters.cast(conn, operation, spec, opts)
   end
 
   defp cast_request_body(ref = %Reference{}, body_params, content_type, components) do
