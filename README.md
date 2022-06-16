@@ -373,7 +373,7 @@ defmodule MyAppWeb.UserController do
     ],
     request_body: {"The user attributes", "application/json", UserParams},
     responses: %{
-      201 => {"User", "application/json", UserResponse}
+      201 => {"User", "application/json", UserResponse},
       422 => OpenApiSpex.JsonErrorResponse.response()
     }
   def update(
