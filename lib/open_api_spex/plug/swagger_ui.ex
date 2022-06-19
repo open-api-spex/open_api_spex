@@ -40,7 +40,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     <head>
       <meta charset="UTF-8">
       <title>Swagger UI</title>
-      <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.34.0/swagger-ui.css" >
+      <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.css" >
       <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
       <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
       <style>
@@ -66,8 +66,8 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     <body>
     <div id="swagger-ui"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.34.0/swagger-ui-bundle.js" charset="UTF-8"> </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.34.0/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui-bundle.js" charset="UTF-8"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
     <script>
     window.onload = function() {
       // Begin Swagger UI call region
@@ -193,7 +193,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   end
 
   defp supplement_config(%{oauth2_redirect_url: {:endpoint_url, path}} = config, conn) do
-    endpoint_module = apply(Phoenix.Controller, :endpoint_module, [conn])
+    endpoint_module = Phoenix.Controller.endpoint_module(conn)
     url = Path.join(endpoint_module.url(), path)
     Map.put(config, :oauth2_redirect_url, url)
   end

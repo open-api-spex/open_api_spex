@@ -24,6 +24,22 @@ defmodule OpenApiSpex.Plug.CastTest do
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
+      assert conn.private.open_api_spex.params == conn.params
+
+      assert OpenApiSpex.params(conn) == %{validParam: true}
+    end
+
+    test "Valid Param with replace_params false" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users_no_replace?validParam=true")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+      assert conn.private.open_api_spex.params == %{validParam: true}
+      assert conn.params == %{"validParam" => "true"}
+
+      assert OpenApiSpex.params(conn) == %{validParam: true}
     end
 
     @tag :capture_log
@@ -90,6 +106,7 @@ defmodule OpenApiSpex.Plug.CastTest do
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
+      assert conn.private.open_api_spex.params == conn.params
     end
   end
 
@@ -101,6 +118,7 @@ defmodule OpenApiSpex.Plug.CastTest do
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
+      assert conn.private.open_api_spex.params == conn.params
     end
 
     @tag :capture_log
@@ -137,21 +155,25 @@ defmodule OpenApiSpex.Plug.CastTest do
         }
       }
 
+      casted_body = %OpenApiSpexTest.Schemas.UserRequest{
+        user: %OpenApiSpexTest.Schemas.User{
+          id: 123,
+          name: "asdf",
+          email: "foo@bar.com",
+          password: "0123456789",
+          updated_at: ~N[2017-09-12T14:44:55Z] |> DateTime.from_naive!("Etc/UTC")
+        }
+      }
+
       conn =
         :post
         |> Plug.Test.conn("/api/users", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
         |> OpenApiSpexTest.Router.call([])
 
-      assert conn.body_params == %OpenApiSpexTest.Schemas.UserRequest{
-               user: %OpenApiSpexTest.Schemas.User{
-                 id: 123,
-                 name: "asdf",
-                 email: "foo@bar.com",
-                 password: "0123456789",
-                 updated_at: ~N[2017-09-12T14:44:55Z] |> DateTime.from_naive!("Etc/UTC")
-               }
-             }
+      assert conn.body_params == casted_body
+
+      assert conn.private.open_api_spex.body_params == conn.body_params
 
       assert Jason.decode!(conn.resp_body) == %{
                "data" => %{
@@ -162,6 +184,8 @@ defmodule OpenApiSpex.Plug.CastTest do
                  "updated_at" => "2017-09-12T14:44:55Z"
                }
              }
+
+      assert OpenApiSpex.body_params(conn) == casted_body
     end
 
     @tag :capture_log
@@ -193,6 +217,50 @@ defmodule OpenApiSpex.Plug.CastTest do
                "title" => "Invalid value"
              }
     end
+
+    test "Valid Request with replace_params false" do
+      request_body = %{
+        "user" => %{
+          "id" => 123,
+          "name" => "asdf",
+          "email" => "foo@bar.com",
+          "password" => "0123456789",
+          "updated_at" => "2017-09-12T14:44:55Z"
+        }
+      }
+
+      casted_body = %OpenApiSpexTest.Schemas.UserRequest{
+        user: %OpenApiSpexTest.Schemas.User{
+          id: 123,
+          name: "asdf",
+          email: "foo@bar.com",
+          password: "0123456789",
+          updated_at: ~N[2017-09-12T14:44:55Z] |> DateTime.from_naive!("Etc/UTC")
+        }
+      }
+
+      conn =
+        :post
+        |> Plug.Test.conn("/api/users_no_replace", Jason.encode!(request_body))
+        |> Plug.Conn.put_req_header("content-type", "application/json; charset=UTF-8")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.private.open_api_spex.body_params == casted_body
+
+      assert conn.body_params == request_body
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "data" => %{
+                 "email" => "foo@bar.com",
+                 "id" => 1234,
+                 "inserted_at" => nil,
+                 "name" => "asdf",
+                 "updated_at" => "2017-09-12T14:44:55Z"
+               }
+             }
+
+      assert OpenApiSpex.body_params(conn) == casted_body
+    end
   end
 
   describe "oneOf body params" do
@@ -216,6 +284,8 @@ defmodule OpenApiSpex.Plug.CastTest do
                  bark: "woof"
                }
              }
+
+      assert conn.private.open_api_spex.body_params == conn.body_params
 
       assert Jason.decode!(conn.resp_body) == %{
                "data" => %{
@@ -339,7 +409,7 @@ defmodule OpenApiSpex.Plug.CastTest do
 
       conn =
         :post
-        |> Plug.Test.conn("api/utility/echo/body_params", Jason.encode!(request_body))
+        |> Plug.Test.conn("/api/utility/echo/body_params", Jason.encode!(request_body))
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> OpenApiSpexTest.Router.call([])
 

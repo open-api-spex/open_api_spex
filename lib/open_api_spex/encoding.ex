@@ -2,14 +2,15 @@ defmodule OpenApiSpex.Encoding do
   @moduledoc """
   Defines the `OpenApiSpex.Encoding.t` type.
   """
-  alias OpenApiSpex.{Header, Reference, Parameter}
+  alias OpenApiSpex.{Header, Parameter, Reference}
 
   defstruct [
     :contentType,
     :headers,
     :style,
     :explode,
-    :allowReserved
+    :allowReserved,
+    :extensions
   ]
 
   @typedoc """
@@ -22,6 +23,7 @@ defmodule OpenApiSpex.Encoding do
           headers: %{String.t() => Header.t() | Reference.t()} | nil,
           style: Parameter.style() | nil,
           explode: boolean | nil,
-          allowReserved: boolean | nil
+          allowReserved: boolean | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

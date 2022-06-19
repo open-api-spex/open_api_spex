@@ -15,9 +15,9 @@ defmodule OpenApiSpex.CastParametersTest do
     test "fails for unsupported additional properties " do
       conn = create_conn_with_unexpected_path_param()
       operation = create_operation()
-      components = create_components()
+      spec = spec_with_components()
 
-      cast_result = CastParameters.cast(conn, operation, components)
+      cast_result = CastParameters.cast(conn, operation, spec)
 
       expected_response =
         {:error,
@@ -40,17 +40,17 @@ defmodule OpenApiSpex.CastParametersTest do
     test "default parameter values are supplied" do
       conn = create_conn()
       operation = create_operation()
-      components = create_components()
-      {:ok, conn} = CastParameters.cast(conn, operation, components)
+      spec = spec_with_components()
+      {:ok, conn} = CastParameters.cast(conn, operation, spec)
       assert %{params: %{includeInactive: false}} = conn
     end
 
     test "casting of headers is case-insensitive" do
       conn = create_conn()
       operation = create_operation()
-      components = create_components()
+      spec = spec_with_components()
 
-      {:ok, conn} = CastParameters.cast(conn, operation, components)
+      {:ok, conn} = CastParameters.cast(conn, operation, spec)
 
       assert %{params: %{"Content-Type": "application/json"}} = conn
     end
@@ -91,9 +91,10 @@ defmodule OpenApiSpex.CastParametersTest do
         }
       }
 
-      components = %Components{
-        schemas: %{"SizeParams" => schema}
-      }
+      spec =
+        spec_with_components(%Components{
+          schemas: %{"SizeParams" => schema}
+        })
 
       sizes_param = "S,M,L"
 
@@ -103,41 +104,12 @@ defmodule OpenApiSpex.CastParametersTest do
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> Plug.Conn.fetch_query_params()
 
-      assert {:ok, conn} = CastParameters.cast(conn, operation, components)
+      assert {:ok, conn} = CastParameters.cast(conn, operation, spec)
       assert %{params: %{sizes: ["S", "M", "L"]}} = conn
     end
 
-    test "cast json query params" do
-      schema = %Schema{
-        type: :object,
-        title: "FilterParams",
-        properties: %{
-          size: %Schema{type: :string, pattern: "^XS|S|M|L|XL$"},
-          color: %Schema{type: :string}
-        }
-      }
-
-      parameter = %Parameter{
-        in: :query,
-        name: :filter,
-        required: false,
-        content: %{
-          "application/json" => %MediaType{
-            schema: %Reference{"$ref": "#/components/schemas/FilterParams"}
-          }
-        }
-      }
-
-      operation = %Operation{
-        parameters: [parameter],
-        responses: %{
-          200 => %Schema{type: :object}
-        }
-      }
-
-      components = %Components{
-        schemas: %{"FilterParams" => schema}
-      }
+    test "cast json query params with default parser" do
+      {operation, spec} = json_query_spec_operation()
 
       filter_json =
         %{size: "S", color: "blue"}
@@ -150,10 +122,74 @@ defmodule OpenApiSpex.CastParametersTest do
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> Plug.Conn.fetch_query_params()
 
-      # Referencing issue: https://github.com/open-api-spex/open_api_spex/issues/349
-      # Ideally, this would be a successful cast, the JSON parameter would be decoded as
-      # part of the casting process. However, that behavior is not yet supported.
-      CastParameters.cast(conn, operation, components)
+      assert {:ok, conn} = CastParameters.cast(conn, operation, spec)
+      assert %{params: %{filter: %{size: "S", color: "blue"}}} = conn
+    end
+
+    test "cast json query params with custom parser" do
+      {operation, spec} = json_query_spec_operation("custom/json")
+
+      spec =
+        OpenApiSpex.add_parameter_content_parser(
+          spec,
+          "custom/json",
+          OpenApiSpex.OpenApi.json_encoder()
+        )
+
+      filter_json =
+        %{size: "S", color: "blue"}
+        |> Jason.encode!()
+        |> URI.encode()
+
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users?filter=#{filter_json}")
+        |> Plug.Conn.put_req_header("content-type", "custom/json")
+        |> Plug.Conn.fetch_query_params()
+
+      assert {:ok, conn} = CastParameters.cast(conn, operation, spec)
+      assert %{params: %{filter: %{size: "S", color: "blue"}}} = conn
+    end
+
+    test "cast json query params with custom parser with regex" do
+      {operation, spec} = json_query_spec_operation("custom/json")
+
+      spec =
+        OpenApiSpex.add_parameter_content_parser(
+          spec,
+          ~r/custom\/.+/,
+          fn string -> OpenApiSpex.OpenApi.json_encoder().decode(string) end
+        )
+
+      filter_json =
+        %{size: "S", color: "blue"}
+        |> Jason.encode!()
+        |> URI.encode()
+
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users?filter=#{filter_json}")
+        |> Plug.Conn.put_req_header("content-type", "custom/json")
+        |> Plug.Conn.fetch_query_params()
+
+      assert {:ok, conn} = CastParameters.cast(conn, operation, spec)
+      assert %{params: %{filter: %{size: "S", color: "blue"}}} = conn
+    end
+
+    test "cast json query params with invalid json" do
+      {operation, spec} = json_query_spec_operation()
+
+      filter_json = URI.encode("{\"size\": \"S\", \"color: \"blue\"}")
+
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users?filter=#{filter_json}")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> Plug.Conn.fetch_query_params()
+
+      assert {:error,
+              [%OpenApiSpex.Cast.Error{format: "application/json", reason: :invalid_format}]} =
+               CastParameters.cast(conn, operation, spec)
     end
   end
 
@@ -213,5 +249,49 @@ defmodule OpenApiSpex.CastParametersTest do
         }
       }
     }
+  end
+
+  defp spec_with_components(components \\ nil) do
+    %OpenApiSpex.OpenApi{
+      info: %OpenApiSpex.Info{title: "Spec", version: "1.0.0"},
+      paths: [],
+      components: components || create_components()
+    }
+  end
+
+  defp json_query_spec_operation(content_type \\ "application/json") do
+    schema = %Schema{
+      type: :object,
+      title: "FilterParams",
+      properties: %{
+        size: %Schema{type: :string, pattern: "^XS|S|M|L|XL$"},
+        color: %Schema{type: :string}
+      }
+    }
+
+    parameter = %Parameter{
+      in: :query,
+      name: :filter,
+      required: false,
+      content: %{
+        content_type => %MediaType{
+          schema: %Reference{"$ref": "#/components/schemas/FilterParams"}
+        }
+      }
+    }
+
+    operation = %Operation{
+      parameters: [parameter],
+      responses: %{
+        200 => %Schema{type: :object}
+      }
+    }
+
+    spec =
+      spec_with_components(%Components{
+        schemas: %{"FilterParams" => schema}
+      })
+
+    {operation, spec}
   end
 end

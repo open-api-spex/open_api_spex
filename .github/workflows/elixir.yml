@@ -7,35 +7,59 @@ on:
     branches: [master]
 
 jobs:
-  build:
-    name: Build and test
-    runs-on: ubuntu-18.04
+  lint:
+    name: Lint (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        elixir: [1.9, 1.12]
-        otp: [23.0]
-
+        otp: ['25']
+        elixir: ['1.13']
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Elixir
-        uses: actions/setup-elixir@v1
+      - uses: erlef/setup-beam@v1
+        id: beam
         with:
-          elixir-version: ${{ matrix.elixir }} # Define the elixir version [required]
-          otp-version: ${{ matrix.otp }} # Define the OTP version [required]
-      - name: Restore dependencies cache
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - name: PLT cache
         uses: actions/cache@v2
         with:
+          key: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-plt
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-plt
           path: |
-            deps
-            _build/test
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/mix.lock', '**/config/*.exs') }}
-          restore-keys: ${{ runner.os }}-deps-
-      - name: Install and compile dependencies
-        run: MIX_ENV=test mix do deps.get, deps.compile
-      - name: Compile application
-        run: MIX_ENV=test mix compile --warnings-as-errors
-      - name: Check formatting
-        if: ${{ matrix.elixir == '1.12' }}
-        run: mix format --check-formatted
-      - name: Run tests
-        run: mix test
+            priv/plts
+      - run: mix deps.get
+      - run: mix compile --warnings-as-errors
+      - run: mix format --check-formatted
+      - run: mix credo --strict --all
+      - run: mix dialyzer
+  test:
+    runs-on: ubuntu-latest
+    name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
+    strategy:
+      matrix:
+        otp: ['22', '23', '24', '25']
+        elixir: ['1.10', '1.11', '1.12', '1.13']
+        exclude:
+          - {otp: '24', elixir: '1.10'}
+          - {otp: '25', elixir: '1.10'}
+          - {otp: '25', elixir: '1.11'}
+          - {otp: '25', elixir: '1.12'}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - uses: actions/cache@v2
+        with:
+          key: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
+          path: |
+            _build
+      - run: mix deps.get
+      - run: mix test

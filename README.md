@@ -137,36 +137,7 @@ call arguments, add `:open_api_spex` to the `import_deps` list in `.formatter.ex
 ]
 ```
 
-There is a convenient shortcut `:type` for base data types supported by open api
-
-```elixir
-parameters: [
-  id: [in: :query, type: :integer, required: true, description: "User ID", example: 1001]
-]
-```
-
-The responses can also be defined using keyword list syntax,
-and the HTTP status codes can be replaced with their text equivalents:
-
-```elixir
-responses: [
-  ok: {"User response", "application/json", MyAppWeb.Schemas.UserResponse},
-  unprocessable_entity: {"Bad request parameters", "application/json", MyAppWeb.Schemas.BadRequestParameters},
-  not_found: {"Not found", "application/json", MyAppWeb.Schemas.NotFound}
-]
-```
-
-The full set of atom keys are defined in `Plug.Conn.Status.code/1`.
-
-Alternately, the HTTP status codes can be specified directly:
-
-```elixir
-responses: %{
-  200 => {"User response", "application/json", MyAppWeb.Schemas.UserResponse},
-  422 => {"Bad request parameters", "application/json", MyAppWeb.Schemas.BadRequestParameters},
-  404 => {"Not found", "application/json", MyAppWeb.Schemas.NotFound}
-}
-```
+For further information about defining operations, see `OpenApiSpex.ControllerSpecs`.
 
 If you need to omit the spec for some action then pass false to the
 second argument of `operation/2` for the action:
@@ -402,7 +373,7 @@ defmodule MyAppWeb.UserController do
     ],
     request_body: {"The user attributes", "application/json", UserParams},
     responses: %{
-      201 => {"User", "application/json", UserResponse}
+      201 => {"User", "application/json", UserResponse},
       422 => OpenApiSpex.JsonErrorResponse.response()
     }
   def update(

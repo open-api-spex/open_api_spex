@@ -2,7 +2,8 @@ defmodule OpenApiSpex.Header do
   @moduledoc """
   Defines the `OpenApiSpex.Header.t` type.
   """
-  alias OpenApiSpex.{Schema, Reference, Example}
+
+  alias OpenApiSpex.{Example, Reference, Schema}
 
   defstruct [
     :description,
@@ -13,6 +14,7 @@ defmodule OpenApiSpex.Header do
     :schema,
     :example,
     :examples,
+    :extensions,
     style: :simple
   ]
 
@@ -34,6 +36,7 @@ defmodule OpenApiSpex.Header do
           explode: boolean | nil,
           schema: Schema.t() | Reference.t() | nil,
           example: any,
-          examples: %{String.t() => Example.t() | Reference.t()} | nil
+          examples: %{String.t() => Example.t() | Reference.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

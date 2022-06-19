@@ -1,4 +1,6 @@
 defmodule OpenApiSpex.Plug.NoneCache do
+  @moduledoc false
+
   @behaviour OpenApiSpex.Plug.Cache
 
   @impl true

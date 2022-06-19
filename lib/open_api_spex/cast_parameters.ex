@@ -1,22 +1,39 @@
 defmodule OpenApiSpex.CastParameters do
   @moduledoc false
-  alias OpenApiSpex.{Cast, Operation, Parameter, Schema, Reference, Components}
+  alias OpenApiSpex.{Cast, OpenApi, Operation, Parameter, Reference, Schema}
   alias OpenApiSpex.Cast.Error
   alias Plug.Conn
 
-  @spec cast(Plug.Conn.t(), Operation.t(), Components.t()) ::
+  @default_parsers %{~r/^application\/.*json.*$/ => OpenApi.json_encoder()}
+
+  @spec cast(Plug.Conn.t(), Operation.t(), OpenApi.t(), opts :: [OpenApiSpex.cast_opt()]) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
-  def cast(conn, operation, components) do
-    with {:ok, params} <- cast_to_params(conn, operation, components) do
-      {:ok, %{conn | params: params}}
+  def cast(conn, operation, spec, opts \\ []) do
+    replace_params = Keyword.get(opts, :replace_params, true)
+
+    with {:ok, params} <- cast_to_params(conn, operation, spec) do
+      {:ok, conn |> cast_conn(params) |> maybe_replace_params(params, replace_params)}
     end
   end
 
-  defp cast_to_params(conn, operation, components) do
+  defp cast_conn(conn, params) do
+    private_data =
+      conn
+      |> Map.get(:private)
+      |> Map.get(:open_api_spex, %{})
+      |> Map.put(:params, params)
+
+    Plug.Conn.put_private(conn, :open_api_spex, private_data)
+  end
+
+  defp maybe_replace_params(conn, _params, false), do: conn
+  defp maybe_replace_params(conn, params, true), do: %{conn | params: params}
+
+  defp cast_to_params(conn, operation, %OpenApi{components: components} = spec) do
     operation
     |> schemas_by_location(components)
     |> Enum.map(fn {location, {schema, parameters_contexts}} ->
-      cast_location(location, schema, parameters_contexts, components, conn)
+      cast_location(location, schema, parameters_contexts, spec, conn)
     end)
     |> reduce_cast_results()
   end
@@ -60,7 +77,12 @@ defmodule OpenApiSpex.CastParameters do
   # Extract context information from parameters, useful later when casting
   defp parameters_contexts(parameters) do
     Map.new(parameters, fn parameter ->
-      {Atom.to_string(parameter.name), Map.take(parameter, [:explode, :style])}
+      context =
+        parameter
+        |> Map.take([:explode, :style])
+        |> Map.put(:content_type, Parameter.media_type(parameter))
+
+      {Atom.to_string(parameter.name), context}
     end)
   end
 
@@ -89,32 +111,73 @@ defmodule OpenApiSpex.CastParameters do
     end)
   end
 
-  defp cast_location(location, schema, parameters_contexts, components, conn) do
-    params =
-      get_params_by_location(
-        conn,
-        location,
-        schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
-      )
-      |> pre_parse_parameters(parameters_contexts)
+  defp cast_location(
+         location,
+         schema,
+         parameters_contexts,
+         %OpenApi{components: components, extensions: ext},
+         conn
+       ) do
+    parsers = Map.get(ext || %{}, "x-parameter-content-parsers", %{})
+    parsers = Map.merge(@default_parsers, parsers)
 
-    Cast.cast(schema, params, components.schemas)
+    conn
+    |> get_params_by_location(
+      location,
+      schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
+    )
+    |> pre_parse_parameters(parameters_contexts, parsers)
+    |> case do
+      {:error, _} = err -> err
+      params -> Cast.cast(schema, params, components.schemas)
+    end
   end
 
-  defp pre_parse_parameters(%{} = parameters, %{} = parameters_context) do
-    Map.new(parameters, fn {key, value} = _parameter ->
-      {key, pre_parse_parameter(value, Map.get(parameters_context, key, %{}))}
+  defp pre_parse_parameters(%{} = parameters, %{} = parameters_context, parsers) do
+    Enum.reduce_while(parameters, Map.new(), fn {key, value}, acc ->
+      case pre_parse_parameter(value, Map.get(parameters_context, key, %{}), parsers) do
+        {:ok, param} -> {:cont, Map.put(acc, key, param)}
+        err -> {:halt, err}
+      end
     end)
   end
 
-  defp pre_parse_parameter(parameter, %{explode: false, style: :form} = _context) do
-    # e.g. sizes=S,L,M
-    # This does not take care of cases where the value may contain a comma itself
-    String.split(parameter, ",")
+  defp pre_parse_parameter(parameter, %{content_type: content_type}, parsers)
+       when is_bitstring(content_type) and is_map_key(parsers, content_type) do
+    parser = Map.fetch!(parsers, content_type)
+    decode_parameter(parameter, content_type, parser)
   end
 
-  defp pre_parse_parameter(parameter, _) do
-    parameter
+  defp pre_parse_parameter(parameter, %{content_type: content_type}, parsers)
+       when is_bitstring(content_type) do
+    Enum.reduce_while(parsers, {:ok, parameter}, fn {match, parser}, acc ->
+      if Regex.regex?(match) and Regex.match?(match, content_type) do
+        {:halt, decode_parameter(parameter, content_type, parser)}
+      else
+        {:cont, acc}
+      end
+    end)
+  end
+
+  defp pre_parse_parameter(parameter, %{explode: false, style: :form} = _context, _parsers) do
+    # e.g. sizes=S,L,M
+    # This does not take care of cases where the value may contain a comma itself
+    {:ok, String.split(parameter, ",")}
+  end
+
+  defp pre_parse_parameter(parameter, _context, _parsers) do
+    {:ok, parameter}
+  end
+
+  defp decode_parameter(parameter, content_type, parser) when is_atom(parser) do
+    decode_parameter(parameter, content_type, &parser.decode/1)
+  end
+
+  defp decode_parameter(parameter, content_type, parser) when is_function(parser, 1) do
+    case parser.(parameter) do
+      {:ok, result} -> {:ok, result}
+      {:error, _error} -> Cast.error(%Cast{}, {:invalid_format, content_type})
+    end
   end
 
   defp reduce_cast_results(results) do

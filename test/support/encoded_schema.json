@@ -1,14 +1,23 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "contact": {},
+    "contact": {
+      "x-custom-info": {
+        "codeowners": "team-rocker"
+      }
+    },
     "description": "test description",
     "license": {
-      "name": "test"
+      "name": "test",
+      "x-custom-info": {
+        "codeowners": "team-rocker"
+      }
     },
     "title": "Duffel Technology Ltd.",
     "version": "1.0.0",
-    "x-extension": "foo"
+    "x-custom-info": {
+      "codeowners": "team-rocker"
+    }
   },
   "x-extension": {
     "value": "haha"
@@ -26,6 +35,9 @@
     }
   ],
   "components": {
+    "x-custom-info": {
+      "codeowners": "team-rocker"
+    },
     "parameters": {
       "ContentTypeHeader": {
         "name": "content-type",
@@ -45,11 +57,16 @@
           "example": "gzip",
           "type": "string"
         },
-        "x-extension": "foo"
+        "x-custom-info": {
+          "codeowners": "team-rocker"
+        }
       }
     },
     "headers": {
       "api-version": {
+        "x-custom-info": {
+          "codeowners": "team-rocker"
+        },
         "description": "The version of the api to be used",
         "schema": {
           "type": "string",
@@ -85,7 +102,9 @@
     },
     "securitySchemes": {
       "api_key": {
-        "x-extension": "foo",
+        "x-custom-info": {
+          "codeowners": "team-rocker"
+        },
         "type": "apiKey",
         "name": "api_key",
         "in": "header"
@@ -93,7 +112,13 @@
       "petstore_auth": {
         "type": "oauth2",
         "flows": {
+          "x-custom-info": {
+            "codeowners": "team-rocker"
+          },
           "implicit": {
+            "x-custom-info": {
+              "codeowners": "team-rocker"
+            },
             "authorizationUrl": "http://example.org/api/oauth/dialog",
             "scopes": {
               "write:pets": "modify pets in your account",
@@ -127,6 +152,9 @@
     },
     "schemas": {
       "User": {
+        "x-custom-info": {
+          "codeowners": "team-rocker"
+        },
         "nullable": false,
         "readOnly": false,
         "writeOnly": false,
@@ -146,7 +174,10 @@
             "type": "string",
             "xml": {
               "namespace": "http://example.com/schema/sample",
-              "prefix": "sample"
+              "prefix": "sample",
+              "x-custom-info": {
+                "codeowners": "team-rocker"
+              }
             }
           },
           "id": {
@@ -193,7 +224,10 @@
           }
         ],
         "discriminator": {
-          "propertyName": "userType"
+          "propertyName": "userType",
+          "x-custom-info": {
+            "codeowners": "team-rocker"
+          }
         }
       },
       "MetadataObject": {
@@ -227,6 +261,9 @@
     },
     "links": {
       "address": {
+        "x-custom-info": {
+          "codeowners": "team-rocker"
+        },
         "operationId": "test",
         "parameters": {
           "ContentTypeHeader": {
@@ -248,7 +285,10 @@
         },
         "server": {
           "description": "Development server",
-          "url": "https://development.gigantic-server.com/v1"
+          "url": "https://development.gigantic-server.com/v1",
+          "x-custom-info": {
+            "codeowners": "team-rocker"
+          }
         }
       }
     },
@@ -280,12 +320,18 @@
     },
     "examples": {
       "foo": {
+        "x-custom-info": {
+          "codeowners": "team-rocker"
+        },
         "summary": "A foo example",
         "value": "{\"foo\": \"bar\"}"
       }
     },
     "requestBodies": {
       "test": {
+        "x-custom-info": {
+          "codeowners": "team-rocker"
+        },
         "description": "user to add to the system",
         "content": {
           "application/json": {
@@ -300,6 +346,9 @@
             },
             "encoding": {
               "historyMetadata": {
+                "x-custom-info": {
+                  "codeowners": "team-rocker"
+                },
                 "contentType": "application/xml; charset=utf-8",
                 "allowReserved": false,
                 "explode": false,
@@ -322,11 +371,15 @@
   },
   "paths": {
     "/example": {
-      "x-extension": "foo",
+      "x-custom-info": {
+        "codeowners": "team-rocker"
+      },
       "summary": "/example summary",
       "description": "/example description",
       "post": {
-        "x-extension": "foo",
+        "x-custom-info": {
+          "codeowners": "team-rocker"
+        },
         "operationId": "example-post-test",
         "callbacks": {
           "operationCallback": {
@@ -450,9 +503,14 @@
         },
         "responses": {
           "200": {
-            "x-extension": "foo",
+            "x-custom-info": {
+              "codeowners": "team-rocker"
+            },
             "content": {
               "application/json": {
+                "x-custom-info": {
+                  "codeowners": "team-rocker"
+                },
                 "example": {
                   "first_name": "John",
                   "id": 678,
@@ -489,9 +547,14 @@
         },
         "responses": {
           "200": {
-            "x-extension": "foo",
+            "x-custom-info": {
+              "codeowners": "team-rocker"
+            },
             "content": {
               "application/json": {
+                "x-custom-info": {
+                  "codeowners": "team-rocker"
+                },
                 "example": {
                   "first_name": "John",
                   "id": 678,
@@ -551,11 +614,16 @@
         "description": "Find more info here",
         "url": "https://example.com"
       },
-      "x-extension": "foo"
+      "x-custom-info": {
+        "codeowners": "team-rocker"
+      }
     }
   ],
   "externalDocs": {
     "description": "Find more info here",
-    "url": "https://example.com"
+    "url": "https://example.com",
+    "x-custom-info": {
+      "codeowners": "team-rocker"
+    }
   }
 }

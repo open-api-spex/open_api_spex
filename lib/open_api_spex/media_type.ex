@@ -2,13 +2,14 @@ defmodule OpenApiSpex.MediaType do
   @moduledoc """
   Defines the `OpenApiSpex.MediaType.t` type.
   """
-  alias OpenApiSpex.{Schema, Reference, Example, Encoding}
+  alias OpenApiSpex.{Encoding, Example, Reference, Schema}
 
   defstruct [
     :schema,
     :example,
     :examples,
-    :encoding
+    :encoding,
+    :extensions
   ]
 
   @typedoc """
@@ -20,6 +21,7 @@ defmodule OpenApiSpex.MediaType do
           schema: Schema.t() | Reference.t() | nil,
           example: any,
           examples: %{String.t() => Example.t() | Reference.t()} | nil,
-          encoding: %{String => Encoding.t()} | nil
+          encoding: %{String => Encoding.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

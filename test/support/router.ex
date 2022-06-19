@@ -14,6 +14,8 @@ defmodule OpenApiSpexTest.Router do
     resources "/users", OpenApiSpexTest.UserController, only: [:create, :index, :show]
     get "/noapi", OpenApiSpexTest.NoApiController, :noapi
 
+    resources "/users_no_replace", OpenApiSpexTest.UserNoRepalceController, only: [:create, :index]
+
     # Used by ParamsTest
     resources "/custom_error_users", OpenApiSpexTest.CustomErrorUserController, only: [:index]
 

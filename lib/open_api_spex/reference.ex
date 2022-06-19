@@ -3,7 +3,7 @@ defmodule OpenApiSpex.Reference do
   Defines the `OpenApiSpex.Reference.t` type.
   """
 
-  alias OpenApiSpex.{Components, Reference, RequestBody}
+  alias OpenApiSpex.{Components, Parameter, Reference, RequestBody, Schema}
 
   @enforce_keys :"$ref"
   defstruct [

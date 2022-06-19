@@ -10,9 +10,9 @@ defmodule OpenApiSpex do
     Operation2,
     Reference,
     Schema,
+    SchemaConsistency,
     SchemaException,
-    SchemaResolver,
-    SchemaConsistency
+    SchemaResolver
   }
 
   alias OpenApiSpex.Cast.Error
@@ -77,14 +77,24 @@ defmodule OpenApiSpex do
     OpenApiSpex.Cast.cast(schema, value, spec.components.schemas)
   end
 
+  @type cast_opt :: {:replace_params, boolean()}
+
+  @spec cast_and_validate(
+          OpenApi.t(),
+          Operation.t(),
+          Plug.Conn.t(),
+          content_type :: nil | String.t(),
+          opts :: [cast_opt()]
+        ) :: {:error, [Error.t()]} | {:ok, Plug.Conn.t()}
   def cast_and_validate(
         spec = %OpenApi{},
         operation = %Operation{},
         conn = %Plug.Conn{},
-        content_type \\ nil
+        content_type \\ nil,
+        opts \\ []
       ) do
     content_type = content_type || content_type_from_header(conn)
-    Operation2.cast(operation, conn, content_type, spec.components)
+    Operation2.cast(spec, operation, conn, content_type, opts)
   end
 
   defp content_type_from_header(conn = %Plug.Conn{}) do
@@ -392,4 +402,40 @@ defmodule OpenApiSpex do
   @spec resolve_schema(Schema.t() | Reference.t(), Components.schemas_map()) :: Schema.t()
   def resolve_schema(%Schema{} = schema, _), do: schema
   def resolve_schema(%Reference{} = ref, schemas), do: Reference.resolve_schema(ref, schemas)
+
+  @doc """
+  Get casted body params from a `Plug.Conn`.
+  If the conn has not been yet casted `nil` is returned.
+  """
+  @spec body_params(Plug.Conn.t()) :: nil | map()
+  def body_params(%Plug.Conn{} = conn), do: get_in(conn.private, [:open_api_spex, :body_params])
+
+  @doc """
+  Get casted params from a `Plug.Conn`.
+  If the conn has not been yet casted `nil` is returned.
+  """
+  @spec params(Plug.Conn.t()) :: nil | map()
+  def params(%Plug.Conn{} = conn), do: get_in(conn.private, [:open_api_spex, :params])
+
+  @doc """
+
+  """
+  @spec add_parameter_content_parser(
+          OpenApi.t(),
+          content_type | [content_type],
+          parser :: module()
+        ) :: OpenApi.t()
+        when content_type: String.t() | Regex.t()
+  def add_parameter_content_parser(%OpenApi{extensions: ext} = spec, content_type, parser) do
+    extensions = ext || %{}
+
+    param_parsers = Map.get(extensions, "x-parameter-content-parsers", %{})
+
+    param_parsers =
+      content_type
+      |> List.wrap()
+      |> Enum.reduce(param_parsers, fn ct, acc -> Map.put(acc, ct, parser) end)
+
+    %OpenApi{spec | extensions: Map.put(extensions, "x-parameter-content-parsers", param_parsers)}
+  end
 end

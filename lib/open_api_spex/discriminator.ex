@@ -8,7 +8,8 @@ defmodule OpenApiSpex.Discriminator do
   @enforce_keys :propertyName
   defstruct [
     :propertyName,
-    :mapping
+    :mapping,
+    :extensions
   ]
 
   @typedoc """
@@ -21,7 +22,8 @@ defmodule OpenApiSpex.Discriminator do
   """
   @type t :: %__MODULE__{
           propertyName: String.t(),
-          mapping: %{String.t() => String.t()} | nil
+          mapping: %{String.t() => String.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 
   @doc """
@@ -29,11 +31,13 @@ defmodule OpenApiSpex.Discriminator do
   """
   @spec resolve(t, map, %{String.t() => Schema.t()}) :: {:ok, Schema.t()} | {:error, String.t()}
   def resolve(%{propertyName: name, mapping: mapping}, value = %{}, schemas = %{}) do
-    with {:ok, val} <- get_property_value(value, name) do
-      mapped = map_property_value(mapping, val)
-      lookup_schema(schemas, mapped)
-    else
-      {:error, reason} -> {:error, reason}
+    case get_property_value(value, name) do
+      {:ok, val} ->
+        mapped = map_property_value(mapping, val)
+        lookup_schema(schemas, mapped)
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

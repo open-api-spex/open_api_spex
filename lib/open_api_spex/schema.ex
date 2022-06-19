@@ -133,12 +133,12 @@ defmodule OpenApiSpex.Schema do
   """
 
   alias OpenApiSpex.{
-    Schema,
-    Reference,
     DeprecatedCast,
     Discriminator,
-    Xml,
-    ExternalDocumentation
+    ExternalDocumentation,
+    Reference,
+    Schema,
+    Xml
   }
 
   @doc """
@@ -184,7 +184,8 @@ defmodule OpenApiSpex.Schema do
     :example,
     :deprecated,
     :"x-struct",
-    :"x-validate"
+    :"x-validate",
+    :extensions
   ]
 
   @typedoc """
@@ -250,7 +251,8 @@ defmodule OpenApiSpex.Schema do
           example: any,
           deprecated: boolean | nil,
           "x-struct": module | nil,
-          "x-validate": module | nil
+          "x-validate": module | nil,
+          extensions: %{String.t() => any()} | nil
         }
 
   @typedoc """
@@ -304,14 +306,14 @@ defmodule OpenApiSpex.Schema do
 
   ## Examples
 
-      iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :integer, minimum: 5}, 3, %{})
-      {:error, "#: 3 is smaller than minimum 5"}
+  iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :integer, minimum: 5}, 3, %{})
+  {:error, "#: 3 is smaller than minimum 5"}
 
-      iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joe@gmail.com", %{})
-      :ok
+  iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joe@gmail.com", %{})
+  :ok
 
-      iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joegmail.com", %{})
-      {:error, "#: Value \"joegmail.com\" does not match pattern: (.*)@(.*)"}
+  iex> OpenApiSpex.Schema.validate(%OpenApiSpex.Schema{type: :string, pattern: "(.*)@(.*)"}, "joegmail.com", %{})
+  {:error, "#: Value \"joegmail.com\" does not match pattern: (.*)@(.*)"}
   """
   @spec validate(Schema.t() | Reference.t(), any, %{String.t() => Schema.t() | Reference.t()}) ::
           :ok | {:error, String.t()}
@@ -393,6 +395,7 @@ defmodule OpenApiSpex.Schema do
 
   def example(%Schema{type: :string, format: :date}), do: "2020-04-20"
   def example(%Schema{type: :string, format: :"date-time"}), do: "2020-04-20T16:20:00Z"
+  def example(%Schema{type: :string, format: :uuid}), do: "02ef9c5f-29e6-48fc-9ec3-7ed57ed351f6"
 
   def example(%Schema{type: :string}), do: ""
   def example(%Schema{type: :integer} = s), do: example_for(s, :integer)

@@ -30,6 +30,78 @@ defmodule OpenApiSpex.Cast.String do
     end
   end
 
+  @uuid_valid_characters [
+    ?0,
+    ?1,
+    ?2,
+    ?3,
+    ?4,
+    ?5,
+    ?6,
+    ?7,
+    ?8,
+    ?9,
+    ?A,
+    ?B,
+    ?C,
+    ?D,
+    ?E,
+    ?F,
+    ?a,
+    ?b,
+    ?c,
+    ?d,
+    ?e,
+    ?f
+  ]
+  # credo:disable-for-next-line
+  def cast(%{
+        value:
+          <<a1, a2, a3, a4, a5, a6, a7, a8, ?-, b1, b2, b3, b4, ?-, c1, c2, c3, c4, ?-, d1, d2, d3,
+            d4, ?-, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12>> = value,
+        schema: %{format: :uuid}
+      })
+      when is_binary(value) and
+             a1 in @uuid_valid_characters and
+             a2 in @uuid_valid_characters and
+             a3 in @uuid_valid_characters and
+             a4 in @uuid_valid_characters and
+             a5 in @uuid_valid_characters and
+             a6 in @uuid_valid_characters and
+             a7 in @uuid_valid_characters and
+             a8 in @uuid_valid_characters and
+             b1 in @uuid_valid_characters and
+             b2 in @uuid_valid_characters and
+             b3 in @uuid_valid_characters and
+             b4 in @uuid_valid_characters and
+             c1 in @uuid_valid_characters and
+             c2 in @uuid_valid_characters and
+             c3 in @uuid_valid_characters and
+             c3 in @uuid_valid_characters and
+             c4 in @uuid_valid_characters and
+             d1 in @uuid_valid_characters and
+             d2 in @uuid_valid_characters and
+             d3 in @uuid_valid_characters and
+             d4 in @uuid_valid_characters and
+             e1 in @uuid_valid_characters and
+             e2 in @uuid_valid_characters and
+             e3 in @uuid_valid_characters and
+             e4 in @uuid_valid_characters and
+             e5 in @uuid_valid_characters and
+             e6 in @uuid_valid_characters and
+             e7 in @uuid_valid_characters and
+             e8 in @uuid_valid_characters and
+             e9 in @uuid_valid_characters and
+             e10 in @uuid_valid_characters and
+             e11 in @uuid_valid_characters and
+             e12 in @uuid_valid_characters do
+    {:ok, value}
+  end
+
+  def cast(%{value: value, schema: %{format: :uuid}} = ctx) when is_binary(value) do
+    Cast.error(ctx, {:invalid_format, :uuid})
+  end
+
   def cast(%{value: value = %Plug.Upload{}, schema: %{format: :binary}}) do
     {:ok, value}
   end

@@ -10,7 +10,8 @@ defmodule OpenApiSpex.Link do
     :parameters,
     :requestBody,
     :description,
-    :server
+    :server,
+    :extensions
   ]
 
   @typedoc """
@@ -34,6 +35,7 @@ defmodule OpenApiSpex.Link do
           parameters: %{String.t() => any} | nil,
           requestBody: any,
           description: String.t() | nil,
-          server: Server.t() | nil
+          server: Server.t() | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

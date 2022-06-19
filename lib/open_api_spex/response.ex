@@ -2,7 +2,8 @@ defmodule OpenApiSpex.Response do
   @moduledoc """
   Defines the `OpenApiSpex.Response.t` type.
   """
-  alias OpenApiSpex.{Header, Reference, MediaType, Link, Response}
+
+  alias OpenApiSpex.{Components, Header, Link, MediaType, Reference, Response}
 
   @enforce_keys :description
   defstruct [

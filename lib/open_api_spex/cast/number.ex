@@ -2,6 +2,9 @@ defmodule OpenApiSpex.Cast.Number do
   @moduledoc false
   alias OpenApiSpex.Cast
 
+  # credo:disable-for-next-line
+  # TODO We need a way to distinguish numbers in (JSON) body vs in request parameters
+  # so we can reject strings values for properties of `type: :number`
   @spec cast(ctx :: Cast.t()) :: {:ok, Cast.t()} | Cast.Error.t()
   def cast(%{value: value} = ctx) when is_number(value) do
     case cast_number(ctx) do
@@ -10,8 +13,6 @@ defmodule OpenApiSpex.Cast.Number do
     end
   end
 
-  # TODO We need a way to distinguish numbers in (JSON) body vs in request parameters
-  # so we can reject strings values for properties of `type: :number`
   def cast(%{value: value} = ctx) when is_binary(value) do
     case Float.parse(value) do
       {value, ""} -> cast(%{ctx | value: value})
