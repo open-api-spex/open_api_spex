@@ -17,7 +17,7 @@ defmodule OpenApiSpex.Plug.CastTest do
   end
 
   describe "query params - basics" do
-    test "valid Param" do
+    test "valid param" do
       conn =
         :get
         |> Plug.Test.conn("/api/users?validParam=true")
@@ -29,7 +29,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert OpenApiSpex.params(conn) == %{validParam: true}
     end
 
-    test "Valid Param with replace_params false" do
+    test "valid param with replace_params false" do
       conn =
         :get
         |> Plug.Test.conn("/api/users_no_replace?validParam=true")
@@ -218,7 +218,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
-    test "Valid Request with replace_params false" do
+    test "valid request with replace_params false" do
       request_body = %{
         "user" => %{
           "id" => 123,
