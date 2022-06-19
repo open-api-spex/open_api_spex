@@ -6,10 +6,19 @@ defmodule OpenApiSpex.Plug.CastTest do
   alias OpenApiSpexTest.ApiSpec
 
   describe "valid operation (not annotated)" do
-    test "should work" do
+    test "should work (with exdoc)" do
       conn =
         :get
         |> Plug.Test.conn("/api/noapi")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+    end
+
+    test "should work (with struct)" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/noapi_with_struct")
         |> OpenApiSpexTest.Router.call([])
 
       assert conn.status == 200
