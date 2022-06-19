@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.Plug.CastAndValidate do
   @moduledoc """
-  Module plug that will cast and validate the `Conn.params` and `Conn.body_params`  according to the schemas defined for the operation.
+  Module plug that will cast and validate the `Conn.params` and `Conn.body_params` according to the schemas defined for the operation.
 
   The operation_id can be given at compile time as an argument to `init`:
 
