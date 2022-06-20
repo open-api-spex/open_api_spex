@@ -6,7 +6,7 @@ defmodule OpenApiSpex.Plug.CastTest do
   alias OpenApiSpexTest.ApiSpec
 
   describe "valid operation (not annotated)" do
-    test "should work (with exdoc)" do
+    test "does not raise in error when the operation is nil set with the operation macro" do
       conn =
         :get
         |> Plug.Test.conn("/api/noapi")
@@ -15,7 +15,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 200
     end
 
-    test "should work (with struct)" do
+    test "does not raise in error when the operation is nil set with the open_api_operation function" do
       conn =
         :get
         |> Plug.Test.conn("/api/noapi_with_struct")
