@@ -22,6 +22,8 @@ defmodule OpenApiSpex.Cast do
 
   @type schema_or_reference :: Schema.t() | Reference.t()
 
+  @type cast_opt :: {:apply_defaults, boolean()}
+
   @type t :: %__MODULE__{
           value: term(),
           schema: schema_or_reference | nil,
@@ -30,7 +32,8 @@ defmodule OpenApiSpex.Cast do
           key: atom() | nil,
           index: integer,
           errors: [Error.t()],
-          read_write_scope: read_write_scope
+          read_write_scope: read_write_scope,
+          opts: [cast_opt()]
         }
 
   defstruct value: nil,
@@ -40,7 +43,8 @@ defmodule OpenApiSpex.Cast do
             key: nil,
             index: 0,
             errors: [],
-            read_write_scope: nil
+            read_write_scope: nil,
+            opts: []
 
   @doc ~S"""
   Cast and validate a value against the given schema.
@@ -96,9 +100,10 @@ defmodule OpenApiSpex.Cast do
 
   """
 
-  @spec cast(schema_or_reference | nil, term(), map()) :: {:ok, term()} | {:error, [Error.t()]}
-  def cast(schema, value, schemas \\ %{}) do
-    ctx = %__MODULE__{schema: schema, value: value, schemas: schemas}
+  @spec cast(schema_or_reference | nil, term(), map(), [cast_opt()]) ::
+          {:ok, term()} | {:error, [Error.t()]}
+  def cast(schema, value, schemas \\ %{}, opts \\ []) do
+    ctx = %__MODULE__{schema: schema, value: value, schemas: schemas, opts: opts}
     cast(ctx)
   end
 

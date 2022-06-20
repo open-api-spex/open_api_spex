@@ -34,7 +34,13 @@ defmodule OpenApiSpex.Operation2 do
 
     with {:ok, conn} <- cast_parameters(conn, operation, spec, opts),
          {:ok, body} <-
-           cast_request_body(operation.requestBody, conn.body_params, content_type, components) do
+           cast_request_body(
+             operation.requestBody,
+             conn.body_params,
+             content_type,
+             components,
+             opts
+           ) do
       {:ok, conn |> cast_conn(body) |> maybe_replace_body(body, replace_params)}
     end
   end
@@ -58,17 +64,17 @@ defmodule OpenApiSpex.Operation2 do
     CastParameters.cast(conn, operation, spec, opts)
   end
 
-  defp cast_request_body(ref = %Reference{}, body_params, content_type, components) do
+  defp cast_request_body(ref = %Reference{}, body_params, content_type, components, opts) do
     request_body = Reference.resolve_request_body(ref, components.requestBodies)
 
-    cast_request_body(request_body, body_params, content_type, components)
+    cast_request_body(request_body, body_params, content_type, components, opts)
   end
 
-  defp cast_request_body(nil, _, _, _), do: {:ok, %{}}
+  defp cast_request_body(nil, _, _, _, _), do: {:ok, %{}}
 
-  defp cast_request_body(%{required: false}, _, nil, _), do: {:ok, %{}}
+  defp cast_request_body(%{required: false}, _, nil, _, _), do: {:ok, %{}}
 
-  defp cast_request_body(%{required: true}, _, nil, _) do
+  defp cast_request_body(%{required: true}, _, nil, _, _) do
     {:error, [Error.new(%{path: [], value: nil}, {:missing_header, "content-type"})]}
   end
 
@@ -78,9 +84,10 @@ defmodule OpenApiSpex.Operation2 do
          request_body,
          %{"_json" => body_params},
          content_type,
-         components = %Components{}
+         components = %Components{},
+         opts
        ) do
-    case cast_request_body(request_body, body_params, content_type, components) do
+    case cast_request_body(request_body, body_params, content_type, components, opts) do
       {:ok, body_params} -> {:ok, %{"_json" => body_params}}
       error -> error
     end
@@ -90,11 +97,12 @@ defmodule OpenApiSpex.Operation2 do
          %RequestBody{content: content},
          params,
          content_type,
-         components = %Components{}
+         components = %Components{},
+         opts
        ) do
     case content do
       %{^content_type => media_type} ->
-        Cast.cast(media_type.schema, params, components.schemas)
+        Cast.cast(media_type.schema, params, components.schemas, opts)
 
       _ ->
         {:error, [Error.new(%{path: [], value: content_type}, {:invalid_header, "content-type"})]}
