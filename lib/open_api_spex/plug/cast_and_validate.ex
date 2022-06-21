@@ -138,9 +138,6 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
       {:found_it, operation} ->
         call(conn, opts |> Map.put(:operation_id, operation.operationId))
-
-      _ ->
-        raise "Unexpected case detected"
     end
   end
 
