@@ -269,6 +269,7 @@ convenience, create a direct alias:
 
 ```shell
 mix openapi.spec.json --spec MyAppWeb.ApiSpec
+mix openapi.spec.yaml --spec MyAppWeb.ApiSpec
 ```
 
 ## Serve Swagger UI

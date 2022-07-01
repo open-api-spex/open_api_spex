@@ -1,0 +1,26 @@
+---
+info:
+  title: Test spec
+  version: '1.0'
+openapi: 3.0.0
+paths:
+  /users:
+    post:
+      callbacks: {}
+      deprecated: false
+      operationId: users.create
+      parameters: []
+      responses: {}
+      tags: []
+    put:
+      callbacks: {}
+      deprecated: false
+      operationId: users.update
+      parameters: []
+      responses: {}
+      tags: []
+security: []
+servers:
+  - url: http://localhost:4000
+    variables: {}
+tags: []
