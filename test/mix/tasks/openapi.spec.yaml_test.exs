@@ -12,8 +12,9 @@ defmodule Mix.Tasks.Openapi.Spec.YamlTest do
 
     expected_schema_path = "test/support/tasks/openapi.yaml"
 
-    assert parse_file(actual_schema_path) == parse_file(expected_schema_path)
-  end
+    assert_received {:mix_shell, :info, ["* creating tmp"]}
+    assert_received {:mix_shell, :info, ["* creating tmp/openapi.yaml"]}
 
-  defp parse_file(filename), do: filename |> File.read!() |> String.split("\n")
+    assert File.read!(actual_schema_path) == File.read!(expected_schema_path)
+  end
 end
