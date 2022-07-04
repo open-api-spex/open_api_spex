@@ -272,6 +272,17 @@ mix openapi.spec.json --spec MyAppWeb.ApiSpec
 mix openapi.spec.yaml --spec MyAppWeb.ApiSpec
 ```
 
+NOTE: You need to add `ymlr` dependency to write swagger file in YAML format:
+
+```elixir
+
+def deps do
+  [
+    {:ymlr, "~> 2.0"}
+  ]
+end
+```
+
 ## Serve Swagger UI
 
 Once your API spec is available through a route (see ["Serve the Spec"](#serve-the-spec)), the `OpenApiSpex.Plug.SwaggerUI` plug can be used to

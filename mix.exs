@@ -86,7 +86,13 @@ defmodule OpenApiSpex.Mixfile do
   defp dialyzer do
     [
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
-      plt_add_apps: [:ex_unit, :mix, :jason, :poison]
+      plt_add_apps: ~w(
+        ex_unit
+        jason
+        mix
+        poison
+        ymlr
+      )a
     ]
   end
 end

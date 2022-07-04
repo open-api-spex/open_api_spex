@@ -19,6 +19,7 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
   require Mix.Generator
 
   @default_filename "openapi.yaml"
+  @dialyzer {:nowarn_function, encoder: 0}
 
   @impl Mix.Task
   def run(argv) do
@@ -28,7 +29,7 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
 
   defp encode(spec, opts) do
     spec
-    |> OpenApiSpex.OpenApi.yaml_encoder().encode(opts)
+    |> encoder().encode(opts)
     |> case do
       {:ok, yaml} ->
         yaml
@@ -36,5 +37,12 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
       {:error, error} ->
         Mix.raise("could not encode #{inspect(spec)}, error: #{inspect(error)}.")
     end
+  end
+
+  defp encoder do
+    OpenApiSpex.OpenApi.yaml_encoder() ||
+      Mix.raise(
+        "could not load YAML encoder, please add one of supported encoders to dependencies."
+      )
   end
 end

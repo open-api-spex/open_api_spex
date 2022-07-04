@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.ExportSpec do
   @moduledoc """
-  Store spec in specified encoding
+  Export spec in specified encoding
   """
   require Mix.Generator
 
