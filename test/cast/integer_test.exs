@@ -72,5 +72,29 @@ defmodule OpenApiSpex.CastIntegerTest do
       assert error.length == 2
       assert Error.message(error) =~ "larger than exclusive maximum"
     end
+
+    test "format int32" do
+      schema = %Schema{type: :integer, format: :int32}
+      # less than max int32
+      assert {:error, [error]} = cast(value: -2_147_483_648, schema: schema)
+      assert error.reason == :invalid_format
+      assert error.format == :int32
+      # over max int32
+      assert {:error, [error]} = cast(value: 2_147_483_648, schema: schema)
+      assert error.reason == :invalid_format
+      assert error.format == :int32
+    end
+
+    test "format int64" do
+      schema = %Schema{type: :integer, format: :int64}
+      # less than max int64
+      assert {:error, [error]} = cast(value: -9_223_372_036_854_775_808, schema: schema)
+      assert error.reason == :invalid_format
+      assert error.format == :int64
+      # over max int64
+      assert {:error, [error]} = cast(value: 9_223_372_036_854_775_808, schema: schema)
+      assert error.reason == :invalid_format
+      assert error.format == :int64
+    end
   end
 end
