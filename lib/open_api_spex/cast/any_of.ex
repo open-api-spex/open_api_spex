@@ -18,6 +18,9 @@ defmodule OpenApiSpex.Cast.AnyOf do
     new_ctx = put_in(ctx.schema.anyOf, remaining)
 
     case Cast.cast(%{ctx | schema: relaxed_schema}) do
+      {:ok, value} when is_struct(value) ->
+        {:ok, value}
+
       {:ok, value} when is_map(value) ->
         acc =
           value
