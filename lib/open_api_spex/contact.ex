@@ -6,7 +6,8 @@ defmodule OpenApiSpex.Contact do
   defstruct [
     :name,
     :url,
-    :email
+    :email,
+    extensions: nil
   ]
 
   @typedoc """
@@ -17,6 +18,7 @@ defmodule OpenApiSpex.Contact do
   @type t :: %__MODULE__{
           name: String.t() | nil,
           url: String.t() | nil,
-          email: String.t() | nil
+          email: String.t() | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

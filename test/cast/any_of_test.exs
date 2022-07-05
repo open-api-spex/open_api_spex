@@ -280,5 +280,18 @@ defmodule OpenApiSpex.CastAnyOfTest do
 
       assert {:ok, nil} = cast(value: nil, schema: schema)
     end
+
+    test "cast date and date-time" do
+      schema = %Schema{
+        anyOf: [
+          %Schema{type: :string, format: :"date-time"},
+          %Schema{type: :string, format: :date}
+        ]
+      }
+
+      assert {:ok, ~D[2021-01-01]} = cast(value: "2021-01-01", schema: schema)
+
+      assert {:ok, ~U[2022-04-05 16:28:53.168653Z]} =
+               cast(value: "2022-04-05T16:28:53.168653Z", schema: schema)
   end
 end

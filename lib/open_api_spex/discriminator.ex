@@ -8,7 +8,8 @@ defmodule OpenApiSpex.Discriminator do
   @enforce_keys :propertyName
   defstruct [
     :propertyName,
-    :mapping
+    :mapping,
+    :extensions
   ]
 
   @typedoc """
@@ -21,7 +22,8 @@ defmodule OpenApiSpex.Discriminator do
   """
   @type t :: %__MODULE__{
           propertyName: String.t(),
-          mapping: %{String.t() => String.t()} | nil
+          mapping: %{String.t() => String.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 
   @doc """

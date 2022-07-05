@@ -107,4 +107,15 @@ defmodule OpenApiSpex.Parameter do
     {_type, %MediaType{schema: schema}} = Enum.at(content, 0)
     schema
   end
+
+  @doc """
+  Gets the media type for a parameter, if not present `nil` is returned.
+  """
+  @spec media_type(Parameter.t()) :: String.t() | nil
+  def media_type(%Parameter{content: content}) when is_map(content) and map_size(content) == 1 do
+    {type, _} = Enum.at(content, 0)
+    type
+  end
+
+  def media_type(_), do: nil
 end

@@ -8,7 +8,8 @@ defmodule OpenApiSpex.MediaType do
     :schema,
     :example,
     :examples,
-    :encoding
+    :encoding,
+    :extensions
   ]
 
   @typedoc """
@@ -20,6 +21,7 @@ defmodule OpenApiSpex.MediaType do
           schema: Schema.t() | Reference.t() | nil,
           example: any,
           examples: %{String.t() => Example.t() | Reference.t()} | nil,
-          encoding: %{String => Encoding.t()} | nil
+          encoding: %{String => Encoding.t()} | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

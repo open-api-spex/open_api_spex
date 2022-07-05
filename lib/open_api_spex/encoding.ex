@@ -9,7 +9,8 @@ defmodule OpenApiSpex.Encoding do
     :headers,
     :style,
     :explode,
-    :allowReserved
+    :allowReserved,
+    :extensions
   ]
 
   @typedoc """
@@ -22,6 +23,7 @@ defmodule OpenApiSpex.Encoding do
           headers: %{String.t() => Header.t() | Reference.t()} | nil,
           style: Parameter.style() | nil,
           explode: boolean | nil,
-          allowReserved: boolean | nil
+          allowReserved: boolean | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end

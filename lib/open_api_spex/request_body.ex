@@ -8,6 +8,7 @@ defmodule OpenApiSpex.RequestBody do
   defstruct [
     :description,
     :content,
+    :extensions,
     required: false
   ]
 
@@ -19,6 +20,7 @@ defmodule OpenApiSpex.RequestBody do
   @type t :: %__MODULE__{
           description: String.t() | nil,
           content: %{String.t() => MediaType.t()},
-          required: boolean
+          required: boolean,
+          extensions: %{String.t() => any()} | nil
         }
 end

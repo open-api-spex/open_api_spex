@@ -74,6 +74,7 @@ defmodule OpenApiSpex.OpenApi do
   @vendor_extensions ~w(
     x-struct
     x-validate
+    x-parameter-content-parsers
   )
 
   def json_encoder, do: @json_encoder

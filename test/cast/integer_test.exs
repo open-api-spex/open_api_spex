@@ -9,12 +9,13 @@ defmodule OpenApiSpex.CastIntegerTest do
     test "basics" do
       schema = %Schema{type: :integer}
       assert cast(value: 1, schema: schema) == {:ok, 1}
-      assert cast(value: 1.5, schema: schema) == {:ok, 2}
       assert cast(value: "1", schema: schema) == {:ok, 1}
-      assert cast(value: "1.5", schema: schema) == {:ok, 2}
+      assert {:error, [error]} = cast(value: 1.5, schema: schema)
+      assert %Error{reason: :invalid_type, value: 1.5} = error
+      assert {:error, [error]} = cast(value: "1.5", schema: schema)
+      assert %Error{reason: :invalid_type, value: "1.5"} = error
       assert {:error, [error]} = cast(value: "other", schema: schema)
-      assert %Error{reason: :invalid_type} = error
-      assert error.value == "other"
+      assert %Error{reason: :invalid_type, value: "other"} = error
     end
 
     test "with multiple of" do
@@ -71,6 +72,30 @@ defmodule OpenApiSpex.CastIntegerTest do
       # error.length is the maximum
       assert error.length == 2
       assert Error.message(error) =~ "larger than exclusive maximum"
+    end
+
+    test "format int32" do
+      schema = %Schema{type: :integer, format: :int32}
+      # less than max int32
+      assert {:error, [error]} = cast(value: -2_147_483_648, schema: schema)
+      assert error.reason == :invalid_format
+      assert error.format == :int32
+      # over max int32
+      assert {:error, [error]} = cast(value: 2_147_483_648, schema: schema)
+      assert error.reason == :invalid_format
+      assert error.format == :int32
+    end
+
+    test "format int64" do
+      schema = %Schema{type: :integer, format: :int64}
+      # less than max int64
+      assert {:error, [error]} = cast(value: -9_223_372_036_854_775_808, schema: schema)
+      assert error.reason == :invalid_format
+      assert error.format == :int64
+      # over max int64
+      assert {:error, [error]} = cast(value: 9_223_372_036_854_775_808, schema: schema)
+      assert error.reason == :invalid_format
+      assert error.format == :int64
     end
   end
 end

@@ -2,6 +2,11 @@ defmodule OpenApiSpex.Cast.Integer do
   @moduledoc false
   alias OpenApiSpex.Cast
 
+  @min_int32 -2_147_483_647
+  @max_int32 2_147_483_647
+  @min_int64 -9_223_372_036_854_775_807
+  @max_int64 9_223_372_036_854_775_807
+
   def cast(%{value: value} = ctx) when is_integer(value) do
     case cast_integer(ctx) do
       {:cast, ctx} -> cast(ctx)
@@ -9,12 +14,8 @@ defmodule OpenApiSpex.Cast.Integer do
     end
   end
 
-  def cast(%{value: value} = ctx) when is_number(value) do
-    cast(%{ctx | value: round(value)})
-  end
-
   def cast(%{value: value} = ctx) when is_binary(value) do
-    case Float.parse(value) do
+    case Integer.parse(value) do
       {value, ""} -> cast(%{ctx | value: value})
       _ -> Cast.error(ctx, {:invalid_type, :integer})
     end
@@ -25,6 +26,16 @@ defmodule OpenApiSpex.Cast.Integer do
   end
 
   ## Private functions
+
+  defp cast_integer(%{value: value, schema: %{format: :int32}} = ctx)
+       when value < @min_int32 or value > @max_int32 do
+    Cast.error(ctx, {:invalid_format, :int32})
+  end
+
+  defp cast_integer(%{value: value, schema: %{format: :int64}} = ctx)
+       when value < @min_int64 or value > @max_int64 do
+    Cast.error(ctx, {:invalid_format, :int64})
+  end
 
   defp cast_integer(%{value: value, schema: %{minimum: minimum, exclusiveMinimum: true}} = ctx)
        when is_integer(value) and is_integer(minimum) do

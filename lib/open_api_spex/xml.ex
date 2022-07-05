@@ -7,7 +7,8 @@ defmodule OpenApiSpex.Xml do
     :namespace,
     :prefix,
     :attribute,
-    :wrapped
+    :wrapped,
+    :extensions
   ]
 
   @typedoc """
@@ -22,6 +23,7 @@ defmodule OpenApiSpex.Xml do
           namespace: String.t() | nil,
           prefix: String.t() | nil,
           attribute: boolean | nil,
-          wrapped: boolean | nil
+          wrapped: boolean | nil,
+          extensions: %{String.t() => any()} | nil
         }
 end
