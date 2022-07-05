@@ -9,12 +9,8 @@ defmodule OpenApiSpex.Cast.Integer do
     end
   end
 
-  def cast(%{value: value} = ctx) when is_number(value) do
-    cast(%{ctx | value: round(value)})
-  end
-
   def cast(%{value: value} = ctx) when is_binary(value) do
-    case Float.parse(value) do
+    case Integer.parse(value) do
       {value, ""} -> cast(%{ctx | value: value})
       _ -> Cast.error(ctx, {:invalid_type, :integer})
     end
