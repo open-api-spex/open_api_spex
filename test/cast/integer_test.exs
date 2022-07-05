@@ -9,12 +9,13 @@ defmodule OpenApiSpex.CastIntegerTest do
     test "basics" do
       schema = %Schema{type: :integer}
       assert cast(value: 1, schema: schema) == {:ok, 1}
-      assert cast(value: 1.5, schema: schema) == {:ok, 2}
       assert cast(value: "1", schema: schema) == {:ok, 1}
-      assert cast(value: "1.5", schema: schema) == {:ok, 2}
+      assert {:error, [error]} = cast(value: 1.5, schema: schema)
+      assert %Error{reason: :invalid_type, value: 1.5} = error
+      assert {:error, [error]} = cast(value: "1.5", schema: schema)
+      assert %Error{reason: :invalid_type, value: "1.5"} = error
       assert {:error, [error]} = cast(value: "other", schema: schema)
-      assert %Error{reason: :invalid_type} = error
-      assert error.value == "other"
+      assert %Error{reason: :invalid_type, value: "other"} = error
     end
 
     test "with multiple of" do
