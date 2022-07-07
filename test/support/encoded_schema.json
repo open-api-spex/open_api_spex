@@ -230,6 +230,20 @@
           }
         }
       },
+      "DiscriminatorWithType": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "userType"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "$ref": "#/components/schemas/SpecialUser"
+          }
+        ]
+      },
       "MetadataObject": {
         "description": "Maximum 3 lines of metadata allowed",
         "type": "object",
