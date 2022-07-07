@@ -293,5 +293,6 @@ defmodule OpenApiSpex.CastAnyOfTest do
 
       assert {:ok, ~U[2022-04-05 16:28:53.168653Z]} =
                cast(value: "2022-04-05T16:28:53.168653Z", schema: schema)
+    end
   end
 end
