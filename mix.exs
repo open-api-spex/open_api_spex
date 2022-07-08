@@ -61,7 +61,8 @@ defmodule OpenApiSpex.Mixfile do
       {:jason, "~> 1.0", optional: true},
       {:phoenix, "~> 1.3", only: [:dev, :test]},
       {:plug, "~> 1.7"},
-      {:poison, "~> 4.0 or ~> 5.0", optional: true}
+      {:poison, "~> 4.0 or ~> 5.0", optional: true},
+      {:ymlr, "~> 2.0", optional: true}
     ]
   end
 
@@ -85,7 +86,13 @@ defmodule OpenApiSpex.Mixfile do
   defp dialyzer do
     [
       plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
-      plt_add_apps: [:ex_unit, :mix, :jason, :poison]
+      plt_add_apps: ~w(
+        ex_unit
+        jason
+        mix
+        poison
+        ymlr
+      )a
     ]
   end
 end
