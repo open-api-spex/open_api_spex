@@ -12,7 +12,7 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
 
       plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec
   """
-  alias OpenApiSpex.{OpenApi, Operation}
+  alias OpenApiSpex.{OpenApi, Operation, Plug.Cache}
   alias Plug.Conn
 
   @behaviour Plug
@@ -83,7 +83,7 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
   end
 
   @spec cache() :: module
-  defp cache() do
-    OpenApiSpex.Plug.Cache.adapter()
+  defp cache do
+    Cache.adapter()
   end
 end
