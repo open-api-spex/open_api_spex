@@ -12,12 +12,11 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
 
       plug OpenApiSpex.Plug.PutApiSpec, module: MyAppWeb.ApiSpec
   """
-  alias OpenApiSpex.{OpenApi, Operation}
+  alias OpenApiSpex.{OpenApi, Operation, Plug.Cache}
   alias Plug.Conn
 
   @behaviour Plug
 
-  @cache OpenApiSpex.Plug.Cache.adapter()
   @missing_oas_key "Missing private.open_api_spex key in conn. Check that PutApiSpec is being called in the Conn pipeline"
 
   @impl Plug
@@ -41,7 +40,7 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
           {spec :: OpenApi.t(), operation_lookup :: %{any => Operation.t()}}
   def get_spec_and_operation_lookup(conn) do
     spec_module = spec_module(conn)
-    spec_and_lookup = @cache.get(spec_module)
+    spec_and_lookup = cache().get(spec_module)
 
     if spec_and_lookup do
       spec_and_lookup
@@ -49,7 +48,7 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
       spec = spec_module.spec()
       operation_lookup = build_operation_lookup(spec)
       spec_and_lookup = {spec, operation_lookup}
-      @cache.put(spec_module, spec_and_lookup)
+      cache().put(spec_module, spec_and_lookup)
       spec_and_lookup
     end
   end
@@ -61,7 +60,7 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
     {spec, operation_lookup} = get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
     operation_lookup = Map.put(operation_lookup, {controller, action}, operation)
-    @cache.put(spec_module, {spec, operation_lookup})
+    cache().put(spec_module, {spec, operation_lookup})
     operation
   end
 
@@ -81,5 +80,10 @@ defmodule OpenApiSpex.Plug.PutApiSpec do
     |> Stream.filter(fn x -> match?(%OpenApiSpex.Operation{}, x) end)
     |> Stream.map(fn operation -> {operation.operationId, operation} end)
     |> Enum.into(%{})
+  end
+
+  @spec cache() :: module
+  defp cache do
+    Cache.adapter()
   end
 end
