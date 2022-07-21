@@ -18,6 +18,11 @@ jobs:
           otp-version: 25
           elixir-version: 1.13
 
+      - id: deps
+        name: Fetch and compile dependencies
+        run: |
+          mix do deps.get, deps.compile
+
       - id: build
         name: Build package
         run: |
