@@ -24,7 +24,7 @@ The package can be installed by adding `:open_api_spex` to your list of dependen
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.11"}
+    {:open_api_spex, "~> 3.12"}
   ]
 end
 ```
@@ -269,6 +269,18 @@ convenience, create a direct alias:
 
 ```shell
 mix openapi.spec.json --spec MyAppWeb.ApiSpec
+mix openapi.spec.yaml --spec MyAppWeb.ApiSpec
+```
+
+NOTE: You need to add `ymlr` dependency to write swagger file in YAML format:
+
+```elixir
+
+def deps do
+  [
+    {:ymlr, "~> 2.0"}
+  ]
+end
 ```
 
 ## Serve Swagger UI

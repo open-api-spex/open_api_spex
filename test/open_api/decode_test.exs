@@ -173,7 +173,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
 
       assert %{
                "User" => user_schema,
-               "Admin" => admin_schema
+               "Admin" => admin_schema,
+               "DiscriminatorWithType" => disc_with_type
              } = schemas
 
       assert %OpenApiSpex.Schema{
@@ -190,6 +191,21 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                  extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
                }
              } == admin_schema
+
+      assert %OpenApiSpex.Schema{
+               oneOf: [
+                 %OpenApiSpex.Reference{
+                   "$ref": "#/components/schemas/User"
+                 },
+                 %OpenApiSpex.Reference{
+                   "$ref": "#/components/schemas/SpecialUser"
+                 }
+               ],
+               discriminator: %OpenApiSpex.Discriminator{
+                 propertyName: "userType"
+               },
+               type: "object"
+             } == disc_with_type
 
       assert %OpenApiSpex.Schema{
                nullable: false,

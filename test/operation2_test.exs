@@ -206,6 +206,8 @@ defmodule OpenApiSpex.Operation2Test do
                )
 
       assert %Plug.Conn{} = conn
+
+      assert conn.body_params == %{"_json" => [%{user: %{email: "foo@bar.com"}}]}
     end
 
     test "cast request body - invalid data type" do

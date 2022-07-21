@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.12.0 - 2022-07-21
+
+Thanks to the contributions of the community
+
+- [@pxp9](https://github.com/pxp9)
+- [@tfwright](https://github.com/tfwright)
+- [@juantascon](https://github.com/juantascon)
+- [@riccardomanfrin](https://github.com/riccardomanfrin)
+- [@rogerweb](https://github.com/rogerweb)
+- [@zorbash](https://github.com/zorbash)
+- [@gianluca-nitti](https://github.com/nitti)
+- [@MichalDolata](https://github.com/MichalDolata)
+- [@Geekfish](https://github.com/Geekfish)
+- [@lazebny](https://github.com/lazebny)
+- [@Eein](https://github.com/Eein)
+
+* Docs: Solve Issue #396 by @pxp9 in https://github.com/open-api-spex/open_api_spex/pull/397
+* Docs: Clarify controller example by @tfwright in https://github.com/open-api-spex/open_api_spex/pull/405
+* Fix: Consider one-shot additionalProperties in .decode() by @zoten in https://github.com/open-api-spex/open_api_spex/pull/413
+* Fix: Casting Encoding without style field by @juantascon in https://github.com/open-api-spex/open_api_spex/pull/395
+* Fix: Adds responses dereferencing by @riccardomanfrin in https://github.com/open-api-spex/open_api_spex/pull/400
+* Docs: Fix typos by @kianmeng in https://github.com/open-api-spex/open_api_spex/pull/414
+* Enhancement: Implement Extendable protocol for all structs that can have extensions by @albertored in https://github.com/open-api-spex/open_api_spex/pull/415
+* Fix: decode/1 function correctly populates the :extensions field of structs by @albertored in https://github.com/open-api-spex/open_api_spex/pull/416
+* Fix: Allow empty schemas to be validated as wildcards by @zoten in https://github.com/open-api-spex/open_api_spex/pull/419
+* Docs: Fix schema example minor syntax issues (#431) by @rogerweb in https://github.com/open-api-spex/open_api_spex/pull/433
+* Enhancement: Bump swagger_ui version to 4.6.2 by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/437
+* Enhancement: Implement flag to omit vendor extensions in mix openapi.spec.json by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/439
+* Enhancement: Generate examples for UUID formatted strings by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/444
+* Enhancement: Format code with mix format by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/449
+* Docs: Fix typo in result of JsonErrorResponse.response() by @gianluca-nitti in https://github.com/open-api-spex/open_api_spex/pull/448
+* Fix: Avoids overwriting Plug.Conn body_params and params with the cast outcome by @albertored in https://github.com/open-api-spex/open_api_spex/pull/425
+* Enhancement: Multiple content types by @moxley in https://github.com/open-api-spex/open_api_spex/pull/451
+* Fix: llow empty content for Response by @MichalDolata in https://github.com/open-api-spex/open_api_spex/pull/453
+* Infrastructure: Improve CI pipeline by @lucacorti in https://github.com/open-api-spex/open_api_spex/pull/377
+* Fix: upport RequestBody passed to operation macro by @Geekfish in https://github.com/open-api-spex/open_api_spex/pull/456
+* Enhancement: Allow extensions in all OpenApi structures by @albertored in https://github.com/open-api-spex/open_api_spex/pull/438
+* Enhancement: ast parameters with json content-type by @albertored in https://github.com/open-api-spex/open_api_spex/pull/445
+* Docs: Code formatting in README by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/459
+* Validate :integer type format by @wingyplus in https://github.com/open-api-spex/open_api_spex/pull/465
+* Fix: Do not accepting float number in integer type by @wingyplus in https://github.com/open-api-spex/open_api_spex/pull/468
+* Fix: anyOf cast crash when Cast.cast return a struct by @wingyplus in https://github.com/open-api-spex/open_api_spex/pull/469
+* Fix: Decoding of discriminators when `type: object` is present by @albertored in https://github.com/open-api-spex/open_api_spex/pull/471
+* Fix: Correctly cast not map bodies (plug puts them under _json key) by @albertored in https://github.com/open-api-spex/open_api_spex/pull/470
+* Enhancement: Add YAML formatter #463 by @lazebny in https://github.com/open-api-spex/open_api_spex/pull/464
+* Enhancement: use cache adapter at runtime instead of compile time for PutApiSpec by @Eein in https://github.com/open-api-spex/open_api_spex/pull/461
+* Infrastructure: Build and publish a hex.pm package automatically by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/474
+
+**Full Changelog**: https://github.com/open-api-spex/open_api_spex/compare/v3.11.0...v3.12.0
+
 ## v3.11.0 - 2021-10-29
 
 Thanks to the contributions of the community ❤️💙💛💜🧡

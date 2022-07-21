@@ -224,22 +224,6 @@ defmodule OpenApiSpex.OpenApi.Decode do
     |> add_extensions(map)
   end
 
-  defp to_struct(%{"type" => "object"} = map, Schema) do
-    map
-    |> Map.update("properties", %{}, fn v ->
-      v
-      |> Map.new(fn {k, v} ->
-        {String.to_atom(k), v}
-      end)
-    end)
-    |> prepare_schema()
-    |> (&struct_from_map(Schema, &1)).()
-    |> prop_to_struct(:properties, Schemas)
-    |> manage_additional_properties()
-    |> prop_to_struct(:externalDocs, ExternalDocumentation)
-    |> add_extensions(map)
-  end
-
   defp to_struct(%{"anyOf" => _valid_schemas} = map, Schema) do
     Schema
     |> struct_from_map(map)
@@ -261,6 +245,22 @@ defmodule OpenApiSpex.OpenApi.Decode do
     |> struct_from_map(map)
     |> prop_to_struct(:allOf, Schemas)
     |> prop_to_struct(:discriminator, Discriminator)
+    |> add_extensions(map)
+  end
+
+  defp to_struct(%{"type" => "object"} = map, Schema) do
+    map
+    |> Map.update("properties", %{}, fn v ->
+      v
+      |> Map.new(fn {k, v} ->
+        {String.to_atom(k), v}
+      end)
+    end)
+    |> prepare_schema()
+    |> (&struct_from_map(Schema, &1)).()
+    |> prop_to_struct(:properties, Schemas)
+    |> manage_additional_properties()
+    |> prop_to_struct(:externalDocs, ExternalDocumentation)
     |> add_extensions(map)
   end
 

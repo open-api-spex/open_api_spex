@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  release:
+    types:
+      - released
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+
+      - uses: erlef/setup-beam@v1
+        id: beam
+        with:
+          otp-version: 25
+          elixir-version: 1.13
+
+      - id: deps
+        name: Fetch and compile dependencies
+        run: |
+          mix do deps.get, deps.compile
+
+      - id: build
+        name: Build package
+        run: |
+          mix hex.build
+
+      - id: publish
+        name: Publish package to hex.pm
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: |
+          mix hex.publish --yes
