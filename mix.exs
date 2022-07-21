@@ -2,7 +2,7 @@ defmodule OpenApiSpex.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/open-api-spex/open_api_spex"
-  @version "3.11.0"
+  @version "3.12.0"
 
   def project do
     [
