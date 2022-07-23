@@ -1,5 +1,14 @@
 defmodule OpenApiSpex.Plug.NoneCache do
-  @moduledoc false
+  @moduledoc """
+  A cache adapter to disable caching. Intended to be used in development.
+
+  Configure it with:
+
+  ```elixir
+  # config/dev.exs
+  config :open_api_spex, :cache_adapter, OpenApiSpex.Plug.NoneCache
+  ```
+  """
 
   @behaviour OpenApiSpex.Plug.Cache
 
