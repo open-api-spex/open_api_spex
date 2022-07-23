@@ -377,7 +377,7 @@ defmodule MyAppWeb.UserController do
 
   operation :update,
     summary: "Update user",
-    description: "Updates with the given params.\nThis is another line of text in the description."
+    description: "Updates with the given params.\nThis is another line of text in the description.",
     parameters: [
       id: [in: :path, type: :integer, description: "user ID"],
       vsn: [in: :query, type: :integer, description: "API version number"],
