@@ -32,12 +32,21 @@ defmodule OpenApiSpex.Plug.RenderSpec do
   @impl Plug
   def init(opts), do: opts
 
-  @impl Plug
-  def call(conn, _opts) do
-    {spec, _} = PutApiSpec.get_spec_and_operation_lookup(conn)
+  if @json_encoder do
+    @impl Plug
+    def call(conn, _opts) do
+      {spec, _} = PutApiSpec.get_spec_and_operation_lookup(conn)
 
-    conn
-    |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.send_resp(200, @json_encoder.encode!(spec))
+      conn
+      |> Plug.Conn.put_resp_content_type("application/json")
+      |> Plug.Conn.send_resp(200, @json_encoder.encode!(spec))
+    end
+  else
+    @impl Plug
+    def call(conn, _opts) do
+      IO.warn("No JSON encoder found. Please add :json or :poison in your mix dependencies.")
+
+      conn
+    end
   end
 end

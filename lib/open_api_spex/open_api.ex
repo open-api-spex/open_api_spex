@@ -71,6 +71,7 @@ defmodule OpenApiSpex.OpenApi do
   @callback spec() :: t
 
   @json_encoder Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
+  @yaml_encoder nil
   @vendor_extensions ~w(
     x-struct
     x-validate
