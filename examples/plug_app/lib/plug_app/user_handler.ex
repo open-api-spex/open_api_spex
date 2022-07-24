@@ -116,7 +116,8 @@ defmodule PlugApp.UserHandler do
             required: true
           ),
         responses: %{
-          201 => response("User", "application/json", Schemas.UserResponse)
+          201 => response("User", "application/json", Schemas.UserResponse),
+          422 => OpenApiSpex.JsonErrorResponse.response()
         }
       }
     end
