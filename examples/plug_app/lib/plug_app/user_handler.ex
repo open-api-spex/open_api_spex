@@ -29,7 +29,7 @@ defmodule PlugApp.UserHandler do
       users = Accounts.list_users()
 
       conn
-      |> Plug.Conn.put_resp_header("Content-Type", "application/json")
+      |> Plug.Conn.put_resp_header("content-type", "application/json")
       |> Plug.Conn.send_resp(200, render(users))
     end
 
@@ -81,7 +81,7 @@ defmodule PlugApp.UserHandler do
 
     def show(conn = %Plug.Conn{assigns: %{user: user}}, _opts) do
       conn
-      |> put_resp_header("Content-Type", "application/json")
+      |> put_resp_header("content-type", "application/json")
       |> send_resp(200, render(user))
     end
 
@@ -116,7 +116,8 @@ defmodule PlugApp.UserHandler do
             required: true
           ),
         responses: %{
-          201 => response("User", "application/json", Schemas.UserResponse)
+          201 => response("User", "application/json", Schemas.UserResponse),
+          422 => OpenApiSpex.JsonErrorResponse.response()
         }
       }
     end
