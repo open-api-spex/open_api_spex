@@ -262,6 +262,13 @@ scope "/api" do
 end
 ```
 
+In development, to ensure the rendered spec is refreshed, you should disable caching with:
+
+```elixir
+# config/dev.exs
+config :open_api_spex, :cache_adapter, OpenApiSpex.Plug.NoneCache
+```
+
 ## Generating the Spec
 
 You can write the swagger file to disk using the following Mix task and optionally, for your
