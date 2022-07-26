@@ -33,6 +33,7 @@ defmodule OpenApiSpex.Plug.RenderSpec do
   if @json_encoder do
     @impl Plug
     def call(conn, _opts) do
+      # credo:disable-for-this-file Credo.Check.Design.AliasUsage
       {spec, _} = OpenApiSpex.Plug.PutApiSpec.get_spec_and_operation_lookup(conn)
 
       conn
