@@ -23,8 +23,6 @@ defmodule OpenApiSpex.Plug.RenderSpec do
       end
   """
 
-  alias OpenApiSpex.Plug.PutApiSpec
-
   @behaviour Plug
 
   @json_encoder Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
@@ -32,12 +30,20 @@ defmodule OpenApiSpex.Plug.RenderSpec do
   @impl Plug
   def init(opts), do: opts
 
-  @impl Plug
-  def call(conn, _opts) do
-    {spec, _} = PutApiSpec.get_spec_and_operation_lookup(conn)
+  if @json_encoder do
+    @impl Plug
+    def call(conn, _opts) do
+      # credo:disable-for-this-file Credo.Check.Design.AliasUsage
+      {spec, _} = OpenApiSpex.Plug.PutApiSpec.get_spec_and_operation_lookup(conn)
 
-    conn
-    |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.send_resp(200, @json_encoder.encode!(spec))
+      conn
+      |> Plug.Conn.put_resp_content_type("application/json")
+      |> Plug.Conn.send_resp(200, @json_encoder.encode!(spec))
+    end
+  else
+    IO.warn("No JSON encoder found. Please add :json or :poison in your mix dependencies.")
+
+    @impl Plug
+    def call(conn, _opts), do: conn
   end
 end
