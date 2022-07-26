@@ -57,7 +57,7 @@ jobs:
             _build
 
       - name: run Plug sample app tests
-        working_directory: ./examples/plug_app
+        working-directory: ./examples/plug_app
         run: mix do deps.get, test
 
   test:
