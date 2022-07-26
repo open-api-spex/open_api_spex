@@ -32,6 +32,43 @@ defmodule OpenApiSpex.SchemaTest do
     end
   end
 
+  describe "schema/1 doesn't generate warnings" do
+    test "if property is duplicated in allOf" do
+      module =
+        quote do
+          defmodule AllOfWarning do
+            require OpenApiSpex
+
+            OpenApiSpex.schema(%{
+              type: :object,
+              allOf: [
+                %Schema{
+                  type: :object,
+                  properties: %{
+                    state: %Schema{
+                      type: :string
+                    }
+                  }
+                }
+              ],
+              properties: %{
+                state: %Schema{
+                  type: :string
+                }
+              }
+            })
+          end
+        end
+
+      warnings_and_errors =
+        ExUnit.CaptureIO.capture_io(:stderr, fn ->
+          Code.compile_quoted(module)
+        end)
+
+      assert warnings_and_errors == ""
+    end
+  end
+
   describe "schema/1 auto-populates title" do
     defmodule Name do
       require OpenApiSpex
@@ -232,6 +269,29 @@ defmodule OpenApiSpex.SchemaTest do
                    fn ->
                      Schema.properties(schema)
                    end
+    end
+
+    test "returns unique values for schemas with allOf defined" do
+      schema = %Schema{
+        type: :object,
+        allOf: [
+          %Schema{
+            type: :object,
+            properties: %{
+              state: %Schema{
+                type: :string
+              }
+            }
+          }
+        ],
+        properties: %{
+          state: %Schema{
+            type: :string
+          }
+        }
+      }
+
+      assert [state: nil] = Schema.properties(schema)
     end
   end
 end

@@ -327,8 +327,10 @@ defmodule OpenApiSpex.Schema do
   included in the `allOf` list.
   """
   def properties(schema = %Schema{type: :object, properties: properties = %{}}) do
-    for({name, property} <- properties, do: {name, default(property)}) ++
-      properties(%{schema | properties: nil})
+    properties
+    |> Enum.map(fn {name, property} -> {name, default(property)} end)
+    |> Enum.concat(properties(%{schema | properties: nil}))
+    |> Enum.uniq_by(fn {name, _property} -> name end)
   end
 
   def properties(%Schema{allOf: schemas}) when is_list(schemas) do
