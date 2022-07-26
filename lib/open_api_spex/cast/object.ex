@@ -26,7 +26,13 @@ defmodule OpenApiSpex.Cast.Object do
          :ok <- check_max_properties(ctx),
          :ok <- check_min_properties(ctx),
          {:ok, value} <- cast_properties(%{ctx | schema: resolved_schema_properties}) do
-      value_with_defaults = apply_defaults(value, resolved_schema_properties)
+      value_with_defaults =
+        if Keyword.get(ctx.opts, :apply_defaults, true) do
+          apply_defaults(value, resolved_schema_properties)
+        else
+          value
+        end
+
       ctx = to_struct(%{ctx | value: value_with_defaults})
       {:ok, ctx}
     end

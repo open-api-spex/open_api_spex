@@ -221,6 +221,25 @@ defmodule OpenApiSpec.CastTest do
       assert error.path == [:age]
       assert Error.message_with_path(error) == "#/age: Invalid strict_integer. Got: string"
     end
+
+    test "apply defaults configuration" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          data: %Schema{
+            type: :string,
+            default: "default"
+          }
+        }
+      }
+
+      assert {:ok, %{}} == cast(value: %{}, schema: schema, opts: [apply_defaults: false])
+
+      assert {:ok, %{data: "default"}} ==
+               cast(value: %{}, schema: schema, opts: [apply_defaults: true])
+
+      assert {:ok, %{data: "default"}} == cast(value: %{}, schema: schema)
+    end
   end
 
   describe "ok/1" do

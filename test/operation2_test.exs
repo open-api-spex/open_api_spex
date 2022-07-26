@@ -20,10 +20,20 @@ defmodule OpenApiSpex.Operation2Test do
       items: @user
     }
     @schemas %{"User" => @user, "UserList" => @user_list}
+    @pet %Schema{
+      type: :object,
+      properties: %{
+        name: %Schema{
+          type: :string,
+          default: "none"
+        }
+      }
+    }
 
     def user, do: @user
     def user_list, do: @user_list
     def schemas, do: @schemas
+    def pet, do: @pet
   end
 
   defmodule ParameterFixtures do
@@ -101,6 +111,19 @@ defmodule OpenApiSpex.Operation2Test do
     }
 
     def update_user, do: @update_user
+
+    @create_pet %Operation{
+      operationId: "PetController.create",
+      requestBody:
+        Operation.request_body("request body", "application/json", SchemaFixtures.pet(),
+          required: true
+        ),
+      responses: %{
+        200 => Operation.response("Created", "application/json", SchemaFixtures.pet())
+      }
+    }
+
+    def create_pet, do: @create_pet
   end
 
   defmodule SpecModule do
@@ -112,6 +135,9 @@ defmodule OpenApiSpex.Operation2Test do
         "/users" => %{
           "post" => OperationFixtures.create_user(),
           "put" => OperationFixtures.update_user()
+        },
+        "/pets" => %{
+          "post" => OperationFixtures.create_pet()
         }
       }
 
@@ -178,6 +204,36 @@ defmodule OpenApiSpex.Operation2Test do
       assert Map.has_key?(conn.private.open_api_spex, :body_params)
       assert Map.has_key?(conn.private.open_api_spex.body_params, :user)
       assert conn.body_params == body
+    end
+
+    test "cast request body with apply_defaults" do
+      body = %{}
+      conn = create_conn(body)
+
+      assert {:ok, conn} =
+               Operation2.cast(
+                 SpecModule.spec(),
+                 OperationFixtures.create_pet(),
+                 conn,
+                 "application/json",
+                 apply_defaults: false
+               )
+
+      assert conn.body_params == body
+
+      body = %{}
+      conn = create_conn(body)
+
+      assert {:ok, conn} =
+               Operation2.cast(
+                 SpecModule.spec(),
+                 OperationFixtures.create_pet(),
+                 conn,
+                 "application/json",
+                 apply_defaults: true
+               )
+
+      assert conn.body_params == %{name: "none"}
     end
 
     test "cast request body reference" do
@@ -271,6 +327,12 @@ defmodule OpenApiSpex.Operation2Test do
                name: "Rubi",
                include_archived: false
              }
+    end
+
+    test "casts valid query params without applying defaults" do
+      valid_query_params = %{"name" => "Rubi", "age" => "31", "member" => "true"}
+      assert {:ok, conn} = do_index_cast(valid_query_params, apply_defaults: false)
+      assert conn.params == %{age: 31, member: true, name: "Rubi"}
     end
 
     test "validate invalid data type for query param" do
@@ -382,7 +444,7 @@ defmodule OpenApiSpex.Operation2Test do
         operation,
         conn,
         "application/json",
-        Keyword.take(opts, [:replace_params])
+        opts
       )
     end
 

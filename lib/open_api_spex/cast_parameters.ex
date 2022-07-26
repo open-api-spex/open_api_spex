@@ -11,7 +11,7 @@ defmodule OpenApiSpex.CastParameters do
   def cast(conn, operation, spec, opts \\ []) do
     replace_params = Keyword.get(opts, :replace_params, true)
 
-    with {:ok, params} <- cast_to_params(conn, operation, spec) do
+    with {:ok, params} <- cast_to_params(conn, operation, spec, opts) do
       {:ok, conn |> cast_conn(params) |> maybe_replace_params(params, replace_params)}
     end
   end
@@ -29,11 +29,11 @@ defmodule OpenApiSpex.CastParameters do
   defp maybe_replace_params(conn, _params, false), do: conn
   defp maybe_replace_params(conn, params, true), do: %{conn | params: params}
 
-  defp cast_to_params(conn, operation, %OpenApi{components: components} = spec) do
+  defp cast_to_params(conn, operation, %OpenApi{components: components} = spec, opts) do
     operation
     |> schemas_by_location(components)
     |> Enum.map(fn {location, {schema, parameters_contexts}} ->
-      cast_location(location, schema, parameters_contexts, spec, conn)
+      cast_location(location, schema, parameters_contexts, spec, conn, opts)
     end)
     |> reduce_cast_results()
   end
@@ -116,7 +116,8 @@ defmodule OpenApiSpex.CastParameters do
          schema,
          parameters_contexts,
          %OpenApi{components: components, extensions: ext},
-         conn
+         conn,
+         opts
        ) do
     parsers = Map.get(ext || %{}, "x-parameter-content-parsers", %{})
     parsers = Map.merge(@default_parsers, parsers)
@@ -129,7 +130,7 @@ defmodule OpenApiSpex.CastParameters do
     |> pre_parse_parameters(parameters_contexts, parsers)
     |> case do
       {:error, _} = err -> err
-      params -> Cast.cast(schema, params, components.schemas)
+      params -> Cast.cast(schema, params, components.schemas, opts)
     end
   end
 
