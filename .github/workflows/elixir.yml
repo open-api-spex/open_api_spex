@@ -35,6 +35,31 @@ jobs:
       - run: mix format --check-formatted
       - run: mix credo --strict --all
       - run: mix dialyzer
+
+  test_examples:
+    runs-on: ubuntu-latest
+    name: Test Sample Applications
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24
+          elixir-version: 1.13
+      - uses: actions/cache@v2
+        with:
+          key: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-plug-build
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-plug-build
+          path: |
+            _build
+
+      - name: run Plug sample app tests
+        working-directory: ./examples/plug_app
+        run: mix do deps.get, test
+
   test:
     runs-on: ubuntu-latest
     name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})

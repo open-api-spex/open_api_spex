@@ -262,6 +262,13 @@ scope "/api" do
 end
 ```
 
+In development, to ensure the rendered spec is refreshed, you should disable caching with:
+
+```elixir
+# config/dev.exs
+config :open_api_spex, :cache_adapter, OpenApiSpex.Plug.NoneCache
+```
+
 ## Generating the Spec
 
 You can write the swagger file to disk using the following Mix task and optionally, for your
@@ -377,7 +384,7 @@ defmodule MyAppWeb.UserController do
 
   operation :update,
     summary: "Update user",
-    description: "Updates with the given params.\nThis is another line of text in the description."
+    description: "Updates with the given params.\nThis is another line of text in the description.",
     parameters: [
       id: [in: :path, type: :integer, description: "user ID"],
       vsn: [in: :query, type: :integer, description: "API version number"],

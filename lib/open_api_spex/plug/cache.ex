@@ -1,6 +1,6 @@
 defmodule OpenApiSpex.Plug.Cache do
   @moduledoc """
-  Cache for OpenApiSpex
+  Cache for OpenApiSpex API specs.
 
   Settings:
 
@@ -8,13 +8,14 @@ defmodule OpenApiSpex.Plug.Cache do
   config :open_api_spex, :cache_adapter, Module
   ```
 
-  There are already had three cache adapter:
+  There are three cache implementations:
+
   * `OpenApiSpex.Plug.PersistentTermCache` - default
-  * `OpenApiSpex.Plug.AppEnvCache` - if VM not supported `persistent_term`
+  * `OpenApiSpex.Plug.AppEnvCache` - for VMs that don't support `persistent_term`
   * `OpenApiSpex.Plug.NoneCache` - none cache
 
-  If you are constantly modifying specs during development, you can setting
-  like this in `dev.exs`:
+  If you are constantly modifying specs during development, you can configure the cache adapter
+  in `dev.exs` as follows to disable caching:
 
   ```elixir
   config :open_api_spex, :cache_adapter, OpenApiSpex.Plug.NoneCache

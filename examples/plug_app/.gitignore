@@ -20,4 +20,4 @@ erl_crash.dump
 *.ez
 
 # Database files
-priv/repo/plug_app.db
+priv/repo/*.db

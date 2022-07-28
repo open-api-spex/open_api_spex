@@ -134,6 +134,18 @@ defmodule OpenApiSpex.ObjectTest do
       assert cast(value: %{name: "Robin"}, schema: schema) == {:ok, %{name: "Robin"}}
     end
 
+    test "fields with default values and apply_defaults config" do
+      schema = %Schema{
+        type: :object,
+        properties: %{name: %Schema{type: :string, default: "Rubi"}}
+      }
+
+      assert cast(value: %{}, schema: schema, opts: [apply_defaults: true]) ==
+               {:ok, %{name: "Rubi"}}
+
+      assert cast(value: %{}, schema: schema, opts: [apply_defaults: false]) == {:ok, %{}}
+    end
+
     test "explicitly passing nil for fields with default values (not nullable)" do
       schema = %Schema{
         type: :object,

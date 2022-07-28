@@ -77,7 +77,7 @@ defmodule OpenApiSpex do
     OpenApiSpex.Cast.cast(schema, value, spec.components.schemas)
   end
 
-  @type cast_opt :: {:replace_params, boolean()}
+  @type cast_opt :: {:replace_params, boolean()} | {:apply_defaults, boolean()}
 
   @spec cast_and_validate(
           OpenApi.t(),
