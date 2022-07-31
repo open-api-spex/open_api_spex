@@ -15,7 +15,11 @@
     locals_without_parens: [
       operation: 2,
       tags: 1,
-      security: 1
+      security: 1,
+      assert_schema: 1,
+      assert_schema: 3,
+      assert_request_schema: 3,
+      assert_response_schema: 3
     ]
   ]
 ]
