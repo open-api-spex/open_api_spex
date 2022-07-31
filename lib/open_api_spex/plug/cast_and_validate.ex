@@ -106,25 +106,38 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
     # This caching is to improve performance of extracting Operation specs
     # at runtime when they're using the @doc-based syntax.
-    operation =
+    operation_lookup =
       case operation_lookup[{controller, action}] do
         nil ->
-          operation_id = controller.open_api_operation(action).operationId
+          operation = controller.open_api_operation(action)
 
-          PutApiSpec.get_and_cache_controller_action(
-            conn,
-            operation_id,
-            {controller, action}
-          )
+          if operation do
+            operation =
+              PutApiSpec.get_and_cache_controller_action(
+                conn,
+                operation.operationId,
+                {controller, action}
+              )
+
+            {:found_it, operation}
+          else
+            # this is the case when operation: false was used
+            {:skip_it, nil}
+          end
 
         operation ->
-          operation
+          {:found_it, operation}
       end
 
-    if operation.operationId do
-      call(conn, Map.put(opts, :operation_id, operation.operationId))
-    else
-      raise "operationId was not found in action API spec"
+    case operation_lookup do
+      {:skip_it, _} ->
+        conn
+
+      {:found_it, nil} ->
+        raise "operationId was not found in action API spec"
+
+      {:found_it, operation} ->
+        call(conn, opts |> Map.put(:operation_id, operation.operationId))
     end
   end
 

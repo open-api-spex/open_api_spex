@@ -5,8 +5,28 @@ defmodule OpenApiSpex.Plug.CastTest do
 
   alias OpenApiSpexTest.ApiSpec
 
+  describe "valid operation (not annotated)" do
+    test "does not raise an error when the operation is nil set with the operation macro" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/noapi")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+    end
+
+    test "does not raise an error when the operation is nil set with the open_api_operation function" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/noapi_with_struct")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+    end
+  end
+
   describe "query params - basics" do
-    test "Valid Param" do
+    test "valid param" do
       conn =
         :get
         |> Plug.Test.conn("/api/users?validParam=true")
@@ -18,7 +38,7 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert OpenApiSpex.params(conn) == %{validParam: true}
     end
 
-    test "Valid Param with replace_params false" do
+    test "valid param with replace_params false" do
       conn =
         :get
         |> Plug.Test.conn("/api/users_no_replace?validParam=true")
@@ -32,7 +52,7 @@ defmodule OpenApiSpex.Plug.CastTest do
     end
 
     @tag :capture_log
-    test "Invalid value" do
+    test "invalid value" do
       conn =
         :get
         |> Plug.Test.conn("/api/users?validParam=123")
@@ -42,7 +62,7 @@ defmodule OpenApiSpex.Plug.CastTest do
     end
 
     @tag :capture_log
-    test "Invalid Param" do
+    test "invalid param" do
       conn =
         :get
         |> Plug.Test.conn("/api/users?validParam=123")
@@ -100,7 +120,7 @@ defmodule OpenApiSpex.Plug.CastTest do
   end
 
   describe "query params - param with custom error handling" do
-    test "Valid Param" do
+    test "valid param" do
       conn =
         :get
         |> Plug.Test.conn("/api/custom_error_users?validParam=true")
@@ -111,7 +131,7 @@ defmodule OpenApiSpex.Plug.CastTest do
     end
 
     @tag :capture_log
-    test "Invalid value" do
+    test "invalid value" do
       conn =
         :get
         |> Plug.Test.conn("/api/custom_error_users?validParam=123")
@@ -121,7 +141,7 @@ defmodule OpenApiSpex.Plug.CastTest do
     end
 
     @tag :capture_log
-    test "Invalid Param" do
+    test "invalid param" do
       conn =
         :get
         |> Plug.Test.conn("/api/custom_error_users?validParam=123")
@@ -133,7 +153,7 @@ defmodule OpenApiSpex.Plug.CastTest do
   end
 
   describe "body params" do
-    test "Valid Request" do
+    test "valid request" do
       request_body = %{
         "user" => %{
           "id" => 123,
@@ -179,7 +199,7 @@ defmodule OpenApiSpex.Plug.CastTest do
     end
 
     @tag :capture_log
-    test "Invalid Request" do
+    test "invalid request" do
       request_body = %{
         "user" => %{
           "id" => 123,
@@ -208,7 +228,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
-    test "Valid Request with replace_params false" do
+    test "valid request with replace_params false" do
       request_body = %{
         "user" => %{
           "id" => 123,
@@ -255,7 +275,7 @@ defmodule OpenApiSpex.Plug.CastTest do
   end
 
   describe "oneOf body params" do
-    test "Valid Request" do
+    test "valid request" do
       request_body = %{
         "pet" => %{
           "pet_type" => "Dog",
@@ -287,7 +307,7 @@ defmodule OpenApiSpex.Plug.CastTest do
     end
 
     @tag :capture_log
-    test "Invalid Request" do
+    test "invalid request" do
       request_body = %{
         "pet" => %{
           "pet_type" => "Human",
@@ -337,7 +357,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              ]
     end
 
-    test "Header params" do
+    test "header params" do
       conn =
         :post
         |> Plug.Test.conn("/api/pets/1/adopt")
@@ -353,7 +373,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
-    test "Optional param" do
+    test "optional param" do
       conn =
         :post
         |> Plug.Test.conn("/api/pets/1/adopt?status=adopted")
@@ -369,7 +389,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
-    test "Cookie params" do
+    test "cookie params" do
       conn =
         :post
         |> Plug.Test.conn("/api/pets/1/adopt")
@@ -386,7 +406,7 @@ defmodule OpenApiSpex.Plug.CastTest do
              }
     end
 
-    test "Discriminator with mapping" do
+    test "discriminator with mapping" do
       body =
         Jason.encode!(%{
           appointment_type: "grooming",
