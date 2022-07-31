@@ -27,7 +27,7 @@ defmodule UserHandlerTest do
 
       json_response = Jason.decode!(body)
 
-      assert %{"data" => [%{"id" => user_id}]} = json_response
+      assert %{"data" => [%{"id" => ^user_id}]} = json_response
 
       assert_schema(json_response, "UsersResponse", api_spec)
     end
@@ -53,7 +53,7 @@ defmodule UserHandlerTest do
 
       json_response = Jason.decode!(body)
 
-      assert %{"data" => %{"id" => user_id}} = json_response
+      assert %{"data" => %{"id" => ^user_id}} = json_response
 
       assert_schema(json_response, "UserResponse", api_spec)
     end
@@ -62,7 +62,9 @@ defmodule UserHandlerTest do
   describe "POST /api/users" do
     @payload example(Schemas.UserRequest)
 
-    test "responds with 201 Created and a JSON body matching the API schema", %{api_spec: api_spec} do
+    test "responds with 201 Created and a JSON body matching the API schema", %{
+      api_spec: api_spec
+    } do
       %{resp_body: body} =
         conn =
         conn(:post, "/api/users", Jason.encode!(@payload))
@@ -84,9 +86,10 @@ defmodule UserHandlerTest do
       }
     }
 
-    test "responds with 422 Unprocessable Entity and a JSON body matching the API schema when ", %{
-      api_spec: api_spec
-    } do
+    test "responds with 422 Unprocessable Entity and a JSON body matching the API schema when ",
+         %{
+           api_spec: api_spec
+         } do
       %{resp_body: body} =
         conn =
         conn(:post, "/api/users", Jason.encode!(@payload))
