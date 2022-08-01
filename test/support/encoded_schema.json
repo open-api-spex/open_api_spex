@@ -271,6 +271,11 @@
             "type": "object"
           }
         ]
+      },
+      "Not": {
+        "not": {
+          "type": "string"
+        }
       }
     },
     "links": {

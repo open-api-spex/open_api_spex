@@ -267,7 +267,7 @@ defmodule OpenApiSpex.OpenApi.Decode do
   defp to_struct(%{"not" => _valid_schemas} = map, Schema) do
     Schema
     |> struct_from_map(map)
-    |> prop_to_struct(:not, Schemas)
+    |> prop_to_struct(:not, Schema)
     |> add_extensions(map)
   end
 

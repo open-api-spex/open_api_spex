@@ -174,8 +174,11 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
       assert %{
                "User" => user_schema,
                "Admin" => admin_schema,
-               "DiscriminatorWithType" => disc_with_type
+               "DiscriminatorWithType" => disc_with_type,
+               "Not" => not_schema
              } = schemas
+
+      assert %OpenApiSpex.Schema{not: %OpenApiSpex.Schema{type: :string}} == not_schema
 
       assert %OpenApiSpex.Schema{
                allOf: [
