@@ -6,6 +6,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
 
       $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec apispec.json
       $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec --pretty=true
+      $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec --start-app=false
       $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec --vendor-extensions=false
 
   ## Command line options
@@ -13,6 +14,8 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   * `--spec` - The ApiSpec module from which to generate the OpenAPI JSON file
 
   * `--pretty` - Whether to prettify the generated JSON (defaults to false)
+
+  * `--start-app` - Whether need to start application before generate schema (defaults to true)
 
   * `--vendor-extensions` - Whether to include open_api_spex OpenAPI vendor extensions
     (defaults to true)
@@ -25,9 +28,14 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
 
   @impl true
   def run(argv) do
-    Mix.Task.run("app.start")
+    {opts, _, _} = OptionParser.parse(argv, strict: [start_app: :boolean])
+
+    Keyword.get(opts, :start_app, true) |> maybe_start_app()
     OpenApiSpex.ExportSpec.call(argv, &encode/2, @default_filename)
   end
+
+  defp maybe_start_app(true), do: Mix.Task.run("app.start")
+  defp maybe_start_app(_), do: :ok
 
   defp encode(spec, %{pretty: pretty}) do
     spec
