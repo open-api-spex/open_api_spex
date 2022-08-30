@@ -35,7 +35,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   end
 
   defp maybe_start_app(true), do: Mix.Task.run("app.start")
-  defp maybe_start_app(_), do: :ok
+  defp maybe_start_app(_), do: Mix.Task.run("app.config")
 
   defp encode(spec, %{pretty: pretty}) do
     spec

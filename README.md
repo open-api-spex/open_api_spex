@@ -279,6 +279,33 @@ mix openapi.spec.json --spec MyAppWeb.ApiSpec
 mix openapi.spec.yaml --spec MyAppWeb.ApiSpec
 ```
 
+If you have Plug application you can generate file without starting application:
+
+```shell
+mix openapi.spec.json --spec PlugApp.ApiSpec --start-app=false
+mix openapi.spec.yaml --spec PlugApp.ApiSpec --start-app=false
+```
+
+In Phoenix application when you use spec with server url, application must be started:
+```elixir
+  %OpenApi{
+    info: %Info{
+      title: "Phoenix App",
+      version: "1.0"
+    },
+    servers: [OpenApiSpex.Server.from_endpoint(MyAppWeb.Endpoint)],
+  }
+```
+Or you can replace url using `OpenApiSpex.Server` struct:
+```elixir
+  %OpenApi{
+    info: %Info{
+      title: "Phoenix App",
+      version: "2.0"
+    },
+    servers: [%OpenApiSpex.Server{url: "https://myapi.example.com"}],
+```
+
 NOTE: You need to add `ymlr` dependency to write swagger file in YAML format:
 
 ```elixir
@@ -288,6 +315,12 @@ def deps do
     {:ymlr, "~> 2.0"}
   ]
 end
+```
+
+More options read in task docs:
+```shell
+mix help openapi.spec.json
+mix help openapi.spec.yaml
 ```
 
 ## Serve Swagger UI
