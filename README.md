@@ -279,34 +279,25 @@ mix openapi.spec.json --spec MyAppWeb.ApiSpec
 mix openapi.spec.yaml --spec MyAppWeb.ApiSpec
 ```
 
-If you have Plug application you can generate file without starting application:
+Invoking this task starts the application by default. This can be
+disabled with the `--start-app=false` option.
 
-```shell
-mix openapi.spec.json --spec PlugApp.ApiSpec --start-app=false
-mix openapi.spec.yaml --spec PlugApp.ApiSpec --start-app=false
-```
+Please make to replace any calls to [OpenApiSpex.Server.from_endpoint](https://hexdocs.pm/open_api_spex/OpenApiSpex.Server.html#from_endpoint/1) with a `%OpenApiSpex.Server{}` struct like below:
 
-In Phoenix application when you use spec with server url, application must be started:
 ```elixir
   %OpenApi{
     info: %Info{
       title: "Phoenix App",
       version: "1.0"
     },
+    # Replace this 👇
     servers: [OpenApiSpex.Server.from_endpoint(MyAppWeb.Endpoint)],
+    # With this 👇
+    servers: [%OpenApiSpex.Server{url: "https://yourapi.example.com"}],
   }
 ```
-Or you can replace url using `OpenApiSpex.Server` struct:
-```elixir
-  %OpenApi{
-    info: %Info{
-      title: "Phoenix App",
-      version: "2.0"
-    },
-    servers: [%OpenApiSpex.Server{url: "https://myapi.example.com"}],
-```
 
-NOTE: You need to add `ymlr` dependency to write swagger file in YAML format:
+NOTE: You need to add the `ymlr` dependency to write swagger file in YAML format:
 
 ```elixir
 
@@ -317,7 +308,8 @@ def deps do
 end
 ```
 
-More options read in task docs:
+For more options read the [docs](https://hexdocs.pm/open_api_spex/Mix.Tasks.Openapi.Spec.Json.html).
+
 ```shell
 mix help openapi.spec.json
 mix help openapi.spec.yaml

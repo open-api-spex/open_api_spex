@@ -12,7 +12,7 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
 
   * `--spec` - The ApiSpec module from which to generate the OpenAPI YAML file
 
-  * `--start-app` - Whether need to start application before generate schema (defaults to true)
+  * `--start-app` - Whether to start the application before generating the schema (defaults to true)
 
   * `--vendor-extensions` - Whether to include open_api_spex OpenAPI vendor extensions
     (defaults to true)
