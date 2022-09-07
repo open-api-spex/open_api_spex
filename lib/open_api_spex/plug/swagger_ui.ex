@@ -12,12 +12,6 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   See the [swagger-ui configuration docs](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) for details.
   Should dynamic configuration be required, the `config_url` option can be set to an API endpoint that will provide additional config.
 
-  ## Runtime Configuration
-
-  SwaggerUI also accepts functions as parameters, allowing runtime configurations.
-  Because of limitations of `router.ex` file, the functions can be defined only as: `{module, function_name}`.
-  Example: `{MyAppWeb.RuntimeConfig, :on_complete}`
-
   ## Example
 
       scope "/" do
@@ -28,7 +22,6 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
           path: "/api/openapi",
           default_model_expand_depth: 3,
           display_operation_id: true
-          on_complete: {MyAppWeb.RuntimeConfig, :on_complete}
       end
 
       # Other scopes may use custom stacks.
@@ -37,6 +30,28 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         resources "/users", MyAppWeb.UserController, only: [:index, :create, :show]
         get "/openapi", OpenApiSpex.Plug.RenderSpec, :show
       end
+
+  ## Runtime Configuration
+
+  SwaggerUI also accepts functions as parameters, allowing runtime configurations.
+  Because of limitations of `router.ex` file, the functions can be defined only as: `{module, function_name}`.
+
+  ## Example
+
+      defmodule RuntimeConfig do
+        def on_complete do
+          "function() { ui.preauthorizeApiKey("bearer", "your generated token here"); }"
+        end
+      end
+
+      scope "/" do
+        pipe_through :browser # Use the default browser stack
+
+        get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+          path: "/api/openapi",
+          on_complete: {RuntimeConfig, :on_complete}
+      end
+
   """
   @behaviour Plug
 
