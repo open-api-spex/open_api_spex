@@ -15,6 +15,12 @@ defmodule OpenApiSpex.CastStringTest do
       assert error.value == %{}
     end
 
+    test "preserves atom values" do
+      schema = %Schema{type: :string}
+
+      assert cast(value: :hello, schema: schema) == {:ok, :hello}
+    end
+
     test "string with pattern" do
       schema = %Schema{type: :string, pattern: ~r/\d-\d/}
       assert cast(value: "1-2", schema: schema) == {:ok, "1-2"}
@@ -80,6 +86,7 @@ defmodule OpenApiSpex.CastStringTest do
     # Note: we measure length of string after trimming leading and trailing whitespace
     test "minLength" do
       schema = %Schema{type: :string, minLength: 1}
+
       assert {:ok, "a"} = cast(value: "a", schema: schema)
       assert {:error, [error]} = cast(value: "", schema: schema)
       assert %Error{} = error
@@ -89,27 +96,32 @@ defmodule OpenApiSpex.CastStringTest do
     # Note: we measure length of string after trimming leading and trailing whitespace
     test "maxLength" do
       schema = %Schema{type: :string, maxLength: 1}
+
       assert {:ok, "a"} = cast(value: "a", schema: schema)
-      assert {:error, [error]} = cast(value: "aa", schema: schema)
-      assert %Error{} = error
-      assert error.reason == :max_length
+      assert {:error, [%Error{reason: :max_length}]} = cast(value: "aa", schema: schema)
+
+      assert {:ok, :a} = cast(value: :a, schema: schema)
+      assert {:error, [%Error{reason: :max_length}]} = cast(value: :aa, schema: schema)
     end
 
     test "maxLength and minLength" do
       schema = %Schema{type: :string, minLength: 1, maxLength: 2}
-      assert {:error, [error]} = cast(value: "", schema: schema)
-      assert %Error{} = error
-      assert error.reason == :min_length
-      assert {:error, [error]} = cast(value: "aaa", schema: schema)
-      assert %Error{} = error
-      assert error.reason == :max_length
+
+      assert {:error, [%Error{reason: :min_length}]} = cast(value: "", schema: schema)
+      assert {:error, [%Error{reason: :max_length}]} = cast(value: "aaa", schema: schema)
+
+      assert {:error, [%Error{reason: :min_length}]} = cast(value: :"", schema: schema)
+      assert {:error, [%Error{reason: :max_length}]} = cast(value: :aaa, schema: schema)
     end
 
     test "minLength and pattern" do
       schema = %Schema{type: :string, minLength: 1, pattern: ~r/\d-\d/}
-      assert {:error, errors} = cast(value: "", schema: schema)
-      assert length(errors) == 2
-      assert Enum.map(errors, & &1.reason) == [:invalid_format, :min_length]
+
+      assert {:error, [%Error{reason: :invalid_format}, %Error{reason: :min_length}]} =
+               cast(value: "", schema: schema)
+
+      assert {:error, [%Error{reason: :invalid_format}, %Error{reason: :min_length}]} =
+               cast(value: :"", schema: schema)
     end
   end
 end

@@ -106,6 +106,13 @@ defmodule OpenApiSpex.Cast.String do
     {:ok, value}
   end
 
+  def cast(%{value: value} = ctx) when is_atom(value) and value not in [true, false, nil] do
+    case cast(%{ctx | value: to_string(value)}) do
+      {:ok, _value} -> {:ok, value}
+      error -> error
+    end
+  end
+
   def cast(%{value: value} = ctx) when is_binary(value) do
     apply_validation(ctx, @schema_fields)
   end

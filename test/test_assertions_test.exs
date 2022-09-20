@@ -13,7 +13,7 @@ defmodule OpenApiSpex.TestAssertionsTest do
 
     test "failure" do
       schema = %Schema{type: :string}
-      cast_context = %Cast{value: :nope, schema: schema}
+      cast_context = %Cast{value: 1.100, schema: schema}
 
       try do
         TestAssertions.assert_schema(cast_context)
