@@ -94,24 +94,23 @@ defmodule OpenApiSpex.Cast.Discriminator do
     end
   end
 
-  defp find_discriminator_schema(discriminator, _, schemas) when is_atom(discriminator) do
-    Enum.find(schemas, &Kernel.==(&1."x-struct", discriminator))
-  end
+  defp find_discriminator_schema(discriminator, _mappings, schemas)
+       when is_atom(discriminator) and not is_nil(discriminator),
+       do: Enum.find(schemas, &Kernel.==(&1."x-struct", discriminator))
 
-  defp find_discriminator_schema(discriminator, _, schemas) when is_binary(discriminator) do
-    Enum.find(schemas, &Kernel.==(&1.title, discriminator))
-  end
+  defp find_discriminator_schema(discriminator, _mappings, schemas) when is_binary(discriminator),
+    do: Enum.find(schemas, &Kernel.==(&1.title, discriminator))
+
+  defp find_discriminator_schema(_discriminator, _mappings, _schemas), do: nil
 
   defp discriminator_details(%{discriminator: %{propertyName: property_name, mapping: mappings}}),
     do: {String.to_existing_atom(property_name), mappings}
 
-  defp error(message, %{schema: %{discriminator: %{propertyName: property}}} = ctx) do
-    Cast.error(ctx, {message, property})
-  end
+  defp error(message, %{schema: %{discriminator: %{propertyName: property}}} = ctx),
+    do: Cast.error(ctx, {message, property})
 
   defp locate_schemas(schemas, ctx_schemas) do
-    schemas
-    |> Enum.map(fn
+    Enum.map(schemas, fn
       %Schema{} = schema ->
         schema
 

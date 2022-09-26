@@ -287,8 +287,28 @@ defmodule OpenApiSpex.CastAllOfTest do
 
     value = ["Test #1", "2", "3", "4", "true", "Five!"]
 
-    assert {:error, [_all_of_err, _test1_err, _true_err, _five_err]} =
-             cast(value: value, schema: schema)
+    assert {:error,
+            [
+              %OpenApiSpex.Cast.Error{
+                reason: :all_of,
+                value: ["Test #1", "2", "3", "4", "true", "Five!"]
+              },
+              %OpenApiSpex.Cast.Error{
+                reason: :invalid_type,
+                value: "Test #1",
+                type: :integer
+              },
+              %OpenApiSpex.Cast.Error{
+                reason: :invalid_type,
+                value: "true",
+                type: :integer
+              },
+              %OpenApiSpex.Cast.Error{
+                reason: :invalid_type,
+                value: "Five!",
+                type: :integer
+              }
+            ]} = cast(value: value, schema: schema)
   end
 
   defmodule CatSchema do

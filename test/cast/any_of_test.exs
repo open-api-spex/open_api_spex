@@ -85,7 +85,7 @@ defmodule OpenApiSpex.CastAnyOfTest do
       assert {:ok, %{breed: "Corgi", age: 3, food: "meat"}} = cast(value: value, schema: schema)
     end
 
-    test "should proper return the errors if no match" do
+    test "returns the errors of all the schemas when none match" do
       schema_1 = %Schema{
         type: :object,
         additionalProperties: false,
