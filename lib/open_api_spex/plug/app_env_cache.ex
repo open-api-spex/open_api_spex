@@ -1,5 +1,5 @@
 defmodule OpenApiSpex.Plug.AppEnvCache do
-  @moduledoc "OpenApiSpex AppEnvCache"
+  @moduledoc "A cache implementation leveraging Application env."
 
   @behaviour OpenApiSpex.Plug.Cache
 

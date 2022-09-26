@@ -24,7 +24,7 @@ The package can be installed by adding `:open_api_spex` to your list of dependen
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.12"}
+    {:open_api_spex, "~> 3.13"}
   ]
 end
 ```
@@ -279,7 +279,25 @@ mix openapi.spec.json --spec MyAppWeb.ApiSpec
 mix openapi.spec.yaml --spec MyAppWeb.ApiSpec
 ```
 
-NOTE: You need to add `ymlr` dependency to write swagger file in YAML format:
+Invoking this task starts the application by default. This can be
+disabled with the `--start-app=false` option.
+
+Please make to replace any calls to [OpenApiSpex.Server.from_endpoint](https://hexdocs.pm/open_api_spex/OpenApiSpex.Server.html#from_endpoint/1) with a `%OpenApiSpex.Server{}` struct like below:
+
+```elixir
+  %OpenApi{
+    info: %Info{
+      title: "Phoenix App",
+      version: "1.0"
+    },
+    # Replace this 👇
+    servers: [OpenApiSpex.Server.from_endpoint(MyAppWeb.Endpoint)],
+    # With this 👇
+    servers: [%OpenApiSpex.Server{url: "https://yourapi.example.com"}],
+  }
+```
+
+NOTE: You need to add the `ymlr` dependency to write swagger file in YAML format:
 
 ```elixir
 
@@ -288,6 +306,13 @@ def deps do
     {:ymlr, "~> 2.0"}
   ]
 end
+```
+
+For more options read the [docs](https://hexdocs.pm/open_api_spex/Mix.Tasks.Openapi.Spec.Json.html).
+
+```shell
+mix help openapi.spec.json
+mix help openapi.spec.yaml
 ```
 
 ## Serve Swagger UI

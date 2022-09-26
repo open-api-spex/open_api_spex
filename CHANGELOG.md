@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.13.0 - 2022-09-24
+
+Thanks to the contributions of the community
+
+- [@MichalDolata](https://github.com/MichalDolata)
+- [@mbuhot](https://github.com/mbuhot)
+- [@zorbash](https://github.com/zorbash)
+- [@albertored](https://github.com/albertored)
+- [@rolandtritsch](https://github.com/rolandtritsch)
+- [@natali-maximenko](https://github.com/natali-maximenko)
+- [@Eein](https://github.com/Eein)
+
+* Docs: Document OpenApiSpex.Plug.NoneCache #480 by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/480
+* Enhancement: Improve example apps #481 by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/481
+* Infrastructure: Fix CI workflow  by @mbuhot
+* Enhancement: Fix compilation warnings #479 by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/479
+* Enhancement: Allow to configure casting to not automatically populate default values #460 by @albertored in https://github.com/open-api-spex/open_api_spex/pull/460
+* Fix: (UndefinedFunctionError) #447 by @rolandtritsch in https://github.com/open-api-spex/open_api_spex/pull/447
+* Enhancement: Allow omitting parens in test assertion functions #485 by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/485
+* Fix: `not` schemas not decoded correctly #484 by @albertored in https://github.com/open-api-spex/open_api_spex/pull/484
+* Enhancement: Add `--start-app` option in openapi generation task #489 by @natali-maximenko in https://github.com/open-api-spex/open_api_spex/pull/489
+* Enhancement: Loosen poison dependency to allow using version 3.0 #483 by @Eein in https://github.com/open-api-spex/open_api_spex/pull/483
+* Enhancement: Bump swagger-ui JS dependency to 4.14.0 by @zorbash
+
+**Full Changelog**: https://github.com/open-api-spex/open_api_spex/compare/v3.12.0...v3.13.0
+
 ## v3.12.0 - 2022-07-21
 
 Thanks to the contributions of the community

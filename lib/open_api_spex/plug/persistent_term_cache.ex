@@ -1,6 +1,6 @@
 if function_exported?(:persistent_term, :info, 0) do
   defmodule OpenApiSpex.Plug.PersistentTermCache do
-    @moduledoc false
+    @moduledoc "A cache leveraging `:persistent_term`."
 
     @behaviour OpenApiSpex.Plug.Cache
 

@@ -65,14 +65,14 @@ defmodule OpenApiSpex.Cast do
       iex> schema = %Schema{type: :string}
       iex> Cast.cast(schema, "a string")
       {:ok, "a string"}
-      iex> Cast.cast(schema, :not_a_string)
+      iex> Cast.cast(schema, 1..100)
       {
         :error,
         [
           %OpenApiSpex.Cast.Error{
             reason: :invalid_type,
             type: :string,
-            value: :not_a_string
+            value: 1..100
           }
         ]
       }
