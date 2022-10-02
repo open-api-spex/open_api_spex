@@ -19,5 +19,5 @@
   "plug_crypto": {:hex, :plug_crypto, "1.2.2", "05654514ac717ff3a1843204b424477d9e60c143406aa94daf2274fdd280794d", [:mix], [], "hexpm", "87631c7ad914a5a445f0a3809f99b079113ae4ed4b867348dd9eec288cecb6db"},
   "poison": {:hex, :poison, "5.0.0", "d2b54589ab4157bbb82ec2050757779bfed724463a544b6e20d79855a9e43b24", [:mix], [{:decimal, "~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "11dc6117c501b80c62a7594f941d043982a1bd05a1184280c0d9166eb4d8d3fc"},
   "telemetry": {:hex, :telemetry, "1.0.0", "0f453a102cdf13d506b7c0ab158324c337c41f1cc7548f0bc0e130bbf0ae9452", [:rebar3], [], "hexpm", "73bc09fa59b4a0284efb4624335583c528e07ec9ae76aca96ea0673850aec57a"},
-  "ymlr": {:hex, :ymlr, "2.0.0", "7525b6da40250777c35456017ef44f7faec06da254eafcf9f9cfb0d65f4c8cb7", [:mix], [], "hexpm", "f9301ad7ea377213b506f6e58ddffd1a7743e24238bb70e572ee510bdc2d1d5a"},
+  "ymlr": {:hex, :ymlr, "3.0.1", "c7b459262aa52cbfee5d324995ac1bff8c765983460b1a4bb792f0f4db392232", [:mix], [], "hexpm", "759ce05102f7cb741cc65148044443d330cc75c9abd0769d5735bbf522219309"},
 }
