@@ -50,6 +50,16 @@ defmodule OpenApiSpex.CastStringTest do
       assert error.format == :date
     end
 
+    test "string with format (byte)" do
+      schema = %Schema{type: :string, format: :byte}
+      date_string = Base.encode64("hello")
+      assert {:ok, "hello"} = cast(value: date_string, schema: schema)
+      assert {:error, [error]} = cast(value: "not-a-base64-string", schema: schema)
+      assert error.reason == :invalid_format
+      assert error.value == "not-a-base64-string"
+      assert error.format == :base64
+    end
+
     test "casts a string with valid uuid format" do
       schema = %Schema{type: :string, format: :uuid}
 

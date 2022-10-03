@@ -30,6 +30,16 @@ defmodule OpenApiSpex.Cast.String do
     end
   end
 
+  def cast(%{value: value, schema: %{format: :byte}} = ctx) when is_binary(value) do
+    case Base.decode64(value) do
+      {:ok, _} = result ->
+        result
+
+      _ ->
+        Cast.error(ctx, {:invalid_format, :base64})
+    end
+  end
+
   @uuid_valid_characters [
     ?0,
     ?1,
