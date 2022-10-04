@@ -262,6 +262,20 @@ scope "/api" do
 end
 ```
 
+Note that the above snippet uses [`scope/3`](https://hexdocs.pm/phoenix/Phoenix.Router.html#scope/3); some Phoenix projects will instead use [`scope/4`](https://hexdocs.pm/phoenix/Phoenix.Router.html#scope/3), which adds an alias to all modules declared in the scope:
+```elixir
+scope "/api", MyAppWeb do
+  pipe_through :api
+  # Note the lack of `MyAppWeb` below for `UserController`, because the alias is now implicit
+  resources "/users", UserController, only: [:create, :index, :show]
+  # However, the alias now applies to `RenderSpec` as well, which will cause errors
+  get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+end
+```
+
+In this case, the `RenderSpec` module will be aliased as `MyAppWeb.OpenApiSpex.Plug.RenderSpec`, which will cause linter errors and fail at runtime. In order to prevent this, remove the alias from the `scope` invocation (`MyAppWeb`) and fully qualify the other controllers/functions (e.g. `MyAppWeb.UserController` instead of just `UserController`)
+
+
 In development, to ensure the rendered spec is refreshed, you should disable caching with:
 
 ```elixir
