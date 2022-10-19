@@ -1,6 +1,7 @@
 defmodule OpenApiSpex.Cast.OneOf do
   @moduledoc false
   alias OpenApiSpex.Cast
+  alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Schema
 
   def cast(%_{schema: %{type: _, oneOf: []}} = ctx) do
@@ -9,20 +10,24 @@ defmodule OpenApiSpex.Cast.OneOf do
 
   def cast(%{schema: %{type: _, oneOf: schemas}} = ctx) do
     castable_schemas =
-      Enum.reduce(schemas, {[], []}, fn schema, {results, error_schemas} ->
+      Enum.reduce(schemas, {ctx, [], []}, fn schema, {ctx, results, error_schemas} ->
         schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
+        relaxed_schema = %{schema | "x-struct": nil}
 
-        case Cast.cast(%{ctx | schema: schema}) do
-          {:ok, value} -> {[{:ok, value, schema} | results], error_schemas}
-          _error -> {results, [schema | error_schemas]}
+        with {:ok, value} <- Cast.cast(%{ctx | errors: [], schema: relaxed_schema}),
+             :ok <- Utils.check_required_fields(ctx, value) do
+          {ctx, [{:ok, value, schema} | results], error_schemas}
+        else
+          {:error, errors} ->
+            {%Cast{ctx | errors: ctx.errors ++ errors}, results, [schema | error_schemas]}
         end
       end)
 
     case castable_schemas do
-      {[{:ok, %_{} = value, _}], _} -> {:ok, value}
-      {[{:ok, value, %Schema{"x-struct": nil}}], _} -> {:ok, value}
-      {[{:ok, value, %Schema{"x-struct": module}}], _} -> {:ok, struct(module, value)}
-      {success_results, failed_schemas} -> error(ctx, success_results, failed_schemas)
+      {_, [{:ok, %_{} = value, _}], _} -> {:ok, value}
+      {_, [{:ok, value, %Schema{"x-struct": nil}}], _} -> {:ok, value}
+      {_, [{:ok, value, %Schema{"x-struct": module}}], _} -> {:ok, struct(module, value)}
+      {ctx, success_results, failed_schemas} -> error(ctx, success_results, failed_schemas)
     end
   end
 

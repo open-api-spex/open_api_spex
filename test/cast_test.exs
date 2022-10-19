@@ -222,6 +222,17 @@ defmodule OpenApiSpec.CastTest do
       assert Error.message_with_path(error) == "#/age: Invalid strict_integer. Got: string"
     end
 
+    test "nil value with xxxOf" do
+      schema = %Schema{anyOf: [%Schema{nullable: true, type: :string}]}
+      assert {:ok, nil} = cast(value: nil, schema: schema)
+
+      schema = %Schema{allOf: [%Schema{nullable: true, type: :string}]}
+      assert {:ok, nil} = cast(value: nil, schema: schema)
+
+      schema = %Schema{oneOf: [%Schema{nullable: true, type: :string}]}
+      assert {:ok, nil} = cast(value: nil, schema: schema)
+    end
+
     test "apply defaults configuration" do
       schema = %Schema{
         type: :object,

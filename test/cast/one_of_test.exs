@@ -1,8 +1,9 @@
 defmodule OpenApiSpex.CastOneOfTest do
   use ExUnit.Case
-  alias OpenApiSpex.{Cast, Schema}
+  alias OpenApiSpex.{Cast, Reference, Schema}
   alias OpenApiSpex.Cast.{Error, OneOf}
   alias OpenApiSpex.TestAssertions
+  alias OpenApiSpexTest.Schemas
 
   defp cast(ctx), do: OneOf.cast(struct(Cast, ctx))
 
@@ -26,7 +27,7 @@ defmodule OpenApiSpex.CastOneOfTest do
         oneOf: [%Schema{type: :integer}, %Schema{type: :string}, %Schema{type: :bool}]
       }
 
-      assert {:error, [error]} = cast(value: "1", schema: schema)
+      assert {:error, [error, _]} = cast(value: "1", schema: schema)
       assert error.reason == :one_of
 
       assert Error.message(error) ==
@@ -35,7 +36,7 @@ defmodule OpenApiSpex.CastOneOfTest do
 
     test "oneOf, no castable schema" do
       schema = %Schema{oneOf: [%Schema{type: :string}]}
-      assert {:error, [error]} = cast(value: 1, schema: schema)
+      assert {:error, [error | _]} = cast(value: 1, schema: schema)
       assert error.reason == :one_of
 
       assert Error.message(error) ==
@@ -51,7 +52,7 @@ defmodule OpenApiSpex.CastOneOfTest do
       dog = %{"fur" => "grey", "pet_type" => "Wolf"}
       api_spec = OpenApiSpexTest.ApiSpec.spec()
       pet_schema = api_spec.components.schemas["Pet"]
-      assert {:error, [error]} = OpenApiSpex.cast_value(dog, pet_schema, api_spec)
+      assert {:error, [error | _]} = OpenApiSpex.cast_value(dog, pet_schema, api_spec)
 
       assert error == %OpenApiSpex.Cast.Error{
                format: nil,
@@ -65,7 +66,7 @@ defmodule OpenApiSpex.CastOneOfTest do
                  valid_schemas: []
                },
                name: nil,
-               path: ["pet_type"],
+               path: [],
                reason: :one_of,
                type: nil,
                value: %{"fur" => "grey", "pet_type" => "Wolf"}
@@ -116,5 +117,89 @@ defmodule OpenApiSpex.CastOneOfTest do
 
       assert to_string(error) == "Failed to cast value to one of: more than one schemas validate"
     end
+  end
+
+  test "oneOf, when given required params only from inside the oneOf schema, return an error" do
+    schema = %Schema{
+      oneOf: [
+        %Reference{
+          "$ref": "#/components/schemas/User"
+        }
+      ],
+      required: [:age]
+    }
+
+    value = %{
+      "name" => "Joe User",
+      "email" => "joe@gmail.com",
+      "password" => "12345678"
+    }
+
+    assert {:error, [oneOf | _]} =
+             cast(value: value, schema: schema, schemas: %{"User" => Schemas.User.schema()})
+
+    assert Error.message(oneOf) ==
+             "Failed to cast value to one of: no schemas validate"
+  end
+
+  test "oneOf with required fields" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string}
+          },
+          required: [:last_name]
+        }
+      ]
+    }
+
+    assert {:error, [error_one_of, error_last_name]} = cast(value: %{}, schema: schema)
+
+    assert Error.message(error_one_of) ==
+             "Failed to cast value to one of: no schemas validate"
+
+    assert Error.message(error_last_name) ==
+             "Missing field: last_name"
+  end
+
+  test "oneOf with readOnly required fields" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string, readOnly: true}
+          },
+          required: [:last_name]
+        }
+      ]
+    }
+
+    assert {:error, [error_one_of, error_last_name]} =
+             cast(value: %{}, schema: schema, read_write_scope: :read)
+
+    assert Error.message(error_one_of) == "Failed to cast value to one of: no schemas validate"
+
+    assert Error.message(error_last_name) == "Missing field: last_name"
+
+    assert {:ok, _} = cast(value: %{}, schema: schema, read_write_scope: :write)
+  end
+
+  test "oneOf with nullable option" do
+    schema = %Schema{
+      oneOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            last_name: %Schema{type: :string}
+          }
+        },
+        %Schema{type: :string, nullable: true}
+      ]
+    }
+
+    assert {:ok, nil} = cast(value: nil, schema: schema)
   end
 end

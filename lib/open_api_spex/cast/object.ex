@@ -1,7 +1,7 @@
 defmodule OpenApiSpex.Cast.Object do
   @moduledoc false
   alias OpenApiSpex.Cast
-  alias OpenApiSpex.Cast.Error
+  alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Reference
 
   def cast(%{value: value} = ctx) when not is_map(value) do
@@ -22,7 +22,7 @@ defmodule OpenApiSpex.Cast.Object do
          value = cast_atom_keys(value, resolved_schema_properties),
          ctx = %{ctx | value: value},
          {:ok, ctx} <- cast_additional_properties(ctx, original_value),
-         :ok <- check_required_fields(ctx, schema),
+         :ok <- Utils.check_required_fields(ctx),
          :ok <- check_max_properties(ctx),
          :ok <- check_min_properties(ctx),
          {:ok, value} <- cast_properties(%{ctx | schema: resolved_schema_properties}) do
@@ -67,35 +67,6 @@ defmodule OpenApiSpex.Cast.Object do
       [name | _] = extra_keys
       ctx = %{ctx | path: [name | ctx.path]}
       Cast.error(ctx, {:unexpected_field, name})
-    end
-  end
-
-  defp check_required_fields(%{value: input_map} = ctx, schema) do
-    required = schema.required || []
-
-    # Adjust required fields list, based on read_write_scope
-    required =
-      Enum.filter(required, fn key ->
-        case {ctx.read_write_scope, schema.properties[key]} do
-          {:read, %{writeOnly: true}} -> false
-          {:write, %{readOnly: true}} -> false
-          _ -> true
-        end
-      end)
-
-    input_keys = Map.keys(input_map)
-    missing_keys = required -- input_keys
-
-    if missing_keys == [] do
-      :ok
-    else
-      errors =
-        Enum.map(missing_keys, fn key ->
-          ctx = %{ctx | path: [key | ctx.path]}
-          Error.new(ctx, {:missing_field, key})
-        end)
-
-      {:error, ctx.errors ++ errors}
     end
   end
 

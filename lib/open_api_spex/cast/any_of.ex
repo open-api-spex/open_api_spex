@@ -1,11 +1,13 @@
 defmodule OpenApiSpex.Cast.AnyOf do
   @moduledoc false
   alias OpenApiSpex.Cast
+  alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Schema
 
-  def cast(ctx, failed_schemas \\ [], acc \\ nil), do: cast_any_of(ctx, failed_schemas, acc)
+  def cast(ctx, failed_schemas \\ [], acc \\ :__not_casted),
+    do: cast_any_of(ctx, failed_schemas, acc)
 
-  defp cast_any_of(%_{schema: %{anyOf: []}} = ctx, failed_schemas, nil) do
+  defp cast_any_of(%_{schema: %{anyOf: []}} = ctx, failed_schemas, :__not_casted) do
     Cast.error(ctx, {:any_of, error_message(failed_schemas, ctx.schemas)})
   end
 
@@ -14,40 +16,55 @@ defmodule OpenApiSpex.Cast.AnyOf do
          failed_schemas,
          acc
        ) do
-    relaxed_schema = %{schema | additionalProperties: true, "x-struct": nil}
+    relaxed_schema = %{schema | "x-struct": nil}
     new_ctx = put_in(ctx.schema.anyOf, remaining)
 
-    case Cast.cast(%{ctx | schema: relaxed_schema}) do
+    case Cast.cast(%{ctx | errors: [], schema: relaxed_schema}) do
       {:ok, value} when is_struct(value) ->
         {:ok, value}
 
       {:ok, value} when is_map(value) ->
-        acc =
-          value
-          |> Enum.reject(fn {k, _} -> is_binary(k) end)
-          |> Enum.concat(acc || %{})
-          |> Map.new()
-
+        acc = acc |> value_if_not_casted(%{}) |> Utils.merge_maps(value)
         cast_any_of(new_ctx, failed_schemas, acc)
 
       {:ok, value} ->
-        cast_any_of(new_ctx, failed_schemas, acc || value)
+        cast_any_of(new_ctx, failed_schemas, value_if_not_casted(acc, value))
 
-      {:error, _} ->
-        cast_any_of(new_ctx, [schema | failed_schemas], acc)
+      {:error, errors} ->
+        cast_any_of(
+          %Cast{new_ctx | errors: new_ctx.errors ++ errors},
+          [schema | failed_schemas],
+          acc
+        )
     end
   end
 
-  defp cast_any_of(%{schema: %{anyOf: [schema | remaining]}} = ctx, failed_schemas, acc) do
-    schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
-    cast_any_of(%{ctx | schema: %{anyOf: [schema | remaining]}}, failed_schemas, acc)
+  defp cast_any_of(
+         %{schema: %{anyOf: [nested_schema | remaining]} = schema} = ctx,
+         failed_schemas,
+         acc
+       ) do
+    nested_schema = OpenApiSpex.resolve_schema(nested_schema, ctx.schemas)
+
+    cast_any_of(
+      %{ctx | schema: %{schema | anyOf: [nested_schema | remaining]}},
+      failed_schemas,
+      acc
+    )
   end
 
-  defp cast_any_of(%_{schema: %{anyOf: [], "x-struct": module}}, _failed_schemas, acc)
-       when not is_nil(module),
-       do: {:ok, struct(module, acc)}
+  defp cast_any_of(%_{schema: %{anyOf: [], "x-struct": module}} = ctx, _failed_schemas, acc)
+       when not is_nil(module) do
+    with :ok <- Utils.check_required_fields(ctx, acc) do
+      {:ok, struct(module, acc)}
+    end
+  end
 
-  defp cast_any_of(%_{schema: %{anyOf: []}}, _failed_schemas, acc), do: {:ok, acc}
+  defp cast_any_of(%_{schema: %{anyOf: []}} = ctx, _failed_schemas, acc) do
+    with :ok <- Utils.check_required_fields(ctx, acc) do
+      {:ok, acc}
+    end
+  end
 
   ## Private functions
 
@@ -69,4 +86,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
     end
     |> Enum.join(", ")
   end
+
+  defp value_if_not_casted(:__not_casted, value), do: value
+  defp value_if_not_casted(value, _), do: value
 end

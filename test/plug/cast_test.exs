@@ -190,7 +190,8 @@ defmodule OpenApiSpex.Plug.CastTest do
                  "id" => 1234,
                  "inserted_at" => nil,
                  "name" => "asdf",
-                 "updated_at" => "2017-09-12T14:44:55Z"
+                 "updated_at" => "2017-09-12T14:44:55Z",
+                 "age" => nil
                }
              }
 
@@ -264,7 +265,8 @@ defmodule OpenApiSpex.Plug.CastTest do
                  "id" => 1234,
                  "inserted_at" => nil,
                  "name" => "asdf",
-                 "updated_at" => "2017-09-12T14:44:55Z"
+                 "updated_at" => "2017-09-12T14:44:55Z",
+                 "age" => nil
                }
              }
 
@@ -322,13 +324,37 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert conn.status == 422
 
       resp_body = Jason.decode!(conn.resp_body)
-      assert %{"errors" => [error]} = resp_body
+      assert %{"errors" => errors} = resp_body
 
-      assert error == %{
-               "detail" => "Failed to cast value to one of: no schemas validate",
-               "source" => %{"pointer" => "/pet"},
-               "title" => "Invalid value"
-             }
+      assert errors == [
+               %{
+                 "detail" => "Failed to cast value to one of: no schemas validate",
+                 "source" => %{"pointer" => "/pet"},
+                 "title" => "Invalid value"
+               },
+               %{
+                 "detail" =>
+                   "Failed to cast value as object. Value must be castable using `allOf` schemas listed.",
+                 "source" => %{"pointer" => "/pet"},
+                 "title" => "Invalid value"
+               },
+               %{
+                 "detail" => "Missing field: meow",
+                 "source" => %{"pointer" => "/pet/meow"},
+                 "title" => "Invalid value"
+               },
+               %{
+                 "detail" =>
+                   "Failed to cast value as object. Value must be castable using `allOf` schemas listed.",
+                 "source" => %{"pointer" => "/pet"},
+                 "title" => "Invalid value"
+               },
+               %{
+                 "detail" => "Missing field: bark",
+                 "source" => %{"pointer" => "/pet/bark"},
+                 "title" => "Invalid value"
+               }
+             ]
     end
 
     test "header params" do

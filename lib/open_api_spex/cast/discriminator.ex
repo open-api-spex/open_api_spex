@@ -40,18 +40,14 @@ defmodule OpenApiSpex.Cast.Discriminator do
   defp cast_discriminator(%_{value: value, schema: schema} = ctx) do
     {discriminator_property, mappings} = discriminator_details(schema)
 
-    case Map.pop(value, "#{discriminator_property}") do
-      {"", _} ->
+    case value["#{discriminator_property}"] do
+      v when v in ["", nil] ->
         error(:no_value_for_discriminator, ctx)
 
-      {discriminator_value, _castable_value} ->
+      discriminator_value ->
         # The cast specified by the composite key (allOf, anyOf, oneOf) MUST succeed
         # or return an error according to the Open API Spec.
-        composite_ctx = %{
-          ctx
-          | schema: %{schema | discriminator: nil},
-            path: ["#{discriminator_property}" | ctx.path]
-        }
+        composite_ctx = %{ctx | schema: %{schema | discriminator: nil}}
 
         cast_composition(composite_ctx, ctx, discriminator_value, mappings)
     end
@@ -60,7 +56,12 @@ defmodule OpenApiSpex.Cast.Discriminator do
   defp cast_composition(composite_ctx, ctx, discriminator_value, mappings) do
     with {composite_schemas, cast_composition_result} <- cast_composition(composite_ctx),
          {:ok, _} <- cast_composition_result,
-         %{} = schema <- find_discriminator_schema(discriminator_value, mappings, composite_schemas) do
+         %{} = schema <-
+           find_discriminator_schema(
+             discriminator_value,
+             mappings,
+             composite_schemas
+           ) do
       Cast.cast(%{composite_ctx | schema: schema})
     else
       nil -> error(:invalid_discriminator_value, ctx)
@@ -93,20 +94,23 @@ defmodule OpenApiSpex.Cast.Discriminator do
     end
   end
 
-  defp find_discriminator_schema(discriminator, _, schemas) do
-    Enum.find(schemas, &Kernel.==(&1.title, discriminator))
-  end
+  defp find_discriminator_schema(discriminator, _mappings, schemas)
+       when is_atom(discriminator) and not is_nil(discriminator),
+       do: Enum.find(schemas, &Kernel.==(&1."x-struct", discriminator))
+
+  defp find_discriminator_schema(discriminator, _mappings, schemas) when is_binary(discriminator),
+    do: Enum.find(schemas, &Kernel.==(&1.title, discriminator))
+
+  defp find_discriminator_schema(_discriminator, _mappings, _schemas), do: nil
 
   defp discriminator_details(%{discriminator: %{propertyName: property_name, mapping: mappings}}),
     do: {String.to_existing_atom(property_name), mappings}
 
-  defp error(message, %{schema: %{discriminator: %{propertyName: property}}} = ctx) do
-    Cast.error(ctx, {message, property})
-  end
+  defp error(message, %{schema: %{discriminator: %{propertyName: property}}} = ctx),
+    do: Cast.error(ctx, {message, property})
 
   defp locate_schemas(schemas, ctx_schemas) do
-    schemas
-    |> Enum.map(fn
+    Enum.map(schemas, fn
       %Schema{} = schema ->
         schema
 

@@ -213,7 +213,7 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
 
       # The format of the error path should be confirmed. This is just a guess.
       assert Error.message_with_path(error) ==
-               "#/data/#{@discriminator}/breed: String length is smaller than minLength: 5"
+               "#/data/breed: String length is smaller than minLength: 5"
     end
 
     if Version.compare(System.version(), "1.10.0") in [:gt, :eq] do
