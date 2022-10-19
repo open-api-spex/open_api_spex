@@ -195,24 +195,6 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
       assert expected == cast_cast(value: input_value, schema: discriminator_schema)
     end
 
-    test "nested, atom map success", %{schemas: %{dog: dog, cat: cat}} do
-      # "animal_type" is the discriminator and the keys need to be strings.
-      input_value = %{data: %{"#{@discriminator}": "Dog", breed: "Corgi", age: 1}}
-      # Nested schema to better simulate use with JSON API (real world)
-      discriminator_schema = %Schema{
-        title: "Nested Skemuh",
-        type: :object,
-        properties: %{
-          data: build_discriminator_schema([dog, cat], :anyOf, String.to_atom(@discriminator), nil)
-        }
-      }
-
-      # Note: We're expecting to getting atoms back, not strings
-      expected = {:ok, %{data: %{age: 1, breed: "Corgi", animal_type: "Dog"}}}
-
-      assert expected == cast_cast(value: input_value, schema: discriminator_schema)
-    end
-
     test "nested, with invalid property on discriminator schema", %{
       schemas: %{dog: dog, wolf: wolf}
     } do
