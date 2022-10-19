@@ -7,6 +7,7 @@ defmodule OpenApiSpex.Cast.Utils do
   # of that atom. Atom keys takes precedence over string ones.
   def merge_maps(map1, map2) do
     result = Map.merge(map1, map2)
+
     Enum.reduce(result, result, fn
       {k, _v}, result when is_atom(k) -> Map.delete(result, to_string(k))
       _, result -> result
