@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.14.0 - 2022-10-23
+
+Thanks to the contributions of the community
+
+- [@zorbash](https://github.com/zorbash)
+- [@thbar](https://github.com/thbar)
+- [@gmile](https://github.com/gmile)
+- [@lucacorti](https://github.com/lucacorti)
+
+* Enhancement: Allow casting atoms as strings by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/497
+* Fix: Relax dependency constraint on ymlr by @thbar in https://github.com/open-api-spex/open_api_spex/pull/502
+* Enhancement: Implement casting of "byte" string type by @gmile in https://github.com/open-api-spex/open_api_spex/pull/504
+* Enhancement: Make OpenApiSpex.resolve_schema/2 work with schema modules by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/458
+* Fix: Fix oneOf/allOf/anyOf and schema module in Discriminator mapping by @lucacorti in https://github.com/open-api-spex/open_api_spex/pull/455
+
 ## v3.13.0 - 2022-09-24
 
 Thanks to the contributions of the community

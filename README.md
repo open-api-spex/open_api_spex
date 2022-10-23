@@ -24,7 +24,7 @@ The package can be installed by adding `:open_api_spex` to your list of dependen
 ```elixir
 def deps do
   [
-    {:open_api_spex, "~> 3.13"}
+    {:open_api_spex, "~> 3.14"}
   ]
 end
 ```
