@@ -134,6 +134,25 @@ defmodule OpenApiSpex.SchemaResolverTest do
               }
             }
           }
+        },
+        "/api/appointsments" => %PathItem{
+          post: %Operation{
+            description: "Create a new pet appointment",
+            operationId: "PetAppointmentController.create",
+            requestBody: %RequestBody{
+              required: true,
+              content: %{
+                "application/json" => %MediaType{
+                  schema: OpenApiSpexTest.Schemas.PetAppointmentRequest
+                }
+              }
+            },
+            responses: %{
+              201 => %Response{
+                description: "Appointment created"
+              }
+            }
+          }
         }
       }
     }
@@ -149,6 +168,12 @@ defmodule OpenApiSpex.SchemaResolverTest do
     assert %Reference{"$ref": "#/components/schemas/UserRequest"} =
              resolved.paths["/api/users"].post.requestBody.content["application/json"].schema
 
+    assert "#/components/schemas/TrainingAppointment" =
+             resolved.components.schemas["PetAppointmentRequest"].discriminator.mapping["training"]
+
+    assert "#/components/schemas/GroomingAppointment" =
+             resolved.components.schemas["PetAppointmentRequest"].discriminator.mapping["grooming"]
+
     assert %{
              "UserRequest" => %Schema{},
              "UserResponse" => %Schema{},
@@ -156,7 +181,10 @@ defmodule OpenApiSpex.SchemaResolverTest do
              "UserSubscribeRequest" => %Schema{},
              "PaymentDetails" => %Schema{},
              "CreditCardPaymentDetails" => %Schema{},
-             "DirectDebitPaymentDetails" => %Schema{}
+             "DirectDebitPaymentDetails" => %Schema{},
+             "PetAppointmentRequest" => %Schema{},
+             "TrainingAppointment" => %Schema{},
+             "GroomingAppointment" => %Schema{}
            } = resolved.components.schemas
 
     get_friends = resolved.paths["/api/users/{id}/friends"].get

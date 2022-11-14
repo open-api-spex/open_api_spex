@@ -645,8 +645,8 @@ defmodule OpenApiSpexTest.Schemas do
       discriminator: %OpenApiSpex.Discriminator{
         propertyName: "appointment_type",
         mapping: %{
-          "training" => "TrainingAppointment",
-          "grooming" => "GroomingAppointment"
+          "training" => TrainingAppointment,
+          "grooming" => GroomingAppointment
         }
       }
     })
