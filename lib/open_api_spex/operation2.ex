@@ -102,7 +102,7 @@ defmodule OpenApiSpex.Operation2 do
        ) do
     case content do
       %{^content_type => media_type} ->
-        Cast.cast(media_type.schema, params, components.schemas, opts)
+        Cast.cast(media_type.schema, params, components.schemas, :write, opts)
 
       _ ->
         {:error, [Error.new(%{path: [], value: content_type}, {:invalid_header, "content-type"})]}
