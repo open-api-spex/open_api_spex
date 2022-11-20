@@ -72,7 +72,7 @@ defmodule OpenApiSpex.Cast.Object do
 
   defp check_max_properties(%{schema: %{maxProperties: max_properties}} = ctx)
        when is_integer(max_properties) do
-    count = ctx.value |> Map.keys() |> length()
+    count = map_size(ctx.value)
 
     if count > max_properties do
       Cast.error(ctx, {:max_properties, max_properties, count})
@@ -85,7 +85,7 @@ defmodule OpenApiSpex.Cast.Object do
 
   defp check_min_properties(%{schema: %{minProperties: min_properties}} = ctx)
        when is_integer(min_properties) do
-    count = ctx.value |> Map.keys() |> length()
+    count = map_size(ctx.value)
 
     if count < min_properties do
       Cast.error(ctx, {:min_properties, min_properties, count})
