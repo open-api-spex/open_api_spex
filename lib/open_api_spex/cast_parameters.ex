@@ -129,8 +129,17 @@ defmodule OpenApiSpex.CastParameters do
     )
     |> pre_parse_parameters(parameters_contexts, parsers)
     |> case do
-      {:error, _} = err -> err
-      params -> Cast.cast(schema, params, components.schemas, :write, opts)
+      {:error, _} = err ->
+        err
+
+      params ->
+        Cast.cast(%Cast{
+          schema: schema,
+          value: params,
+          schemas: components.schemas,
+          opts: opts,
+          read_write_scope: :write
+        })
     end
   end
 

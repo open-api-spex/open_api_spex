@@ -100,17 +100,10 @@ defmodule OpenApiSpex.Cast do
 
   """
 
-  @spec cast(schema_or_reference | nil, term(), map(), read_write_scope | nil, [cast_opt()]) ::
+  @spec cast(schema_or_reference | nil, term(), map(), [cast_opt()]) ::
           {:ok, term()} | {:error, [Error.t()]}
-  def cast(schema, value, schemas \\ %{}, read_write_scope \\ nil, opts \\ []) do
-    ctx = %__MODULE__{
-      schema: schema,
-      value: value,
-      schemas: schemas,
-      read_write_scope: read_write_scope,
-      opts: opts
-    }
-
+  def cast(schema, value, schemas \\ %{}, opts \\ []) do
+    ctx = %__MODULE__{schema: schema, value: value, schemas: schemas, opts: opts}
     cast(ctx)
   end
 
