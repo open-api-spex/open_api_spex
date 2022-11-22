@@ -22,8 +22,7 @@ defmodule OpenApiSpex.Cast.Utils do
     # Adjust required fields list, based on read_write_scope
     required =
       Enum.filter(required, fn key ->
-        property_schema = OpenApiSpex.resolve_schema(ctx.schema.properties[key], ctx.schemas)
-        case {ctx.read_write_scope, property_schema} do
+        case {ctx.read_write_scope, get_property_schema(ctx, key)} do
           {:read, %{writeOnly: true}} -> false
           {:write, %{readOnly: true}} -> false
           _ -> true
@@ -47,4 +46,11 @@ defmodule OpenApiSpex.Cast.Utils do
   end
 
   def check_required_fields(_ctx, _acc), do: :ok
+
+  defp get_property_schema(ctx, property_name) do
+    case ctx.schema.properties[property_name] do
+      schema = %_{} -> OpenApiSpex.resolve_schema(schema, ctx.schemas)
+      _ -> nil
+    end
+  end
 end
