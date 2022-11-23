@@ -120,6 +120,7 @@ defmodule OpenApiSpex.OpenApi do
       {k, v} -> {to_string(k), to_map(v, opts)}
     end)
     |> Stream.filter(fn
+      {:required, []} when object == Schema -> false
       {k, _} when k in @vendor_extensions -> opts[:vendor_extensions]
       {_, nil} -> false
       _ -> true
