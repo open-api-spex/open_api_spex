@@ -4,6 +4,7 @@ defmodule OpenApiSpex.EncodeTest do
   alias OpenApiSpex.{
     Info,
     OpenApi,
+    Components,
     Schema
   }
 
@@ -199,5 +200,44 @@ defmodule OpenApiSpex.EncodeTest do
              ]),
              "phone_number"
            )
+  end
+
+  test "Required array omitted when empty" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{},
+      components: %Components{
+        schemas: %{
+          "contact" => %Schema{
+            type: :object,
+            properties: %{
+              name: %Schema{type: :string},
+              phone_number: %Schema{type: :string}
+            },
+            required: []
+          },
+          "address" => %Schema{
+            type: :object,
+            properties: %{
+              street: %Schema{type: :string},
+              city: %Schema{type: :string},
+              post_code: %Schema{type: :string}
+            },
+            required: [:street]
+          }
+        }
+      }
+    }
+
+    decoded = spec |> Jason.encode!() |> Jason.decode!()
+
+    schemas = decoded["components"]["schemas"]
+    assert %{"type" => "object"} = contact = schemas["contact"]
+    refute Map.has_key?(contact, "required")
+
+    assert %{"type" => "object", "required" => ["street"]} = schemas["address"]
   end
 end

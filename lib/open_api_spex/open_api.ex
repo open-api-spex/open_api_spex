@@ -117,6 +117,7 @@ defmodule OpenApiSpex.OpenApi do
     |> Stream.map(fn
       {:value, v} when object == Example -> {"value", to_map_example(v, opts)}
       {:example, v} -> {"example", to_map_example(v, opts)}
+      {:required, []} when object == Schema -> {"required", nil}
       {k, v} -> {to_string(k), to_map(v, opts)}
     end)
     |> Stream.filter(fn
