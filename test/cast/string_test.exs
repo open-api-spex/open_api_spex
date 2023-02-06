@@ -32,8 +32,11 @@ defmodule OpenApiSpex.CastStringTest do
 
     test "string with format (date time)" do
       schema = %Schema{type: :string, format: :"date-time"}
-      time_string = DateTime.utc_now() |> DateTime.to_string()
+      time = DateTime.utc_now()
+      time_string = to_string(time)
+
       assert {:ok, %DateTime{}} = cast(value: time_string, schema: schema)
+      assert {:ok, ^time} = cast(value: time, schema: schema)
       assert {:error, [error]} = cast(value: "hello", schema: schema)
       assert error.reason == :invalid_format
       assert error.value == "hello"
@@ -42,8 +45,11 @@ defmodule OpenApiSpex.CastStringTest do
 
     test "string with format (date)" do
       schema = %Schema{type: :string, format: :date}
-      date_string = DateTime.utc_now() |> DateTime.to_date() |> Date.to_string()
+      date = Date.utc_today()
+      date_string = to_string(date)
+
       assert {:ok, %Date{}} = cast(value: date_string, schema: schema)
+      assert {:ok, ^date} = cast(value: date, schema: schema)
       assert {:error, [error]} = cast(value: "hello", schema: schema)
       assert error.reason == :invalid_format
       assert error.value == "hello"
