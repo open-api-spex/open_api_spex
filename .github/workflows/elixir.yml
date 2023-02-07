@@ -61,7 +61,7 @@ jobs:
         run: mix do deps.get, test
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
     strategy:
       matrix:
