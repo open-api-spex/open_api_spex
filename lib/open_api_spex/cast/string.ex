@@ -6,9 +6,12 @@ defmodule OpenApiSpex.Cast.String do
   schema struct.
 
   """
+
   alias OpenApiSpex.{Cast, Cast.Error}
 
   @schema_fields [:maxLength, :minLength, :pattern]
+
+  def cast(%{value: %Date{} = date, schema: %{format: :date}}), do: {:ok, date}
 
   def cast(%{value: value, schema: %{format: :date}} = ctx) when is_binary(value) do
     case Date.from_iso8601(value) do
@@ -19,6 +22,8 @@ defmodule OpenApiSpex.Cast.String do
         Cast.error(ctx, {:invalid_format, :date})
     end
   end
+
+  def cast(%{value: %DateTime{} = date_time, schema: %{format: :"date-time"}}), do: {:ok, date_time}
 
   def cast(%{value: value, schema: %{format: :"date-time"}} = ctx) when is_binary(value) do
     case DateTime.from_iso8601(value) do
