@@ -7,6 +7,32 @@ defmodule OpenApiSpex.SchemaConstructionTest do
     OpenApiSpex.schema(%OpenApiSpex.Schema{type: :string})
   end
 
+  defmodule SchemaWithModuledoc do
+    @moduledoc "sample moduledoc"
+
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%OpenApiSpex.Schema{
+      title: "Lines of code",
+      description: "How many lines of code were written today",
+      type: :integer
+    })
+
+    def doc, do: @moduledoc
+  end
+
+  defmodule SchemaWithoutModuledoc do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%OpenApiSpex.Schema{
+      title: "Lines of code",
+      description: "How many lines of code were written today",
+      type: :integer
+    })
+
+    def doc, do: @moduledoc
+  end
+
   test "calling schema() macro works with a struct" do
     assert %OpenApiSpex.Schema{"x-struct": module, type: schema_type} = SchemaCreate.schema()
     assert schema_type == :string
@@ -38,5 +64,14 @@ defmodule OpenApiSpex.SchemaConstructionTest do
       struct = %SchemaWithoutDerive{}
       Jason.encode!(struct)
     end
+  end
+
+  test "preserves the moduledoc" do
+    assert "sample moduledoc" = SchemaWithModuledoc.doc()
+  end
+
+  test "generates a moduledoc from the schema" do
+    assert "Lines of code\n\nHow many lines of code were written today" =
+             SchemaWithoutModuledoc.doc()
   end
 end
