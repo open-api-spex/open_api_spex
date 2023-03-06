@@ -147,7 +147,7 @@ defmodule OpenApiSpex.Cast.Object do
       |> Enum.flat_map(&[&1, to_string(&1)])
       |> MapSet.new()
 
-    for {key, _value} = prop <- original_value,
+    for {key, _value} = prop <- ensure_not_struct(original_value),
         not MapSet.member?(recognized_keys, key) do
       prop
     end
@@ -193,4 +193,7 @@ defmodule OpenApiSpex.Cast.Object do
 
   defp to_struct(%{value: value, schema: %{"x-struct": module}}),
     do: struct(module, value)
+
+  defp ensure_not_struct(val) when is_struct(val), do: Map.from_struct(val)
+  defp ensure_not_struct(val), do: val
 end
