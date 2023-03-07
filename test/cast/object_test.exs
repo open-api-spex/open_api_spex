@@ -6,10 +6,6 @@ defmodule OpenApiSpex.ObjectTest do
   defp cast(%Cast{} = ctx), do: Object.cast(ctx)
   defp cast(ctx), do: Object.cast(struct(Cast, ctx))
 
-  defmodule User do
-    defstruct [:name]
-  end
-
   describe "cast/3" do
     test "when input is not an object" do
       schema = %Schema{type: :object}
@@ -25,10 +21,14 @@ defmodule OpenApiSpex.ObjectTest do
       assert map == %{one: "one"}
     end
 
+    defmodule User2 do
+      defstruct [:name]
+    end
+
     test "input map can be a struct" do
       schema = %Schema{type: :object, properties: %{name: %Schema{type: :string}}}
-      assert {:ok, map} = cast(value: %User{name: "bob"}, schema: schema)
-      assert map == %{name: "bob"}
+      assert {:ok, map} = cast(value: %User2{name: "bob"}, schema: schema)
+      assert map == %User2{name: "bob"}
     end
 
     test "converting string keys to atom keys when properties are defined" do
@@ -330,6 +330,10 @@ defmodule OpenApiSpex.ObjectTest do
              ) == {:ok, %{"nested" => %{age: 20}}}
     end
 
+    defmodule User do
+      defstruct [:name]
+    end
+
     test "optionally casts to struct" do
       schema = %Schema{
         type: :object,
@@ -340,6 +344,19 @@ defmodule OpenApiSpex.ObjectTest do
       }
 
       assert {:ok, user} = cast(value: %{"name" => "Name"}, schema: schema)
+      assert user == %User{name: "Name"}
+    end
+
+    test "casts to struct even if input was a different struct" do
+      schema = %Schema{
+        type: :object,
+        "x-struct": User,
+        properties: %{
+          name: %Schema{type: :string}
+        }
+      }
+
+      assert {:ok, user} = cast(value: %User2{name: "Name"}, schema: schema)
       assert user == %User{name: "Name"}
     end
 
