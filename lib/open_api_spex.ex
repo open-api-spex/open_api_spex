@@ -259,6 +259,12 @@ defmodule OpenApiSpex do
                 Keyword.merge([module: __MODULE__], unquote(opts))
               )
 
+      unless Module.get_attribute(__MODULE__, :moduledoc) do
+        @moduledoc [@schema.title, @schema.description]
+                   |> Enum.reject(&is_nil/1)
+                   |> Enum.join("\n\n")
+      end
+
       def schema, do: @schema
 
       if Map.get(@schema, :"x-struct") == __MODULE__ do
