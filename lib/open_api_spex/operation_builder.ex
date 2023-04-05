@@ -85,7 +85,7 @@ defmodule OpenApiSpex.OperationBuilder do
       {status, {description, mime, schema, opts}} ->
         {status_to_code(status), Operation.response(description, mime, schema, opts)}
 
-      {status, %Response{} = response} ->
+      {status, %struct{} = response} when struct in [Reference, Response] ->
         {status_to_code(status), response}
 
       {status, description} when is_binary(description) ->
