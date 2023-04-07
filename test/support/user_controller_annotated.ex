@@ -75,5 +75,5 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
          ]
        ],
        responses: [ok: "Empty"]
-  def non_exlusive_paramter_type_schema_docs(_conn, _params), do: :ok
+  def non_exlusive_parameter_type_schema_docs(_conn, _params), do: :ok
 end
