@@ -9,7 +9,7 @@ defmodule PhoenixAppWeb.UserController do
   use PhoenixAppWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias OpenApiSpex.Schema
+  alias OpenApiSpex.{Schema, Reference}
   alias PhoenixApp.{Accounts, Accounts.User}
   alias PhoenixAppWeb.Schemas
 
@@ -23,6 +23,7 @@ defmodule PhoenixAppWeb.UserController do
     description: "List all users",
     responses: [
       ok: {"User List Response", "application/json", Schemas.UsersResponse}
+      unprocessable_entity: %Reference{"$ref": "#/components/responses/unprocessable_entity"},
     ]
 
   def index(conn, _params) do
