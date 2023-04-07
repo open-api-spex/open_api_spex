@@ -1,7 +1,6 @@
 defmodule OpenApiSpexTest.ApiSpec do
   alias OpenApiSpex.{
     Components,
-    Components,
     Contact,
     Info,
     License,
