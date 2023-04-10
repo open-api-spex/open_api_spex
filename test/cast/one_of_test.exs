@@ -48,29 +48,54 @@ defmodule OpenApiSpex.CastOneOfTest do
       TestAssertions.assert_schema(dog, "Pet", OpenApiSpexTest.ApiSpec.spec())
     end
 
-    test "error when value invalid against all schemas, using discriminator" do
-      dog = %{"fur" => "grey", "pet_type" => "Wolf"}
+    test "returns only relative errors when the discriminator value points to a known but invalid schema" do
+      dog = %{"fur" => "grey", "pet_type" => "Cat"}
       api_spec = OpenApiSpexTest.ApiSpec.spec()
       pet_schema = api_spec.components.schemas["Pet"]
-      assert {:error, [error | _]} = OpenApiSpex.cast_value(dog, pet_schema, api_spec)
 
-      assert error == %OpenApiSpex.Cast.Error{
-               format: nil,
-               length: 0,
-               meta: %{
-                 failed_schemas: [
-                   "Schema(title: \"Dog\", type: :object)",
-                   "Schema(title: \"Cat\", type: :object)"
-                 ],
-                 message: "no schemas validate",
-                 valid_schemas: []
-               },
-               name: nil,
-               path: [],
-               reason: :one_of,
-               type: nil,
-               value: %{"fur" => "grey", "pet_type" => "Wolf"}
-             }
+      assert {:error,
+              [
+                %OpenApiSpex.Cast.Error{
+                  format: nil,
+                  length: 0,
+                  meta: %{invalid_schema: "object"},
+                  name: nil,
+                  path: [],
+                  reason: :all_of,
+                  type: nil,
+                  value: %{"fur" => "grey", "pet_type" => "Cat"}
+                },
+                %OpenApiSpex.Cast.Error{
+                  format: nil,
+                  length: 0,
+                  meta: %{},
+                  name: :meow,
+                  path: [:meow],
+                  reason: :missing_field,
+                  type: nil,
+                  value: %{"fur" => "grey", "pet_type" => "Cat"}
+                }
+              ]} = OpenApiSpex.cast_value(dog, pet_schema, api_spec)
+    end
+
+    test "error when the discriminator value points to a schema which does not exist" do
+      dog = %{"fur" => "grey", "pet_type" => "Pangolin"}
+      api_spec = OpenApiSpexTest.ApiSpec.spec()
+      pet_schema = api_spec.components.schemas["Pet"]
+
+      assert {:error,
+              [
+                %OpenApiSpex.Cast.Error{
+                  format: nil,
+                  length: 0,
+                  meta: %{},
+                  name: "pet_type",
+                  path: [],
+                  reason: :invalid_discriminator_value,
+                  type: nil,
+                  value: %{"fur" => "grey", "pet_type" => "Pangolin"}
+                }
+              ]} = OpenApiSpex.cast_value(dog, pet_schema, api_spec)
     end
   end
 

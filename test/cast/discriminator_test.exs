@@ -130,6 +130,31 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
       assert cast(value: input_value, schema: discriminator_schema) == expected
     end
 
+    test "valid discriminator mapping but schema does not match", %{
+      schemas: %{dog: dog, wolf: wolf, cat: cat}
+    } do
+      # Wolf has a constraint on its "breed attribute" requiring the breed to have
+      # a minimum length of 5.
+      input_value = %{@discriminator => "Wolf", "breed" => "pug", "age" => 1}
+
+      discriminator_schema =
+        build_discriminator_schema([wolf, dog, cat], :oneOf, String.to_atom(@discriminator), nil)
+
+      assert {:error,
+              [
+                %OpenApiSpex.Cast.Error{
+                  format: nil,
+                  length: 5,
+                  meta: %{},
+                  name: nil,
+                  path: [:breed],
+                  reason: :min_length,
+                  type: nil,
+                  value: "pug"
+                }
+              ]} = cast(value: input_value, schema: discriminator_schema)
+    end
+
     test "invalid property on discriminator schema", %{
       schemas: %{dog: dog, wolf: wolf}
     } do
