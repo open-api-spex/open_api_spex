@@ -32,7 +32,7 @@ defmodule OpenApiSpex.Paths do
         %{path: "/v1/contacts", verb: :post, plug: MyAppWeb.V1.ContactController, plug_opts: :create}
       ])
   """
-  @spec from_routes([%{path: String.t(), verb: atom(), plug: module(), plug_opts: atom()}]) :: t
+  @spec from_routes([PathItem.route()]) :: t
   def from_routes(routes) do
     paths =
       routes
