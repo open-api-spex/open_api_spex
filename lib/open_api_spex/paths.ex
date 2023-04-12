@@ -25,8 +25,14 @@ defmodule OpenApiSpex.Paths do
 
   @doc """
   Create a Paths map from a list of routes.
+
+  ## Example
+
+      Paths.from_routes([
+        %{path: "/v1/contacts", verb: :post, plug: MyAppWeb.V1.ContactController, plug_opts: :create}
+      ])
   """
-  @spec from_routes([%{path: String.t(), verb: atom()}]) :: t
+  @spec from_routes([PathItem.route()]) :: t
   def from_routes(routes) do
     paths =
       routes
