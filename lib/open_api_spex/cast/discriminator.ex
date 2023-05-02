@@ -53,8 +53,15 @@ defmodule OpenApiSpex.Cast.Discriminator do
     end
   end
 
-  defp cast_composition(composite_ctx, ctx, discriminator_value, mappings) do
-    with {composite_schemas, cast_composition_result} <- cast_composition(composite_ctx),
+  # When the composite key `allOf` is set we have to cast all the schemas even when the discriminator is set
+  defp cast_composition(
+         %_{schema: %{allOf: [_ | _]}} = composite_ctx,
+         ctx,
+         discriminator_value,
+         mappings
+       ) do
+    with {composite_schemas, cast_composition_result} <-
+           {locate_composition_schemas(composite_ctx), Cast.cast(composite_ctx)},
          {:ok, _} <- cast_composition_result,
          %{} = schema <-
            find_discriminator_schema(
@@ -69,17 +76,15 @@ defmodule OpenApiSpex.Cast.Discriminator do
     end
   end
 
-  defp cast_composition(%_{schema: %{anyOf: schemas, discriminator: nil}} = ctx)
-       when is_list(schemas),
-       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
-
-  defp cast_composition(%_{schema: %{allOf: schemas, discriminator: nil}} = ctx)
-       when is_list(schemas),
-       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
-
-  defp cast_composition(%_{schema: %{oneOf: schemas, discriminator: nil}} = ctx)
-       when is_list(schemas),
-       do: {locate_schemas(schemas, ctx.schemas), Cast.cast(ctx)}
+  defp cast_composition(composite_ctx, ctx, discriminator_value, mappings) do
+    with composite_schemas <- locate_composition_schemas(composite_ctx),
+         %{} = schema <- find_discriminator_schema(discriminator_value, mappings, composite_schemas) do
+      Cast.cast(%{composite_ctx | schema: schema})
+    else
+      nil -> error(:invalid_discriminator_value, ctx)
+      {:error, _} = error -> error
+    end
+  end
 
   defp find_discriminator_schema(discriminator, mappings = %{}, schemas) do
     case Map.fetch(mappings, discriminator) do
@@ -108,6 +113,15 @@ defmodule OpenApiSpex.Cast.Discriminator do
 
   defp error(message, %{schema: %{discriminator: %{propertyName: property}}} = ctx),
     do: Cast.error(ctx, {message, property})
+
+  defp locate_composition_schemas(%_{schema: %{anyOf: [_ | _] = schemas}} = ctx),
+    do: locate_schemas(schemas, ctx.schemas)
+
+  defp locate_composition_schemas(%_{schema: %{allOf: [_ | _] = schemas}} = ctx),
+    do: locate_schemas(schemas, ctx.schemas)
+
+  defp locate_composition_schemas(%_{schema: %{oneOf: [_ | _] = schemas}} = ctx),
+    do: locate_schemas(schemas, ctx.schemas)
 
   defp locate_schemas(schemas, ctx_schemas) do
     Enum.map(schemas, fn
