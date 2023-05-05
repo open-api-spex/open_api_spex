@@ -305,6 +305,8 @@ defmodule OpenApiSpex.ControllerSpecs do
   """
   @spec operation(action :: atom, spec :: map) :: any
   defmacro operation(action, spec) do
+    spec = Macro.postwalk(spec, &expand_alias(&1, __CALLER__))
+
     quote do
       @spec_attributes {unquote(action), operation_spec(__MODULE__, unquote(action), unquote(spec))}
 
@@ -313,6 +315,11 @@ defmodule OpenApiSpex.ControllerSpecs do
       end
     end
   end
+
+  defp expand_alias({:__aliases__, _, _} = alias, env),
+    do: Macro.expand(alias, %{env | function: {:__attr__, 3}})
+
+  defp expand_alias(other, _env), do: other
 
   @doc """
   Defines a list of tags that all operations in a controller will share.
