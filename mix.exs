@@ -2,7 +2,7 @@ defmodule OpenApiSpex.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/open-api-spex/open_api_spex"
-  @version "3.16.2"
+  @version "3.16.3"
 
   def project do
     [
@@ -43,7 +43,8 @@ defmodule OpenApiSpex.Mixfile do
       maintainers: [
         "Mike Buhot (m.buhot@gmail.com)",
         "Moxley Stratton (moxley.stratton@gmail.com)",
-        "Pierre Fenoll (pierrefenoll@gmail.com)"
+        "Pierre Fenoll (pierrefenoll@gmail.com)",
+        "Dimitris Zorbas (dimitrisplusplus@gmail.com)"
       ],
       licenses: ["MPL-2.0"],
       links: %{
