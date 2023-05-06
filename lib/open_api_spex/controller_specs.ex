@@ -303,7 +303,7 @@ defmodule OpenApiSpex.ControllerSpecs do
   - Additional fields: There are other Operation fields that can be specified that are not
     described here. See `OpenApiSpex.Operation` for all the fields.
   """
-  @spec operation(action :: atom, spec :: map) :: any
+  @spec operation(action :: atom, spec :: Keyword.t()) :: any
   defmacro operation(action, spec) do
     spec = Macro.postwalk(spec, &expand_alias(&1, __CALLER__))
 
