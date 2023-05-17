@@ -228,7 +228,8 @@
           "x-custom-info": {
             "codeowners": "team-rocker"
           }
-        }
+        },
+        "required": ["first_name"]
       },
       "DiscriminatorWithType": {
         "type": "object",
@@ -242,6 +243,9 @@
           {
             "$ref": "#/components/schemas/SpecialUser"
           }
+        ],
+        "required": [
+          "first_name"
         ]
       },
       "MetadataObject": {

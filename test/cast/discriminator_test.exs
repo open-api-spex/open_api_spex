@@ -72,8 +72,21 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
 
   describe "cast/1" do
     test "basics, anyOf", %{schemas: %{dog: dog, wolf: wolf}} do
-      # "animal_type" is the discriminator and the keys need to be strings.
+      # "animal_type" is the discriminator
       input_value = %{@discriminator => "Dog", "breed" => "Pug", "age" => 1}
+      # Create the discriminator schema. Discriminators require a composite
+      # key be provided (`allOf`, `anyOf`, `oneOf`).
+      discriminator_schema =
+        build_discriminator_schema([dog, wolf], :anyOf, String.to_atom(@discriminator), nil)
+
+      # Note: We're expecting to getting atoms back, not strings
+      expected = {:ok, %{age: 1, breed: "Pug", animal_type: "Dog"}}
+
+      assert cast(value: input_value, schema: discriminator_schema) == expected
+    end
+
+    test "basics, anyOf, input with atom keys", %{schemas: %{dog: dog, wolf: wolf}} do
+      input_value = %{String.to_atom(@discriminator) => "Dog", breed: "Pug", age: 1}
       # Create the discriminator schema. Discriminators require a composite
       # key be provided (`allOf`, `anyOf`, `oneOf`).
       discriminator_schema =

@@ -192,7 +192,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                discriminator: %OpenApiSpex.Discriminator{
                  propertyName: "userType",
                  extensions: %{"x-custom-info" => %{"codeowners" => "team-rocker"}}
-               }
+               },
+               required: [:first_name]
              } == admin_schema
 
       assert %OpenApiSpex.Schema{
@@ -207,7 +208,8 @@ defmodule OpenApiSpex.OpenApi.DecodeTest do
                discriminator: %OpenApiSpex.Discriminator{
                  propertyName: "userType"
                },
-               type: "object"
+               type: :object,
+               required: [:first_name]
              } == disc_with_type
 
       assert %OpenApiSpex.Schema{
