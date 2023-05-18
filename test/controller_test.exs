@@ -42,6 +42,10 @@ defmodule OpenApiSpex.ControllerTest do
       assert %{responses: %{404 => _}} = @controller.open_api_operation(:update)
     end
 
+    test "has response as reference for HTTP 422" do
+      assert %{responses: %{422 => %Reference{}}} = @controller.open_api_operation(:update)
+    end
+
     test "has default response" do
       assert %{responses: %{:default => _}} = @controller.open_api_operation(:update)
     end

@@ -1,7 +1,6 @@
 defmodule OpenApiSpexTest.ApiSpec do
   alias OpenApiSpex.{
     Components,
-    Components,
     Contact,
     Info,
     License,
@@ -9,7 +8,9 @@ defmodule OpenApiSpexTest.ApiSpec do
     Parameter,
     Paths,
     Schema,
-    Server
+    Server,
+    Response,
+    MediaType
   }
 
   alias OpenApiSpexTest.{Router, Schemas}
@@ -72,6 +73,12 @@ defmodule OpenApiSpexTest.ApiSpec do
             schema: %Schema{type: :integer, minimum: 1},
             required: true,
             example: 12
+          }
+        },
+        responses: %{
+          unprocessable_entity: %Response{
+            description: "Unprocessable Entity",
+            content: %{"application/json" => %MediaType{schema: %Schema{type: :object}}}
           }
         }
       },

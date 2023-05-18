@@ -2,7 +2,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
   @moduledoc tags: ["User"]
 
   use OpenApiSpex.Controller
-  alias OpenApiSpex.Header
+  alias OpenApiSpex.{Header, Reference}
   alias OpenApiSpexTest.Schemas.{GenericError, NotFound, Unauthorized, User}
 
   @doc """
@@ -27,6 +27,7 @@ defmodule OpenApiSpexTest.UserControllerAnnotated do
          },
          unauthorized: Unauthorized.response(),
          not_found: NotFound.response(),
+         unprocessable_entity: %Reference{"$ref": "#/components/responses/unprocessable_entity"},
          default: GenericError.response()
        ]
   @doc security: [%{"authorization" => []}]
