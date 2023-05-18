@@ -15,7 +15,14 @@ defmodule OpenApiSpex.Mixfile do
       package: package(),
       deps: deps(),
       docs: docs(),
-      dialyzer: dialyzer()
+      dialyzer: dialyzer(),
+      test_coverage: [
+        ignore_modules: [
+          ~r/OpenApiSpexTest\./,
+          ~r/OpenApiSpex.Extendable\./,
+          ~r/Poison.Encoder\./
+        ]
+      ]
     ]
   end
 
