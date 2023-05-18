@@ -136,8 +136,8 @@ defmodule OpenApiSpex.Schema do
     DeprecatedCast,
     Discriminator,
     ExternalDocumentation,
-    Reference,
     OpenApi,
+    Reference,
     Schema,
     Xml
   }
