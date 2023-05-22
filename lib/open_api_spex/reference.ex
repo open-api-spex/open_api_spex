@@ -3,7 +3,7 @@ defmodule OpenApiSpex.Reference do
   Defines the `OpenApiSpex.Reference.t` type.
   """
 
-  alias OpenApiSpex.{Components, Parameter, Reference, RequestBody, Schema}
+  alias OpenApiSpex.{Components, Parameter, Reference, RequestBody, Response, Schema}
 
   @enforce_keys :"$ref"
   defstruct [
@@ -45,4 +45,9 @@ defmodule OpenApiSpex.Reference do
         request_bodies
       ),
       do: request_bodies[name]
+
+  @spec resolve_response(Reference.t(), %{String.t() => Response.t()}) ::
+          Response.t() | nil
+  def resolve_response(%Reference{"$ref": "#/components/responses/" <> name}, responses),
+    do: responses[name]
 end
