@@ -433,6 +433,7 @@ defmodule OpenApiSpex.Schema do
 
   def example(%Schema{enum: [example | _]}, _schemas), do: example
   def example(%Schema{oneOf: [schema | _]}, schemas), do: example(schema, schemas)
+  def example(%Schema{anyOf: [schema | _]}, schemas), do: example(schema, schemas)
 
   def example(%Schema{allOf: schemas}, all_schemas) when is_list(schemas) do
     example_for(schemas, :allOf, all_schemas)

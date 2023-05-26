@@ -383,6 +383,17 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(schema, spec) == "one"
     end
 
+    test "example for anyOf schema", %{spec: spec} do
+      schema = %Schema{
+        anyOf: [
+          %Schema{type: :string, example: "one"},
+          %Schema{type: :string, example: "two"}
+        ]
+      }
+
+      assert Schema.example(schema, spec) == "one"
+    end
+
     test "example for reference", %{spec: spec} do
       assert %{
                "email" => "joe@gmail.com",
