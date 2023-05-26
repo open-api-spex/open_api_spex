@@ -225,6 +225,44 @@ defmodule OpenApiSpex.SchemaResolverTest do
     end
   end
 
+  test "raises error when schema cannot be resolved" do
+    spec = %OpenApi{
+      info: %Info{
+        title: "Test",
+        version: "1.0.0"
+      },
+      paths: %{
+        "/api/users" => %PathItem{
+          get: %Operation{
+            responses: %{
+              200 => %Response{
+                description: "Success",
+                content: %{
+                  "application/json" => %MediaType{
+                    schema: %{}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    error_message = """
+    Cannot resolve schema, need to be one of:
+    - boolean
+    - nil
+    - schema module, or schema struct
+    - list of schema module, or schema struct
+    - reference
+    """
+
+    assert_raise RuntimeError, error_message, fn ->
+      OpenApiSpex.resolve_schema_modules(spec)
+    end
+  end
+
   describe "add_schemas/2" do
     @empty_spec %OpenApi{
       info: %Info{
