@@ -252,11 +252,12 @@ defmodule OpenApiSpex.SchemaResolver do
 
   defp resolve_schema_modules_from_schema(_, _) do
     error_message = """
-    Cannot resolve schema, need to be one of:
+    Cannot resolve schema, must be one of:
+
+    - schema module, or schema struct
+    - list of schema modules, or schema structs
     - boolean
     - nil
-    - schema module, or schema struct
-    - list of schema module, or schema struct
     - reference
     """
 
