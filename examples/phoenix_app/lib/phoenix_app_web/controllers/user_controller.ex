@@ -22,8 +22,8 @@ defmodule PhoenixAppWeb.UserController do
     summary: "List users",
     description: "List all users",
     responses: [
-      ok: {"User List Response", "application/json", Schemas.UsersResponse}
-      unprocessable_entity: %Reference{"$ref": "#/components/responses/unprocessable_entity"},
+      ok: {"User List Response", "application/json", Schemas.UsersResponse},
+      unprocessable_entity: %Reference{"$ref": "#/components/responses/unprocessable_entity"}
     ]
 
   def index(conn, _params) do

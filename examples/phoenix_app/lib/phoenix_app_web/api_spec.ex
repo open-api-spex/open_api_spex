@@ -1,5 +1,17 @@
 defmodule PhoenixAppWeb.ApiSpec do
-  alias OpenApiSpex.{Components, Info, OpenApi, OAuthFlow, OAuthFlows, Paths, SecurityScheme}
+  alias OpenApiSpex.{
+    Components,
+    Info,
+    OpenApi,
+    OAuthFlow,
+    OAuthFlows,
+    Paths,
+    SecurityScheme,
+    Schema,
+    MediaType,
+    Response
+  }
+
   @behaviour OpenApi
 
   @impl OpenApi

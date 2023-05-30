@@ -35,8 +35,8 @@ defmodule PhoenixAppWeb.UserControllerWithStructSpecs do
       description: "List all useres",
       operationId: "UserController.index",
       responses: %{
-        200 => response("User List Response", "application/json", Schemas.UsersResponse)
-        422 => %Reference{"$ref": "#/components/responses/unprocessable_entity"},
+        200 => response("User List Response", "application/json", Schemas.UsersResponse),
+        422 => %Reference{"$ref": "#/components/responses/unprocessable_entity"}
       }
     }
   end

@@ -52,8 +52,8 @@ defmodule OpenApiSpex.PathItem do
   Eg from the generated `__routes__` function in a Phoenix.Router module.
   """
   @type route ::
-          %{path: String.t(), verb: atom, plug: atom, opts: any}
-          | %{path: String.t(), verb: atom, plug: atom, plug_opts: any}
+          %{optional(:path) => String.t(), verb: atom, plug: atom, opts: any}
+          | %{optional(:path) => String.t(), verb: atom, plug: atom, plug_opts: any}
 
   @doc """
   Builds a PathItem struct from a list of routes that share a path.
