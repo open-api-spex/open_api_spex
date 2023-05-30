@@ -169,10 +169,14 @@ defmodule OpenApiSpex.SchemaResolverTest do
              resolved.paths["/api/users"].post.requestBody.content["application/json"].schema
 
     assert "#/components/schemas/TrainingAppointment" =
-             resolved.components.schemas["PetAppointmentRequest"].discriminator.mapping["training"]
+             resolved.components.schemas["PetAppointmentRequest"].discriminator.mapping[
+               "training"
+             ]
 
     assert "#/components/schemas/GroomingAppointment" =
-             resolved.components.schemas["PetAppointmentRequest"].discriminator.mapping["grooming"]
+             resolved.components.schemas["PetAppointmentRequest"].discriminator.mapping[
+               "grooming"
+             ]
 
     assert %{
              "UserRequest" => %Schema{},
@@ -250,7 +254,9 @@ defmodule OpenApiSpex.SchemaResolverTest do
     }
 
     error_message = """
-    Cannot resolve schema, must be one of:
+    Cannot resolve schema %{}.
+
+    Must be one of:
 
     - schema module, or schema struct
     - list of schema modules, or schema structs

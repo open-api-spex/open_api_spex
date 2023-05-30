@@ -250,9 +250,11 @@ defmodule OpenApiSpex.SchemaResolver do
 
   defp resolve_schema_modules_from_schema(ref = %Reference{}, schemas), do: {ref, schemas}
 
-  defp resolve_schema_modules_from_schema(_, _) do
+  defp resolve_schema_modules_from_schema(schema, _schemas) do
     error_message = """
-    Cannot resolve schema, must be one of:
+    Cannot resolve schema #{inspect(schema)}.
+
+    Must be one of:
 
     - schema module, or schema struct
     - list of schema modules, or schema structs
@@ -286,6 +288,7 @@ defmodule OpenApiSpex.SchemaResolver do
       Enum.map_reduce(mapping, schemas, fn
         {key, module}, schemas when is_atom(module) ->
           {%Reference{"$ref": path}, schemas} = resolve_schema_modules_from_schema(module, schemas)
+
           {{key, path}, schemas}
 
         {key, path}, schemas ->
@@ -295,5 +298,6 @@ defmodule OpenApiSpex.SchemaResolver do
     {%{discriminator | mapping: Map.new(mapping)}, schemas}
   end
 
-  defp resolve_schema_modules_from_discriminator(disciminator, schemas), do: {disciminator, schemas}
+  defp resolve_schema_modules_from_discriminator(disciminator, schemas),
+    do: {disciminator, schemas}
 end
