@@ -360,6 +360,18 @@ defmodule OpenApiSpex.ObjectTest do
       assert user == %User{name: "Name"}
     end
 
+    test "original struct is preserved if no x-struct is specified" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          name: %Schema{type: :string}
+        }
+      }
+
+      assert {:ok, user} = cast(value: %User{name: "Name"}, schema: schema)
+      assert user == %User{name: "Name"}
+    end
+
     test "validates maxProperties" do
       schema = %Schema{
         type: :object,
