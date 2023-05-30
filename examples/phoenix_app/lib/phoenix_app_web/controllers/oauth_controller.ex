@@ -4,10 +4,12 @@ defmodule PhoenixAppWeb.OauthController do
   def access_token(conn = %Plug.Conn{}, _params) do
     provider_params = conn.body_params
 
-    provider_response = HTTPoison.post!(
-      "https://github.com/login/oauth/access_token",
-      Jason.encode!(provider_params),
-      [{"content-type", "application/json"}])
+    provider_response =
+      HTTPoison.post!(
+        "https://github.com/login/oauth/access_token",
+        Jason.encode!(provider_params),
+        [{"content-type", "application/json"}]
+      )
 
     provider_body = provider_response.body
 

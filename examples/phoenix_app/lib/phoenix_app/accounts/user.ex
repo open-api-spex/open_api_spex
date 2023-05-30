@@ -3,8 +3,8 @@ defmodule PhoenixApp.Accounts.User do
   alias __MODULE__
 
   schema "users" do
-    field :name, :string
-    field :email, :string
+    field(:name, :string)
+    field(:email, :string)
     timestamps()
   end
 
