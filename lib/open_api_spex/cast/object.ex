@@ -33,7 +33,7 @@ defmodule OpenApiSpex.Cast.Object do
           value
         end
 
-      ctx = to_struct(%{ctx | value: value_with_defaults})
+      ctx = to_struct(%{ctx | value: value_with_defaults}, original_value)
       {:ok, ctx}
     end
   end
@@ -147,7 +147,7 @@ defmodule OpenApiSpex.Cast.Object do
       |> Enum.flat_map(&[&1, to_string(&1)])
       |> MapSet.new()
 
-    for {key, _value} = prop <- original_value,
+    for {key, _value} = prop <- ensure_not_struct(original_value),
         not MapSet.member?(recognized_keys, key) do
       prop
     end
@@ -188,9 +188,16 @@ defmodule OpenApiSpex.Cast.Object do
 
   defp apply_default(_, object_value), do: object_value
 
-  defp to_struct(%{value: value = %_{}}), do: value
-  defp to_struct(%{value: value, schema: %{"x-struct": nil}}), do: value
+  defp to_struct(%{value: value = %_{}}, _original_value), do: value
 
-  defp to_struct(%{value: value, schema: %{"x-struct": module}}),
-    do: struct(module, value)
+  defp to_struct(%{value: value, schema: %{"x-struct": module}}, _)
+       when not is_nil(module),
+       do: struct(module, value)
+
+  defp to_struct(%{value: value}, %original_module{}), do: struct(original_module, value)
+
+  defp to_struct(%{value: value}, _original_value), do: value
+
+  defp ensure_not_struct(val) when is_struct(val), do: Map.from_struct(val)
+  defp ensure_not_struct(val), do: val
 end
