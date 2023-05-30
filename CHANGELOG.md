@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.17.3 - 2023-05-30
+
+* Raise meaningful error message when `SchemaResolver.resolve_schema_modules_from_schema` failed to pattern match by @yuchunc in https://github.com/open-api-spex/open_api_spex/pull/541
+* Support structs as inputs when casting objects by @gianluca-nitti in https://github.com/open-api-spex/open_api_spex/pull/529
+* Fix #540 `PathItem.from_routes/1` dialyzer warnings - @zorbash - 055c8e0131a4f8
+
 ## v3.17.2 - 2023-05-26
 
 * Fix `Schema.example/2` for `anyOf` - @zorbash - 3046c68
