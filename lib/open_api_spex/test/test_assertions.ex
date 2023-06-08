@@ -128,8 +128,11 @@ defmodule OpenApiSpex.TestAssertions do
   """
   @spec assert_operation_response(Plug.Conn.t(), String.t()) ::
           no_return | Plug.Conn.t()
+  def assert_operation_response(conn, operation_id \\ nil)
   def assert_operation_response(conn, operation_id) do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
+
+    operation_id = operation_id || conn.private.open_api_spex.operation_id
 
     case operation_lookup[operation_id] do
       nil ->

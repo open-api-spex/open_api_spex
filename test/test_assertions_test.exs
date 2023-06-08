@@ -96,7 +96,7 @@ defmodule OpenApiSpex.TestAssertionsTest do
   end
 
   describe "assert_response_operation/2" do
-    test "success" do
+    test "success with a manually specified operationId" do
       conn =
         :get
         |> Plug.Test.conn("/api/pets")
@@ -106,6 +106,18 @@ defmodule OpenApiSpex.TestAssertionsTest do
 
       assert conn.status == 200
       TestAssertions.assert_operation_response(conn, "listPets")
+    end
+
+    test "success with only conn" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/pets")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+
+      conn = OpenApiSpexTest.Router.call(conn, [])
+
+      assert conn.status == 200
+      TestAssertions.assert_operation_response(conn)
     end
 
     test "missing operation id" do

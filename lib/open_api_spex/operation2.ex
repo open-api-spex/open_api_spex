@@ -41,11 +41,25 @@ defmodule OpenApiSpex.Operation2 do
              components,
              opts
            ) do
-      {:ok, conn |> cast_conn(body) |> maybe_replace_body(body, replace_params)}
+      {:ok,
+       conn
+       |> cast_conn(body)
+       |> maybe_replace_body(body, replace_params)
+       |> put_operation_id(operation)}
     end
   end
 
   ## Private functions
+
+  defp put_operation_id(conn, operation) do
+    private_data =
+      conn
+      |> Map.get(:private)
+      |> Map.get(:open_api_spex, %{})
+      |> Map.put(:operation_id, operation.operationId)
+
+    Plug.Conn.put_private(conn, :open_api_spex, private_data)
+  end
 
   defp cast_conn(conn, body) do
     private_data =
