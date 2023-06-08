@@ -127,7 +127,7 @@ defmodule OpenApiSpex.TestAssertions do
   Asserts that the response body conforms to the response schema for the operation with id `operation_id`.
   """
   @spec assert_operation_response(Plug.Conn.t(), String.t()) ::
-          no_return | term
+          no_return | Plug.Conn.t()
   def assert_operation_response(conn, operation_id) do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
 
