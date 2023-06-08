@@ -64,4 +64,87 @@ defmodule OpenApiSpex.TestAssertionsTest do
       TestAssertions.assert_request_schema(value, schema.title, api_spec)
     end
   end
+
+  describe "assert_raw_schema/3" do
+    test "success" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          name: %Schema{type: :string}
+        }
+      }
+
+      TestAssertions.assert_raw_schema(%{name: "valid"}, schema, %{})
+    end
+
+    test "failure" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          name: %Schema{type: :string}
+        }
+      }
+
+      try do
+        TestAssertions.assert_raw_schema(%{name: 1234}, schema, %{})
+        raise RuntimeError, "Should flunk"
+      rescue
+        e in ExUnit.AssertionError ->
+          assert e.message =~ "Value does not conform to schema"
+      end
+    end
+  end
+
+  describe "assert_response_operation/2" do
+    test "success" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/pets")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+
+      conn = OpenApiSpexTest.Router.call(conn, [])
+
+      assert conn.status == 200
+      TestAssertions.assert_operation_response("listPets", conn)
+    end
+
+    test "missing operation id" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/openapi")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+
+      conn = OpenApiSpexTest.Router.call(conn, [])
+      assert conn.status == 200
+
+      try do
+        TestAssertions.assert_operation_response("not_a_real_operation_id", conn)
+        raise RuntimeError, "Should flunk"
+      rescue
+        e in ExUnit.AssertionError ->
+          assert e.message =~
+                   "Failed to resolve schema. Unable to find a response for operation_id: not_a_real_operation_id for response status code: 200"
+      end
+    end
+
+    test "invalid schema" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/pets")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+
+      conn = OpenApiSpexTest.Router.call(conn, [])
+
+      assert conn.status == 200
+
+      try do
+        TestAssertions.assert_operation_response("showPetById", conn)
+        raise RuntimeError, "Should flunk"
+      rescue
+        e in ExUnit.AssertionError ->
+          assert e.message =~
+                   "Value does not conform to schema PetResponse: Failed to cast value to one of: no schemas validate at"
+      end
+    end
+  end
 end

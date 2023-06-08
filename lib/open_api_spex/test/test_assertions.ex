@@ -3,8 +3,10 @@ defmodule OpenApiSpex.TestAssertions do
   Defines helpers for testing API responses and examples against API spec schemas.
   """
   import ExUnit.Assertions
-  alias OpenApiSpex.Cast.Error
-  alias OpenApiSpex.{Cast, OpenApi}
+  alias OpenApiSpex.Reference
+  alias OpenApiSpex.Cast.{Error, Utils}
+  alias OpenApiSpex.{Cast, Components, OpenApi, Operation, Schema}
+  alias OpenApiSpex.Plug.PutApiSpec
 
   @dialyzer {:no_match, assert_schema: 3}
 
@@ -29,6 +31,51 @@ defmodule OpenApiSpex.TestAssertions do
 
     assert_schema(cast_context)
   end
+
+  @doc """
+  Asserts that `value` conforms to the schema definition. In the case that your schema definition contains
+  `$ref` fields, this function will attempt to resolve them using the given `spec`.
+  """
+  @spec assert_raw_schema(term, Schema.t() | Reference.t(), OpenApi.t() | %{}) :: term | no_return
+  def assert_raw_schema(value, schema, spec \\ %{})
+
+  def assert_raw_schema(value, schema = %Schema{}, spec) do
+    schemas = get_or_default_schemas(spec)
+    resolved_schema = OpenApiSpex.resolve_schema(schema, spec)
+
+    if resolved_schema == nil do
+      flunk("Schema: #{inspect(schema)} not found in #{inspect(spec)}")
+    end
+
+    cast_context = %Cast{
+      value: value,
+      schema: resolved_schema,
+      schemas: schemas
+    }
+
+    assert_schema(cast_context)
+  end
+
+  def assert_raw_schema(value, schema = %Reference{}, spec) do
+    schemas = get_or_default_schemas(spec)
+    resolved_schema = OpenApiSpex.resolve_schema(schema, schemas)
+
+    if resolved_schema == nil do
+      flunk("Schema: #{inspect(schema)} not found in #{inspect(spec)}")
+    end
+
+    cast_context = %Cast{
+      value: value,
+      schema: resolved_schema,
+      schemas: schemas
+    }
+
+    assert_schema(cast_context)
+  end
+
+  @spec get_or_default_schemas(OpenApi.t() | %{}) :: Components.schemas_map() | %{}
+  defp get_or_default_schemas(api_spec = %OpenApi{}), do: api_spec.components.schemas || %{}
+  defp get_or_default_schemas(input), do: input
 
   @doc """
   Asserts that `value` conforms to the schema in the given `%Cast{}` context.
@@ -74,5 +121,61 @@ defmodule OpenApiSpex.TestAssertions do
   @spec assert_request_schema(term, String.t(), OpenApi.t()) :: term | no_return
   def assert_request_schema(value, schema_title, api_spec = %OpenApi{}) do
     assert_schema(value, schema_title, api_spec, :write)
+  end
+
+  @doc """
+  Asserts that the response body conforms to the response schema for the operation with id `operation_id`.
+  """
+  @spec assert_operation_response(String.t(), Plug.Conn.t()) ::
+          no_return | term
+  def assert_operation_response(operation_id, conn) do
+    {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
+
+    case operation_lookup[operation_id] do
+      nil ->
+        flunk(
+          "Failed to resolve schema. Unable to find a response for operation_id: #{operation_id} for response status code: #{conn.status}"
+        )
+
+      operation ->
+        validate_operation_response(conn, operation, spec)
+    end
+  end
+
+  @spec validate_operation_response(
+          Plug.Conn.t(),
+          Operation.t(),
+          OpenApi.t()
+        ) ::
+          term | no_return
+  defp validate_operation_response(conn, %Operation{operationId: operation_id} = operation, spec) do
+    content_type = Utils.content_type_from_header(conn)
+
+    resolved_schema =
+      get_in(operation, [
+        Access.key!(:responses),
+        Access.key!(conn.status),
+        Access.key!(:content),
+        content_type,
+        Access.key!(:schema)
+      ])
+
+    if resolved_schema == nil do
+      flunk(
+        "Failed to resolve schema! Unable to find a response for operation_id: #{operation_id} for response status code: #{conn.status} and content type #{content_type}"
+      )
+    end
+
+    body =
+      case content_type do
+        "application/json" -> Jason.decode!(conn.resp_body)
+        _ -> conn.resp_body
+      end
+
+    assert_raw_schema(
+      body,
+      resolved_schema,
+      spec
+    )
   end
 end

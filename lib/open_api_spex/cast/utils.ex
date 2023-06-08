@@ -46,4 +46,16 @@ defmodule OpenApiSpex.Cast.Utils do
   end
 
   def check_required_fields(_ctx, _acc), do: :ok
+
+  def content_type_from_header(conn = %Plug.Conn{}) do
+    case Plug.Conn.get_req_header(conn, "content-type") do
+      [header_value | _] ->
+        header_value
+        |> String.split(";")
+        |> List.first()
+
+      _ ->
+        nil
+    end
+  end
 end
