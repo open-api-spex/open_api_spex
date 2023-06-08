@@ -105,7 +105,7 @@ defmodule OpenApiSpex.TestAssertionsTest do
       conn = OpenApiSpexTest.Router.call(conn, [])
 
       assert conn.status == 200
-      TestAssertions.assert_operation_response("listPets", conn)
+      TestAssertions.assert_operation_response(conn, "listPets")
     end
 
     test "missing operation id" do
@@ -118,7 +118,7 @@ defmodule OpenApiSpex.TestAssertionsTest do
       assert conn.status == 200
 
       try do
-        TestAssertions.assert_operation_response("not_a_real_operation_id", conn)
+        TestAssertions.assert_operation_response(conn, "not_a_real_operation_id")
         raise RuntimeError, "Should flunk"
       rescue
         e in ExUnit.AssertionError ->
@@ -138,7 +138,7 @@ defmodule OpenApiSpex.TestAssertionsTest do
       assert conn.status == 200
 
       try do
-        TestAssertions.assert_operation_response("showPetById", conn)
+        TestAssertions.assert_operation_response(conn, "showPetById")
         raise RuntimeError, "Should flunk"
       rescue
         e in ExUnit.AssertionError ->
