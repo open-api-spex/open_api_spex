@@ -33,23 +33,17 @@ defmodule OpenApiSpex.TestAssertions do
   end
 
   @doc """
-  Asserts that `value` conforms to the schema definition. In the case that your schema definition contains
-  `$ref` fields, this function will attempt to resolve them using the given `spec`.
+  Asserts that `value` conforms to the schema or reference definition.
   """
   @spec assert_raw_schema(term, Schema.t() | Reference.t(), OpenApi.t() | %{}) :: term | no_return
   def assert_raw_schema(value, schema, spec \\ %{})
 
   def assert_raw_schema(value, schema = %Schema{}, spec) do
     schemas = get_or_default_schemas(spec)
-    resolved_schema = OpenApiSpex.resolve_schema(schema, spec)
-
-    if resolved_schema == nil do
-      flunk("Schema: #{inspect(schema)} not found in #{inspect(spec)}")
-    end
 
     cast_context = %Cast{
       value: value,
-      schema: resolved_schema,
+      schema: schema,
       schemas: schemas
     }
 
@@ -60,7 +54,7 @@ defmodule OpenApiSpex.TestAssertions do
     schemas = get_or_default_schemas(spec)
     resolved_schema = OpenApiSpex.resolve_schema(schema, schemas)
 
-    if resolved_schema == nil do
+    if is_nil(resolved_schema) do
       flunk("Schema: #{inspect(schema)} not found in #{inspect(spec)}")
     end
 
