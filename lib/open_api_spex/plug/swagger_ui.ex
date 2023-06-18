@@ -193,14 +193,24 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   end
 
   if Code.ensure_loaded?(Phoenix.Controller) do
-    defp supplement_config(%{oauth2_redirect_url: {:endpoint_url, path}} = config, conn) do
+    defp supplement_config(config, conn) do
       endpoint_module = Phoenix.Controller.endpoint_module(conn)
-      url = Path.join(endpoint_module.url(), path)
-      Map.put(config, :oauth2_redirect_url, url)
-    end
-  end
 
-  defp supplement_config(config, _conn) do
-    config
+      Enum.map(config, fn
+        {k, {:endpoint_url, path}} ->
+          {k, Path.join(endpoint_module.url(), endpoint_module.path(path))}
+
+        {k, {:endpoint_path, path}} ->
+          {k, endpoint_module.path(path)}
+
+        k_v ->
+          k_v
+      end)
+      |> Map.new()
+    end
+  else
+    defp supplement_config(config, _conn) do
+      config
+    end
   end
 end
