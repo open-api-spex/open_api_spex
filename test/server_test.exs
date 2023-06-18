@@ -27,6 +27,6 @@ defmodule OpenApiSpex.ServerTest do
       ]
     )
 
-    Endpoint.start_link()
+    start_supervised!(Endpoint)
   end
 end
