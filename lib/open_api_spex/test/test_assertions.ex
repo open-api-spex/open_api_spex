@@ -128,7 +128,12 @@ defmodule OpenApiSpex.TestAssertions do
   """
   @spec assert_operation_response(Plug.Conn.t(), String.t()) ::
           no_return | Plug.Conn.t()
+
   def assert_operation_response(conn, operation_id \\ nil)
+
+  # No need to check for a schema if the response is empty
+  def assert_operation_response(conn, _operation_id) when conn.status == 204, do: conn
+
   def assert_operation_response(conn, operation_id) do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
 
