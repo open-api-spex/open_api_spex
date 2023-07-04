@@ -172,7 +172,7 @@ defmodule OpenApiSpex.TestAssertions do
 
     body =
       case content_type do
-        "application/json" -> Jason.decode!(conn.resp_body)
+        "application/json" -> decode_json_or_flunk!(conn.resp_body)
         _ -> conn.resp_body
       end
 
@@ -181,5 +181,12 @@ defmodule OpenApiSpex.TestAssertions do
       resolved_schema,
       spec
     )
+  end
+
+  defp decode_json_or_flunk!(body) do
+    case OpenApiSpex.OpenApi.json_encoder() do
+      nil -> flunk("Unable to use assert_operation_response unless a json encoder is configured")
+      encoder -> encoder.decode!(body)
+    end
   end
 end
