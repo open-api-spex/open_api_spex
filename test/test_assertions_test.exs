@@ -95,7 +95,7 @@ defmodule OpenApiSpex.TestAssertionsTest do
     end
   end
 
-  describe "assert_response_operation/2" do
+  describe "assert_operation_response/2" do
     test "success with a manually specified operationId" do
       conn =
         :get
