@@ -146,47 +146,46 @@ defmodule OpenApiSpex.TestAssertions do
     conn
   end
 
-  @spec validate_operation_response(
-          Plug.Conn.t(),
-          Operation.t(),
-          OpenApi.t()
-        ) ::
-          term | no_return
-  defp validate_operation_response(conn, %Operation{operationId: operation_id} = operation, spec) do
-    content_type = Utils.content_type_from_header(conn)
+  if OpenApiSpex.OpenApi.json_encoder() do
+    @spec validate_operation_response(
+            Plug.Conn.t(),
+            Operation.t(),
+            OpenApi.t()
+          ) ::
+            term | no_return
+    defp validate_operation_response(conn, %Operation{operationId: operation_id} = operation, spec) do
+      content_type = Utils.content_type_from_header(conn)
 
-    resolved_schema =
-      get_in(operation, [
-        Access.key!(:responses),
-        Access.key!(conn.status),
-        Access.key!(:content),
-        content_type,
-        Access.key!(:schema)
-      ])
+      resolved_schema =
+        get_in(operation, [
+          Access.key!(:responses),
+          Access.key!(conn.status),
+          Access.key!(:content),
+          content_type,
+          Access.key!(:schema)
+        ])
 
-    if resolved_schema == nil do
-      flunk(
-        "Failed to resolve schema! Unable to find a response for operation_id: #{operation_id} for response status code: #{conn.status} and content type #{content_type}"
-      )
-    end
-
-    body =
-      case content_type do
-        "application/json" -> decode_json_or_flunk!(conn.resp_body)
-        _ -> conn.resp_body
+      if resolved_schema == nil do
+        flunk(
+          "Failed to resolve schema! Unable to find a response for operation_id: #{operation_id} for response status code: #{conn.status} and content type #{content_type}"
+        )
       end
 
-    assert_raw_schema(
-      body,
-      resolved_schema,
-      spec
-    )
-  end
+      body =
+        case content_type do
+          "application/json" -> OpenApiSpex.OpenApi.json_encoder().decode!(conn.resp_body)
+          _ -> conn.resp_body
+        end
 
-  defp decode_json_or_flunk!(body) do
-    case OpenApiSpex.OpenApi.json_encoder() do
-      nil -> flunk("Unable to use assert_operation_response unless a json encoder is configured")
-      encoder -> encoder.decode!(body)
+      assert_raw_schema(
+        body,
+        resolved_schema,
+        spec
+      )
+    end
+  else
+    defp validate_operation_response(_conn, _operation, _spec) do
+      flunk("Unable to use assert_operation_response unless a json encoder is configured")
     end
   end
 end
