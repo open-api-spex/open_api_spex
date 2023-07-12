@@ -152,7 +152,7 @@ defmodule OpenApiSpex.CastParameters do
   defp pre_parse_parameter(parameter, %{content_type: content_type}, parsers)
        when is_bitstring(content_type) do
     Enum.reduce_while(parsers, {:ok, parameter}, fn {match, parser}, acc ->
-      if Regex.regex?(match) and Regex.match?(match, content_type) do
+      if is_struct(match, Regex) and Regex.match?(match, content_type) do
         {:halt, decode_parameter(parameter, content_type, parser)}
       else
         {:cont, acc}
