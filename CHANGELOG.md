@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+* Fix deprecation warning on Elixir 1.15 https://github.com/open-api-spex/open_api_spex/pull/550
+* Now require Elixir 1.11+ https://github.com/open-api-spex/open_api_spex/pull/550
+
 ## v3.17.3 - 2023-05-30
 
 * Raise meaningful error message when `SchemaResolver.resolve_schema_modules_from_schema` failed to pattern match by @yuchunc in https://github.com/open-api-spex/open_api_spex/pull/541
