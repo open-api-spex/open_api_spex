@@ -168,6 +168,18 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
               ]} = cast(value: input_value, schema: discriminator_schema)
     end
 
+    test "value is not an object", %{schemas: %{dog: dog, wolf: wolf, cat: cat}} do
+      input_value = "this is a string but discriminator only works on objects"
+
+      discriminator_schema =
+        build_discriminator_schema([dog, wolf, cat], :anyOf, String.to_atom(@discriminator), nil)
+
+      assert {:error, [error]} = cast(value: input_value, schema: discriminator_schema)
+      assert error.reason == :invalid_type
+      assert error.type == :object
+      assert error.value == input_value
+    end
+
     test "invalid property on discriminator schema", %{
       schemas: %{dog: dog, wolf: wolf}
     } do
