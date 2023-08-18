@@ -37,7 +37,7 @@ defmodule OpenApiSpex.Cast.Discriminator do
     end
   end
 
-  defp cast_discriminator(%_{value: value, schema: schema} = ctx) do
+  defp cast_discriminator(%_{value: %{} = value, schema: schema} = ctx) do
     {discriminator_property, mappings} = discriminator_details(schema)
 
     case value["#{discriminator_property}"] || value[discriminator_property] do
@@ -51,6 +51,10 @@ defmodule OpenApiSpex.Cast.Discriminator do
 
         cast_composition(composite_ctx, ctx, discriminator_value, mappings)
     end
+  end
+
+  defp cast_discriminator(ctx) do
+    Cast.error(ctx, {:invalid_type, :object})
   end
 
   # When the composite key `allOf` is set we have to cast all the schemas even when the discriminator is set
