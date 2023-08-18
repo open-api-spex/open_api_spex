@@ -20,6 +20,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   * `--vendor-extensions` - Whether to include open_api_spex OpenAPI vendor extensions
     (defaults to true)
 
+  * `--quiet` - Whether to disable output printing (defaults to false)
   """
   use Mix.Task
   require Mix.Generator

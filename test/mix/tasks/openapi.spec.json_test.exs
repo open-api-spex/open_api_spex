@@ -18,4 +18,15 @@ defmodule Mix.Tasks.Openapi.Spec.JsonTest do
 
     assert File.read!(actual_schema_path) == File.read!(expected_schema_path)
   end
+
+  test "generates openapi.json quietly" do
+    Mix.Tasks.Openapi.Spec.Json.run(~w(
+      --quiet=true
+      --spec OpenApiSpexTest.Tasks.SpecModule
+      "tmp/openapi.json"
+    ))
+
+    refute_received {:mix_shell, :info, ["* creating tmp"]}
+    refute_received {:mix_shell, :info, ["* creating tmp/openapi.json"]}
+  end
 end
