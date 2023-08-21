@@ -172,9 +172,10 @@ defmodule OpenApiSpex.TestAssertions do
       end
 
       body =
-        case content_type do
-          "application/json" -> OpenApiSpex.OpenApi.json_encoder().decode!(conn.resp_body)
-          _ -> conn.resp_body
+        if String.match?(content_type, ~r/^application\/.*json.*$/) do
+          OpenApiSpex.OpenApi.json_encoder().decode!(conn.resp_body)
+        else
+          conn.resp_body
         end
 
       assert_raw_schema(
