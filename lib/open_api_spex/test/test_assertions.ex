@@ -122,8 +122,7 @@ defmodule OpenApiSpex.TestAssertions do
   @doc """
   Asserts that the response body conforms to the response schema for the operation with id `operation_id`.
   """
-  @spec assert_operation_response(Plug.Conn.t(), String.t() | nil) ::
-          no_return | Plug.Conn.t()
+  @spec assert_operation_response(Plug.Conn.t(), String.t() | nil) :: Plug.Conn.t()
   def assert_operation_response(conn, operation_id \\ nil)
 
   # No need to check for a schema if the response is empty
