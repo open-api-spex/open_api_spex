@@ -10,6 +10,8 @@ defmodule OpenApiSpex.TestAssertions do
 
   @dialyzer {:no_match, assert_schema: 3}
 
+  @json_content_regex ~r/^application\/.*json.*$/
+
   @doc """
   Asserts that `value` conforms to the schema with title `schema_title` in `api_spec`.
   """
@@ -120,9 +122,8 @@ defmodule OpenApiSpex.TestAssertions do
   @doc """
   Asserts that the response body conforms to the response schema for the operation with id `operation_id`.
   """
-  @spec assert_operation_response(Plug.Conn.t(), String.t()) ::
+  @spec assert_operation_response(Plug.Conn.t(), String.t() | nil) ::
           no_return | Plug.Conn.t()
-
   def assert_operation_response(conn, operation_id \\ nil)
 
   # No need to check for a schema if the response is empty
@@ -165,14 +166,14 @@ defmodule OpenApiSpex.TestAssertions do
           Access.key!(:schema)
         ])
 
-      if resolved_schema == nil do
+      if is_nil(resolved_schema) do
         flunk(
           "Failed to resolve schema! Unable to find a response for operation_id: #{operation_id} for response status code: #{conn.status} and content type #{content_type}"
         )
       end
 
       body =
-        if String.match?(content_type, ~r/^application\/.*json.*$/) do
+        if String.match?(content_type, @json_content_regex) do
           OpenApiSpex.OpenApi.json_encoder().decode!(conn.resp_body)
         else
           conn.resp_body
@@ -186,7 +187,9 @@ defmodule OpenApiSpex.TestAssertions do
     end
   else
     defp validate_operation_response(_conn, _operation, _spec) do
-      flunk("Unable to use assert_operation_response unless a json encoder is configured")
+      flunk(
+        "Unable to use assert_operation_response unless a json encoder is configured. Please add :jason or :poison in your mix dependencies."
+      )
     end
   end
 end
