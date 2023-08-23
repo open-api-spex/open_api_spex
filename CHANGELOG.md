@@ -5,10 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## v3.18.0 - 2023-08-23
 
-* Fix deprecation warning on Elixir 1.15 https://github.com/open-api-spex/open_api_spex/pull/550
-* Now require Elixir 1.11+ https://github.com/open-api-spex/open_api_spex/pull/550
+* Relax dependency constraint on ymlr to allow version ~> 4.0 by @arcanemachine in https://github.com/open-api-spex/open_api_spex/pull/544
+* Fix deprecation warning on Elixir 1.15, require Elixir 1.11, adapt CI by @thbar in https://github.com/open-api-spex/open_api_spex/pull/550
+* Add `--quiet` option for spec generation by @Cowa in https://github.com/open-api-spex/open_api_spex/pull/557
+* Fix casting non-objects against discriminator #551 by @gianluca-nitti in https://github.com/open-api-spex/open_api_spex/pull/552
+* feat: add assert_operation_response, assert_raw_schema by @msutkowski in https://github.com/open-api-spex/open_api_spex/pull/545
 
 ## v3.17.3 - 2023-05-30
 
