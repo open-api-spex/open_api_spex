@@ -262,7 +262,7 @@ scope "/api" do
 end
 ```
 
-Note that the above snippet uses [`scope/3`](https://hexdocs.pm/phoenix/Phoenix.Router.html#scope/3); some Phoenix projects will instead use [`scope/4`](https://hexdocs.pm/phoenix/Phoenix.Router.html#scope/3), which adds an alias to all modules declared in the scope:
+Note that the above snippet uses [`scope/3`](https://hexdocs.pm/phoenix/Phoenix.Router.html#scope/3). Some Phoenix projects will instead use [`scope/4`](https://hexdocs.pm/phoenix/Phoenix.Router.html#scope/4) which adds an alias to all modules declared in the scope, as shown below:
 ```elixir
 scope "/api", MyAppWeb do
   pipe_through :api
