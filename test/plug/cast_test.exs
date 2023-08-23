@@ -25,6 +25,27 @@ defmodule OpenApiSpex.Plug.CastTest do
     end
   end
 
+  describe "body params - basics" do
+    test "valid param" do
+      body =
+        Jason.encode!(%{
+          phone_number: "123-456-789",
+          postal_address: "123 Lane St"
+        })
+
+      conn =
+        :post
+        |> Plug.Test.conn("/api/users/123/contact_info", body)
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+      assert conn.private.open_api_spex.params == conn.params
+
+      assert OpenApiSpex.params(conn) == %{validParam: true}
+    end
+  end
+
   describe "query params - basics" do
     test "valid param" do
       conn =

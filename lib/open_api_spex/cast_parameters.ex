@@ -42,6 +42,10 @@ defmodule OpenApiSpex.CastParameters do
     Plug.Conn.fetch_query_params(conn).query_params
   end
 
+  defp get_params_by_location(conn, :body, _) do
+    conn.body_params
+  end
+
   defp get_params_by_location(conn, :path, _) do
     conn.path_params
   end
