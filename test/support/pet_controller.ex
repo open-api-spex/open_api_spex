@@ -23,7 +23,8 @@ defmodule OpenApiSpexTest.PetController do
        ],
        responses: [
          ok: {"Pet", "application/json", Schemas.PetResponse}
-       ]
+       ],
+       operation_id: "showPetById"
   def show(conn, %{id: _id}) do
     json(conn, %Schemas.PetResponse{
       data: %Schemas.Dog{
@@ -36,7 +37,8 @@ defmodule OpenApiSpexTest.PetController do
   @doc """
   Get a list of pets.
   """
-  @doc responses: [ok: {"Pet list", "application/json", Schemas.PetsResponse}]
+  @doc responses: [ok: {"Pet list", "application/json", Schemas.PetsResponse}],
+       operation_id: "listPets"
   def index(conn, _params) do
     json(conn, %Schemas.PetsResponse{
       data: [

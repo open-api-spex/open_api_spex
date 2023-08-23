@@ -44,8 +44,8 @@ defmodule OpenApiSpex.Plug.Cast do
 
   @behaviour Plug
 
+  alias OpenApiSpex.Cast.Utils
   alias OpenApiSpex.Plug.PutApiSpec
-  alias Plug.Conn
 
   @impl Plug
   @deprecated "Use OpenApiSpex.Plug.CastAndValidate instead"
@@ -64,11 +64,7 @@ defmodule OpenApiSpex.Plug.Cast do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
 
-    content_type =
-      Conn.get_req_header(conn, "content-type")
-      |> Enum.at(0, "")
-      |> String.split(";")
-      |> Enum.at(0)
+    content_type = Utils.content_type_from_header(conn)
 
     # credo:disable-for-next-line
     case apply(OpenApiSpex, :cast, [spec, operation, conn, content_type]) do

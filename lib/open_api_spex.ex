@@ -15,7 +15,7 @@ defmodule OpenApiSpex do
     SchemaResolver
   }
 
-  alias OpenApiSpex.Cast.Error
+  alias OpenApiSpex.Cast.{Error, Utils}
 
   @doc """
   Adds schemas to the api spec from the modules specified in the Operations.
@@ -93,20 +93,8 @@ defmodule OpenApiSpex do
         content_type \\ nil,
         opts \\ []
       ) do
-    content_type = content_type || content_type_from_header(conn)
+    content_type = content_type || Utils.content_type_from_header(conn)
     Operation2.cast(spec, operation, conn, content_type, opts)
-  end
-
-  defp content_type_from_header(conn = %Plug.Conn{}) do
-    case Plug.Conn.get_req_header(conn, "content-type") do
-      [header_value | _] ->
-        header_value
-        |> String.split(";")
-        |> List.first()
-
-      _ ->
-        nil
-    end
   end
 
   @doc """
@@ -406,7 +394,7 @@ defmodule OpenApiSpex do
   Resolve a schema or reference to a schema.
   """
   @spec resolve_schema(Schema.t() | Reference.t() | module, Components.schemas_map()) ::
-          Schema.t()
+          Schema.t() | nil
   def resolve_schema(%Schema{} = schema, _), do: schema
   def resolve_schema(%Reference{} = ref, schemas), do: Reference.resolve_schema(ref, schemas)
 

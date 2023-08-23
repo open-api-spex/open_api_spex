@@ -41,7 +41,7 @@ defmodule OpenApiSpex.Plug.RenderSpec do
       |> Plug.Conn.send_resp(200, @json_encoder.encode!(spec))
     end
   else
-    IO.warn("No JSON encoder found. Please add :json or :poison in your mix dependencies.")
+    IO.warn("No JSON encoder found. Please add :jason or :poison in your mix dependencies.")
 
     @impl Plug
     def call(conn, _opts), do: conn

@@ -46,4 +46,43 @@ defmodule OpenApiSpex.Cast.Utils do
   end
 
   def check_required_fields(_ctx, _acc), do: :ok
+
+  @doc """
+  Retrieves the content type from the request header of the given connection.
+
+  ## Parameters:
+
+    - `conn`: The connection from which the content type should be retrieved. Must be an instance of `Plug.Conn`.
+
+  ## Returns:
+
+    - If the content type is found: Returns the main content type as a string. For example, for the header "application/json; charset=utf-8", it would return "application/json".
+    - If the content type is not found or is not set: Returns `nil`.
+
+  ## Examples:
+
+      iex> content_type_from_header(%Plug.Conn{req_headers: [{"content-type", "application/json; charset=utf-8"}]})
+      "application/json"
+
+      iex> content_type_from_header(%Plug.Conn{req_headers: []})
+      nil
+
+  ## Notes:
+
+  - The function only retrieves the main content type and does not consider any additional parameters that may be set in the `content-type` header.
+  - If multiple `content-type` headers are found, the function will only return the value of the first one.
+
+  """
+  @spec content_type_from_header(Plug.Conn.t()) :: String.t() | nil
+  def content_type_from_header(conn = %Plug.Conn{}) do
+    case Plug.Conn.get_req_header(conn, "content-type") do
+      [header_value | _] ->
+        header_value
+        |> String.split(";")
+        |> List.first()
+
+      _ ->
+        nil
+    end
+  end
 end
