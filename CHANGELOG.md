@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.19.0 - 2023-09-23
+
+## Added
+
+* Accept expected location body ~> by @yashin5 in https://github.com/open-api-spex/open_api_spex/pull/558
+
 ## v3.18.0 - 2023-08-23
 
 * Relax dependency constraint on ymlr to allow version ~> 4.0 by @arcanemachine in https://github.com/open-api-spex/open_api_spex/pull/544
