@@ -196,7 +196,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     defp supplement_config(config, conn) do
       endpoint_module = Phoenix.Controller.endpoint_module(conn)
 
-      Enum.map(config, fn
+      Map.new(config, fn
         {k, {:endpoint_url, path}} ->
           {k, Path.join(endpoint_module.url(), endpoint_module.path(path))}
 
@@ -206,7 +206,6 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         k_v ->
           k_v
       end)
-      |> Map.new()
     end
   else
     defp supplement_config(config, _conn) do
