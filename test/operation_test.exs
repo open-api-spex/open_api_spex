@@ -63,5 +63,26 @@ defmodule OpenApiSpex.OperationTest do
                  }
                )
     end
+
+    test "parameter" do
+      assert %OpenApiSpex.Parameter{
+               name: :some_param,
+               in: :query,
+               description: "A string param description",
+               required: false,
+               schema: %OpenApiSpex.Schema{type: :string}
+             } = Operation.parameter(:some_param, :query, :string, "A string param description")
+
+      assert %OpenApiSpex.Parameter{
+               name: :some_param,
+               in: :query,
+               description: "A string param description",
+               required: false,
+               schema: %OpenApiSpex.Schema{enum: ["foo", "bar"], type: :string}
+             } =
+               Operation.parameter(:some_param, :query, :string, "A string param description",
+                 schema: %OpenApiSpex.Schema{type: :string, enum: ["foo", "bar"]}
+               )
+    end
   end
 end

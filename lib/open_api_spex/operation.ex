@@ -104,9 +104,11 @@ defmodule OpenApiSpex.Operation do
       [name: name, in: location, description: description, required: location == :path]
       |> Keyword.merge(opts)
 
+    schema = Keyword.get(opts, :schema, type)
+
     Parameter
     |> struct!(params)
-    |> Parameter.put_schema(type)
+    |> Parameter.put_schema(schema)
   end
 
   @doc """
