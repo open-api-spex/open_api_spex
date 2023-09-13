@@ -86,11 +86,27 @@ defmodule OpenApiSpex.Operation do
 
   @doc """
   Shorthand for constructing an `OpenApiSpex.Parameter` given name, location, type, description and optional examples
+
+  ## Examples
+
+      iex> Operation.parameter(
+      ...>   :status,
+      ...>   :query,
+      ...>   %OpenApiSpex.Schema{type: :string, enum: ["pending", "in_progress", "completed"]},
+      ...>   "The status of an entity"
+      ...> )
+      %OpenApiSpex.Parameter{
+        name: :status,
+        in: :query,
+        description: "The status of an entity",
+        required: false,
+        schema: %OpenApiSpex.Schema{enum: ["pending", "in_progress", "completed"], type: :string}
+      }
   """
   @spec parameter(
           name :: atom,
           location :: Parameter.location(),
-          type :: Reference.t() | Schema.t() | atom,
+          type :: Reference.t() | Schema.t() | Parameter.type() | atom(),
           description :: String.t(),
           opts :: keyword
         ) :: Parameter.t()

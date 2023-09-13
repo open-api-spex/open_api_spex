@@ -73,11 +73,12 @@ defmodule OpenApiSpex.Parameter do
         }
 
   @type parameters :: %{String.t() => t | Reference.t()} | nil
+  @type type :: :boolean | :integer | :number | :string | :array | :object
 
   @doc """
   Sets the schema for a parameter from a simple type, reference or Schema
   """
-  @spec put_schema(t, Reference.t() | Schema.t() | atom) :: t
+  @spec put_schema(t, Reference.t() | Schema.t() | type) :: t
   def put_schema(parameter = %Parameter{}, type = %Reference{}) do
     %{parameter | schema: type}
   end

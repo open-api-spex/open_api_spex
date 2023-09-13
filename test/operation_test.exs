@@ -4,6 +4,8 @@ defmodule OpenApiSpex.OperationTest do
   alias OpenApiSpex.Operation
   alias OpenApiSpexTest.UserController
 
+  doctest Operation
+
   describe "Operation" do
     test "from_route %Phoenix.Router.Route{}" do
       plug = UserController
