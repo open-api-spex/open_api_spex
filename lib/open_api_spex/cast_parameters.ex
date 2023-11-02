@@ -40,6 +40,7 @@ defmodule OpenApiSpex.CastParameters do
 
   defp get_params_by_location(conn, :query, _) do
     params = Plug.Conn.fetch_query_params(conn).query_params
+
     Enum.reduce(params, %{}, fn param, acc ->
       {updated_key, updated_value} = parse_query_param(param)
       Map.update(acc, updated_key, updated_value, &[&1 | updated_value])
