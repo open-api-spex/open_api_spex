@@ -50,6 +50,12 @@ defmodule OpenApiSpex.Operation2Test do
     @user_index %Operation{
       operationId: "UserController.index",
       parameters: [
+        Operation.parameter(
+          :"ids[]",
+          :query,
+          %Schema{type: :array, items: %Schema{type: :integer}},
+          "Filter by user ids"
+        ),
         Operation.parameter(:name, :query, :string, "Filter by user name"),
         Operation.parameter(:age, :query, :integer, "Filter by user age"),
         %Reference{"$ref": "#/components/parameters/member"},
@@ -299,13 +305,21 @@ defmodule OpenApiSpex.Operation2Test do
     end
 
     test "casts valid query params and respects defaults" do
-      valid_query_params = %{"name" => "Rubi", "age" => "31", "member" => "true"}
+      valid_query_params = %{"ids[]" => 1, "name" => "Rubi", "age" => "31", "member" => "true"}
       assert {:ok, conn} = do_index_cast(valid_query_params)
-      assert conn.params == %{age: 31, member: true, name: "Rubi", include_archived: false}
+
+      assert conn.params == %{
+               "ids[]": [1],
+               age: 31,
+               member: true,
+               name: "Rubi",
+               include_archived: false
+             }
     end
 
     test "casts valid query params and overrides defaults" do
       valid_query_params = %{
+        "ids[]" => 1,
         "name" => "Rubi",
         "age" => "31",
         "member" => "true",
@@ -313,15 +327,29 @@ defmodule OpenApiSpex.Operation2Test do
       }
 
       assert {:ok, conn} = do_index_cast(valid_query_params)
-      assert conn.params == %{age: 31, member: true, name: "Rubi", include_archived: true}
+
+      assert conn.params == %{
+               "ids[]": [1],
+               age: 31,
+               member: true,
+               name: "Rubi",
+               include_archived: true
+             }
     end
 
     test "cast valid query params with replace_params: false" do
-      valid_query_params = %{"name" => "Rubi", "age" => "31", "member" => "true"}
+      valid_query_params = %{"ids[]" => 1, "name" => "Rubi", "age" => "31", "member" => "true"}
       assert {:ok, conn} = do_index_cast(valid_query_params, replace_params: false)
-      assert Plug.Conn.fetch_query_params(conn).params == valid_query_params
+
+      assert Plug.Conn.fetch_query_params(conn).params == %{
+               "ids" => ["1"],
+               "name" => "Rubi",
+               "age" => "31",
+               "member" => "true"
+             }
 
       assert conn.private.open_api_spex.params == %{
+               "ids[]": [1],
                age: 31,
                member: true,
                name: "Rubi",
@@ -330,9 +358,9 @@ defmodule OpenApiSpex.Operation2Test do
     end
 
     test "casts valid query params without applying defaults" do
-      valid_query_params = %{"name" => "Rubi", "age" => "31", "member" => "true"}
+      valid_query_params = %{"ids[]" => 1, "name" => "Rubi", "age" => "31", "member" => "true"}
       assert {:ok, conn} = do_index_cast(valid_query_params, apply_defaults: false)
-      assert conn.params == %{age: 31, member: true, name: "Rubi"}
+      assert conn.params == %{"ids[]": [1], age: 31, member: true, name: "Rubi"}
     end
 
     test "validate invalid data type for query param" do

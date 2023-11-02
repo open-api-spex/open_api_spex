@@ -39,7 +39,11 @@ defmodule OpenApiSpex.CastParameters do
   end
 
   defp get_params_by_location(conn, :query, _) do
-    Plug.Conn.fetch_query_params(conn).query_params
+    params = Plug.Conn.fetch_query_params(conn).query_params
+    Enum.reduce(params, %{}, fn param, acc ->
+      {updated_key, updated_value} = parse_query_param(param)
+      Map.update(acc, updated_key, updated_value, &[&1 | updated_value])
+    end)
   end
 
   defp get_params_by_location(conn, :path, _) do
@@ -59,6 +63,14 @@ defmodule OpenApiSpex.CastParameters do
         property_name = name_lookup[String.downcase(key)],
         into: %{},
         do: {property_name, value}
+  end
+
+  defp parse_query_param({key, value}) when is_list(value) do
+    {"#{key}[]", value}
+  end
+
+  defp parse_query_param(param) do
+    param
   end
 
   defp create_location_schema(parameters, components) do
