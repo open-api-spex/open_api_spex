@@ -143,6 +143,29 @@ defmodule OpenApiSpex.CastDiscriminatorTest do
       assert cast(value: input_value, schema: discriminator_schema) == expected
     end
 
+    test "without title", %{schemas: %{dog: dog, cat: cat}} do
+      dog = Map.put(dog, :title, nil)
+      cat = Map.put(cat, :title, nil)
+
+      schemas = %{"Dog" => dog, "Cat" => cat}
+
+      discriminator_schema = %OpenApiSpex.Schema{
+        anyOf: [
+          %OpenApiSpex.Reference{"$ref": "#/components/schemas/Dog"},
+          %OpenApiSpex.Reference{"$ref": "#/components/schemas/Cat"}
+        ],
+        discriminator: %{
+          mapping: %{"dog" => "#/components/schemas/Dog", "cat" => "#/components/schemas/Cat"},
+          propertyName: "animal_type"
+        },
+        type: :object
+      }
+
+      input_value = %{@discriminator => "dog", "breed" => "Corgi", "age" => 1}
+      expected = {:ok, %{age: 1, breed: "Corgi", animal_type: "dog"}}
+      assert cast(value: input_value, schema: discriminator_schema, schemas: schemas) == expected
+    end
+
     test "valid discriminator mapping but schema does not match", %{
       schemas: %{dog: dog, wolf: wolf, cat: cat}
     } do
