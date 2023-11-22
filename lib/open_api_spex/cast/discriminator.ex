@@ -37,7 +37,7 @@ defmodule OpenApiSpex.Cast.Discriminator do
     end
   end
 
-  defp cast_discriminator(%_{value: %{} = value, schema: schema} = ctx) do
+  defp cast_discriminator(%_{value: %{} = value, schema: schema, schemas: schemas} = ctx) do
     {discriminator_property, mappings} = discriminator_details(schema)
 
     case value["#{discriminator_property}"] || value[discriminator_property] do
@@ -49,7 +49,7 @@ defmodule OpenApiSpex.Cast.Discriminator do
         # or return an error according to the Open API Spec.
         composite_ctx = %{ctx | schema: %{schema | discriminator: nil}}
 
-        cast_composition(composite_ctx, ctx, discriminator_value, mappings)
+        cast_composition(composite_ctx, ctx, discriminator_value, mappings, schemas)
     end
   end
 
@@ -62,7 +62,8 @@ defmodule OpenApiSpex.Cast.Discriminator do
          %_{schema: %{allOf: [_ | _]}} = composite_ctx,
          ctx,
          discriminator_value,
-         mappings
+         mappings,
+         schemas
        ) do
     with {composite_schemas, cast_composition_result} <-
            {locate_composition_schemas(composite_ctx), Cast.cast(composite_ctx)},
@@ -71,7 +72,8 @@ defmodule OpenApiSpex.Cast.Discriminator do
            find_discriminator_schema(
              discriminator_value,
              mappings,
-             composite_schemas
+             composite_schemas,
+             schemas
            ) do
       Cast.cast(%{composite_ctx | schema: schema})
     else
@@ -80,9 +82,10 @@ defmodule OpenApiSpex.Cast.Discriminator do
     end
   end
 
-  defp cast_composition(composite_ctx, ctx, discriminator_value, mappings) do
+  defp cast_composition(composite_ctx, ctx, discriminator_value, mappings, schemas) do
     with composite_schemas <- locate_composition_schemas(composite_ctx),
-         %{} = schema <- find_discriminator_schema(discriminator_value, mappings, composite_schemas) do
+         %{} = schema <-
+           find_discriminator_schema(discriminator_value, mappings, composite_schemas, schemas) do
       Cast.cast(%{composite_ctx | schema: schema})
     else
       nil -> error(:invalid_discriminator_value, ctx)
@@ -90,27 +93,28 @@ defmodule OpenApiSpex.Cast.Discriminator do
     end
   end
 
-  defp find_discriminator_schema(discriminator, mappings = %{}, schemas) do
+  defp find_discriminator_schema(discriminator, mappings = %{}, composite_schemas, schemas) do
     case Map.fetch(mappings, discriminator) do
       {:ok, "#/components/schemas/" <> name} ->
-        find_discriminator_schema(name, nil, schemas)
+        find_discriminator_schema(name, nil, composite_schemas, schemas) || Map.get(schemas, name)
 
       {:ok, name} ->
-        find_discriminator_schema(name, nil, schemas)
+        find_discriminator_schema(name, nil, composite_schemas, schemas)
 
       :error ->
-        find_discriminator_schema(discriminator, nil, schemas)
+        find_discriminator_schema(discriminator, nil, composite_schemas, schemas)
     end
   end
 
-  defp find_discriminator_schema(discriminator, _mappings, schemas)
+  defp find_discriminator_schema(discriminator, nil, composite_schemas, _schemas)
        when is_atom(discriminator) and not is_nil(discriminator),
-       do: Enum.find(schemas, &Kernel.==(&1."x-struct", discriminator))
+       do: Enum.find(composite_schemas, &Kernel.==(&1."x-struct", discriminator))
 
-  defp find_discriminator_schema(discriminator, _mappings, schemas) when is_binary(discriminator),
-    do: Enum.find(schemas, &Kernel.==(&1.title, discriminator))
+  defp find_discriminator_schema(discriminator, nil, composite_schemas, _schemas)
+       when is_binary(discriminator),
+       do: Enum.find(composite_schemas, &Kernel.==(&1.title, discriminator))
 
-  defp find_discriminator_schema(_discriminator, _mappings, _schemas), do: nil
+  defp find_discriminator_schema(_discriminator, _mappings, _composite_schemas, _schemas), do: nil
 
   defp discriminator_details(%{discriminator: %{propertyName: property_name, mapping: mappings}}),
     do: {String.to_existing_atom(property_name), mappings}

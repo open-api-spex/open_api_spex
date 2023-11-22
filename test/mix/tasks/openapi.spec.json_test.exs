@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Openapi.Spec.JsonTest do
     Mix.Tasks.Openapi.Spec.Json.run(~w(
       --quiet=true
       --spec OpenApiSpexTest.Tasks.SpecModule
-      "tmp/openapi.json"
+      tmp/openapi.json
     ))
 
     refute_received {:mix_shell, :info, ["* creating tmp"]}
