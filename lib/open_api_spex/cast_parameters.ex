@@ -69,10 +69,12 @@ defmodule OpenApiSpex.CastParameters do
         properties: parameters |> Map.new(fn p -> {p.name, Parameter.schema(p)} end),
         required: parameters |> Enum.filter(& &1.required) |> Enum.map(& &1.name)
       }
+      # |> maybe_combine_oneOfs(parameters, components)
       |> maybe_add_additional_properties(components),
       parameters_contexts(parameters)
     }
   end
+
 
   # Extract context information from parameters, useful later when casting
   defp parameters_contexts(parameters) do
@@ -127,11 +129,51 @@ defmodule OpenApiSpex.CastParameters do
       location,
       schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
     )
+    |> maybe_combine_params(schema, parameters_contexts)
     |> pre_parse_parameters(parameters_contexts, parsers)
     |> case do
       {:error, _} = err -> err
       params -> Cast.cast(schema, params, components.schemas, opts)
     end
+  end
+
+  # in caase some parameters have explode: true we want to search for those
+  # fields in parameters and combine the parameters in a single struct
+  # so that the casting can do further work
+  defp maybe_combine_params(%{} = parameters, %{} = schema, %{} = parameters_contexts) do
+    Enum.reduce(parameters_contexts, parameters, fn
+      {key, %{explode: true}}, parameters ->
+        # we have exploding property, we need to search for it's possible fields
+        # and add them under the key into the parameters struct.
+        #  do we leave the fields in the params as well? not sure.
+        schema_of_exploding_property = Map.get(schema.properties, String.to_existing_atom(key), %{})
+
+        fields =
+          Schema.properties(schema_of_exploding_property) ++
+            Schema.possible_properties(schema_of_exploding_property)
+
+        {struct_params, found_keys} =
+          Enum.reduce(fields, {Map.new(), []}, fn {field_key, _}, {struct_params, found_keys} ->
+            param_field_key = field_key |> Atom.to_string()
+            val = Map.get(parameters, param_field_key)
+
+            {new_params, new_found_keys} =
+              unless is_nil(val) do
+                {Map.put(struct_params, param_field_key, val), [param_field_key | found_keys]}
+              else
+                {struct_params, found_keys}
+              end
+
+            {new_params, new_found_keys}
+          end)
+
+        parameters
+        |> Map.drop(found_keys)
+        |> Map.put(key, struct_params)
+
+      _, parameters ->
+        parameters
+    end)
   end
 
   defp pre_parse_parameters(%{} = parameters, %{} = parameters_context, parsers) do
@@ -206,6 +248,22 @@ defmodule OpenApiSpex.CastParameters do
     case ap_schema do
       [{_, %{additionalProperties: ap}}] -> %{schema | additionalProperties: ap}
       _ -> schema
+    end
+  end
+
+  defp maybe_combine_oneOfs(schema, parameters, components) do
+    #  check if any params have explode,
+    # if so add the properties of it's schema to the top level
+    # and remove the key for that
+    %{}
+  end
+
+  defp create_one_of_schemas(parameters) do
+    if Enum.any?(parameters, fn p ->
+         p.explode == true and is_list(Parameter.schema(p).oneOf)
+       end) do
+      # in this case we need to create multiple schemas. Each of the schemas
+      # has to have properties defined in other parameters + add required properties
     end
   end
 end
