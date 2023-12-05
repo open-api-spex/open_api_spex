@@ -6,14 +6,14 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
   ## Examples
 
       $ mix openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec apispec.yaml
-      $ mix openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec --start-app=false
+      $ mix openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec --no-start-app
       $ mix openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec --vendor-extensions=false
 
   ## Command line options
 
   * `--spec` - The ApiSpec module from which to generate the OpenAPI YAML file
 
-  * `--start-app` - Whether to start the application before generating the schema (defaults to true)
+  * `--no-start-app` - Whether need to avoid to start application before generate schema (by default it starts the application)
 
   * `--vendor-extensions` - Whether to include open_api_spex OpenAPI vendor extensions
     (defaults to true)
@@ -29,7 +29,7 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
 
   @impl Mix.Task
   def run(argv) do
-    {opts, _, _} = OptionParser.parse(argv, strict: [start_app: :boolean])
+    {opts, _, _} = OptionParser.parse(argv, switches: [start_app: :boolean])
 
     Keyword.get(opts, :start_app, true) |> maybe_start_app()
     OpenApiSpex.ExportSpec.call(argv, &encode/2, @default_filename)
