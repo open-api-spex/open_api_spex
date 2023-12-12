@@ -69,6 +69,10 @@ defmodule OpenApiSpex.PathItem do
     |> from_valid_routes()
   end
 
+  def empty?(%__MODULE__{} = path_item) do
+    path_item == %__MODULE__{}
+  end
+
   @spec from_valid_routes([route]) :: nil | t
   defp from_valid_routes([]), do: nil
 

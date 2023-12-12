@@ -39,6 +39,7 @@ defmodule OpenApiSpex.Paths do
       |> Enum.group_by(fn route -> route.path end)
       |> Enum.map(fn {k, v} -> {open_api_path(k), PathItem.from_routes(v)} end)
       |> Enum.filter(fn {_k, v} -> !is_nil(v) end)
+      |> Enum.reject(fn {_k, v} -> PathItem.empty?(v) end)
       |> Map.new()
 
     paths
