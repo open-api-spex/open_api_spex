@@ -135,7 +135,7 @@ defmodule OpenApiSpex.TestAssertionsTest do
       rescue
         e in ExUnit.AssertionError ->
           assert e.message =~
-                   "Failed to resolve schema. Unable to find a response for operation_id: not_a_real_operation_id for response status code: 200"
+                   "Failed to resolve a response schema for operation_id: not_a_real_operation_id for status code: 200"
       end
     end
 
