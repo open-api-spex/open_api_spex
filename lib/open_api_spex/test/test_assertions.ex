@@ -167,7 +167,7 @@ defmodule OpenApiSpex.TestAssertions do
 
       if is_nil(resolved_schema) do
         flunk(
-          "Failed to resolve schema! Unable to find a response for operation_id: #{operation_id} for response status code: #{conn.status} and content type #{content_type}"
+          "Failed to resolve a response schema for operation_id: #{operation_id} for status code: #{conn.status} and content type: #{content_type}"
         )
       end
 
