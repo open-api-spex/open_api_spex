@@ -154,7 +154,7 @@ defmodule OpenApiSpex.TestAssertions do
           ) ::
             term | no_return
     defp validate_operation_response(conn, %Operation{operationId: operation_id} = operation, spec) do
-      content_type = Utils.content_type_from_header(conn)
+      content_type = Utils.content_type_from_header(conn, :response)
 
       resolved_schema =
         get_in(operation, [

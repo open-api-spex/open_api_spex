@@ -73,9 +73,19 @@ defmodule OpenApiSpex.Cast.Utils do
   - If multiple `content-type` headers are found, the function will only return the value of the first one.
 
   """
-  @spec content_type_from_header(Plug.Conn.t()) :: String.t() | nil
-  def content_type_from_header(conn = %Plug.Conn{}) do
-    case Plug.Conn.get_req_header(conn, "content-type") do
+  @spec content_type_from_header(Plug.Conn.t(), :request | :response) ::
+          String.t() | nil
+  def content_type_from_header(conn = %Plug.Conn{}, header_location \\ :request) do
+    content_type =
+      case header_location do
+        :request ->
+          Plug.Conn.get_req_header(conn, "content-type")
+
+        :response ->
+          Plug.Conn.get_resp_header(conn, "content-type")
+      end
+
+    case content_type do
       [header_value | _] ->
         header_value
         |> String.split(";")
