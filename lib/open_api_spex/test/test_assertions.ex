@@ -136,7 +136,7 @@ defmodule OpenApiSpex.TestAssertions do
     case operation_lookup[operation_id] do
       nil ->
         flunk(
-          "Failed to resolve schema. Unable to find a response for operation_id: #{operation_id} for response status code: #{conn.status}"
+          "Failed to resolve a response schema for operation_id: #{operation_id} for status code: #{conn.status}"
         )
 
       operation ->
@@ -154,20 +154,19 @@ defmodule OpenApiSpex.TestAssertions do
           ) ::
             term | no_return
     defp validate_operation_response(conn, %Operation{operationId: operation_id} = operation, spec) do
-      content_type = Utils.content_type_from_header(conn)
+      content_type = Utils.content_type_from_header(conn, :response)
 
       resolved_schema =
-        get_in(operation, [
-          Access.key!(:responses),
-          Access.key!(conn.status),
-          Access.key!(:content),
-          content_type,
-          Access.key!(:schema)
-        ])
+        operation
+        |> Map.get(:responses, %{})
+        |> Map.get(conn.status, %{})
+        |> Map.get(:content, %{})
+        |> Map.get(content_type, %{})
+        |> Map.get(:schema)
 
       if is_nil(resolved_schema) do
         flunk(
-          "Failed to resolve schema! Unable to find a response for operation_id: #{operation_id} for response status code: #{conn.status} and content type #{content_type}"
+          "Failed to resolve a response schema for operation_id: #{operation_id} for status code: #{conn.status} and content type: #{content_type}"
         )
       end
 
