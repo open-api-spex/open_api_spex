@@ -73,16 +73,17 @@ defmodule OpenApiSpex.PathItem do
   defp from_valid_routes([]), do: nil
 
   defp from_valid_routes(routes) do
-    attrs =
-      routes
-      |> Enum.map(fn route ->
-        case Operation.from_route(route) do
-          nil -> nil
-          op -> {route.verb, op}
-        end
-      end)
-      |> Enum.filter(& &1)
-
-    struct(PathItem, attrs)
+    routes
+    |> Enum.map(fn route ->
+      case Operation.from_route(route) do
+        nil -> nil
+        op -> {route.verb, op}
+      end
+    end)
+    |> Enum.filter(& &1)
+    |> case do
+      [] -> nil
+      attrs -> struct(PathItem, attrs)
+    end
   end
 end

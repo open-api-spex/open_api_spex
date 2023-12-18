@@ -12,6 +12,9 @@ defmodule OpenApiSpex.PathsTest do
                "/api/pets/{id}" => pets_path_item
              } = paths
 
+      refute Map.has_key?(paths, "/api/noapi")
+      refute Map.has_key?(paths, "/api/noapi_with_struct")
+
       assert pets_path_item.patch.operationId == "OpenApiSpexTest.PetController.update"
       assert pets_path_item.put.operationId == "OpenApiSpexTest.PetController.update (2)"
     end
