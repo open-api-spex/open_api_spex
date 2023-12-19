@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.18.1 - 2023-12-19
+
+* Fix `assert_operation_response/2` header lookup by @msutkowski in https://github.com/open-api-spex/open_api_spex/pull/584
+* Exclude empty paths (`operation false`) from generated spec by @alisinabh in https://github.com/open-api-spex/open_api_spex/pull/583
+* Cast discriminator when no title present (#574) by @albertored in https://github.com/open-api-spex/open_api_spex/pull/574
+* Docstest Operation.parameter/5 by @zorbash
+* Document the spec export task `--filename` option by @zorbash
+
 ## v3.18.0 - 2023-08-23
 
 * Relax dependency constraint on ymlr to allow version ~> 4.0 by @arcanemachine in https://github.com/open-api-spex/open_api_spex/pull/544
