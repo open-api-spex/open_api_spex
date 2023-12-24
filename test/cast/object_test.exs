@@ -415,7 +415,11 @@ defmodule OpenApiSpex.ObjectTest do
         }
       }
 
-      assert {:error, [error1, error2]} = cast(value: %{"age" => 0, "name" => "N"}, schema: schema)
+      assert {:error, [_error1, _error2] = errors} =
+               cast(value: %{"age" => 0, "name" => "N"}, schema: schema)
+
+      error1 = Enum.find(errors, &(&1.path == [:age]))
+      error2 = Enum.find(errors, &(&1.path == [:name]))
 
       assert %Error{} = error1
       assert error1.reason == :minimum

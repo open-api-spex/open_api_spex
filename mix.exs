@@ -70,7 +70,7 @@ defmodule OpenApiSpex.Mixfile do
       {:phoenix, "~> 1.3", only: [:dev, :test]},
       {:plug, "~> 1.7"},
       {:poison, "~> 3.0 or ~> 4.0 or ~> 5.0", optional: true},
-      {:ymlr, "~> 2.0 or ~> 3.0 or ~> 4.0", optional: true}
+      {:ymlr, "~> 2.0 or ~> 3.0 or ~> 4.0 or ~> 5.0", optional: true}
     ]
   end
 
