@@ -1,8 +1,6 @@
 defmodule OpenApiSpex.CastParametersTest do
   use ExUnit.Case
 
-  require IEx
-
   alias OpenApiSpex.{
     CastParameters,
     Components,
@@ -204,9 +202,6 @@ defmodule OpenApiSpex.CastParametersTest do
         |> Plug.Test.conn("/api/users?#{filter_params}")
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> Plug.Conn.fetch_query_params()
-
-      # require IEx
-      # IEx.pry()
 
       assert {:ok, _} = CastParameters.cast(conn, operation, spec)
     end

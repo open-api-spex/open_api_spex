@@ -103,10 +103,7 @@ defmodule PlugApp.UserHandler do
       end
     end
 
-    # def show(conn = %Plug.Conn{assigns: %{user: user}}, _opts) do
-    def show(conn, _opts) do
-      IO.inspect(conn.params)
-
+    def show(conn = %Plug.Conn{assigns: %{user: user}}, _opts) do
       user = Accounts.get_user!(conn.params.id)
 
       conn
