@@ -34,14 +34,14 @@ defmodule OpenApiSpex.Cast.AllOf do
     cast_all_of(%{ctx | schema: %{schema | allOf: [nested_schema | remaining]}}, result)
   end
 
-  defp cast_all_of(%{schema: %{allOf: []}, errors: []} = ctx, acc) do
+  defp cast_all_of(%{schema: %{allOf: [], "x-struct": module}, errors: []} = ctx, acc)
+       when not is_nil(module) do
     with :ok <- Utils.check_required_fields(ctx, acc) do
-      {:ok, acc}
+      {:ok, struct(module, acc)}
     end
   end
 
-  defp cast_all_of(%{schema: %{allOf: [], errors: [], "x-struct": module}} = ctx, acc)
-       when not is_nil(module) do
+  defp cast_all_of(%{schema: %{allOf: []}, errors: []} = ctx, acc) do
     with :ok <- Utils.check_required_fields(ctx, acc) do
       {:ok, acc}
     end

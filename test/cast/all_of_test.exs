@@ -355,6 +355,7 @@ defmodule OpenApiSpex.CastAllOfTest do
 
   test "with schema having x-type" do
     value = %{fur: true, meow: true}
-    assert {:ok, _} = cast(value: value, schema: CatSchema.schema())
+
+    assert {:ok, %CatSchema{fur: true, meow: true}} = cast(value: value, schema: CatSchema.schema())
   end
 end
