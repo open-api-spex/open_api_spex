@@ -145,7 +145,8 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
    * `:oauth` - Optional. Config to pass to the `SwaggerUIBundle.initOAuth()` function.
    * `:csp_nonce_assign_key` - Optional. An assign key to find the CSP nonce value used
      for assets. Supports either `atom()` or a map of type
-     `%{optional(:script) => atom(), optional(:style) => atom()}`
+     `%{optional(:script) => atom(), optional(:style) => atom()}`. You will probably
+     want to set this on the `SwaggerUIOAuth2Redirect` plug as well.
    * all other opts - forwarded to the `SwaggerUIBundle` constructor
 
   ## Example
@@ -155,7 +156,6 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         default_model_expand_depth: 3,
         display_operation_id: true,
         csp_nonce_assign_key: %{script: :script_src_nonce, style: :style_src_nonce}
-
   """
   @impl Plug
   def init(opts) when is_list(opts) do
@@ -226,7 +226,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     config
   end
 
-  defp get_nonce(conn, config, type) do
+  def get_nonce(conn, config, type) do
     case config[:csp_nonce_assign_key] do
       key when is_atom(key) -> conn.assigns[key]
       %{^type => key} when is_atom(key) -> conn.assigns[key]
