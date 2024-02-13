@@ -65,12 +65,17 @@ jobs:
     name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
     strategy:
       matrix:
-        otp: ['22', '23', '24', '25']
-        elixir: ['1.11', '1.12', '1.13']
+        otp: ['22', '23', '24', '25', '26']
+        elixir: ['1.11', '1.12', '1.13', '1.14', '1.15', '1.16']
         exclude:
           - {otp: '25', elixir: '1.10'}
           - {otp: '25', elixir: '1.11'}
           - {otp: '25', elixir: '1.12'}
+          - {otp: '26', elixir: '1.10'}
+          - {otp: '26', elixir: '1.11'}
+          - {otp: '26', elixir: '1.12'}
+          - {otp: '26', elixir: '1.13'}
+          - {otp: '26', elixir: '1.14'}
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
