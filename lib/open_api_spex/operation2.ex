@@ -72,7 +72,8 @@ defmodule OpenApiSpex.Operation2 do
   end
 
   defp maybe_replace_body(conn, _body, false), do: conn
-  defp maybe_replace_body(conn, body, true), do: %{conn | body_params: body}
+  defp maybe_replace_body(conn = %{params: params}, body, true),
+    do: %{conn | body_params: body, params: Map.merge(params, body)}
 
   defp cast_parameters(conn, operation, spec, opts) do
     CastParameters.cast(conn, operation, spec, opts)

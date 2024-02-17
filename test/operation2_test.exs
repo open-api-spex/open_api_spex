@@ -175,7 +175,9 @@ defmodule OpenApiSpex.Operation2Test do
 
   describe "cast/4" do
     test "cast request body" do
-      conn = create_conn(%{"user" => %{"email" => "foo@bar.com"}})
+      conn =
+        create_conn(%{"user" => %{"email" => "foo@bar.com"}})
+        |> Map.put(:params, %{"id" => 1})
 
       assert {:ok, conn} =
                Operation2.cast(
@@ -185,7 +187,10 @@ defmodule OpenApiSpex.Operation2Test do
                  "application/json"
                )
 
-      assert %Plug.Conn{} = conn
+      assert %Plug.Conn{
+               body_params: %{user: %{email: "foo@bar.com"}},
+               params: %{user: %{email: "foo@bar.com"}}
+             } = conn
     end
 
     test "cast request body with replace_params: false" do
