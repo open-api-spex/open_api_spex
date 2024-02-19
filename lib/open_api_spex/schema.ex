@@ -338,6 +338,14 @@ defmodule OpenApiSpex.Schema do
     Enum.flat_map(schemas, &properties/1) |> Enum.uniq()
   end
 
+  def properties(%Schema{oneOf: schemas}) when is_list(schemas) do
+    # The only way to make it possible to make a valid instance of a
+    # struct for an anyOf schema is to allow all fields from each of
+    # the alternatives in the struct. This makes it possible to create
+    # invalid structs as well though.
+    Enum.flat_map(schemas, &properties/1) |> Enum.uniq()
+  end
+
   def properties(schema_module) when is_atom(schema_module) do
     properties(schema_module.schema())
   end
