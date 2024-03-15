@@ -338,6 +338,8 @@ scope "/api" do
 end
 ```
 
+Additionally, you can set plug option values as a tuple. In this tuple, the first element should be either `:endpoint_url` or `:endpoint_path` and the second element should be the specific path. This tuple will be converted to the respective URL or path of the Endpoint. This feature is particularly useful in cases where your Phoenix app's Endpoint URL is configured with a non-empty path. It allows you to obtain the full path to the local spec or, as an example, to retrieve the URL for the `oauth2RedirectUrl` parameter, which can then be passed to the [Swagger UI configuration](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/).
+
 ## Importing an existing schema file
 
 > :warning: This functionality currently converts Strings into Atoms, which makes it potentially [vulnerable to DoS attacks](https://til.hashrocket.com/posts/gkwwfy9xvw-converting-strings-to-atoms-safely). We recommend that you load Open API Schemas from _known files_ during application startup and _not dynamically from external sources at runtime_.
