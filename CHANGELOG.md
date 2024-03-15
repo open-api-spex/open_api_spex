@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.18.3 - 2024-03-15
+
+* Relax dependency constraint on ymlr to allow version ~> 5.0 by @egze in https://github.com/open-api-spex/open_api_spex/pull/586
+
 ## v3.18.2 - 2024-01-26
 
 * Fix 'AllOf cast returns a map, but I expected a struct' by @angelikatyborska in https://github.com/open-api-spex/open_api_spex/pull/592
