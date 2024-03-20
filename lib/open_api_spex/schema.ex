@@ -402,6 +402,10 @@ defmodule OpenApiSpex.Schema do
   def example(%Schema{type: :string, format: :"date-time"}), do: "2020-04-20T16:20:00Z"
   def example(%Schema{type: :string, format: :uuid}), do: "02ef9c5f-29e6-48fc-9ec3-7ed57ed351f6"
 
+  def example(%Schema{type: :string, pattern: regexp}) when is_binary(regexp), do:
+    Randex.stream(Regex.compile!(regexp))
+    |> Enum.take(1)
+    |> List.first()
   def example(%Schema{type: :string}), do: ""
   def example(%Schema{type: :integer} = s), do: example_for(s, :integer)
   def example(%Schema{type: :number} = s), do: example_for(s, :number)
