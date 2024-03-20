@@ -468,7 +468,7 @@ defmodule OpenApiSpex.Schema do
     # Only handles :object schemas for now
     schemas
     |> Enum.map(&example/1)
-    |> Enum.reduce(%{}, &Map.merge/2)
+    |> Enum.reduce(%{}, &any_or_all_of/2)
   end
 
   defp example_for(%{minimum: min} = schema, type)
@@ -498,8 +498,11 @@ defmodule OpenApiSpex.Schema do
   defp example_for(schemas, type, all_schemas) when type in [:anyOf, :allOf] do
     schemas
     |> Enum.map(&example(&1, all_schemas))
-    |> Enum.reduce(%{}, &Map.merge/2)
+    |> Enum.reduce(%{}, &any_or_all_of/2)
   end
+
+  defp any_or_all_of(l,r) when is_map(l), do: &Map.merge(&1, &2)
+  defp any_or_all_of(l,r) when is_binary(l), do: l
 
   defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
   defp default(%{default: default}), do: default
