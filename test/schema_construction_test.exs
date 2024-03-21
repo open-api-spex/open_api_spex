@@ -74,4 +74,21 @@ defmodule OpenApiSpex.SchemaConstructionTest do
     assert "Lines of code\n\nHow many lines of code were written today" =
              SchemaWithoutModuledoc.doc()
   end
+
+  defmodule SchemaWithOneOf do
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      oneOf: [
+        %OpenApiSpex.Schema{type: :object, properties: %{str_prop: %OpenApiSpex.Schema{type: :string}}},
+        %OpenApiSpex.Schema{type: :object, properties: %{int_prop: %OpenApiSpex.Schema{type: :integer}}}
+      ]
+    })
+  end
+
+  test "can create structs for schemas defined using oneOf" do
+    schema_keys = SchemaWithOneOf.__struct__() |> Map.keys()
+    assert :str_prop in schema_keys
+    assert :int_prop in schema_keys
+  end
 end
