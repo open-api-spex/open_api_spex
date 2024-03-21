@@ -17,7 +17,7 @@ defmodule OpenApiSpex.Cast.Utils do
   def check_required_fields(%{value: input_map} = ctx), do: check_required_fields(ctx, input_map)
 
   def check_required_fields(ctx, %{} = input_map) do
-    required = ctx.schema.required || []
+    required = Map.get(ctx.schema, :required) || []
 
     # Adjust required fields list, based on read_write_scope
     required =

@@ -72,12 +72,17 @@ defmodule OpenApiSpex do
   @doc """
   Cast and validate a value against a given Schema belonging to a given OpenApi spec.
   """
-  def cast_value(value, schema = %schema_mod{}, spec = %OpenApi{})
+  def cast_value(value, schema = %schema_mod{}, spec = %OpenApi{}, opts \\ [])
       when schema_mod in [Schema, Reference] do
-    OpenApiSpex.Cast.cast(schema, value, spec.components.schemas)
+    OpenApiSpex.Cast.cast(schema, value, spec.components.schemas, opts)
   end
 
-  @type cast_opt :: {:replace_params, boolean()} | {:apply_defaults, boolean()}
+  @type read_write_scope :: nil | :read | :write
+
+  @type cast_opt ::
+          {:replace_params, boolean()}
+          | {:apply_defaults, boolean()}
+          | {:read_write_scope, read_write_scope()}
 
   @spec cast_and_validate(
           OpenApi.t(),
