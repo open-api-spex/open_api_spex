@@ -30,6 +30,28 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         resources "/users", MyAppWeb.UserController, only: [:index, :create, :show]
         get "/openapi", OpenApiSpex.Plug.RenderSpec, :show
       end
+
+  ## Runtime Configuration
+
+  SwaggerUI also accepts functions as parameters, allowing runtime configurations.
+  Because of limitations of `router.ex` file, the functions can be defined only as: `{module, function_name}`.
+
+  ## Example
+
+      defmodule RuntimeConfig do
+        def on_complete do
+          "function() { ui.preauthorizeApiKey("bearer", "your generated token here"); }"
+        end
+      end
+
+      scope "/" do
+        pipe_through :browser # Use the default browser stack
+
+        get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+          path: "/api/openapi",
+          on_complete: {RuntimeConfig, :on_complete}
+      end
+
   """
   @behaviour Plug
 
@@ -153,6 +175,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   def call(conn, config) do
     csrf_token = Plug.CSRFProtection.get_csrf_token()
     config = supplement_config(config, conn)
+    config = evaluate_runtime_config(config)
     html = render(config, csrf_token)
 
     conn
@@ -202,5 +225,17 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
 
   defp supplement_config(config, _conn) do
     config
+  end
+
+  defp evaluate_runtime_config(config) do
+    Enum.into(config, %{}, fn opt -> evaluate_opt(opt) end)
+  end
+
+  defp evaluate_opt({key, {module, function_name}}) when is_atom(module) and is_atom(function_name) do
+    {key, apply(module, function_name, [])}
+  end
+
+  defp evaluate_opt(opt) do
+    opt
   end
 end
