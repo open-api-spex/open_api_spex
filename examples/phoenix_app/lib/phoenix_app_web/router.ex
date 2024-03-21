@@ -9,7 +9,12 @@ defmodule PhoenixAppWeb.Router do
     oauth: [
       # client_id: "e2195a7487322a0f19bf"
       client_id: "Iv1.d7c611e5607d77b0"
-    ]
+    ],
+    csp_nonce_assign_key: %{script: :script_src_nonce, style: :style_src_nonce}
+  ]
+
+  @oauth_redirect_config [
+    csp_nonce_assign_key: %{script: :script_src_nonce}
   ]
 
   def swagger_ui_config, do: @swagger_ui_config
@@ -28,7 +33,7 @@ defmodule PhoenixAppWeb.Router do
 
     get "/swaggerui", OpenApiSpex.Plug.SwaggerUI, @swagger_ui_config
 
-    get "/swaggerui/oauth2-redirect.html", OpenApiSpex.Plug.SwaggerUIOAuth2Redirect, :show
+    get "/swaggerui/oauth2-redirect.html", OpenApiSpex.Plug.SwaggerUIOAuth2Redirect, @oauth_redirect_config
   end
 
   scope "/api" do
