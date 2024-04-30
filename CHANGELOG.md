@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.19.0 - 2024-04-30
+
+* Support response code ranges by @zorbash in 8898859da1
+
 ## v3.18.3 - 2024-03-15
 
 * Relax dependency constraint on ymlr to allow version ~> 5.0 by @egze in https://github.com/open-api-spex/open_api_spex/pull/586
