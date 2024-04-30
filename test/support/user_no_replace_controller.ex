@@ -1,4 +1,4 @@
-defmodule OpenApiSpexTest.UserNoRepalceController do
+defmodule OpenApiSpexTest.UserNoReplaceController do
   @moduledoc tags: ["users_no_replace"]
 
   use Phoenix.Controller

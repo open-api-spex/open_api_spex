@@ -156,10 +156,18 @@ defmodule OpenApiSpex.TestAssertions do
     defp validate_operation_response(conn, %Operation{operationId: operation_id} = operation, spec) do
       content_type = Utils.content_type_from_header(conn, :response)
 
+      responses = Map.get(operation, :responses, %{})
+      code_range = String.first(to_string(conn.status)) <> "XX"
+
+      response =
+        Map.get(responses, conn.status) ||
+          Map.get(responses, "#{conn.status}") ||
+          Map.get(responses, :"#{conn.status}") ||
+          Map.get(responses, code_range) ||
+          Map.get(responses, :"#{code_range}", %{})
+
       resolved_schema =
-        operation
-        |> Map.get(:responses, %{})
-        |> Map.get(conn.status, %{})
+        response
         |> Map.get(:content, %{})
         |> Map.get(content_type, %{})
         |> Map.get(:schema)

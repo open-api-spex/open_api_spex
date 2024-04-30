@@ -120,6 +120,18 @@ defmodule OpenApiSpex.TestAssertionsTest do
       TestAssertions.assert_operation_response(conn)
     end
 
+    test "success with a response code range" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/response_code_ranges")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+
+      conn = OpenApiSpexTest.Router.call(conn, [])
+
+      assert conn.status == 200
+      TestAssertions.assert_operation_response(conn, "response_code_ranges")
+    end
+
     test "missing operation id" do
       conn =
         :get

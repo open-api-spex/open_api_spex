@@ -108,6 +108,11 @@ defmodule OpenApiSpex.OperationBuilder do
   def build_responses(_), do: []
 
   defp status_to_code(:default), do: :default
+
+  defp status_to_code(status)
+       when status in [:"1XX", "1XX", :"2XX", "2XX", :"3XX", "3XX", :"4XX", "4XX", :"5XX", "5XX"],
+       do: status
+
   defp status_to_code(status), do: Status.code(status)
 
   def build_request_body(%{body: {description, media_type, schema}}) do
