@@ -6,6 +6,8 @@ defmodule OpenApiSpex.Plug.SwaggerUIOAuth2Redirect do
 
   import Plug.Conn
 
+  alias OpenApiSpex.Plug.SwaggerUI
+
   @html """
     <!-- HTML for static distribution bundle build -->
     <!doctype html>
@@ -104,7 +106,7 @@ defmodule OpenApiSpex.Plug.SwaggerUIOAuth2Redirect do
 
   @impl Plug
   def call(conn, config) do
-    html = render(OpenApiSpex.Plug.SwaggerUI.get_nonce(conn, config, :script))
+    html = render(SwaggerUI.get_nonce(conn, config, :script))
 
     conn
     |> put_resp_content_type("text/html")
