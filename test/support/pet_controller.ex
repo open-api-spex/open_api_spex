@@ -37,7 +37,18 @@ defmodule OpenApiSpexTest.PetController do
   @doc """
   Get a list of pets.
   """
-  @doc responses: [ok: {"Pet list", "application/json", Schemas.PetsResponse}],
+  @doc parameters: [
+         age: [
+           in: :query,
+           type: %Schema{type: :integer, minimum: 1},
+           description: "Age of the pet",
+           example: 1
+         ]
+       ],
+       responses: [
+         ok: {"Pet list", "application/json", Schemas.PetsResponse},
+         unprocessable_entity: OpenApiSpex.JsonErrorResponse.response()
+       ],
        operation_id: "listPets"
   def index(conn, _params) do
     json(conn, %Schemas.PetsResponse{

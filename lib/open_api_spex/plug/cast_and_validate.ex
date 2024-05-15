@@ -78,6 +78,7 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
       ) do
     {spec, operation_lookup} = PutApiSpec.get_spec_and_operation_lookup(conn)
     operation = operation_lookup[operation_id]
+    conn = put_operation_id(conn, operation)
 
     cast_opts = opts |> Map.take([:replace_params]) |> Map.to_list()
 
@@ -149,5 +150,15 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
   def call(_conn, _opts) do
     raise ":open_api_spex was not found under :private. Maybe PutApiSpec was not called before?"
+  end
+
+  defp put_operation_id(conn, operation) do
+    private_data =
+      conn
+      |> Map.get(:private)
+      |> Map.get(:open_api_spex, %{})
+      |> Map.put(:operation_id, operation.operationId)
+
+    Plug.Conn.put_private(conn, :open_api_spex, private_data)
   end
 end

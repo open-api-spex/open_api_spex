@@ -120,6 +120,16 @@ defmodule OpenApiSpex.TestAssertionsTest do
       TestAssertions.assert_operation_response(conn)
     end
 
+    test "is able to find the operationId via conn when there is an error" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/pets?age=notanumber")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 422
+      TestAssertions.assert_operation_response(conn)
+    end
+
     test "success with a response code range" do
       conn =
         :get
