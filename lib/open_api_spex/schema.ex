@@ -402,6 +402,10 @@ defmodule OpenApiSpex.Schema do
   def example(%Schema{type: :string, format: :"date-time"}), do: "2020-04-20T16:20:00Z"
   def example(%Schema{type: :string, format: :uuid}), do: "02ef9c5f-29e6-48fc-9ec3-7ed57ed351f6"
 
+  def example(%Schema{type: :string, pattern: regexp}) when is_binary(regexp), do:
+    Randex.stream(Regex.compile!(regexp))
+    |> Enum.take(1)
+    |> List.first()
   def example(%Schema{type: :string}), do: ""
   def example(%Schema{type: :integer} = s), do: example_for(s, :integer)
   def example(%Schema{type: :number} = s), do: example_for(s, :number)
@@ -468,7 +472,7 @@ defmodule OpenApiSpex.Schema do
     # Only handles :object schemas for now
     schemas
     |> Enum.map(&example/1)
-    |> Enum.reduce(%{}, &Map.merge/2)
+    |> Enum.reduce(%{}, &any_or_all_of/2)
   end
 
   defp example_for(%{minimum: min} = schema, type)
@@ -498,8 +502,11 @@ defmodule OpenApiSpex.Schema do
   defp example_for(schemas, type, all_schemas) when type in [:anyOf, :allOf] do
     schemas
     |> Enum.map(&example(&1, all_schemas))
-    |> Enum.reduce(%{}, &Map.merge/2)
+    |> Enum.reduce(%{}, &any_or_all_of/2)
   end
+
+  defp any_or_all_of(l,r) when is_map(l), do: &Map.merge(&1, &2)
+  defp any_or_all_of(l,r) when is_binary(l), do: l
 
   defp default(schema_module) when is_atom(schema_module), do: schema_module.schema().default
   defp default(%{default: default}), do: default
