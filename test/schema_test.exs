@@ -107,6 +107,17 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(%Schema{type: :string}) == ""
     end
 
+    test "defaults to type-appropriate value for :string with a minLength" do
+      assert Schema.example(%Schema{type: :string, minLength: 1}) == "a"
+      assert Schema.example(%Schema{type: :string, minLength: 2}) == "ab"
+      assert Schema.example(%Schema{type: :string, minLength: 3}) == "abc"
+      assert Schema.example(%Schema{type: :string, minLength: 4}) == "abcd"
+      assert Schema.example(%Schema{type: :string, minLength: 5}) == "abcde"
+      assert Schema.example(%Schema{type: :string, minLength: 6}) == "abcdef"
+      assert Schema.example(%Schema{type: :string, minLength: 7}) == "example"
+      assert Schema.example(%Schema{type: :string, minLength: 9}) == "exampleex"
+    end
+
     test "defaults to type-appropriate value for :integer, :number" do
       assert Schema.example(%Schema{type: :integer}) === 0
       assert Schema.example(%Schema{type: :number}) === 0

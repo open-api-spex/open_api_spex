@@ -402,6 +402,21 @@ defmodule OpenApiSpex.Schema do
   def example(%Schema{type: :string, format: :"date-time"}), do: "2020-04-20T16:20:00Z"
   def example(%Schema{type: :string, format: :uuid}), do: "02ef9c5f-29e6-48fc-9ec3-7ed57ed351f6"
 
+  def example(%Schema{type: :string, minLength: 1}), do: "a"
+  def example(%Schema{type: :string, minLength: 2}), do: "ab"
+  def example(%Schema{type: :string, minLength: 3}), do: "abc"
+  def example(%Schema{type: :string, minLength: 4}), do: "abcd"
+  def example(%Schema{type: :string, minLength: 5}), do: "abcde"
+  def example(%Schema{type: :string, minLength: 6}), do: "abcdef"
+
+  def example(%Schema{type: :string, minLength: min_length})
+      when is_integer(min_length) and min_length > 0,
+      do:
+        ~c"example"
+        |> Stream.cycle()
+        |> Enum.take(min_length)
+        |> to_string
+
   def example(%Schema{type: :string}), do: ""
   def example(%Schema{type: :integer} = s), do: example_for(s, :integer)
   def example(%Schema{type: :number} = s), do: example_for(s, :number)
