@@ -272,6 +272,48 @@ defmodule OpenApiSpex.Plug.CastTest do
 
       assert OpenApiSpex.body_params(conn) == casted_body
     end
+
+    test "valid request with writeOnly required field in read scope" do
+      request_body = %{
+        "user" => %{
+          "name" => "joe user",
+          "email" => "joe@gmail.com"
+        }
+      }
+
+      casted_body = %OpenApiSpexTest.Schemas.UserRequest{
+        user: %OpenApiSpexTest.Schemas.User{
+          name: "joe user",
+          email: "joe@gmail.com"
+        }
+      }
+
+      conn =
+        :post
+        |> Plug.Test.conn("/api/users/search", Jason.encode!(request_body))
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+
+      assert conn.body_params == casted_body
+
+      assert conn.private.open_api_spex.body_params == conn.body_params
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "data" => %{
+                 "id" => 123,
+                 "name" => "joe user",
+                 "email" => "joe@gmail.com",
+                 "password" => nil,
+                 "age" => nil,
+                 "inserted_at" => nil,
+                 "updated_at" => nil
+               }
+             }
+
+      assert OpenApiSpex.body_params(conn) == casted_body
+    end
   end
 
   describe "oneOf body params" do

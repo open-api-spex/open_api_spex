@@ -100,6 +100,44 @@ defmodule OpenApiSpexTest.UserController do
   end
 
   @doc """
+  Search user.
+
+  Find a user by name and email.
+  """
+  @doc request_body: {"The user attributes", "application/json", Schemas.UserRequest},
+       responses: [
+         ok: {"User", "application/json", Schemas.UserResponse},
+         not_found: Schemas.NotFound.response(),
+         unprocessable_entity: OpenApiSpex.JsonErrorResponse.response()
+       ]
+  def search(conn = %{body_params: %Schemas.UserRequest{user: user = %Schemas.User{}}}, _) do
+    case user do
+      %Schemas.User{name: "joe user", email: "joe@gmail.com"} ->
+        conn
+        |> put_status(200)
+        |> json(%Schemas.UserResponse{
+          data: %Schemas.User{
+            id: 123,
+            name: "joe user",
+            email: "joe@gmail.com"
+          }
+        })
+
+      _ ->
+        conn
+        |> put_status(404)
+        |> json(%{
+          errors: [
+            %{
+              title: "Not Found",
+              detail: "The requested resource cannot be found."
+            }
+          ]
+        })
+    end
+  end
+
+  @doc """
   Show user payment details.
 
   Shows a users payment details.

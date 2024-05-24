@@ -49,6 +49,30 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
           |> Conn.send_resp(400, msg)
         end
       end
+
+  To properly handle `readOnly` and `writeOnly` schema properties it is necessary to know
+  whether the operation is a read one or a write one.
+  By default the plug infers this information from the request method:
+
+    * `:read` for `GET` and `HEAD`;
+    * `:write` for `POST`, `PUT` and `PATCH`.
+
+  If you want to override the default, you can put `:read_write_scope` to the `:assigns` option in the route definition.
+
+  ## Example
+
+      defmodule MyAppWeb.Router do
+        use MyAppWeb, :router
+
+        ...
+
+        scope "/api", MyAppWeb do
+          pipe_through :api
+
+          post "/users/search", UserController, :search, assigns: %{read_write_scope: :read}
+          ...
+        end
+      end
   """
 
   @behaviour Plug
@@ -80,7 +104,11 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
     operation = operation_lookup[operation_id]
     conn = put_operation_id(conn, operation)
 
-    cast_opts = opts |> Map.take([:replace_params]) |> Map.to_list()
+    cast_opts =
+      opts
+      |> Map.take([:replace_params])
+      |> Map.put(:read_write_scope, infer_read_write_scope(conn))
+      |> Map.to_list()
 
     case OpenApiSpex.cast_and_validate(spec, operation, conn, nil, cast_opts) do
       {:ok, conn} ->
@@ -161,4 +189,13 @@ defmodule OpenApiSpex.Plug.CastAndValidate do
 
     Plug.Conn.put_private(conn, :open_api_spex, private_data)
   end
+
+  defp infer_read_write_scope(%{assigns: %{read_write_scope: :read}}), do: :read
+  defp infer_read_write_scope(%{assigns: %{read_write_scope: :write}}), do: :write
+  defp infer_read_write_scope(%{method: "GET"}), do: :read
+  defp infer_read_write_scope(%{method: "HEAD"}), do: :read
+  defp infer_read_write_scope(%{method: "POST"}), do: :write
+  defp infer_read_write_scope(%{method: "PUT"}), do: :write
+  defp infer_read_write_scope(%{method: "PATCH"}), do: :write
+  defp infer_read_write_scope(_), do: nil
 end

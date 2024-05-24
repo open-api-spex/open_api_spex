@@ -25,6 +25,10 @@ defmodule OpenApiSpexTest.Router do
     get "/users/:id/payment_details", OpenApiSpexTest.UserController, :payment_details
     post "/users/:id/contact_info", OpenApiSpexTest.UserController, :contact_info
     post "/users/create_entity", OpenApiSpexTest.UserController, :create_entity
+
+    post "/users/search", OpenApiSpexTest.UserController, :search,
+      assigns: %{read_write_scope: :read}
+
     get "/openapi", OpenApiSpex.Plug.RenderSpec, []
 
     resources "/pets", OpenApiSpexTest.PetController, only: [:create, :index, :show, :update]
