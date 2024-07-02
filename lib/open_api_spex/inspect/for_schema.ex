@@ -16,6 +16,6 @@ defimpl Inspect, for: OpenApiSpex.Schema do
           Map.has_key?(map, field),
           do: info
 
-     Inspect.Map.inspect(map, Macro.inspect_atom(:literal, OpenApiSpex.Schema), infos, opts)
+    Inspect.Map.inspect(map, to_doc(OpenApiSpex.Schema, opts), infos, opts)
   end
 end
