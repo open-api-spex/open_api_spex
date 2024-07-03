@@ -6,6 +6,69 @@ defmodule OpenApiSpec.CastTest do
 
   def cast(ctx), do: Cast.cast(ctx)
 
+  describe "SubScheme with array" do
+    defmodule User do
+      defstruct [:email, :permissions]
+    end
+
+    defmodule Permission do
+      defstruct [:name, :some_other_field]
+    end
+
+    defmodule UsersSchemas do
+      alias OpenApiSpex.Schema
+
+      defmodule PermissionSchema do
+        @moduledoc false
+        require OpenApiSpex
+
+        OpenApiSpex.schema(%{
+          title: "Permission",
+          type: :object,
+          properties: %{
+            name: %Schema{type: :string}
+          },
+          required: [:name, :some_other_field]
+        })
+      end
+
+      defmodule UserSchema do
+        @moduledoc false
+        require OpenApiSpex
+
+        OpenApiSpex.schema(%{
+          title: "User",
+          type: :object,
+          properties: %{
+            email: %Schema{type: :string},
+            permissions: %Schema{type: :array, items: PermissionSchema}
+          },
+          required: [:email, :permissions]
+        })
+      end
+    end
+
+    test "Correct casting of sub arrays" do
+      permissions = [
+        %Permission{name: "Work", some_other_field: 1},
+        %Permission{name: "Rest", some_other_field: 2},
+        %Permission{name: "Smile", some_other_field: 3}
+      ]
+
+      user = %User{email: "happy_admin@email.com", permissions: permissions}
+
+      assert {:ok,
+              %UsersSchemas.UserSchema{
+                email: "happy_admin@email.com",
+                permissions: [
+                  %UsersSchemas.PermissionSchema{name: "Work"},
+                  %UsersSchemas.PermissionSchema{name: "Rest"},
+                  %UsersSchemas.PermissionSchema{name: "Smile"}
+                ]
+              }} == OpenApiSpex.cast_value(user, UsersSchemas.UserSchema.schema())
+    end
+  end
+
   describe "cast/1" do
     test "unknown schema type" do
       assert {:error, [error]} = cast(value: "string", schema: %Schema{type: :nope})

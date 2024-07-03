@@ -207,7 +207,11 @@ defmodule OpenApiSpex.Cast do
   def cast(%__MODULE__{schema: %{type: _other}} = ctx),
     do: error(ctx, {:invalid_schema_type})
 
-  def cast(%{} = ctx), do: cast(struct(__MODULE__, ctx))
+  def cast(%__MODULE__{value: struct, schema: schema_module} = ctx)
+      when is_struct(struct) and is_atom(schema_module),
+      do: cast(ctx.schema.schema(), ctx.value)
+
+  def cast(%{} = ctx), do: cast(struct(__MODULE__, ctx.value))
   def cast(ctx) when is_list(ctx), do: cast(struct(__MODULE__, ctx))
 
   # Add an error
