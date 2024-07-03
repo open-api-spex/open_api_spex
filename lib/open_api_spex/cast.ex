@@ -211,7 +211,7 @@ defmodule OpenApiSpex.Cast do
       when is_struct(struct) and is_atom(schema_module),
       do: cast(ctx.schema.schema(), ctx.value)
 
-  def cast(%{} = ctx), do: cast(struct(__MODULE__, ctx.value))
+  def cast(%{} = ctx), do: cast(struct(__MODULE__, ctx))
   def cast(ctx) when is_list(ctx), do: cast(struct(__MODULE__, ctx))
 
   # Add an error
