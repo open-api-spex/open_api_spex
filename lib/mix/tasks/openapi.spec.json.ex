@@ -7,6 +7,7 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
 
       $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec apispec.json
       $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec --pretty=true
+      $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec --check=true
       $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec --start-app=false
       $ mix openapi.spec.json --spec PhoenixAppWeb.ApiSpec --vendor-extensions=false
 
@@ -15,6 +16,8 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   * `--spec` - The ApiSpec module from which to generate the OpenAPI JSON file
 
   * `--pretty` - Whether to prettify the generated JSON (defaults to false)
+
+  * `--check` - Whether to only compare the generated JSON with the spec file (defaults to false)
 
   * `--start-app` - Whether need to start application before generate schema (defaults to true)
 

@@ -6,12 +6,15 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
   ## Examples
 
       $ mix openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec apispec.yaml
+      $ mix openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec --check=true
       $ mix openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec --start-app=false
       $ mix openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec --vendor-extensions=false
 
   ## Command line options
 
   * `--spec` - The ApiSpec module from which to generate the OpenAPI YAML file
+
+  * `--check` - Whether to only compare the generated YAML with the spec file (defaults to false)
 
   * `--start-app` - Whether to start the application before generating the schema (defaults to true)
 

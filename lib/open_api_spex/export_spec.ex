@@ -7,16 +7,27 @@ defmodule OpenApiSpex.ExportSpec do
   defmodule Options do
     @moduledoc false
 
-    defstruct filename: nil, spec: nil, pretty: false, vendor_extensions: true, quiet: false
+    defstruct filename: nil,
+              spec: nil,
+              pretty: false,
+              check: false,
+              vendor_extensions: true,
+              quiet: false
   end
 
   def call(argv, encode_spec, default_filename) do
     opts = parse_options(argv, default_filename)
 
-    opts
-    |> generate_spec()
-    |> encode_spec.(opts)
-    |> write_spec(opts)
+    encoded_spec =
+      opts
+      |> generate_spec()
+      |> encode_spec.(opts)
+
+    if opts.check do
+      check_spec(encoded_spec, opts)
+    else
+      write_spec(encoded_spec, opts)
+    end
   end
 
   defp generate_spec(%{spec: spec, vendor_extensions: vendor_extensions}) do
@@ -45,6 +56,7 @@ defmodule OpenApiSpex.ExportSpec do
         spec: :string,
         endpoint: :string,
         pretty: :boolean,
+        check: :boolean,
         vendor_extensions: :boolean,
         quiet: :boolean
       ]
@@ -56,9 +68,16 @@ defmodule OpenApiSpex.ExportSpec do
       filename: args |> List.first() || default_filename,
       spec: find_spec(opts),
       pretty: Keyword.get(opts, :pretty, false),
+      check: Keyword.get(opts, :check, false),
       vendor_extensions: Keyword.get(opts, :vendor_extensions, true),
       quiet: Keyword.get(opts, :quiet, false)
     }
+  end
+
+  defp check_spec(content, opts) do
+    unless content == File.read!(opts.filename) do
+      Mix.raise("The OpenAPI spec file does not match the generated spec:\n\n#{content}")
+    end
   end
 
   defp write_spec(content, opts) do
