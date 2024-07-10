@@ -15,8 +15,8 @@ jobs:
       - uses: erlef/setup-beam@v1
         id: beam
         with:
-          otp-version: 25
-          elixir-version: 1.13
+          otp-version: 23
+          elixir-version: 1.14
 
       - id: deps
         name: Fetch and compile dependencies
