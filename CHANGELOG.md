@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.20.0 - 2024-07-10
+
+* Respect minLength when generating string examples by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/608
+* Accept read_write_scope from opts when calling cast functions directly by @albertored in https://github.com/open-api-spex/open_api_spex/pull/572
+* Allow Poison v6 to be used by @hkrutzer in https://github.com/open-api-spex/open_api_spex/pull/616
+* chore: Drop build matrix support for elixir 1.11, 1.12, 1.13 and OTP 22 by @mbuhot in https://github.com/open-api-spex/open_api_spex/pull/619
+* improvement: use struct spec to avoid double `%` in struct inspect by @zachdaniel in https://github.com/open-api-spex/open_api_spex/pull/613
+* Feat: add `--check` option in Mix tasks to compare the generated spec with a previously generated file by @davidebriani in https://github.com/open-api-spex/open_api_spex/pull/618
+* fix: cast numbers as floats by @David-Klemenc in https://github.com/open-api-spex/open_api_spex/pull/611
+
 ## v3.19.1 - 2024-05-17
 
 * Add notice that body params are not merged into Conn.params whne using cast and validate plug by @hamir-suspect in #589
