@@ -29,6 +29,7 @@ defmodule OpenApiSpex.Cast.Error do
   @type one_of_error :: {:one_of, [String.t()]}
   @type unexpected_field_error :: {:unexpected_field, String.t() | atom()}
   @type unique_items_error :: {:unique_items}
+  @type custom_error :: {:custom, String.t()}
 
   @type reason ::
           :all_of
@@ -56,6 +57,7 @@ defmodule OpenApiSpex.Cast.Error do
           | :one_of
           | :unexpected_field
           | :unique_items
+          | :custom
 
   @type args ::
           all_of_error()
@@ -84,6 +86,7 @@ defmodule OpenApiSpex.Cast.Error do
           | one_of_error()
           | unexpected_field_error()
           | unique_items_error()
+          | custom_error()
 
   @type t :: %__MODULE__{
           reason: reason(),
@@ -244,6 +247,11 @@ defmodule OpenApiSpex.Cast.Error do
     |> add_context_fields(ctx)
   end
 
+  def new(ctx, {:custom, message}) do
+    %__MODULE__{reason: :custom, meta: %{message: message}}
+    |> add_context_fields(ctx)
+  end
+
   @spec message(t()) :: String.t()
 
   def message(%{reason: :invalid_schema_type, type: type}) do
@@ -363,6 +371,10 @@ defmodule OpenApiSpex.Cast.Error do
 
   def message(%{reason: :min_properties, meta: meta}) do
     "Object property count #{meta.property_count} is less than minProperties: #{meta.min_properties}"
+  end
+
+  def message(%{reason: :custom, meta: meta}) do
+    meta.message
   end
 
   def message_with_path(error) do
