@@ -84,7 +84,7 @@ defmodule OpenApiSpex.Paths do
       rest
       |> Enum.with_index(2)
       |> Enum.map(fn {{path, verb, operation}, occurrence} ->
-        {path, verb, %{operation | operationId: "#{operation_id} (#{occurrence})"}}
+        {path, verb, %{operation | operationId: "#{operation_id}_#{occurrence}"}}
       end)
     end)
   end
