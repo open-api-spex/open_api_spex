@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.20.1 - 2024-07-31
+
+* Support custom error messages in custom validators by @GregorGrasselli in https://github.com/open-api-spex/open_api_spex/pull/621
+* Update Schema.example/2 typespec to allow references by @zorbash in 5ec452f
+
 ## v3.20.0 - 2024-07-10
 
 * Respect minLength when generating string examples by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/608
