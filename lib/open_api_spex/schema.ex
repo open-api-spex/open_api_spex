@@ -363,7 +363,8 @@ defmodule OpenApiSpex.Schema do
         assert ...
       end
   """
-  @spec example(schema :: Schema.t() | module) :: map | String.t() | number | boolean
+  @spec example(schema :: Schema.t() | module | Reference.t()) ::
+          map | String.t() | number | boolean
   def example(%Schema{example: example} = schema) when not is_nil(example) do
     schema.example
   end
