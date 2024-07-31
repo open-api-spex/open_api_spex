@@ -18,7 +18,7 @@ defmodule OpenApiSpex.PathsTest do
       operation_ids = [pets_path_item.put.operationId, pets_path_item.patch.operationId]
 
       assert "OpenApiSpexTest.PetController.update" in operation_ids
-      assert "OpenApiSpexTest.PetController.update (2)" in operation_ids
+      assert "OpenApiSpexTest.PetController.update_2" in operation_ids
     end
   end
 end
