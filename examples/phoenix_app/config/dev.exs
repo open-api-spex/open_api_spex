@@ -10,5 +10,5 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 config :phoenix_app, PhoenixApp.Repo,
-  adapter: Sqlite.Ecto2,
+  adapter: Ecto.Adapters.SQLite3,
   database: "priv/repo/phoenix_app_dev.db"

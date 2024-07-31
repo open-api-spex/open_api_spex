@@ -3,7 +3,8 @@ defmodule PhoenixAppWeb.ConnCase do
 
   using do
     quote do
-      use Phoenix.ConnTest
+      import Plug.Conn
+      import Phoenix.ConnTest
       import PhoenixAppWeb.Router.Helpers
       @endpoint PhoenixAppWeb.Endpoint
     end
