@@ -119,6 +119,14 @@ defmodule OpenApiSpex.Cast do
   @spec cast(t()) :: {:ok, term()} | {:error, [Error.t()]}
 
   # Custom validator
+  def cast(%__MODULE__{schema: module} = ctx)
+      when is_atom(module) and not is_nil(module) do
+    case try_to_schema(module) do
+      {:ok, schema} -> cast(%__MODULE__{ctx | schema: schema})
+      :error -> error(ctx, {:invalid_schema_type})
+    end
+  end
+
   def cast(%__MODULE__{schema: %{"x-validate": module}} = ctx) when module != nil,
     do: module.cast(ctx)
 
@@ -231,4 +239,13 @@ defmodule OpenApiSpex.Cast do
   def success(%__MODULE__{schema: _schema} = ctx, schema_property) do
     success(ctx, [schema_property])
   end
+
+  defp try_to_schema(module) when is_atom(module) and not is_nil(module) do
+    with true <- Code.loaded?(module),
+         true <- Keyword.has_key?(module.__info__(:functions), :schema),
+         do: {:ok, module.schema()},
+         else: (_ -> :error)
+  end
+
+  defp try_to_schema(other), do: {:ok, other}
 end

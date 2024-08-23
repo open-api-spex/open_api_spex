@@ -281,6 +281,43 @@ defmodule OpenApiSpec.CastTest do
     end
   end
 
+  describe "cast/1 with OpenApiSpex.schema/1 using :anyOf" do
+    defmodule InnerSchema do
+      require OpenApiSpex
+
+      OpenApiSpex.schema(%{
+        type: :object,
+        properties: %{
+          foo: %Schema{type: :string}
+        },
+        required: [:foo]
+      })
+    end
+
+    defmodule OuterSchema do
+      require OpenApiSpex
+
+      OpenApiSpex.schema(%{
+        type: :object,
+        properties: %{
+          inner: %Schema{
+            anyOf: [OpenApiSpec.CastTest.InnerSchema]
+          }
+        }
+      })
+    end
+
+    test "object with nested schema properties set, given known input property" do
+      assert cast(
+               value: %InnerSchema{foo: "bar"},
+               schema: InnerSchema.schema()
+             ) ==
+               {:ok, %InnerSchema{foo: "bar"}}
+
+      assert cast(value: %{}, schema: OuterSchema) == {:ok, %OuterSchema{}}
+    end
+  end
+
   describe "opts" do
     test "read_write_scope" do
       schema = %Schema{
