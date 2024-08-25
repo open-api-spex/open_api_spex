@@ -30,6 +30,17 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         resources "/users", MyAppWeb.UserController, only: [:index, :create, :show]
         get "/openapi", OpenApiSpex.Plug.RenderSpec, :show
       end
+
+      # Use a different Swagger UI version
+      scope "/" do
+        pipe_through :browser
+
+        get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+          path: "/api/openapi",
+          swagger_ui_js_bundle_url: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.0/swagger-ui-bundle.js",
+          swagger_ui_js_standalone_preset_url: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.0/swagger-ui-standalone-preset.js",
+          swagger_ui_css_url: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.0/swagger-ui.css"
+      end
   """
   @behaviour Plug
 
@@ -40,7 +51,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     <head>
       <meta charset="UTF-8">
       <title>Swagger UI</title>
-      <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.0/swagger-ui.css" >
+      <link rel="stylesheet" type="text/css" href="<%= config[:swagger_ui_css_url] || "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.css" %>" >
       <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
       <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
       <%= if style_src_nonce do %>
@@ -70,8 +81,8 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     <body>
     <div id="swagger-ui"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.0/swagger-ui-bundle.js" charset="UTF-8"> </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.0/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+    <script src="<%= config[:swagger_ui_js_bundle_url] || "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.js" %>" charset="UTF-8"> </script>
+    <script src="<%= config[:swagger_ui_js_standalone_preset_url] || "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-standalone-preset.js" %>" charset="UTF-8"> </script>
     <%= if script_src_nonce do %>
       <script nonce="<%= script_src_nonce %>">
     <% else %>
@@ -147,6 +158,9 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
      for assets. Supports either `atom()` or a map of type
      `%{optional(:script) => atom(), optional(:style) => atom()}`. You will probably
      want to set this on the `SwaggerUIOAuth2Redirect` plug as well.
+   * `:swagger_ui_js_bundle_url` - Optional. An URL to SwaggerUI JavaScript bundle.
+   * `:swagger_ui_js_standalone_preset_url` - Optional. An URL to SwaggerUI JavaScript Standalone Preset.
+   * `:swagger_ui_css_url` - Optional. An URL to SwaggerUI CSS bundle.
    * all other opts - forwarded to the `SwaggerUIBundle` constructor
 
   ## Example
