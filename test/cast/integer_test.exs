@@ -18,6 +18,17 @@ defmodule OpenApiSpex.CastIntegerTest do
       assert %Error{reason: :invalid_type, value: "other"} = error
     end
 
+    test "with a Decimal" do
+      schema = %Schema{type: :integer}
+
+      assert {:ok, 1} = cast(value: Decimal.new(1), schema: schema)
+
+      number = Decimal.new("1.2")
+
+      assert {:error, [%{reason: :invalid_type, value: ^number}]} =
+               cast(value: number, schema: schema)
+    end
+
     test "with multiple of" do
       schema = %Schema{type: :integer, multipleOf: 2}
       assert cast(value: 2, schema: schema) == {:ok, 2}

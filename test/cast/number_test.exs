@@ -17,6 +17,19 @@ defmodule OpenApiSpex.CastNumberTest do
       assert error.value == "other"
     end
 
+    test "with a Decimal" do
+      schema = %Schema{type: :number}
+
+      assert cast(value: Decimal.new("1.2345"), schema: schema) === {:ok, 1.2345}
+
+      schema = %Schema{type: :number, minimum: 2}
+      assert cast(value: Decimal.new("3"), schema: schema) === {:ok, 3.0}
+      assert cast(value: Decimal.new("2"), schema: schema) === {:ok, 2.0}
+
+      assert {:error, [%{reason: :minimum, value: 1.0}]} =
+               cast(value: Decimal.new("1"), schema: schema)
+    end
+
     test "with minimum" do
       schema = %Schema{type: :number, minimum: 2}
       assert cast(value: 3, schema: schema) === {:ok, 3.0}

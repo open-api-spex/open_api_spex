@@ -21,6 +21,16 @@ defmodule OpenApiSpex.Cast.Integer do
     end
   end
 
+  if Code.ensure_loaded?(Decimal) do
+    def cast(%{value: %Decimal{} = value} = ctx) do
+      if Decimal.integer?(value) do
+        cast(%{ctx | value: Decimal.to_string(value)})
+      else
+        Cast.error(ctx, {:invalid_type, :integer})
+      end
+    end
+  end
+
   def cast(ctx) do
     Cast.error(ctx, {:invalid_type, :integer})
   end
