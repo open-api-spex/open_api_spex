@@ -403,6 +403,16 @@
         "x-custom-info": {
           "codeowners": "team-rocker"
         },
+        "servers": [
+          {
+            "description": "production",
+            "url": "https://example.com/examples"
+          },
+          {
+            "description": "staging",
+            "url": "https://staging.example.com/examples"
+          }
+        ],
         "operationId": "example-post-test",
         "callbacks": {
           "operationCallback": {
