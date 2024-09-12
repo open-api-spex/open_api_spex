@@ -292,7 +292,7 @@ defmodule OpenApiSpex.OpenApi.Decode do
     |> prop_to_struct(:parameters, Parameters)
     |> prop_to_struct(:requestBody, RequestBody)
     |> prop_to_struct(:callbacks, Callbacks)
-    |> prop_to_struct(:servers, Server)
+    |> prop_to_struct(:servers, Servers)
     |> add_extensions(map)
   end
 
