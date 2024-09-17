@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.21.1 - 2024-09-17
+
+* Fix schema inspection argument error by @zorbash. https://github.com/open-api-spex/open_api_spex/issues/636
+
 ## v3.21.0 - 2024-09-12
 
 * Update dev dependencies and example apps by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/624
