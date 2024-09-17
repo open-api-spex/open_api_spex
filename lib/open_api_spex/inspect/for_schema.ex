@@ -1,6 +1,4 @@
 defimpl Inspect, for: OpenApiSpex.Schema do
-  import Inspect.Algebra
-
   def inspect(parameter, opts) do
     map =
       parameter
@@ -16,6 +14,6 @@ defimpl Inspect, for: OpenApiSpex.Schema do
           Map.has_key?(map, field),
           do: info
 
-    Inspect.Map.inspect(map, to_doc(OpenApiSpex.Schema, opts), infos, opts)
+    Inspect.Map.inspect(map, "OpenApiSpex.Schema", infos, opts)
   end
 end
