@@ -15,7 +15,7 @@ defmodule OpenApiSpexTest.UserController do
   Show a user by ID
   """
   @doc parameters: [
-         id: [
+         ids: [
            in: :path,
            type: %Schema{type: :integer, minimum: 1},
            description: "User ID",
@@ -41,7 +41,13 @@ defmodule OpenApiSpexTest.UserController do
   List all users
   """
   @doc parameters: [
-         validParam: [in: :query, type: :boolean, description: "Valid Param", example: true]
+         validParam: [in: :query, type: :boolean, description: "Valid Param", example: true],
+         "ids[]": [
+           in: :query,
+           type: %Schema{type: :array, items: %Schema{type: :integer}},
+           description: "User IDs",
+           example: 123
+         ]
        ],
        responses: [
          ok: {"User List Response", "application/json", Schemas.UsersResponse}
