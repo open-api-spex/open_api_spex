@@ -18,7 +18,25 @@ defmodule OpenApiSpexTest.Tasks.SpecModule do
       },
       servers: [
         %Server{url: "http://localhost:4000"}
-      ]
+      ],
+      components: %{
+        schemas: %{
+          "Person" => %OpenApiSpex.Schema{
+            type: :object,
+            properties: %{
+              first_name: %OpenApiSpex.Schema{type: :string},
+              last_name: %OpenApiSpex.Schema{type: :string},
+              nickname: %OpenApiSpex.Schema{type: :string, nullable: true}
+            },
+            required: [:first_name, :last_name, :nickname],
+            example: %{
+              first_name: "John",
+              last_name: "Doe",
+              nickname: nil
+            }
+          }
+        }
+      }
     }
   end
 end

@@ -96,10 +96,14 @@ defmodule OpenApiSpex.OpenApi do
     defmodule YmlrEncoder do
       @moduledoc false
 
-      def encode(api_spec = %{}, _options) do
+      def encode(api_spec = %OpenApi{}, _options) do
         api_spec
         |> OpenApi.to_map()
         |> Ymlr.document()
+      end
+
+      def encode(api_spec = %{}, _options) do
+        Ymlr.document(api_spec)
       end
     end
 

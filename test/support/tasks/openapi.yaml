@@ -1,4 +1,24 @@
 ---
+components:
+  schemas:
+    Person:
+      example:
+        first_name: John
+        last_name: Doe
+        nickname:
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        nickname:
+          nullable: true
+          type: string
+      required:
+        - first_name
+        - last_name
+        - nickname
+      type: object
 info:
   title: Test spec
   version: '1.0'
