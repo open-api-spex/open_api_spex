@@ -160,7 +160,9 @@ defmodule OpenApiSpex.CastParameters do
     end)
   end
 
-  defp pre_parse_parameter(parameter, %{explode: false, style: :form} = _context, _parsers) do
+  defp pre_parse_parameter(parameter, %{explode: false, style: form} = _context, _parsers)
+       # allow nil as `style: :form` should be the default behaviour according to OpenAPI
+       when form in [:form, nil] do
     # e.g. sizes=S,L,M
     # This does not take care of cases where the value may contain a comma itself
     {:ok, String.split(parameter, ",")}
