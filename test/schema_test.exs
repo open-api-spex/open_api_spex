@@ -133,9 +133,23 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(%Schema{type: :number, minimum: 10}) === 10
     end
 
-    test "obeys exclusiveMinimum for :integer, :number" do
-      assert Schema.example(%Schema{type: :integer, minimum: 10, exclusiveMinimum: true}) === 11
-      assert Schema.example(%Schema{type: :number, minimum: 10, exclusiveMinimum: true}) === 11
+    test "uses :minimum for :integer, :number via struct" do
+      assert Schema.example(%Schema{type: :integer, minimum: %Schema.MinMax{value: 10}}) === 10
+      assert Schema.example(%Schema{type: :number, minimum: %Schema.MinMax{value: 10}}) === 10
+    end
+
+    test "obeys exclusive minimum for :integer, :number" do
+      assert Schema.example(%Schema{
+               type: :integer,
+               minimum: %Schema.MinMax{value: 10, exclusive?: true}
+             }) ===
+               11
+
+      assert Schema.example(%Schema{
+               type: :number,
+               minimum: %Schema.MinMax{value: 10, exclusive?: true}
+             }) ===
+               11
     end
 
     test "uses :maximum for :integer, :number" do
@@ -143,9 +157,23 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(%Schema{type: :number, maximum: 10}) === 10
     end
 
-    test "obeys exclusiveMaximum for numbers" do
-      assert Schema.example(%Schema{type: :integer, maximum: 10, exclusiveMaximum: true}) === 9
-      assert Schema.example(%Schema{type: :number, maximum: 10, exclusiveMaximum: true}) === 9
+    test "uses :maximum for :integer, :number via struct" do
+      assert Schema.example(%Schema{type: :integer, maximum: %Schema.MinMax{value: 10}}) === 10
+      assert Schema.example(%Schema{type: :number, maximum: %Schema.MinMax{value: 10}}) === 10
+    end
+
+    test "obeys exclusive maximum for numbers" do
+      assert Schema.example(%Schema{
+               type: :integer,
+               maximum: %Schema.MinMax{value: 10, exclusive?: true}
+             }) ===
+               9
+
+      assert Schema.example(%Schema{
+               type: :number,
+               maximum: %Schema.MinMax{value: 10, exclusive?: true}
+             }) ===
+               9
     end
 
     test "defaults to type-appropriate value for :boolean" do
@@ -306,11 +334,17 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(%Schema{type: :number, minimum: 10}, spec) === 10
     end
 
-    test "obeys exclusiveMinimum for :integer, :number", %{spec: spec} do
-      assert Schema.example(%Schema{type: :integer, minimum: 10, exclusiveMinimum: true}, spec) ===
+    test "obeys exclusive minimum for :integer, :number", %{spec: spec} do
+      assert Schema.example(
+               %Schema{type: :integer, minimum: %Schema.MinMax{value: 10, exclusive?: true}},
+               spec
+             ) ===
                11
 
-      assert Schema.example(%Schema{type: :number, minimum: 10, exclusiveMinimum: true}, spec) ===
+      assert Schema.example(
+               %Schema{type: :number, minimum: %Schema.MinMax{value: 10, exclusive?: true}},
+               spec
+             ) ===
                11
     end
 
@@ -319,11 +353,18 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(%Schema{type: :number, maximum: 10}, spec) === 10
     end
 
-    test "obeys exclusiveMaximum for numbers", %{spec: spec} do
-      assert Schema.example(%Schema{type: :integer, maximum: 10, exclusiveMaximum: true}, spec) ===
+    test "obeys exclusive maximum for numbers", %{spec: spec} do
+      assert Schema.example(
+               %Schema{type: :integer, maximum: %Schema.MinMax{value: 10, exclusive?: true}},
+               spec
+             ) ===
                9
 
-      assert Schema.example(%Schema{type: :number, maximum: 10, exclusiveMaximum: true}, spec) === 9
+      assert Schema.example(
+               %Schema{type: :number, maximum: %Schema.MinMax{value: 10, exclusive?: true}},
+               spec
+             ) ===
+               9
     end
 
     test "defaults to type-appropriate value for :boolean", %{spec: spec} do

@@ -51,6 +51,18 @@ defmodule OpenApiSpex.CastIntegerTest do
       assert Error.message(error) =~ "smaller than inclusive minimum"
     end
 
+    test "with minimum struct" do
+      schema = %Schema{type: :integer, minimum: %Schema.MinMax{value: 2}}
+      assert cast(value: 3, schema: schema) == {:ok, 3}
+      assert cast(value: 2, schema: schema) == {:ok, 2}
+      assert {:error, [error]} = cast(value: 1, schema: schema)
+      assert error.reason == :minimum
+      assert error.value == 1
+      # error.length is the minimum
+      assert error.length == 2
+      assert Error.message(error) =~ "smaller than inclusive minimum"
+    end
+
     test "with maximum" do
       schema = %Schema{type: :integer, maximum: 2}
       assert cast(value: 1, schema: schema) == {:ok, 1}
@@ -63,8 +75,20 @@ defmodule OpenApiSpex.CastIntegerTest do
       assert Error.message(error) =~ "larger than inclusive maximum"
     end
 
-    test "with minimum w/ exclusiveMinimum" do
-      schema = %Schema{type: :integer, minimum: 2, exclusiveMinimum: true}
+    test "with maximum struct" do
+      schema = %Schema{type: :integer, maximum: %Schema.MinMax{value: 2}}
+      assert cast(value: 1, schema: schema) == {:ok, 1}
+      assert cast(value: 2, schema: schema) == {:ok, 2}
+      assert {:error, [error]} = cast(value: 3, schema: schema)
+      assert error.reason == :maximum
+      assert error.value == 3
+      # error.length is the maximum
+      assert error.length == 2
+      assert Error.message(error) =~ "larger than inclusive maximum"
+    end
+
+    test "with exclusive minimum" do
+      schema = %Schema{type: :integer, minimum: %Schema.MinMax{value: 2, exclusive?: true}}
       assert cast(value: 3, schema: schema) == {:ok, 3}
       assert {:error, [error]} = cast(value: 2, schema: schema)
       assert error.reason == :exclusive_min
@@ -74,8 +98,8 @@ defmodule OpenApiSpex.CastIntegerTest do
       assert Error.message(error) =~ "smaller than exclusive minimum"
     end
 
-    test "with maximum w/ exclusiveMaximum" do
-      schema = %Schema{type: :integer, maximum: 2, exclusiveMaximum: true}
+    test "with exclusive maximum" do
+      schema = %Schema{type: :integer, maximum: %Schema.MinMax{value: 2, exclusive?: true}}
       assert cast(value: 1, schema: schema) == {:ok, 1}
       assert {:error, [error]} = cast(value: 2, schema: schema)
       assert error.reason == :exclusive_max

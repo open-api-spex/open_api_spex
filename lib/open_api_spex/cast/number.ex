@@ -1,6 +1,7 @@
 defmodule OpenApiSpex.Cast.Number do
   @moduledoc false
   alias OpenApiSpex.Cast
+  alias OpenApiSpex.Schema.MinMax
 
   # credo:disable-for-next-line
   # TODO We need a way to distinguish numbers in (JSON) body vs in request parameters
@@ -36,12 +37,23 @@ defmodule OpenApiSpex.Cast.Number do
 
   ## Private functions
 
-  defp cast_number(%{value: value, schema: %{minimum: minimum, exclusiveMinimum: true}} = ctx)
+  defp cast_number(
+         %{value: value, schema: %{minimum: %MinMax{value: minimum, exclusive?: true}}} = ctx
+       )
        when is_number(value) and is_number(minimum) do
     if value > minimum do
-      Cast.success(ctx, [:minimum, :exclusiveMinimum])
+      Cast.success(ctx, [:minimum])
     else
       Cast.error(ctx, {:exclusive_min, minimum, value})
+    end
+  end
+
+  defp cast_number(%{value: value, schema: %{minimum: %MinMax{value: minimum}}} = ctx)
+       when is_number(value) and is_number(minimum) do
+    if value >= minimum do
+      Cast.success(ctx, :minimum)
+    else
+      Cast.error(ctx, {:minimum, minimum, value})
     end
   end
 
@@ -54,12 +66,23 @@ defmodule OpenApiSpex.Cast.Number do
     end
   end
 
-  defp cast_number(%{value: value, schema: %{maximum: maximum, exclusiveMaximum: true}} = ctx)
+  defp cast_number(
+         %{value: value, schema: %{maximum: %MinMax{value: maximum, exclusive?: true}}} = ctx
+       )
        when is_number(value) and is_number(maximum) do
     if value < maximum do
-      Cast.success(ctx, [:maximum, :exclusiveMaximum])
+      Cast.success(ctx, [:maximum])
     else
       Cast.error(ctx, {:exclusive_max, maximum, value})
+    end
+  end
+
+  defp cast_number(%{value: value, schema: %{maximum: %MinMax{value: maximum}}} = ctx)
+       when is_number(value) and is_number(maximum) do
+    if value <= maximum do
+      Cast.success(ctx, :maximum)
+    else
+      Cast.error(ctx, {:maximum, maximum, value})
     end
   end
 

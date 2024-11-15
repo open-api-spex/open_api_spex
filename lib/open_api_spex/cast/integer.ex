@@ -1,6 +1,7 @@
 defmodule OpenApiSpex.Cast.Integer do
   @moduledoc false
   alias OpenApiSpex.Cast
+  alias OpenApiSpex.Schema.MinMax
 
   @min_int32 -2_147_483_647
   @max_int32 2_147_483_647
@@ -47,12 +48,23 @@ defmodule OpenApiSpex.Cast.Integer do
     Cast.error(ctx, {:invalid_format, :int64})
   end
 
-  defp cast_integer(%{value: value, schema: %{minimum: minimum, exclusiveMinimum: true}} = ctx)
+  defp cast_integer(
+         %{value: value, schema: %{minimum: %MinMax{value: minimum, exclusive?: true}}} = ctx
+       )
        when is_integer(value) and is_integer(minimum) do
     if value > minimum do
-      Cast.success(ctx, [:minimum, :exclusiveMinimum])
+      Cast.success(ctx, [:minimum])
     else
       Cast.error(ctx, {:exclusive_min, minimum, value})
+    end
+  end
+
+  defp cast_integer(%{value: value, schema: %{minimum: %MinMax{value: minimum}}} = ctx)
+       when is_integer(value) and is_integer(minimum) do
+    if value >= minimum do
+      Cast.success(ctx, :minimum)
+    else
+      Cast.error(ctx, {:minimum, minimum, value})
     end
   end
 
@@ -65,12 +77,23 @@ defmodule OpenApiSpex.Cast.Integer do
     end
   end
 
-  defp cast_integer(%{value: value, schema: %{maximum: maximum, exclusiveMaximum: true}} = ctx)
+  defp cast_integer(
+         %{value: value, schema: %{maximum: %MinMax{value: maximum, exclusive?: true}}} = ctx
+       )
        when is_integer(value) and is_integer(maximum) do
     if value < maximum do
-      Cast.success(ctx, [:maximum, :exclusiveMaximum])
+      Cast.success(ctx, [:maximum])
     else
       Cast.error(ctx, {:exclusive_max, maximum, value})
+    end
+  end
+
+  defp cast_integer(%{value: value, schema: %{maximum: %MinMax{value: maximum}}} = ctx)
+       when is_integer(value) and is_integer(maximum) do
+    if value <= maximum do
+      Cast.success(ctx, :maximum)
+    else
+      Cast.error(ctx, {:maximum, maximum, value})
     end
   end
 

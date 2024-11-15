@@ -158,10 +158,8 @@ defmodule OpenApiSpex.DeprecatedCastTest do
     test "Validate schema type number when value is exclusive" do
       schema = %Schema{
         type: :integer,
-        minimum: -1,
-        maximum: 1,
-        exclusiveMinimum: true,
-        exclusiveMaximum: true
+        minimum: %Schema.MinMax{value: -1, exclusive?: true},
+        maximum: %Schema.MinMax{value: 1, exclusive?: true}
       }
 
       assert {:error, _} = Schema.validate(schema, 1, %{})

@@ -351,29 +351,41 @@ defmodule OpenApiSpex.DeprecatedCast do
   @spec validate_maximum(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
   defp validate_maximum(%{maximum: nil}, _val, _path), do: :ok
 
-  defp validate_maximum(%{maximum: n, exclusiveMaximum: true}, value, _path) when value < n,
-    do: :ok
+  defp validate_maximum(%{maximum: %Schema.MinMax{value: n, exclusive?: true}}, value, _path)
+       when value < n,
+       do: :ok
 
-  defp validate_maximum(%{maximum: n, exclusiveMaximum: true}, value, path),
+  defp validate_maximum(%{maximum: %Schema.MinMax{value: n, exclusive?: true}}, value, path),
     do: {:error, "#{path}: #{value} is larger than the exclusive maximum #{n}"}
 
-  defp validate_maximum(%{maximum: n}, value, _path) when value <= n, do: :ok
+  defp validate_maximum(%{maximum: %Schema.MinMax{value: n}}, value, _path) when value <= n, do: :ok
 
-  defp validate_maximum(%{maximum: n}, value, path),
+  defp validate_maximum(%{maximum: n}, value, _path) when is_number(n) and value <= n, do: :ok
+
+  defp validate_maximum(%{maximum: %Schema.MinMax{value: n}}, value, path),
+    do: {:error, "#{path}: #{value} is larger than maximum #{n}"}
+
+  defp validate_maximum(%{maximum: n}, value, path) when is_number(n),
     do: {:error, "#{path}: #{value} is larger than maximum #{n}"}
 
   @spec validate_minimum(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
   defp validate_minimum(%{minimum: nil}, _val, _path), do: :ok
 
-  defp validate_minimum(%{minimum: n, exclusiveMinimum: true}, value, _path) when value > n,
-    do: :ok
+  defp validate_minimum(%{minimum: %Schema.MinMax{value: n, exclusive?: true}}, value, _path)
+       when value > n,
+       do: :ok
 
-  defp validate_minimum(%{minimum: n, exclusiveMinimum: true}, value, path),
+  defp validate_minimum(%{minimum: %Schema.MinMax{value: n, exclusive?: true}}, value, path),
     do: {:error, "#{path}: #{value} is smaller than the exclusive minimum #{n}"}
 
-  defp validate_minimum(%{minimum: n}, value, _path) when value >= n, do: :ok
+  defp validate_minimum(%{minimum: %Schema.MinMax{value: n}}, value, _path) when value >= n, do: :ok
 
-  defp validate_minimum(%{minimum: n}, value, path),
+  defp validate_minimum(%{minimum: n}, value, _path) when is_number(n) and value >= n, do: :ok
+
+  defp validate_minimum(%{minimum: %Schema.MinMax{value: n}}, value, path),
+    do: {:error, "#{path}: #{value} is smaller than maximum #{n}"}
+
+  defp validate_minimum(%{minimum: n}, value, path) when is_number(n),
     do: {:error, "#{path}: #{value} is smaller than minimum #{n}"}
 
   @spec validate_max_length(Schema.t(), String.t(), String.t()) :: :ok | {:error, String.t()}

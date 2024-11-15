@@ -152,9 +152,7 @@ defmodule OpenApiSpex.Schema do
     :title,
     :multipleOf,
     :maximum,
-    :exclusiveMaximum,
     :minimum,
-    :exclusiveMinimum,
     :maxLength,
     :minLength,
     :pattern,
@@ -218,10 +216,8 @@ defmodule OpenApiSpex.Schema do
   @type t :: %__MODULE__{
           title: String.t() | nil,
           multipleOf: number | nil,
-          maximum: number | nil,
-          exclusiveMaximum: boolean | nil,
-          minimum: number | nil,
-          exclusiveMinimum: boolean | nil,
+          maximum: Schema.MinMax.t() | integer | nil,
+          minimum: Schema.MinMax.t() | integer | nil,
           maxLength: integer | nil,
           minLength: integer | nil,
           pattern: String.t() | Regex.t() | nil,
@@ -487,18 +483,26 @@ defmodule OpenApiSpex.Schema do
     |> Enum.reduce(%{}, &Map.merge/2)
   end
 
-  defp example_for(%{minimum: min} = schema, type)
-       when type in [:number, :integer] and not is_nil(min) do
-    if schema.exclusiveMinimum do
+  defp example_for(%{minimum: min} = _schema, type)
+       when is_number(min) and type in [:number, :integer],
+       do: min
+
+  defp example_for(%{minimum: %Schema.MinMax{value: min} = config}, type)
+       when type in [:number, :integer] do
+    if config.exclusive? do
       min + 1
     else
       min
     end
   end
 
-  defp example_for(%{maximum: max} = schema, type)
-       when type in [:number, :integer] and not is_nil(max) do
-    if schema.exclusiveMaximum do
+  defp example_for(%{maximum: max} = _schema, type)
+       when is_number(max) and type in [:number, :integer],
+       do: max
+
+  defp example_for(%{maximum: %Schema.MinMax{value: max} = config}, type)
+       when type in [:number, :integer] do
+    if config.exclusive? do
       max - 1
     else
       max

@@ -317,11 +317,11 @@ defmodule OpenApiSpec.CastTest do
     end
 
     test "nils out properties" do
-      schema = %Schema{minimum: 1, exclusiveMinimum: true}
+      schema = %Schema{minimum: %Schema.MinMax{value: 1, exclusive?: true}}
       ctx = %Cast{schema: schema}
-      expected = {:cast, %Cast{schema: %Schema{minimum: nil, exclusiveMinimum: nil}}}
+      expected = {:cast, %Cast{schema: %Schema{minimum: nil}}}
 
-      assert expected == Cast.success(ctx, [:minimum, :exclusiveMinimum])
+      assert expected == Cast.success(ctx, [:minimum])
     end
   end
 end
