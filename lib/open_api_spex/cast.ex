@@ -124,7 +124,7 @@ defmodule OpenApiSpex.Cast do
       do: module.cast(ctx)
 
   def cast(%__MODULE__{schema: %{"x-validate": module}} = ctx) when is_binary(module),
-    do: module |> Elixir.String.split(".") |> Module.concat() |> apply(:cast, [ctx])
+    do: module |> Elixir.String.split(".") |> Module.concat() |> then(& &1.cast(ctx))
 
   # nil schema
   def cast(%__MODULE__{value: value, schema: nil}),
