@@ -119,8 +119,12 @@ defmodule OpenApiSpex.Cast do
   @spec cast(t()) :: {:ok, term()} | {:error, [Error.t()]}
 
   # Custom validator
-  def cast(%__MODULE__{schema: %{"x-validate": module}} = ctx) when module != nil,
-    do: module.cast(ctx)
+  def cast(%__MODULE__{schema: %{"x-validate": module}} = ctx)
+      when is_atom(module) and module != nil,
+      do: module.cast(ctx)
+
+  def cast(%__MODULE__{schema: %{"x-validate": module}} = ctx) when is_binary(module),
+    do: module |> Elixir.String.split(".") |> Module.concat() |> apply(:cast, [ctx])
 
   # nil schema
   def cast(%__MODULE__{value: value, schema: nil}),

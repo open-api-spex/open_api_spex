@@ -280,6 +280,15 @@
         "not": {
           "type": "string"
         }
+      },
+      "CustomValidationDecoded": {
+        "type": "object",
+        "properties": {
+          "even_num": {
+            "type": "integer",
+            "x-validate": "OpenApiSpec.CastTest.CustomValidator.EvenInt"
+          }
+        }
       }
     },
     "links": {

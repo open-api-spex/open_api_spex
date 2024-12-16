@@ -7,6 +7,23 @@ defmodule OpenApiSpec.CastTest do
   def cast(ctx), do: Cast.cast(ctx)
 
   describe "cast/1" do
+    defmodule CustomValidator.EvenInt do
+      require OpenApiSpex
+
+      alias OpenApiSpex.Cast
+
+      OpenApiSpex.schema(%{
+        description: "An even integer",
+        type: :integer,
+        "x-validate": __MODULE__
+      })
+
+      def cast(context = %Cast{value: value}) when is_integer(value) and rem(value, 2) == 0,
+        do: Cast.ok(context)
+
+      def cast(context), do: Cast.error(context, {:custom, "Must be an even integer"})
+    end
+
     test "unknown schema type" do
       assert {:error, [error]} = cast(value: "string", schema: %Schema{type: :nope})
       assert error.reason == :invalid_schema_type
@@ -223,24 +240,7 @@ defmodule OpenApiSpec.CastTest do
     end
 
     test "cast custom error with custom validator" do
-      defmodule EvenInt do
-        require OpenApiSpex
-
-        alias OpenApiSpex.Cast
-
-        OpenApiSpex.schema(%{
-          description: "An even integer",
-          type: :integer,
-          "x-validate": __MODULE__
-        })
-
-        def cast(context = %Cast{value: value}) when is_integer(value) and rem(value, 2) == 0,
-          do: Cast.ok(context)
-
-        def cast(context), do: Cast.error(context, {:custom, "Must be an even integer"})
-      end
-
-      schema = %Schema{type: :object, properties: %{even_number: EvenInt.schema()}}
+      schema = %Schema{type: :object, properties: %{even_number: CustomValidator.EvenInt.schema()}}
 
       assert {:error, errors} = cast(value: %{"even_number" => 1}, schema: schema)
       assert [error] = errors
@@ -248,6 +248,21 @@ defmodule OpenApiSpec.CastTest do
       assert error.reason == :custom
       assert error.path == [:even_number]
       assert Error.message_with_path(error) == "#/even_number: Must be an even integer"
+    end
+
+    test "cast with custom validator from decoded schema" do
+      spec =
+        "./test/support/encoded_schema.json"
+        |> File.read!()
+        |> Jason.decode!()
+        |> OpenApiSpex.OpenApi.Decode.decode()
+
+      %{
+        components: %{schemas: %{"CustomValidationDecoded" => custom_validation_schema}}
+      } = spec
+
+      assert {:ok, %{even_num: 2}} =
+               cast(value: %{"even_num" => 2}, schema: custom_validation_schema)
     end
 
     test "nil value with xxxOf" do
