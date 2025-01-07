@@ -74,6 +74,7 @@ defmodule OpenApiSpex.CastParameters do
     }
   end
 
+
   # Extract context information from parameters, useful later when casting
   defp parameters_contexts(parameters) do
     Map.new(parameters, fn parameter ->
@@ -127,11 +128,66 @@ defmodule OpenApiSpex.CastParameters do
       location,
       schema.properties |> Map.keys() |> Enum.map(&Atom.to_string/1)
     )
+    |> maybe_combine_params(schema, parameters_contexts)
     |> pre_parse_parameters(parameters_contexts, parsers)
     |> case do
       {:error, _} = err -> err
       params -> Cast.cast(schema, params, components.schemas, opts)
     end
+  end
+
+  # in caase some parameters have explode: true we want to search for those
+  # fields in parameters and combine the parameters in a single struct
+  # so that the casting can do further work
+  defp maybe_combine_params(%{} = parameters, %{} = schema, %{} = parameters_contexts) do
+    # first filter out from parameters fields that match non exploding properties.
+    # we do this because we want to keep the original parameters struct intact
+    # and not remove fields that are not part of the exploding property
+
+    non_exploding_matches =  Enum.reduce(parameters, Map.new(), fn {key, value}, acc ->
+      case Map.get(parameters_contexts, key, %{}) do
+        %{explode: false} ->
+          Map.put(acc, key, value)
+
+        _ ->
+          acc
+      end
+    end)
+
+    possible_exploding_matches = Enum.reject(parameters, &Enum.member?(non_exploding_matches, &1)) |> Map.new()
+
+    combined_params = Enum.reduce(parameters_contexts, possible_exploding_matches, fn
+      {key, %{explode: true}}, parameters ->
+        # we have exploding property, we need to search for it's possible fields
+        # and add them under the key into the parameters struct.
+        #  do we leave the fields in the params as well? not sure.
+        schema_of_exploding_property = Map.get(schema.properties, String.to_existing_atom(key), %{})
+
+        fields =
+          Schema.properties(schema_of_exploding_property) ++
+            Schema.possible_properties(schema_of_exploding_property)
+
+        {struct_params, found_keys} =
+          Enum.reduce(fields, {Map.new(), []}, fn {field_key, _default}, {struct_params, found_keys} ->
+            param_field_key = field_key |> Atom.to_string()
+            val = Map.get(parameters, param_field_key)
+
+              unless is_nil(val) do
+                {Map.put(struct_params, param_field_key, val), [param_field_key | found_keys]}
+              else
+                {struct_params, found_keys}
+              end
+          end)
+
+        parameters
+        |> Map.drop(found_keys)
+        |> Map.put(key, struct_params)
+
+      _, parameters ->
+        parameters
+    end)
+
+    Map.merge(non_exploding_matches, combined_params)
   end
 
   defp pre_parse_parameters(%{} = parameters, %{} = parameters_context, parsers) do
