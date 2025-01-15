@@ -181,7 +181,7 @@ defmodule OpenApiSpex do
    - ensures the schema is linked to the module by "x-struct" extension property
    - defines a struct with keys matching the schema properties
    - defines a @type `t` for the struct
-   - derives a `Jason.Encoder` and/or `Poison.Encoder` for the struct
+   - derives a `JSON.Encoder`, `Jason.Encoder` and/or `Poison.Encoder` for the struct
 
   See `OpenApiSpex.Schema` for additional examples and details.
 
@@ -238,8 +238,8 @@ defmodule OpenApiSpex do
   - `:struct?` (boolean) - When false, prevents the automatic generation
     of a struct definition for the schema module.
   - `:derive?` (boolean) When false, prevents the automatic generation
-    of a `@derive` call for either `Poison.Encoder`
-    or `Jason.Encoder`. Using this option can
+    of a `@derive` call for either `JSON.Encoder`
+    `Poison.Encoder` or `Jason.Encoder`. Using this option can
     prevent "... protocol has already been consolidated ..."
     compiler warnings.
   """
@@ -262,7 +262,7 @@ defmodule OpenApiSpex do
 
       if Map.get(@schema, :"x-struct") == __MODULE__ do
         if Keyword.get(unquote(opts), :derive?, true) do
-          @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
+          @derive Enum.filter([JSON.Encoder, Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
         end
 
         if Keyword.get(unquote(opts), :struct?, true) do

@@ -25,7 +25,7 @@ defmodule OpenApiSpex.Plug.RenderSpec do
 
   @behaviour Plug
 
-  @json_encoder Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
+  @json_encoder Enum.find([JSON, Jason, Poison], &Code.ensure_loaded?/1)
 
   @impl Plug
   def init(opts), do: opts
