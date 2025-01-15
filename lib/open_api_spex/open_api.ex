@@ -70,7 +70,7 @@ defmodule OpenApiSpex.OpenApi do
   """
   @callback spec() :: t
 
-  @json_encoder Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
+  @json_encoder Enum.find([JSON, Jason, Poison], &Code.ensure_loaded?/1)
   @yaml_encoder nil
   @vendor_extensions ~w(
     x-struct
@@ -80,7 +80,7 @@ defmodule OpenApiSpex.OpenApi do
 
   def json_encoder, do: @json_encoder
 
-  for encoder <- [Poison.Encoder, Jason.Encoder] do
+  for encoder <- [JSON.Encoder, Poison.Encoder, Jason.Encoder] do
     if Code.ensure_loaded?(encoder) do
       defimpl encoder do
         def encode(api_spec = %OpenApi{}, options) do
