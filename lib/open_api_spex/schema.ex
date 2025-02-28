@@ -183,6 +183,7 @@ defmodule OpenApiSpex.Schema do
     :xml,
     :externalDocs,
     :example,
+    :examples,
     :deprecated,
     :"x-struct",
     :"x-validate",
@@ -250,6 +251,7 @@ defmodule OpenApiSpex.Schema do
           xml: Xml.t() | nil,
           externalDocs: ExternalDocumentation.t() | nil,
           example: any,
+          examples: [any] | nil,
           deprecated: boolean | nil,
           "x-struct": module | nil,
           "x-validate": module | nil,
@@ -367,6 +369,10 @@ defmodule OpenApiSpex.Schema do
           map | String.t() | number | boolean
   def example(%Schema{example: example} = schema) when not is_nil(example) do
     schema.example
+  end
+
+  def example(%Schema{examples: [example | _]}) when not is_nil(example) do
+    example
   end
 
   def example(%Schema{enum: [example | _]}) do
