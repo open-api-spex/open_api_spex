@@ -15,14 +15,14 @@ jobs:
         otp: ["26"]
         elixir: ["1.16"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         id: beam
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
       - name: PLT cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           key: |
             ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-plt
@@ -34,7 +34,7 @@ jobs:
       - run: mix compile --warnings-as-errors
       - run: mix format --check-formatted
       - run: mix credo --strict --all
-      - run: mix dialyzer
+      - run: mix dialyzer --format github
 
   test_examples:
     runs-on: ubuntu-latest
@@ -42,12 +42,12 @@ jobs:
     env:
       MIX_ENV: test
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
           otp-version: 26
           elixir-version: 1.16
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           key: |
             ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-plug-build
@@ -77,12 +77,12 @@ jobs:
           - { otp: "23", elixir: "1.16" }
           - { otp: "25", elixir: "1.16" }
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           key: |
             ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-build
