@@ -103,6 +103,10 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(%Schema{type: :string, example: "foo"}) == "foo"
     end
 
+    test "uses the first value in `examples` property when not nil" do
+      assert Schema.example(%Schema{type: :string, examples: ["foo", "bar"]}) == "foo"
+    end
+
     test "defaults to type-appropriate value for :string" do
       assert Schema.example(%Schema{type: :string}) == ""
     end
