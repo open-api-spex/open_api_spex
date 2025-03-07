@@ -31,7 +31,8 @@ defmodule PhoenixApp.Mixfile do
   defp aliases() do
     [
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      spec: ["openapi.spec.json  --spec PhoenixAppWeb.ApiSpec \"priv/static/swagger.json\""]
+      spec: ["openapi.spec.json  --spec PhoenixAppWeb.ApiSpec \"priv/static/swagger.json\""],
+      "spec.yaml": ["openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec \"priv/static/swagger.yaml\""]
     ]
   end
 
@@ -48,6 +49,7 @@ defmodule PhoenixApp.Mixfile do
       {:phoenix_view, "~> 2.0"},
       {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.0"},
+      {:ymlr, "~> 5.0"},
       {:dialyxir, "1.0.0-rc.6", only: [:dev], runtime: false}
     ]
   end

@@ -29,9 +29,8 @@ defmodule PlugApp.Mixfile do
       {:plug, "~> 1.0"},
       {:ecto, "~> 3.11"},
       {:ecto_sqlite3, "~> 0.16"},
-      {:jason, "~> 1.0"}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:jason, "~> 1.0"},
+      {:ymlr, "~> 5.0"}
     ]
   end
 
@@ -44,7 +43,9 @@ defmodule PlugApp.Mixfile do
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      spec: ["openapi.spec.json  --spec PlugApp.ApiSpec \"priv/static/swagger.json\""],
+      "spec.yaml": ["openapi.spec.yaml --spec PlugApp.ApiSpec \"priv/static/swagger.yaml\""]
     ]
   end
 end
