@@ -42,9 +42,13 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   defp maybe_start_app(true), do: Mix.Task.run("app.start")
   defp maybe_start_app(_), do: Mix.Task.run("app.config", preload_modules: true)
 
+  # Unfortunately, the built-in JSON module in Elixir 1.18.x doesn't support the `pretty` option
+  # So we need to take Jason or Poison to be able to support this feature
+  defp json_encoder(), do: Enum.find([Jason, Poison], &Code.ensure_loaded?/1)
+
   defp encode(spec, %{pretty: pretty}) do
     spec
-    |> OpenApiSpex.OpenApi.json_encoder().encode(pretty: pretty)
+    |> json_encoder().encode(pretty: pretty)
     |> case do
       {:ok, json} ->
         "#{json}\n"
