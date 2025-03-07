@@ -29,7 +29,17 @@ defmodule OpenApiSpex do
   Then the `UserResponse.schema()` function will be called to load the schema, and
   a `Reference` to the loaded schema will be used in the operation response.
 
-  See `OpenApiSpex.schema` macro for a convenient syntax for defining schema modules.
+  See `OpenApiSpex.schema/2` macro for a convenient syntax for defining schema modules.
+
+  > #### Known Issues {: .info}
+  >
+  > Resolving schemas expects the schema title to be unique for the generated references to be unique.
+  >
+  > For schemas defined with the `OpenApiSpex.schema/2` macro, the title is automatically set
+  > to the last part of module name. For example `MyAppWeb.Schemas.User` will have the title `"User"`,
+  > and `MyAppWeb.OtherSchemas.User` **will also** have the title `"User"` which can lead to conflicts.
+  >
+  > The recommendation is to set the title explicitly in the schema definition.
   """
   @spec resolve_schema_modules(OpenApi.t()) :: OpenApi.t()
   def resolve_schema_modules(spec = %OpenApi{}) do

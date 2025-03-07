@@ -2,6 +2,7 @@ defmodule OpenApiSpex.SchemaResolver do
   @moduledoc """
   Internal module used to resolve `OpenApiSpex.Schema` structs from atoms.
   """
+
   alias OpenApiSpex.Discriminator
 
   alias OpenApiSpex.{
@@ -29,7 +30,17 @@ defmodule OpenApiSpex.SchemaResolver do
   Then the `UserResponse.schema()` function will be called to load the schema, and
   a `Reference` to the loaded schema will be used in the operation response.
 
-  See `OpenApiSpex.schema` macro for a convenient syntax for defining schema modules.
+  See `OpenApiSpex.schema/2` macro for a convenient syntax for defining schema modules.
+
+  > #### Known Issues {: .info}
+  >
+  > Resolving schemas expects the schema title to be unique for the generated references to be unique.
+  >
+  > For schemas defined with the `OpenApiSpex.schema/2` macro, the title is automatically set
+  > to the last part of module name. For example `MyAppWeb.Schemas.User` will have the title `"User"`,
+  > and `MyAppWeb.OtherSchemas.User` **will also** have the title `"User"` which can lead to conflicts.
+  >
+  > The recommendation is to set the title explicitly in the schema definition.
   """
   @spec resolve_schema_modules(OpenApi.t()) :: OpenApi.t()
   def resolve_schema_modules(spec = %OpenApi{}) do
@@ -197,14 +208,15 @@ defmodule OpenApiSpex.SchemaResolver do
     Enum.map_reduce(schema_list, schemas, &resolve_schema_modules_from_schema/2)
   end
 
-  defp resolve_schema_modules_from_schema(schema, schemas) when is_atom(schema) do
-    title = schema.schema().title
+  defp resolve_schema_modules_from_schema(schema_module, schemas) when is_atom(schema_module) do
+    schema = schema_module.schema()
+    title = schema.title
 
     new_schemas =
       if Map.has_key?(schemas, title) do
         schemas
       else
-        {new_schema, schemas} = resolve_schema_modules_from_schema(schema.schema(), schemas)
+        {new_schema, schemas} = resolve_schema_modules_from_schema(schema, schemas)
         Map.put(schemas, title, new_schema)
       end
 
