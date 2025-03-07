@@ -31,7 +31,8 @@ defmodule PhoenixApp.Mixfile do
   defp aliases() do
     [
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      spec: ["openapi.spec.json  --spec PhoenixAppWeb.ApiSpec \"priv/static/swagger.json\""]
+      spec: ["openapi.spec.json  --spec PhoenixAppWeb.ApiSpec \"priv/static/swagger.json\""],
+      "spec.yaml": ["openapi.spec.yaml --spec PhoenixAppWeb.ApiSpec \"priv/static/swagger.yaml\""]
     ]
   end
 
