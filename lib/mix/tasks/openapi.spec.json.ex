@@ -36,16 +36,16 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
     {opts, _, _} = OptionParser.parse(argv, strict: [start_app: :boolean])
 
     Keyword.get(opts, :start_app, true) |> maybe_start_app()
-    OpenApiSpex.ExportSpec.call(argv, &encode/2, @default_filename)
+    OpenApiSpex.ExportSpec.call(argv, &export!/2, @default_filename)
   end
 
   defp maybe_start_app(true), do: Mix.Task.run("app.start")
   defp maybe_start_app(_), do: Mix.Task.run("app.config", preload_modules: true)
 
-  defp encode(spec, %{pretty: pretty}) do
-    spec
-    |> OpenApiSpex.OpenApi.json_encoder().encode(pretty: pretty)
-    |> case do
+  defp export!(spec, %{pretty: pretty}) do
+    encoder = json_encoder()
+
+    case encode(encoder, spec, pretty) do
       {:ok, json} ->
         "#{json}\n"
 
@@ -53,4 +53,16 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
         Mix.raise("could not encode #{inspect(spec)}, error: #{inspect(error)}.")
     end
   end
+
+  defp json_encoder(), do: Enum.find([Jason, Poison, JSON], &Code.ensure_loaded?/1)
+
+  # Unfortunately, the built-in JSON module in Elixir 1.18.x doesn't support the `pretty` option
+  # So we need to take Jason or Poison to be able to support this feature
+
+  defp encode(JSON, _spec, true),
+    do: {:error, "the default JSON encoder does not support the pretty option"}
+
+  defp encode(JSON, spec, _pretty), do: {:ok, JSON.encode!(spec)}
+
+  defp encode(encoder, spec, pretty), do: encoder.encode(spec, pretty: pretty)
 end
