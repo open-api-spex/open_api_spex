@@ -156,7 +156,7 @@ defmodule OpenApiSpex.DeprecatedCast do
   defp make_struct(val, %{"x-struct": nil}), do: {:ok, val}
 
   defp make_struct(val, %{"x-struct": mod}) do
-    keys = mod.schema |> OpenApiSpex.Schema.properties() |> Keyword.keys()
+    keys = mod.schema() |> OpenApiSpex.Schema.properties() |> Keyword.keys()
 
     if Map.keys(val) -- keys == [] do
       {:ok, struct(mod, val)}

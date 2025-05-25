@@ -48,9 +48,7 @@ defmodule OpenApiSpex.SchemaConstructionTest do
   end
 
   test "able to define schema without defining a struct" do
-    assert_raise UndefinedFunctionError, fn ->
-      SchemaWithoutStructDef.__struct__()
-    end
+    refute function_exported?(SchemaWithoutStructDef, :__struct__, 0)
   end
 
   defmodule SchemaWithoutDerive do
