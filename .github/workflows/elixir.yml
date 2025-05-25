@@ -61,20 +61,19 @@ jobs:
         run: mix do deps.get, test
 
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
     strategy:
       matrix:
-        otp: ["23", "24", "25", "26"]
-        elixir: ["1.14", "1.15", "1.16"]
+        otp: ["24", "25", "26"]
+        elixir: ["1.14", "1.15", "1.16", "1.18"]
         # Test each elixir version with lowest and highest compatible OTP version, exclude others
         # See https://hexdocs.pm/elixir/compatibility-and-deprecations.html#between-elixir-and-erlang-otp
         exclude:
           - { otp: "24", elixir: "1.14" }
+          - { otp: "24", elixir: "1.18" }
           - { otp: "25", elixir: "1.14" }
-          - { otp: "23", elixir: "1.15" }
           - { otp: "25", elixir: "1.15" }
-          - { otp: "23", elixir: "1.16" }
           - { otp: "25", elixir: "1.16" }
     steps:
       - uses: actions/checkout@v4
