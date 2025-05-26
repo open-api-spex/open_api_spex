@@ -347,6 +347,23 @@ defmodule OpenApiSpex.Schema do
   def properties(_), do: []
 
   @doc """
+  Get the names of all properties possible for polymorphic schemas using `oneOf`.
+
+  This is different from properties/1 in that it returns properties that *might*
+  be a part of the schema sometimes based on the discriminator.
+  """
+
+  def possible_properties(%Schema{oneOf: schemas}) when is_list(schemas) do
+    Enum.flat_map(schemas, &properties/1) |> Enum.uniq()
+  end
+
+  def possible_properties(%Schema{anyOf: schemas}) when is_list(schemas) do
+    Enum.flat_map(schemas, &properties/1) |> Enum.uniq()
+  end
+
+  def possible_properties(_), do: []
+
+  @doc """
   Generate example value from a `%Schema{}` struct.
 
   This is useful as a simple way to generate values for tests.

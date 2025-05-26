@@ -46,7 +46,7 @@ defmodule UserHandlerTest do
     } do
       %{resp_body: body} =
         conn =
-        conn(:get, "/api/users/#{user_id}")
+        conn(:get, "/api/users/#{user_id}?foo=asd")
         |> Router.call(@opts)
 
       assert %{status: 200} = conn
@@ -56,6 +56,25 @@ defmodule UserHandlerTest do
       assert %{"data" => %{"id" => ^user_id}} = json_response
 
       assert_schema(json_response, "UserResponse", api_spec)
+    end
+
+    test "responds with 422 when there is no either foo nor bar in query params", %{
+      user: %{id: user_id},
+      api_spec: _api_spec
+    } do
+      %{resp_body: body} =
+        conn =
+        conn(:get, "/api/users/#{user_id}")
+        |> Router.call(@opts)
+
+      assert %{status: 422} = conn
+
+      json_response = Jason.decode!(body)
+
+      IO.inspect(json_response)
+      # assert %{} = json_response
+
+      # assert_schema(json_response, "UserResponse", api_spec)
     end
   end
 

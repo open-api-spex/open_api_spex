@@ -191,6 +191,20 @@ defmodule OpenApiSpex.CastParametersTest do
               [%OpenApiSpex.Cast.Error{format: "application/json", reason: :invalid_format}]} =
                CastParameters.cast(conn, operation, spec)
     end
+
+    test "cast param with oneof and valid args" do
+      {operation, spec} = oneof_query_spec_operation()
+
+      filter_params = URI.encode_query(%{size: "XL"})
+
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users?#{filter_params}")
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> Plug.Conn.fetch_query_params()
+
+      assert {:ok, _} = CastParameters.cast(conn, operation, spec)
+    end
   end
 
   defp create_conn() do
@@ -290,6 +304,56 @@ defmodule OpenApiSpex.CastParametersTest do
     spec =
       spec_with_components(%Components{
         schemas: %{"FilterParams" => schema}
+      })
+
+    {operation, spec}
+  end
+
+  defp oneof_query_spec_operation() do
+    schema = %Schema{
+      type: :object,
+      title: "Filters",
+      oneOf: [
+        %Schema{
+          type: :object,
+          properties: %{
+            size: %Schema{type: :string, pattern: "^XS|S|M|L|XL$"},
+            color: %Schema{type: :string}
+          },
+          required: [:size]
+        },
+        %Schema{
+          type: :object,
+          properties: %{
+            size: %Schema{type: :string, pattern: "^XS|S|M|L|XL$"},
+            color: %Schema{type: :string}
+          },
+          required: [:color]
+        }
+      ],
+      example: %{size: "XL"}
+    }
+
+    parameter = %Parameter{
+      in: :query,
+      name: :filter,
+      required: false,
+      schema: %Reference{"$ref": "#/components/schemas/Filters"},
+      explode: true,
+      style: :form,
+      required: true
+    }
+
+    operation = %Operation{
+      parameters: [parameter],
+      responses: %{
+        200 => %Schema{type: :object}
+      }
+    }
+
+    spec =
+      spec_with_components(%Components{
+        schemas: %{"Filters" => schema}
       })
 
     {operation, spec}

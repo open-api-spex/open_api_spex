@@ -58,7 +58,31 @@ defmodule PlugApp.UserHandler do
         description: "Show a user by ID",
         operationId: "UserHandler.Show",
         parameters: [
-          parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "User ID", example: 123)
+          parameter(:id, :path, %Schema{type: :integer, minimum: 1}, "User ID", example: 123),
+          parameter(:qux, :query, %Schema{type: :string}, "qux param", required: false),
+          parameter(
+            :some,
+            :query,
+            %Schema{
+              type: :object,
+              oneOf: [
+                %Schema{
+                  type: :object,
+                  properties: %{foo: %Schema{type: :string}, bar: %Schema{type: :string}},
+                  required: [:foo]
+                },
+                %Schema{
+                  type: :object,
+                  properties: %{foo: %Schema{type: :string}, baz: %Schema{type: :string}},
+                  required: [:baz]
+                }
+              ]
+            },
+            "Some query parameter ",
+            explode: true,
+            style: :form,
+            required: true
+          )
         ],
         responses: %{
           200 => response("User", "application/json", Schemas.UserResponse)
@@ -80,6 +104,8 @@ defmodule PlugApp.UserHandler do
     end
 
     def show(conn = %Plug.Conn{assigns: %{user: user}}, _opts) do
+      user = Accounts.get_user!(conn.params.id)
+
       conn
       |> put_resp_header("content-type", "application/json")
       |> send_resp(200, render(user))
