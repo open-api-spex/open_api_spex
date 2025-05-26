@@ -21,13 +21,22 @@ defmodule PhoenixAppWeb.UserController do
   operation :index,
     summary: "List users",
     description: "List all users",
+    parameters: [
+      OpenApiSpex.Operation.parameter(
+        :ids,
+        :query,
+        %Schema{type: :array, items: %Schema{type: :integer}},
+        "Filter by user ids"
+      )
+    ],
     responses: [
       ok: {"User List Response", "application/json", Schemas.UsersResponse},
       unprocessable_entity: %Reference{"$ref": "#/components/responses/unprocessable_entity"}
     ]
 
-  def index(conn, _params) do
-    users = Accounts.list_users()
+  def index(conn, params) do
+    users = Accounts.list_users(params)
+
     render(conn, "index.json", users: users)
   end
 
@@ -37,8 +46,7 @@ defmodule PhoenixAppWeb.UserController do
     parameters: [
       group_id: [in: :path, type: :integer, description: "Group ID", example: 1]
     ],
-    request_body:
-      {"The user attributes", "application/json", Schemas.UserRequest, required: true},
+    request_body: {"The user attributes", "application/json", Schemas.UserRequest, required: true},
     responses: [
       created: {"User", "application/json", Schemas.UserResponse}
     ]
@@ -88,8 +96,7 @@ defmodule PhoenixAppWeb.UserController do
         required: true
       ]
     ],
-    request_body:
-      {"The user attributes", "application/json", Schemas.UserRequest, required: true},
+    request_body: {"The user attributes", "application/json", Schemas.UserRequest, required: true},
     responses: [
       ok: {"User", "application/json", Schemas.UserResponse}
     ]

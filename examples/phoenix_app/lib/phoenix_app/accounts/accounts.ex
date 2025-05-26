@@ -2,8 +2,19 @@ defmodule PhoenixApp.Accounts do
   alias PhoenixApp.Accounts.User
   alias PhoenixApp.Repo
 
-  def list_users() do
-    Repo.all(User)
+  import Ecto.Query
+
+  def list_users(filters) do
+    query = from(u in User, order_by: [asc: u.id])
+
+    query =
+      if filters[:ids] do
+        from(u in query, where: u.id in ^filters[:ids])
+      else
+        query
+      end
+
+    Repo.all(query)
   end
 
   def get_user!(id) do

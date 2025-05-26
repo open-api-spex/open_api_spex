@@ -34,17 +34,17 @@ defmodule PhoenixAppWeb.UserControllerTest do
     %{id: id2} =
       PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Benjamin", email: "ben@lycos.com"})
 
-    %{id: id3} =
+    %{id: _id3} =
       PhoenixApp.Repo.insert!(%PhoenixApp.Accounts.User{name: "Chuck", email: "chuck@aol.com"})
 
     response =
       conn
       |> Plug.Conn.put_req_header("accept", "application/json")
-      |> get(user_path(conn, :index))
+      |> get(user_path(conn, :index), ids: [id1, id2])
       |> json_response(200)
       |> assert_schema("UsersResponse", spec)
 
-    assert [%{id: ^id1}, %{id: ^id2}, %{id: ^id3}] = response.data
+    assert [%{id: ^id1}, %{id: ^id2}] = response.data
   end
 
   test "User schema example", %{spec: spec} do
