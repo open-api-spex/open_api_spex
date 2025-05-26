@@ -55,57 +55,60 @@ defmodule OpenApiSpex.CastParametersTest do
       assert %{params: %{"Content-Type": "application/json"}} = conn
     end
 
-    test "cast style: form, explode: false query parameters" do
-      size_schema = %Schema{
-        type: :string,
-        enum: [
-          "XS",
-          "S",
-          "M",
-          "L",
-          "XL"
-        ]
-      }
-
-      schema = %Schema{
-        title: "SizeParams",
-        type: :array,
-        uniqueItems: true,
-        minItems: 2,
-        items: size_schema
-      }
-
-      parameter = %Parameter{
-        in: :query,
-        name: :sizes,
-        required: true,
-        style: :form,
-        explode: false,
-        schema: schema
-      }
-
-      operation = %Operation{
-        parameters: [parameter],
-        responses: %{
-          200 => %Schema{type: :object}
+    for style <- [:form, nil] do
+      @tag style: style
+      test "cast style: #{inspect(style)}, explode: false query parameters", %{style: style} do
+        size_schema = %Schema{
+          type: :string,
+          enum: [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL"
+          ]
         }
-      }
 
-      spec =
-        spec_with_components(%Components{
-          schemas: %{"SizeParams" => schema}
-        })
+        schema = %Schema{
+          title: "SizeParams",
+          type: :array,
+          uniqueItems: true,
+          minItems: 2,
+          items: size_schema
+        }
 
-      sizes_param = "S,M,L"
+        parameter = %Parameter{
+          in: :query,
+          name: :sizes,
+          required: true,
+          style: style,
+          explode: false,
+          schema: schema
+        }
 
-      conn =
-        :get
-        |> Plug.Test.conn("/api/t-shirts?sizes=#{sizes_param}")
-        |> Plug.Conn.put_req_header("content-type", "application/json")
-        |> Plug.Conn.fetch_query_params()
+        operation = %Operation{
+          parameters: [parameter],
+          responses: %{
+            200 => %Schema{type: :object}
+          }
+        }
 
-      assert {:ok, conn} = CastParameters.cast(conn, operation, spec)
-      assert %{params: %{sizes: ["S", "M", "L"]}} = conn
+        spec =
+          spec_with_components(%Components{
+            schemas: %{"SizeParams" => schema}
+          })
+
+        sizes_param = "S,M,L"
+
+        conn =
+          :get
+          |> Plug.Test.conn("/api/t-shirts?sizes=#{sizes_param}")
+          |> Plug.Conn.put_req_header("content-type", "application/json")
+          |> Plug.Conn.fetch_query_params()
+
+        assert {:ok, conn} = CastParameters.cast(conn, operation, spec)
+        assert %{params: %{sizes: ["S", "M", "L"]}} = conn
+      end
     end
 
     test "cast json query params with default parser" do
