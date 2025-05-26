@@ -15,7 +15,7 @@ defmodule OpenApiSpexTest.UserController do
   Show a user by ID
   """
   @doc parameters: [
-         ids: [
+         id: [
            in: :path,
            type: %Schema{type: :integer, minimum: 1},
            description: "User ID",
