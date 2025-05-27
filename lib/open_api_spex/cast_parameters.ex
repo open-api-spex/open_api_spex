@@ -5,7 +5,7 @@ defmodule OpenApiSpex.CastParameters do
   alias Plug.Conn
 
   @doc false
-  @spec default_content_parsers() :: %{Regex.t() => function()}
+  @spec default_content_parsers() :: %{Regex.t() => module() | function()}
   defp default_content_parsers do
     %{~r/^application\/.*json.*$/ => OpenApi.json_encoder()}
   end
