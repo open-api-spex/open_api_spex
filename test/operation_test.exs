@@ -15,17 +15,18 @@ defmodule OpenApiSpex.OperationTest do
         Phoenix.Router.Route.build(
           _line = nil,
           _kind = :match,
-          _verb = :atom,
-          _path = nil,
-          _host = nil,
+          _verb = :get,
+          _path = "/users/:id",
+          _hosts = [],
           plug,
           plug_opts,
-          _helper = nil,
+          _helper = "user",
           _pipe_through = [],
           _private = %{},
           _assigns = %{},
           _metadata = %{},
-          _trailing_slash? = false
+          _trailing_slash? = false,
+          _warn_on_verify? = true
         )
 
       assert Operation.from_route(route) ==

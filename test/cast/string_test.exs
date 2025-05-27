@@ -22,13 +22,12 @@ defmodule OpenApiSpex.CastStringTest do
     end
 
     test "string with pattern" do
-      pattern = ~r/\d-\d/
-      schema = %Schema{type: :string, pattern: pattern}
+      schema = %Schema{type: :string, pattern: ~r/\d-\d/}
       assert cast(value: "1-2", schema: schema) == {:ok, "1-2"}
       assert {:error, [error]} = cast(value: "hello", schema: schema)
       assert error.reason == :invalid_format
       assert error.value == "hello"
-      assert error.format.source == pattern.source
+      assert error.format.source == "\\d-\\d"
     end
 
     test "string with format (date time)" do
