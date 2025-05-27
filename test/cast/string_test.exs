@@ -27,7 +27,7 @@ defmodule OpenApiSpex.CastStringTest do
       assert {:error, [error]} = cast(value: "hello", schema: schema)
       assert error.reason == :invalid_format
       assert error.value == "hello"
-      assert error.format == ~r/\d-\d/
+      assert error.format.source == "\\d-\\d"
     end
 
     test "string with format (date time)" do
