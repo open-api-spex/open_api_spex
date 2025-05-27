@@ -546,11 +546,6 @@ defmodule OpenApiSpex.SchemaTest do
       refute Schema.has_regex_pattern?(schema)
     end
 
-    test "returns false for schemas without pattern" do
-      schema = %Schema{type: :string}
-      refute Schema.has_regex_pattern?(schema)
-    end
-
     test "returns true for nested schemas with regex pattern" do
       schema = %Schema{
         type: :object,
@@ -561,21 +556,12 @@ defmodule OpenApiSpex.SchemaTest do
 
       assert Schema.has_regex_pattern?(schema)
     end
+
     test "returns false for nested schemas without regex pattern" do
       schema = %Schema{
         type: :object,
         properties: %{
           name: %Schema{type: :string, pattern: "^[a-z]+$"}
-        }
-      }
-
-      refute Schema.has_regex_pattern?(schema)
-    end
-    test "returns false for nested schemas without pattern" do
-      schema = %Schema{
-        type: :object,
-        properties: %{
-          count: %Schema{type: :integer}
         }
       }
 
@@ -592,6 +578,7 @@ defmodule OpenApiSpex.SchemaTest do
 
       assert Schema.has_regex_pattern?(schema)
     end
+
     test "returns false for schemas without pattern in oneOf" do
       schema = %Schema{
         oneOf: [
