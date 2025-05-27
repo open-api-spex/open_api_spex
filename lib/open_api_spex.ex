@@ -257,26 +257,34 @@ defmodule OpenApiSpex do
     quote do
       @compile {:report_warnings, false}
       @behaviour OpenApiSpex.Schema
-      @schema OpenApiSpex.build_schema(
-                unquote(body),
-                Keyword.merge([module: __MODULE__], unquote(opts))
-              )
+      schema =
+        OpenApiSpex.build_schema(
+          unquote(body),
+          Keyword.merge([module: __MODULE__], unquote(opts))
+        )
 
       unless Module.get_attribute(__MODULE__, :moduledoc) do
-        @moduledoc [@schema.title, @schema.description]
+        @moduledoc [schema.title, schema.description]
                    |> Enum.reject(&is_nil/1)
                    |> Enum.join("\n\n")
       end
 
-      def schema, do: @schema
+      if OpenApiSpex.Schema.has_regex_pattern?(unquote(body)) do
+        def schema do
+          OpenApiSpex.build_schema_without_validation(unquote(body), Keyword.merge([module: __MODULE__], unquote(opts)))
+        end
+      else
+        @schema schema
+        def schema, do: @schema
+      end
 
-      if Map.get(@schema, :"x-struct") == __MODULE__ do
+      if Map.get(schema, :"x-struct") == __MODULE__ do
         if Keyword.get(unquote(opts), :derive?, true) do
           @derive Enum.filter([Poison.Encoder, Jason.Encoder], &Code.ensure_loaded?/1)
         end
 
         if Keyword.get(unquote(opts), :struct?, true) do
-          defstruct Schema.properties(@schema)
+          defstruct Schema.properties(schema)
           @type t :: %__MODULE__{}
         end
       end
@@ -300,6 +308,15 @@ defmodule OpenApiSpex do
     should be associated with.
   """
   def build_schema(body, opts \\ []) do
+    schema = build_schema_without_validation(body, opts)
+
+    validate_built_schema!(schema)
+
+    schema
+  end
+
+  @doc false
+  def build_schema_without_validation(body, opts) do
     module = opts[:module] || body[:"x-struct"]
 
     attrs =
@@ -316,16 +333,16 @@ defmodule OpenApiSpex do
         title || title_from_module(module)
       end)
 
-    schema = struct(OpenApiSpex.Schema, attrs)
+    struct(OpenApiSpex.Schema, attrs)
+  end
 
+  defp validate_built_schema!(schema) do
     Map.from_struct(schema) |> OpenApiSpex.validate_compiled_schema()
 
     # Throwing warnings to prevent runtime bugs (like in issue #144)
     schema
     |> SchemaConsistency.warnings()
     |> Enum.each(&IO.warn("Inconsistent schema: #{&1}", Macro.Env.stacktrace(__ENV__)))
-
-    schema
   end
 
   def title_from_module(nil), do: nil

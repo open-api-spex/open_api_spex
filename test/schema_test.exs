@@ -534,4 +534,74 @@ defmodule OpenApiSpex.SchemaTest do
       assert [state: nil] = Schema.properties(schema)
     end
   end
+
+  describe "has_regex_pattern?/1" do
+    test "returns true for schemas with regex pattern" do
+      schema = %Schema{type: :string, pattern: ~r/^[a-z]+$/}
+      assert Schema.has_regex_pattern?(schema)
+    end
+
+    test "returns false for schemas without regex pattern" do
+      schema = %Schema{type: :string, pattern: "^[a-z]+$"}
+      refute Schema.has_regex_pattern?(schema)
+    end
+
+    test "returns false for schemas without pattern" do
+      schema = %Schema{type: :string}
+      refute Schema.has_regex_pattern?(schema)
+    end
+
+    test "returns true for nested schemas with regex pattern" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          name: %Schema{type: :string, pattern: ~r/^[a-z]+$/}
+        }
+      }
+
+      assert Schema.has_regex_pattern?(schema)
+    end
+    test "returns false for nested schemas without regex pattern" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          name: %Schema{type: :string, pattern: "^[a-z]+$"}
+        }
+      }
+
+      refute Schema.has_regex_pattern?(schema)
+    end
+    test "returns false for nested schemas without pattern" do
+      schema = %Schema{
+        type: :object,
+        properties: %{
+          count: %Schema{type: :integer}
+        }
+      }
+
+      refute Schema.has_regex_pattern?(schema)
+    end
+
+    test "returns true for schemas with pattern in oneOf" do
+      schema = %Schema{
+        oneOf: [
+          %Schema{type: :string, pattern: ~r/^[a-z]+$/},
+          %Schema{type: :string, pattern: "^[a-z]+$"}
+        ]
+      }
+
+      assert Schema.has_regex_pattern?(schema)
+    end
+    test "returns false for schemas without pattern in oneOf" do
+      schema = %Schema{
+        oneOf: [
+          OtherSchema,
+          %Schema{type: :integer},
+          %Schema{type: :string, pattern: "^[a-z]+$"}
+        ]
+      }
+
+      refute Schema.has_regex_pattern?(schema)
+    end
+  end
 end
