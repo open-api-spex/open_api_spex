@@ -1,5 +1,5 @@
 defmodule OpenApiSpex.ControllerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias OpenApiSpex.Reference
   alias OpenApiSpex.Controller, as: Subject

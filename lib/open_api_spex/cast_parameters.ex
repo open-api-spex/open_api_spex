@@ -4,7 +4,11 @@ defmodule OpenApiSpex.CastParameters do
   alias OpenApiSpex.Cast.Error
   alias Plug.Conn
 
-  @default_parsers %{~r/^application\/.*json.*$/ => OpenApi.json_encoder()}
+  @doc false
+  @spec default_content_parsers() :: %{Regex.t() => module() | function()}
+  defp default_content_parsers do
+    %{~r/^application\/.*json.*$/ => OpenApi.json_encoder()}
+  end
 
   @spec cast(Plug.Conn.t(), Operation.t(), OpenApi.t(), opts :: [OpenApiSpex.cast_opt()]) ::
           {:error, [Error.t()]} | {:ok, Conn.t()}
@@ -119,8 +123,8 @@ defmodule OpenApiSpex.CastParameters do
          conn,
          opts
        ) do
-    parsers = Map.get(ext || %{}, "x-parameter-content-parsers", %{})
-    parsers = Map.merge(@default_parsers, parsers)
+    custom_parsers = Map.get(ext || %{}, "x-parameter-content-parsers", %{})
+    parsers = Map.merge(default_content_parsers(), custom_parsers)
 
     conn
     |> get_params_by_location(
