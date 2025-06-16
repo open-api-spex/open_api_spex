@@ -184,75 +184,7 @@ defmodule OpenApiSpex do
     Error.message(error)
   end
 
-  @doc """
-  Declares a struct based `OpenApiSpex.Schema`
-
-   - defines the schema/0 callback
-   - ensures the schema is linked to the module by "x-struct" extension property
-   - defines a struct with keys matching the schema properties
-   - defines a @type `t` for the struct
-   - derives a `Jason.Encoder` and/or `Poison.Encoder` for the struct
-
-  See `OpenApiSpex.Schema` for additional examples and details.
-
-  ## Example
-
-      require OpenApiSpex
-
-      defmodule User do
-        OpenApiSpex.schema %{
-          title: "User",
-          description: "A user of the app",
-          type: :object,
-          properties: %{
-            id: %Schema{type: :integer, description: "User ID"},
-            name:  %Schema{type: :string, description: "User name", pattern: ~r/[a-zA-Z][a-zA-Z0-9_]+/},
-            email: %Schema{type: :string, description: "Email address", format: :email},
-            inserted_at: %Schema{type: :string, description: "Creation timestamp", format: :'date-time'},
-            updated_at: %Schema{type: :string, description: "Update timestamp", format: :'date-time'}
-          },
-          required: [:name, :email],
-          example: %{
-            "id" => 123,
-            "name" => "Joe User",
-            "email" => "joe@gmail.com",
-            "inserted_at" => "2017-09-12T12:34:55Z",
-            "updated_at" => "2017-09-13T10:11:12Z"
-          }
-        }
-      end
-
-  ## Example
-
-  This example shows the `:struct?` and `:derive?` options that may
-  be passed to `schema/2`:
-
-      defmodule MyAppWeb.Schemas.User do
-        require OpenApiSpex
-        alias OpenApiSpex.Schema
-
-        OpenApiSpex.schema(
-          %{
-            type: :object,
-            properties: %{
-              name: %Schema{type: :string}
-            }
-          },
-          struct?: false,
-          derive?: false
-        )
-      end
-
-  ## Options
-
-  - `:struct?` (boolean) - When false, prevents the automatic generation
-    of a struct definition for the schema module.
-  - `:derive?` (boolean) When false, prevents the automatic generation
-    of a `@derive` call for either `Poison.Encoder`
-    or `Jason.Encoder`. Using this option can
-    prevent "... protocol has already been consolidated ..."
-    compiler warnings.
-  """
+  @doc false
   def should_use_runtime_compilation?(body) do
     with true <- System.otp_release() >= "28",
          true <- Schema.has_regex_pattern?(body) do

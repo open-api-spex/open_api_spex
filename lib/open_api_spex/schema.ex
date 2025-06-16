@@ -540,8 +540,11 @@ defmodule OpenApiSpex.Schema do
     |> has_regex_pattern?()
   end
 
-  def has_regex_pattern?(enumerable)
-      when not is_struct(enumerable) and (is_list(enumerable) or is_map(enumerable)) do
+  def has_regex_pattern?(enumerable) when is_list(enumerable) do
+    Enum.any?(enumerable, &has_regex_pattern?/1)
+  end
+
+  def has_regex_pattern?(enumerable) when is_map(enumerable) and not is_struct(enumerable) do
     Enum.any?(enumerable, fn
       {_, value} -> has_regex_pattern?(value)
       %Schema{} = schema -> has_regex_pattern?(schema)
