@@ -530,4 +530,27 @@ defmodule OpenApiSpex.Schema do
   defp default(value) do
     raise "Expected %Schema{}, schema module, or %Reference{}. Got: #{inspect(value)}"
   end
+
+  @doc false
+  def has_regex_pattern?(%Schema{pattern: %Regex{}}), do: true
+
+  def has_regex_pattern?(%Schema{} = schema) do
+    schema
+    |> Map.from_struct()
+    |> has_regex_pattern?()
+  end
+
+  def has_regex_pattern?(enumerable) when is_list(enumerable) do
+    Enum.any?(enumerable, &has_regex_pattern?/1)
+  end
+
+  def has_regex_pattern?(enumerable) when is_map(enumerable) and not is_struct(enumerable) do
+    Enum.any?(enumerable, fn
+      {_, value} -> has_regex_pattern?(value)
+      %Schema{} = schema -> has_regex_pattern?(schema)
+      _ -> false
+    end)
+  end
+
+  def has_regex_pattern?(_), do: false
 end
