@@ -90,8 +90,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     <% end %>
     window.onload = function() {
       // Begin Swagger UI call region
-      const api_spec_url = new URL(window.location);
-      api_spec_url.pathname = "<%= config.path %>";
+      const api_spec_url = new URL("<%= config.path %>", window.location);
       api_spec_url.hash = "";
       const ui = SwaggerUIBundle({
         url: api_spec_url.href,
