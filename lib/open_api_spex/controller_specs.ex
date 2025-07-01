@@ -386,7 +386,9 @@ defmodule OpenApiSpex.ControllerSpecs do
 
     extensions =
       spec
-      |> Enum.filter(fn {key, _val} -> is_atom(key) && String.starts_with?(to_string(key), "x-") end)
+      |> Enum.filter(fn {key, _val} ->
+        is_atom(key) && String.starts_with?(to_string(key), "x-")
+      end)
       |> Map.new(fn {key, value} -> {to_string(key), value} end)
 
     %Operation{
