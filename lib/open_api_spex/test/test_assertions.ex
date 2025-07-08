@@ -166,8 +166,17 @@ defmodule OpenApiSpex.TestAssertions do
           Map.get(responses, code_range) ||
           Map.get(responses, :"#{code_range}", %{})
 
+      resolved_response =
+        case response do
+          %OpenApiSpex.Reference{} = ref ->
+            OpenApiSpex.Reference.resolve_response(ref, spec.components.responses)
+
+          _ ->
+            response
+        end
+
       resolved_schema =
-        response
+        resolved_response
         |> Map.get(:content, %{})
         |> Map.get(content_type, %{})
         |> Map.get(:schema)
