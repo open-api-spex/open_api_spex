@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.21.5 - 2025-07-08
+
+* Fix assert_operation_response/2 references by @zorbash in https://github.com/open-api-spex/open_api_spex/pull/673
+
 ## v3.21.4 - 2025-07-01
 
 * Fix OTP-28 support by @bopm in https://github.com/open-api-spex/open_api_spex/pull/672
