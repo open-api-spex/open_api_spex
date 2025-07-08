@@ -47,7 +47,9 @@ defmodule OpenApiSpexTest.PetController do
        ],
        responses: [
          ok: {"Pet list", "application/json", Schemas.PetsResponse},
-         unprocessable_entity: OpenApiSpex.JsonErrorResponse.response()
+         unprocessable_entity: %OpenApiSpex.Reference{
+           "$ref": "#/components/responses/unprocessable_entity"
+         }
        ],
        operation_id: "listPets"
   def index(conn, _params) do

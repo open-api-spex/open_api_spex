@@ -76,7 +76,7 @@ defmodule OpenApiSpexTest.ApiSpec do
           }
         },
         responses: %{
-          unprocessable_entity: %Response{
+          "unprocessable_entity" => %Response{
             description: "Unprocessable Entity",
             content: %{"application/json" => %MediaType{schema: %Schema{type: :object}}}
           }
