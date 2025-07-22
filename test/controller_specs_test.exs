@@ -7,7 +7,7 @@ defmodule OpenApiSpex.ControllerSpecsTest do
   alias OpenApiSpexTest.DslController
   alias OpenApiSpexTest.DslControllerOperationStructs
 
-  describe "operation/1" do
+  describe "operation/2" do
     test "supports :parameters" do
       assert %OpenApiSpex.Operation{
                responses: %{},
@@ -156,6 +156,40 @@ defmodule OpenApiSpex.ControllerSpecsTest do
     test "supports extensions" do
       assert %OpenApiSpex.Operation{extensions: %{"x-foo" => "bar"}} =
                DslController.open_api_operation(:index)
+    end
+
+    test "raises when unknown key is provided" do
+      msg =
+        "Unknown keys given to operation/2: [:unknown]. Allowed keys are: " <>
+          "[:callbacks, :description, :deprecated, :external_docs, :operation_id, :parameters, " <>
+          ":request_body, :responses, :security, :summary, :tags], and keys starting with 'x-'."
+
+      assert_raise ArgumentError, msg, fn ->
+        Code.eval_string("""
+        defmodule TestController do
+          use OpenApiSpex.ControllerSpecs
+
+          operation :index,
+            summary: "Users index",
+            parameters: [
+              username: [
+                in: :query,
+                description: "Filter by username",
+                type: :string
+              ]
+            ],
+            responses: [
+              ok: {"Users index response", "application/json", UsersIndexResponse}
+            ],
+            unknown: "value",
+            "x-foo": "bar"
+
+          def index(conn, _) do
+            json(conn, [])
+          end
+        end
+        """)
+      end
     end
   end
 end
