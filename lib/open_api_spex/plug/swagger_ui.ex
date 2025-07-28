@@ -41,6 +41,19 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
           swagger_ui_js_standalone_preset_url: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.0/swagger-ui-standalone-preset.js",
           swagger_ui_css_url: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.0/swagger-ui.css"
       end
+
+      # Multiple paths
+      scope "/" do
+        pipe_through :browser # Use the default browser stack
+
+        get "/", MyAppWeb.PageController, :index
+        get "/swaggerui", OpenApiSpex.Plug.SwaggerUI,
+          paths: [
+            latest: "/api/openapi",
+            legacy: "/legacy_api/openapi",
+            other_app: "http://localhost:4001/my_other_app/api/openapi"
+          ]
+      end
   """
   @behaviour Plug
 
@@ -91,10 +104,8 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     window.onload = function() {
       // Begin Swagger UI call region
       const api_spec_url = new URL(window.location);
-      api_spec_url.pathname = "<%= config.path %>";
-      api_spec_url.hash = "";
-      const ui = SwaggerUIBundle({
-        url: api_spec_url.href,
+
+      let swaggerConfig = {
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
@@ -117,7 +128,26 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         <%= for {k, v} <- Map.drop(config, [:path, :oauth, :csp_nonce_assign_key]) do %>
         , <%= camelize(k) %>: <%= encode_config(camelize(k), v) %>
         <% end %>
-      })
+      };
+
+      <%= if config[:paths] do %>
+        let urls = <%=
+          config[:paths]
+          |> Enum.map(fn {name, path} -> %{name: name, url: path} end)
+          |> OpenApiSpex.OpenApi.json_encoder().encode!()
+        %>
+        let urlconfig = { urls: urls };
+
+        swaggerConfig = { ...swaggerConfig, ...urlconfig};
+      <% else %>
+        api_spec_url.pathname = "<%= config.path %>";
+        api_spec_url.hash = "";
+        let urlConfig = { url: api_spec_url.href };
+
+        swaggerConfig = {...swaggerConfig, ...urlConfig };
+      <% end %>
+      const ui = SwaggerUIBundle(swaggerConfig);
+
       // End Swagger UI call region
       <%= if config[:oauth] do %>
         ui.initOAuth(
