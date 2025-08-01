@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Openapi.StaticDocs do
   ## Examples
 
       $ mix openapi.static_docs --spec PhoenixAppWeb.ApiSpec --output-file swagger.md
-      $ mix openapi.static_docs --spec PhoenixAppWeb.ApiSpec --output-file swagger.md --swagger-version 4.4.1
+      $ mix openapi.static_docs --spec PhoenixAppWeb.ApiSpec --output-file swagger.md --swagger-version 5.27.1
 
   ## Usage with ExDoc
 
@@ -37,7 +37,7 @@ defmodule Mix.Tasks.Openapi.StaticDocs do
 
   * `--output-file` - The file to write the static file to (defaults to `swagger.md`)
 
-  * `--swagger-version` - The version of the Swagger UI to use (defaults to `4.4.1`)
+  * `--swagger-version` - The version of the Swagger UI to use (defaults to `5.27.1`)
   """
   use Mix.Task
 
@@ -47,7 +47,7 @@ defmodule Mix.Tasks.Openapi.StaticDocs do
 
   @recursive true
   @default_static_filename "swagger.md"
-  @default_swagger_version "4.4.1"
+  @default_swagger_version "5.27.1"
 
   @static_template """
   # <%= spec_name %>
