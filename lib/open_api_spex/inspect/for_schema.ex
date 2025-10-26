@@ -14,6 +14,16 @@ defimpl Inspect, for: OpenApiSpex.Schema do
           Map.has_key?(map, field),
           do: info
 
-    Inspect.Map.inspect(map, "OpenApiSpex.Schema", infos, opts)
+    do_inspect(map, "OpenApiSpex.Schema", infos, opts)
+  end
+
+  if Version.compare(System.version(), "1.19.0") in [:gt, :eq] do
+    defp do_inspect(map, schema_mod, infos, opts) do
+      Inspect.Map.inspect_as_struct(map, schema_mod, infos, opts)
+    end
+  else
+    defp do_inspect(map, schema_mod, infos, opts) do
+      Inspect.Map.inspect(map, schema_mod, infos, opts)
+    end
   end
 end
