@@ -12,7 +12,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
   end
 
   defp cast_any_of(
-         %{schema: %{anyOf: [%Schema{} = schema | remaining]}} = ctx,
+         %Cast{schema: %{anyOf: [%Schema{} = schema | remaining]}} = ctx,
          failed_schemas,
          acc
        ) do
@@ -32,7 +32,7 @@ defmodule OpenApiSpex.Cast.AnyOf do
 
       {:error, errors} ->
         cast_any_of(
-          %Cast{new_ctx | errors: new_ctx.errors ++ errors},
+          %{new_ctx | errors: new_ctx.errors ++ errors},
           [schema | failed_schemas],
           acc
         )
