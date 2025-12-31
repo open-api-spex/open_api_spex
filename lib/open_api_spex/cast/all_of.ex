@@ -6,7 +6,7 @@ defmodule OpenApiSpex.Cast.AllOf do
 
   def cast(ctx), do: cast_all_of(ctx, nil)
 
-  defp cast_all_of(%{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx, acc) do
+  defp cast_all_of(%Cast{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx, acc) do
     relaxed_schema = %{schema | "x-struct": nil}
     new_ctx = put_in(ctx.schema.allOf, remaining)
 
@@ -23,7 +23,7 @@ defmodule OpenApiSpex.Cast.AllOf do
 
       {:error, errors} ->
         Cast.error(
-          %Cast{ctx | errors: ctx.errors ++ errors},
+          %{ctx | errors: ctx.errors ++ errors},
           {:all_of, to_string(relaxed_schema.title || relaxed_schema.type)}
         )
     end

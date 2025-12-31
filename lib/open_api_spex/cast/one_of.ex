@@ -8,7 +8,7 @@ defmodule OpenApiSpex.Cast.OneOf do
     error(ctx, [], [])
   end
 
-  def cast(%{schema: %{type: _, oneOf: schemas}} = ctx) do
+  def cast(%Cast{schema: %{type: _, oneOf: schemas}} = ctx) do
     castable_schemas =
       Enum.reduce(schemas, {ctx, [], []}, fn schema, {ctx, results, error_schemas} ->
         schema = OpenApiSpex.resolve_schema(schema, ctx.schemas)
@@ -19,7 +19,7 @@ defmodule OpenApiSpex.Cast.OneOf do
           {ctx, [{:ok, value, schema} | results], error_schemas}
         else
           {:error, errors} ->
-            {%Cast{ctx | errors: ctx.errors ++ errors}, results, [schema | error_schemas]}
+            {%{ctx | errors: ctx.errors ++ errors}, results, [schema | error_schemas]}
         end
       end)
 
