@@ -15,6 +15,7 @@ defmodule OpenApiSpex.ExportSpec do
               quiet: false
   end
 
+  @spec call(list(binary()), (any(), any() -> any()), String.t()) :: false | nil | String.t()
   def call(argv, encode_spec, default_filename) do
     opts = parse_options(argv, default_filename)
 
@@ -86,7 +87,9 @@ defmodule OpenApiSpex.ExportSpec do
       dir -> Mix.Generator.create_directory(dir, quiet: opts.quiet)
     end
 
-    Mix.Generator.create_file(opts.filename, content, force: true, quiet: opts.quiet)
+    with true <- Mix.Generator.create_file(opts.filename, content, force: true, quiet: opts.quiet) do
+      opts.filename
+    end
   end
 
   defp find_spec(opts) do
