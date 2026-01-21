@@ -91,6 +91,7 @@ defmodule OpenApiSpex.Cast.Error do
   @type t :: %__MODULE__{
           reason: reason(),
           value: any(),
+          enum: any(),
           format: String.t(),
           name: String.t(),
           path: list(String.t()),
@@ -100,6 +101,7 @@ defmodule OpenApiSpex.Cast.Error do
 
   defstruct reason: nil,
             value: nil,
+            enum: [],
             format: nil,
             type: nil,
             name: nil,
@@ -196,8 +198,8 @@ defmodule OpenApiSpex.Cast.Error do
     |> add_context_fields(ctx)
   end
 
-  def new(ctx, {:invalid_enum}) do
-    %__MODULE__{reason: :invalid_enum}
+  def new(ctx, {:invalid_enum, enum, value}) do
+    %__MODULE__{reason: :invalid_enum, enum: enum, value: value}
     |> add_context_fields(ctx)
   end
 
@@ -329,8 +331,8 @@ defmodule OpenApiSpex.Cast.Error do
     "Invalid format. Expected #{inspect(format)}"
   end
 
-  def message(%{reason: :invalid_enum}) do
-    "Invalid value for enum"
+  def message(%{reason: :invalid_enum, enum: enum, value: value}) do
+    "Invalid value for enum, allowed_values: #{inspect(enum)}, got: #{inspect(value)}"
   end
 
   def message(%{reason: :polymorphic_failed, type: polymorphic_type}) do
