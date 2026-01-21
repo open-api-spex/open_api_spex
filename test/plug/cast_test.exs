@@ -38,6 +38,18 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert OpenApiSpex.params(conn) == %{validParam: true}
     end
 
+    test "ids[] param" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/users?ids[]=123")
+        |> OpenApiSpexTest.Router.call([])
+
+      assert conn.status == 200
+      assert conn.private.open_api_spex.params == conn.params
+
+      assert OpenApiSpex.params(conn) == %{"ids[]": [123]}
+    end
+
     test "valid param with replace_params false" do
       conn =
         :get
