@@ -278,6 +278,29 @@ defmodule OpenApiSpexTest.Schemas do
     })
   end
 
+  defmodule UploadRequest do
+    OpenApiSpex.schema(%{
+      title: "UploadRequest",
+      description: "POST body for uploading files",
+      type: :object,
+      properties: %{
+        "files[]": %Schema{type: :array, items: %Schema{type: :string, format: :binary}}
+      },
+      required: [:"files[]"]
+    })
+  end
+
+  defmodule UploadResponse do
+    OpenApiSpex.schema(%{
+      title: "UploadResponse",
+      description: "",
+      type: :object,
+      properties: %{
+        data: %Schema{description: "Filenames", type: :array, items: %Schema{type: :string}}
+      }
+    })
+  end
+
   defmodule UserRequest do
     OpenApiSpex.schema(%{
       title: "UserRequest",
