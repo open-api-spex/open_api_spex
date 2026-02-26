@@ -5,6 +5,8 @@ defmodule OpenApiSpex.Cast.String do
   validate a binary based on maxLength, minLength, or a Regex pattern passed through the
   schema struct.
 
+  Supported formats: `:date`, `:"date-time"`, `:byte`, `:uuid`, `:binary`, `:email`.
+
   """
 
   alias OpenApiSpex.{Cast, Cast.Error}
@@ -119,6 +121,15 @@ defmodule OpenApiSpex.Cast.String do
 
   def cast(%{value: value = %Plug.Upload{}, schema: %{format: :binary}}) do
     {:ok, value}
+  end
+
+  @email_regex ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  def cast(%{value: value, schema: %{format: :email}} = ctx) when is_binary(value) do
+    if Regex.match?(@email_regex, value) do
+      {:ok, value}
+    else
+      Cast.error(ctx, {:invalid_format, :email})
+    end
   end
 
   def cast(%{value: value} = ctx) when is_atom(value) and value not in [true, false, nil] do
