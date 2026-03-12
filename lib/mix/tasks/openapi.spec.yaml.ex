@@ -26,7 +26,6 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
   * `--filename` - The output filename (defaults to "#{@default_filename}")
   """
   use Mix.Task
-  require Mix.Generator
 
   @dialyzer {:nowarn_function, encoder: 0}
 
