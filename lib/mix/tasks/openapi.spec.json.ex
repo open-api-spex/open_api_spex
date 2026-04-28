@@ -29,7 +29,6 @@ defmodule Mix.Tasks.Openapi.Spec.Json do
   * `--filename` - The output filename (defaults to "#{@default_filename}")
   """
   use Mix.Task
-  require Mix.Generator
 
   @impl true
   def run(argv) do
