@@ -3,8 +3,8 @@ defmodule OpenApiSpex.Cast.Enum do
   alias OpenApiSpex.Cast
 
   def cast(ctx = %Cast{schema: %{enum: enum}, value: value}) do
-    case Enum.find(enum, {:error, :invalid_enum}, &equivalent?(&1, value)) do
-      {:error, :invalid_enum} -> Cast.error(ctx, {:invalid_enum})
+    case Enum.find(enum, {:error, :invalid_enum, enum, value}, &equivalent?(&1, value)) do
+      {:error, :invalid_enum, enum, value} -> Cast.error(ctx, {:invalid_enum, enum, value})
       found -> {:ok, found}
     end
   end
