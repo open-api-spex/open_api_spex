@@ -6,7 +6,7 @@ defmodule OpenApiSpexTest.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug PutApiSpec, module: OpenApiSpexTest.ApiSpec
-    plug Parsers, parsers: [:json], pass: ["text/*"], json_decoder: Jason
+    plug Parsers, parsers: [:json, :multipart], pass: ["text/*"], json_decoder: Jason
   end
 
   scope "/api" do
@@ -25,6 +25,7 @@ defmodule OpenApiSpexTest.Router do
     get "/users/:id/payment_details", OpenApiSpexTest.UserController, :payment_details
     post "/users/:id/contact_info", OpenApiSpexTest.UserController, :contact_info
     post "/users/create_entity", OpenApiSpexTest.UserController, :create_entity
+    post "/upload_multipart", OpenApiSpexTest.UploadMultipartController, :create
     get "/openapi", OpenApiSpex.Plug.RenderSpec, []
 
     resources "/pets", OpenApiSpexTest.PetController, only: [:create, :index, :show, :update]
