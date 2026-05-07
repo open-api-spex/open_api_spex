@@ -125,7 +125,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
           }
           return request;
         }
-        <%= for {k, v} <- Map.drop(config, [:path, :oauth, :csp_nonce_assign_key]) do %>
+        <%= for {k, v} <- Map.drop(config, [:path, :paths, :oauth, :csp_nonce_assign_key]) do %>
         , <%= camelize(k) %>: <%= encode_config(camelize(k), v) %>
         <% end %>
       };
@@ -259,15 +259,48 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
   end
 
   if Code.ensure_loaded?(Phoenix.Controller) do
-    defp supplement_config(%{oauth2_redirect_url: {:endpoint_url, path}} = config, conn) do
-      endpoint_module = Phoenix.Controller.endpoint_module(conn)
-      url = Path.join(endpoint_module.url(), path)
-      Map.put(config, :oauth2_redirect_url, url)
-    end
-  end
+    defp supplement_config(config, conn) do
+      case conn.private[:phoenix_endpoint] do
+        nil ->
+          config
 
-  defp supplement_config(config, _conn) do
-    config
+        endpoint_module ->
+          config
+          |> expand_oauth2_redirect_url(endpoint_module)
+          |> expand_spec_path(endpoint_module)
+      end
+    end
+
+    defp expand_oauth2_redirect_url(
+           %{oauth2_redirect_url: {:endpoint_url, path}} = config,
+           endpoint_module
+         ) do
+      url = Path.join([endpoint_module.url(), endpoint_module.path("/"), path])
+      %{config | oauth2_redirect_url: url}
+    end
+
+    defp expand_oauth2_redirect_url(config, _endpoint_module), do: config
+
+    defp expand_spec_path(%{paths: paths} = config, endpoint_module) when is_list(paths) do
+      expanded_paths =
+        Enum.map(paths, fn {name, path} -> {name, maybe_expand_path(endpoint_module, path)} end)
+
+      %{config | paths: expanded_paths}
+    end
+
+    defp expand_spec_path(%{path: path} = config, endpoint_module) when is_binary(path) do
+      %{config | path: maybe_expand_path(endpoint_module, path)}
+    end
+
+    defp expand_spec_path(config, _endpoint_module), do: config
+
+    defp maybe_expand_path(endpoint_module, "/" <> _ = path) do
+      endpoint_module.path(path)
+    end
+
+    defp maybe_expand_path(_endpoint_module, path), do: path
+  else
+    defp supplement_config(config, _conn), do: config
   end
 
   def get_nonce(conn, config, type) do
