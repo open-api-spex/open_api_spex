@@ -104,17 +104,9 @@ defmodule OpenApiSpex.DeprecatedCast do
       when is_list(all_of),
       do: OpenApiSpex.Cast.cast(schema, value, schemas)
 
-  def cast(schema = %Schema{type: :object, allOf: []}, value = %{}, schemas) do
-    cast(%{schema | allOf: nil}, value, schemas)
-  end
-
   def cast(schema = %Schema{oneOf: one_of}, value, schemas)
       when is_list(one_of),
       do: OpenApiSpex.Cast.cast(schema, value, schemas)
-
-  def cast(%Schema{oneOf: []}, _value, _schemas) do
-    {:error, "Failed to cast to any schema in oneOf"}
-  end
 
   def cast(schema = %Schema{anyOf: [first | rest]}, value, schemas) do
     case cast(first, value, schemas) do
@@ -322,7 +314,6 @@ defmodule OpenApiSpex.DeprecatedCast do
   defp term_type(v) when is_boolean(v), do: :boolean
   defp term_type(v) when is_integer(v), do: :integer
   defp term_type(v) when is_number(v), do: :number
-  defp term_type(v) when is_nil(v), do: nil
   defp term_type(v), do: inspect(v)
 
   @spec validate_number_types(Schema.t(), number, String.t()) :: :ok | {:error, String.t()}
@@ -463,7 +454,6 @@ defmodule OpenApiSpex.DeprecatedCast do
   end
 
   @spec validate_required_properties(Schema.t(), %{}, String.t()) :: :ok | {:error, String.t()}
-  defp validate_required_properties(%Schema{type: :object, required: nil}, _val, _path), do: :ok
 
   defp validate_required_properties(%Schema{type: :object, required: required}, value = %{}, path) do
     missing = required -- Map.keys(value)

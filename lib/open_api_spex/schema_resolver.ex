@@ -149,10 +149,6 @@ defmodule OpenApiSpex.SchemaResolver do
     {new_media, schemas}
   end
 
-  defp resolve_schema_modules_from_media_type(media = %MediaType{}, schemas) do
-    {media, schemas}
-  end
-
   defp resolve_schema_modules_from_request_body(nil, schemas), do: {nil, schemas}
 
   defp resolve_schema_modules_from_request_body(request_body = %RequestBody{}, schemas) do
