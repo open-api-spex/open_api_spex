@@ -115,7 +115,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl
         ],
-        layout: "StandaloneLayout",
+        layout: "<%= config[:layout] || "StandaloneLayout" %>",
         requestInterceptor: function(request){
           server_base = window.location.protocol + "//" + window.location.host;
           if(request.url.startsWith(server_base)) {
