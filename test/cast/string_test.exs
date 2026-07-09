@@ -99,6 +99,46 @@ defmodule OpenApiSpex.CastStringTest do
       # There is no error case when a regular string is passed
     end
 
+    test "string with format (email) - valid emails" do
+      schema = %Schema{type: :string, format: :email}
+
+      for email <- [
+            "user@example.com",
+            "user+tag@example.com",
+            "user+tag@sub.example.co.uk",
+            "firstname.lastname@example.com",
+            "user123@domain.org",
+            "USER@EXAMPLE.COM",
+            "user@xn--nxasmq6b.com"
+          ] do
+        assert {:ok, ^email} = cast(value: email, schema: schema), "expected #{inspect(email)} to be valid"
+      end
+    end
+
+    test "string with format (email) - invalid emails" do
+      schema = %Schema{type: :string, format: :email}
+
+      for email <- [
+            "not-an-email",
+            "random string with spaces",
+            "",
+            "@nodomain",
+            "noatsign",
+            "missing@tld",
+            "space in@local.com",
+            "double@@at.com",
+            "@.com",
+            "user@",
+            "user@ example.com",
+            "user @example.com"
+          ] do
+        assert {:error, [error]} = cast(value: email, schema: schema),
+               "expected #{inspect(email)} to be invalid"
+
+        assert %Error{reason: :invalid_format, format: :email} = error
+      end
+    end
+
     # Note: we measure length of string after trimming leading and trailing whitespace
     test "minLength" do
       schema = %Schema{type: :string, minLength: 1}
