@@ -6,7 +6,7 @@ defmodule OpenApiSpex.JsonErrorResponse do
 
       @doc responses: %{
              201 => {"User", "application/json", UserResponse}
-             422 => {"Unprocessable Entity", "application/json", OpenApiSpex.JsonErrorResponse}
+             422 => {"Unprocessable Content", "application/json", OpenApiSpex.JsonErrorResponse}
            }
   """
   require OpenApiSpex
@@ -49,7 +49,7 @@ defmodule OpenApiSpex.JsonErrorResponse do
   """
   def response do
     Operation.response(
-      "Unprocessable Entity",
+      "Unprocessable Content",
       "application/json",
       __MODULE__
     )
