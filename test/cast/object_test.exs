@@ -7,6 +7,17 @@ defmodule OpenApiSpex.ObjectTest do
   defp cast(ctx), do: Object.cast(struct(Cast, ctx))
 
   describe "cast/3" do
+    test "required is enforced on a schema without properties" do
+      schema = %Schema{type: :object, required: [:one]}
+
+      assert {:error, [error]} = cast(value: %{}, schema: schema)
+      assert error.reason == :missing_field
+      assert error.name == :one
+
+      assert {:ok, %{"one" => 1}} = cast(value: %{"one" => 1}, schema: schema)
+      assert {:ok, %{one: 1}} = cast(value: %{one: 1}, schema: schema)
+    end
+
     test "when input is not an object" do
       schema = %Schema{type: :object}
       assert {:error, [error]} = cast(value: ["hello"], schema: schema)

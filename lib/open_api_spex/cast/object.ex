@@ -1,15 +1,17 @@
 defmodule OpenApiSpex.Cast.Object do
   @moduledoc false
   alias OpenApiSpex.Cast
-  alias OpenApiSpex.Cast.Utils
+  alias OpenApiSpex.Cast.{Error, Utils}
   alias OpenApiSpex.Reference
 
   def cast(%{value: value} = ctx) when not is_map(value) do
     Cast.error(ctx, {:invalid_type, :object})
   end
 
-  def cast(%{value: value, schema: %{properties: nil, additionalProperties: nil}}) do
-    {:ok, value}
+  def cast(%{value: value, schema: %{properties: nil, additionalProperties: nil}} = ctx) do
+    with :ok <- check_required_by_name(ctx, value) do
+      {:ok, value}
+    end
   end
 
   def cast(ctx) do
@@ -50,6 +52,31 @@ defmodule OpenApiSpex.Cast.Object do
   defp resolve_property_if_reference(_not_a_reference, properties, _schemas), do: properties
 
   # When additionalProperties is not false, extra properties are allowed in input
+  # `required` on a schema without `properties` cannot rely on key
+  # atomization, so a required name counts as present when the input carries
+  # the atom key or its string form.
+  defp check_required_by_name(ctx, input_map) do
+    required = Map.get(ctx.schema, :required) || []
+
+    missing =
+      Enum.reject(required, fn key ->
+        Map.has_key?(input_map, key) or Map.has_key?(input_map, to_string(key))
+      end)
+
+    case missing do
+      [] ->
+        :ok
+
+      _ ->
+        errors =
+          Enum.map(missing, fn key ->
+            Error.new(%{ctx | path: [key | ctx.path]}, {:missing_field, key})
+          end)
+
+        {:error, ctx.errors ++ errors}
+    end
+  end
+
   defp check_unrecognized_properties(%{schema: %{additionalProperties: ap}}) when ap != false do
     :ok
   end
