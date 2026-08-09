@@ -5,14 +5,20 @@ defmodule OpenApiSpex.Cast.Utils do
 
   # Merge 2 maps considering as equal keys that are atom or string representation
   # of that atom. Atom keys takes precedence over string ones.
+  # Struct arguments are demoted to plain maps first: composite casts
+  # (`allOf`/`anyOf`) can receive struct results from `oneOf`/discriminator
+  # members, and reducing over a struct raises `Protocol.UndefinedError`.
   def merge_maps(map1, map2) do
-    result = Map.merge(map1, map2)
+    result = Map.merge(plain_map(map1), plain_map(map2))
 
     Enum.reduce(result, result, fn
       {k, _v}, result when is_atom(k) -> Map.delete(result, to_string(k))
       _, result -> result
     end)
   end
+
+  defp plain_map(%_{} = struct), do: Map.from_struct(struct)
+  defp plain_map(map), do: map
 
   def check_required_fields(%{value: input_map} = ctx), do: check_required_fields(ctx, input_map)
 

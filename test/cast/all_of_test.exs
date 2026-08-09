@@ -34,6 +34,14 @@ defmodule OpenApiSpex.CastAllOfTest do
                "Failed to cast value as Age. Value must be castable using `allOf` schemas listed."
     end
 
+    test "allOf wrapper around a oneOf member whose branch casts to a struct" do
+      union = %Schema{oneOf: [OpenApiSpexTest.Schemas.User.schema()]}
+      schema = %Schema{allOf: [union]}
+      value = %{"name" => "Joe", "email" => "joe@example.com", "password" => "12345678"}
+
+      assert {:ok, %{name: "Joe"}} = cast(value: value, schema: schema)
+    end
+
     test "a more sophisticated example" do
       dog = %{"bark" => "woof", "pet_type" => "Dog"}
       TestAssertions.assert_schema(dog, "Dog", OpenApiSpexTest.ApiSpec.spec())
