@@ -63,7 +63,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
     <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <title>Swagger UI</title>
+      <title><%= config[:title] || "Swagger UI" %></title>
       <link rel="stylesheet" type="text/css" href="<%= config[:swagger_ui_css_url] || "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.css" %>" >
       <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
       <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
@@ -192,6 +192,7 @@ defmodule OpenApiSpex.Plug.SwaggerUI do
    * `:swagger_ui_js_standalone_preset_url` - Optional. An URL to SwaggerUI JavaScript Standalone Preset.
    * `:swagger_ui_css_url` - Optional. An URL to SwaggerUI CSS bundle.
    * all other opts - forwarded to the `SwaggerUIBundle` constructor
+   * `:title` - Optional. Page title. Defaults to "Swagger UI".
 
   ## Example
 
