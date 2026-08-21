@@ -102,10 +102,7 @@ defmodule OpenApiSpex.OpenApi.Decode do
     end
   end
 
-  # In some cases, e.g. Schema type we must convert values that are strings to atoms,
-  # for example Schema.type should be one of:
-  #
-  # :string | :number | :integer | :boolean | :array | :object
+  # In some cases, e.g. Schema type we must convert values that are strings to atoms.
   #
   # This function, ensures that if the map has the key — it'll convert the corresponding value
   # to an atom.
@@ -127,11 +124,25 @@ defmodule OpenApiSpex.OpenApi.Decode do
     update_map_if_key_present(map, key, &Enum.map(&1, map_fn))
   end
 
+  # In some cases, e.g. Schema type we must convert values that are either strings or list of strings to a atoms or list of atoms,
+  #
+  # This function, ensures that if the map has the key — it'll convert the corresponding value
+  # to an atom or list of atoms.
+  defp convert_value_to_atom_or_list_of_atoms_if_present(map, key) do
+    update_fn = fn
+      nil -> nil
+      l when is_list(l) -> Enum.map(l, &String.to_atom/1)
+      s -> String.to_atom(s)
+    end
+
+    update_map_if_key_present(map, key, update_fn)
+  end
+
   # The Schema.type and Schema.required keys require some special treatment since their
   # values should be converted to atoms
   defp prepare_schema(map) do
     map
-    |> convert_value_to_atom_if_present("type")
+    |> convert_value_to_atom_or_list_of_atoms_if_present("type")
     |> convert_value_to_atom_if_present("format")
     |> convert_value_to_atom_if_present("x-struct")
     |> convert_value_to_list_of_atoms_if_present("required")
@@ -206,69 +217,38 @@ defmodule OpenApiSpex.OpenApi.Decode do
 
   defp to_struct(%{"$ref" => _} = map, Schema), do: struct_from_map(Reference, map)
 
-  defp to_struct(%{"type" => type} = map, Schema)
-       when type in ~w(number integer boolean string) do
-    map
-    |> prepare_schema()
-    |> (&struct_from_map(Schema, &1)).()
-    |> prop_to_struct(:xml, Xml)
-    |> add_extensions(map)
-  end
-
-  defp to_struct(%{"type" => "array"} = map, Schema) do
-    map
-    |> prepare_schema()
-    |> (&struct_from_map(Schema, &1)).()
-    |> prop_to_struct(:items, Schema)
-    |> prop_to_struct(:xml, Xml)
-    |> add_extensions(map)
-  end
-
-  defp to_struct(%{"anyOf" => _valid_schemas} = map, Schema) do
-    Schema
-    |> struct_from_map(prepare_schema(map))
-    |> prop_to_struct(:anyOf, Schemas)
-    |> prop_to_struct(:discriminator, Discriminator)
-    |> add_extensions(map)
-  end
-
-  defp to_struct(%{"oneOf" => _valid_schemas} = map, Schema) do
-    Schema
-    |> struct_from_map(prepare_schema(map))
-    |> prop_to_struct(:oneOf, Schemas)
-    |> prop_to_struct(:discriminator, Discriminator)
-    |> add_extensions(map)
-  end
-
-  defp to_struct(%{"allOf" => _valid_schemas} = map, Schema) do
-    Schema
-    |> struct_from_map(prepare_schema(map))
-    |> prop_to_struct(:allOf, Schemas)
-    |> prop_to_struct(:discriminator, Discriminator)
-    |> add_extensions(map)
-  end
-
-  defp to_struct(%{"type" => "object"} = map, Schema) do
-    map
-    |> Map.update("properties", %{}, fn v ->
-      v
-      |> Map.new(fn {k, v} ->
-        {String.to_atom(k), v}
+  defp to_struct(map, Schema) do
+    a =
+      map
+      |> update_map_if_key_present("properties", fn v ->
+        v
+        |> Map.new(fn {k, v} ->
+          {String.to_atom(k), v}
+        end)
       end)
-    end)
-    |> prepare_schema()
-    |> (&struct_from_map(Schema, &1)).()
-    |> prop_to_struct(:properties, Schemas)
-    |> manage_additional_properties()
-    |> prop_to_struct(:externalDocs, ExternalDocumentation)
-    |> add_extensions(map)
-  end
+      |> prepare_schema()
+      |> (&struct_from_map(Schema, &1)).()
+      |> prop_to_struct(:items, Schema)
+      |> prop_to_struct(:xml, Xml)
+      |> prop_to_struct(:anyOf, Schemas)
+      |> prop_to_struct(:oneOf, Schemas)
+      |> prop_to_struct(:allOf, Schemas)
+      |> prop_to_struct(:discriminator, Discriminator)
+      |> prop_to_struct(:properties, Schemas)
+      |> manage_additional_properties()
+      |> prop_to_struct(:externalDocs, ExternalDocumentation)
+      |> prop_to_struct(:not, Schema)
+      |> add_extensions(map)
+      |> dbg
 
-  defp to_struct(%{"not" => _valid_schemas} = map, Schema) do
-    Schema
-    |> struct_from_map(map)
-    |> prop_to_struct(:not, Schema)
-    |> add_extensions(map)
+    if a.properties == %{} do
+      dbg(a.properties)
+      dbg(map["properties"])
+      raise map
+      # dbg(map)
+    end
+
+    a
   end
 
   defp to_struct(map, Schemas) when is_map(map), do: embedded_ref_or_struct(map, Schema)
