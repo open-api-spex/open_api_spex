@@ -87,6 +87,37 @@ defmodule OpenApiSpex.CastAllOfTest do
       end)
     end
 
+    test "allOf, with additionalProperties: false" do
+      schema = %Schema{
+        allOf: [
+          %Schema{
+            type: :object,
+            properties: %{
+              id: %Schema{
+                type: :string
+              }
+            },
+            additionalProperties: false
+          },
+          %Schema{
+            type: :object,
+            properties: %{
+              bar: %Schema{
+                type: :string
+              }
+            }
+          }
+        ]
+      }
+
+      value = %{id: "e30aee0f-dbda-40bd-9198-6cf609b8b640", bar: "foo"}
+
+      assert {:error, [error | _]} = cast(value: value, schema: schema)
+
+      assert Error.message(error) ==
+               "Failed to cast value as object. Value must be castable using `allOf` schemas listed."
+    end
+
     test "allOf, optional that does not pass validation" do
       schema = %Schema{
         allOf: [
