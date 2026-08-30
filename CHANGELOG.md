@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.22.4 - 2026-08-30
+
+* feat(swagger-ui): Make layout configurable in Swagger UI by @joshk in https://github.com/open-api-spex/open_api_spex/pull/704
+* feat(swagger-ui): Allow for page title to be configured by @grzuy in https://github.com/open-api-spex/open_api_spex/pull/709
+
 ## v3.22.3 - 2026-05-05
 
 * chore: removed unused require(s) by @David-Klemenc in https://github.com/open-api-spex/open_api_spex/pull/700
