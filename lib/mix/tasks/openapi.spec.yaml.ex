@@ -27,8 +27,6 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
   """
   use Mix.Task
 
-  @dialyzer {:nowarn_function, encoder: 0}
-
   @impl Mix.Task
   def run(argv) do
     {opts, _, _} = OptionParser.parse(argv, strict: [start_app: :boolean])
@@ -52,10 +50,5 @@ defmodule Mix.Tasks.Openapi.Spec.Yaml do
     end
   end
 
-  defp encoder do
-    OpenApiSpex.OpenApi.yaml_encoder() ||
-      Mix.raise(
-        "could not load YAML encoder, please add one of supported encoders to dependencies."
-      )
-  end
+  defp encoder, do: OpenApiSpex.OpenApi.yaml_encoder()
 end
