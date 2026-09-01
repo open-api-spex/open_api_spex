@@ -51,6 +51,34 @@ defmodule OpenApiSpex.Plug.CastTest do
       assert OpenApiSpex.params(conn) == %{validParam: true}
     end
 
+    test "handles multipart/form-data array parameters" do
+      boundary = "----testboundary"
+
+      body = """
+      --#{boundary}\r
+      Content-Disposition: form-data; name="files[]"; filename="file1.txt"\r
+      Content-Type: text/plain\r
+      \r
+      HI\r
+      --#{boundary}\r
+      Content-Disposition: form-data; name="files[]"; filename="file2.txt"\r
+      Content-Type: text/plain\r
+      \r
+      HI2\r
+      --#{boundary}--\r
+      """
+
+      conn =
+        Plug.Test.conn(:post, "/api/upload_multipart", body)
+        |> Plug.Conn.put_req_header("content-type", "multipart/form-data; boundary=#{boundary}")
+        |> Plug.Conn.put_req_header("accept", "application/json")
+        |> OpenApiSpexTest.Router.call([])
+
+      body = Jason.decode!(conn.resp_body)
+
+      assert %{"data" => ["file1.txt", "file2.txt"]} = body
+    end
+
     @tag :capture_log
     test "invalid value" do
       conn =
