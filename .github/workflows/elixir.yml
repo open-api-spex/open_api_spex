@@ -37,9 +37,9 @@ jobs:
       - run: mix dialyzer --format github
       - run: mix docs --warnings-as-errors
 
-  test_examples:
+  test_plug_examples:
     runs-on: ubuntu-latest
-    name: Test Sample Applications
+    name: Test Sample Plug Application
     env:
       MIX_ENV: test
     steps:
@@ -61,6 +61,30 @@ jobs:
       - name: run Plug sample app tests
         working-directory: ./examples/plug_app
         run: mix do deps.get, test
+
+  test_phoenix_examples:
+    runs-on: ubuntu-latest
+    name: Test Sample Phoenix Application
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: 26
+          elixir-version: 1.16
+      - uses: actions/cache@v2
+        with:
+          key: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-phoenix-build
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.beam.outputs.elixir-version }}-${{ steps.beam.outputs.otp-version }}-phoenix-build
+          path: |
+            _build
+
+      - name: run Phoenix sample app tests
+        working-directory: ./examples/phoenix_app
+        run: mix do deps.get, test, dialyzer
 
   test:
     runs-on: ubuntu-24.04
