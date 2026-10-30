@@ -1,7 +1,9 @@
 defmodule OpenApiSpex.PathItemTest do
   use ExUnit.Case
+  import ExUnit.CaptureIO
+
   alias OpenApiSpex.PathItem
-  alias OpenApiSpexTest.{Router, UserController}
+  alias OpenApiSpexTest.{DslController, Router, UserController}
 
   describe "PathItem" do
     test "from_routes" do
@@ -16,6 +18,12 @@ defmodule OpenApiSpex.PathItemTest do
                get: UserController.open_api_operation(:index),
                post: UserController.open_api_operation(:create)
              }
+    end
+
+    test "from_routes skips an action without an operation spec" do
+      routes = [%{verb: :get, path: "/undefined", plug: DslController, plug_opts: :undefined}]
+
+      capture_io(:stderr, fn -> assert nil == PathItem.from_routes(routes) end)
     end
   end
 end

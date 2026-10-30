@@ -159,7 +159,7 @@ defmodule OpenApiSpex.ControllerSpecs do
 
       @before_compile {OpenApiSpex.ControllerSpecs, :before_compile}
 
-      @spec open_api_operation(atom()) :: OpenApiSpex.Operation.t()
+      @spec open_api_operation(atom()) :: OpenApiSpex.Operation.t() | nil
     end
   end
 
@@ -358,6 +358,7 @@ defmodule OpenApiSpex.ControllerSpecs do
       def open_api_operation(action) do
         module_name = __MODULE__ |> to_string() |> String.replace_leading("Elixir.", "")
         IO.warn("No operation spec defined for controller action #{module_name}.#{action}")
+        nil
       end
 
       def shared_tags, do: @shared_tags

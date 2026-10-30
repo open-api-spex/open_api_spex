@@ -165,7 +165,7 @@ defmodule OpenApiSpex.Controller do
   defmacro __using__(_opts) do
     quote do
       @doc false
-      @spec open_api_operation(atom()) :: OpenApiSpex.Operation.t()
+      @spec open_api_operation(atom()) :: OpenApiSpex.Operation.t() | nil
       def open_api_operation(name),
         do: unquote(__MODULE__).__api_operation__(__MODULE__, name)
 
