@@ -125,8 +125,9 @@ defmodule OpenApiSpex.ControllerSpecsTest do
              } = DslController.open_api_operation(:destroy)
     end
 
-    test "outputs warning when action not defined for called open_api_operation" do
-      output = capture_io(:stderr, fn -> DslController.open_api_operation(:undefined) end)
+    test "outputs warning and returns nil when action not defined for called open_api_operation" do
+      output =
+        capture_io(:stderr, fn -> assert nil == DslController.open_api_operation(:undefined) end)
 
       assert output =~
                ~r/warning:.*No operation spec defined for controller action OpenApiSpexTest.DslController.undefined/
