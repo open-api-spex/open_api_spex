@@ -108,6 +108,30 @@ defmodule OpenApiSpex.CastParametersTest do
       assert %{params: %{sizes: ["S", "M", "L"]}} = conn
     end
 
+    test "cast style: form, explode: false query parameters sent as a list" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/t-shirts?sizes[]=S&sizes[]=M")
+        |> Plug.Conn.fetch_query_params()
+
+      assert {:ok, conn} =
+               CastParameters.cast(conn, form_explode_false_operation(), spec_with_components())
+
+      assert %{params: %{sizes: ["S", "M"]}} = conn
+    end
+
+    test "cast style: form, explode: false query parameters sent as a map" do
+      conn =
+        :get
+        |> Plug.Test.conn("/api/t-shirts?sizes[x]=S")
+        |> Plug.Conn.fetch_query_params()
+
+      assert {:error, [error]} =
+               CastParameters.cast(conn, form_explode_false_operation(), spec_with_components())
+
+      assert %{reason: :invalid_type, type: :array, path: [:sizes]} = error
+    end
+
     test "cast json query params with default parser" do
       {operation, spec} = json_query_spec_operation()
 
@@ -257,6 +281,18 @@ defmodule OpenApiSpex.CastParametersTest do
       paths: [],
       components: components || create_components()
     }
+  end
+
+  defp form_explode_false_operation do
+    parameter = %Parameter{
+      in: :query,
+      name: :sizes,
+      style: :form,
+      explode: false,
+      schema: %Schema{type: :array, items: %Schema{type: :string}}
+    }
+
+    %Operation{parameters: [parameter], responses: %{200 => %Schema{type: :object}}}
   end
 
   defp json_query_spec_operation(content_type \\ "application/json") do

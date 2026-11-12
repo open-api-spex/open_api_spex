@@ -161,7 +161,8 @@ defmodule OpenApiSpex.CastParameters do
     end)
   end
 
-  defp pre_parse_parameter(parameter, %{explode: false, style: :form} = _context, _parsers) do
+  defp pre_parse_parameter(parameter, %{explode: false, style: :form} = _context, _parsers)
+       when is_binary(parameter) do
     # e.g. sizes=S,L,M
     # This does not take care of cases where the value may contain a comma itself
     {:ok, String.split(parameter, ",")}
